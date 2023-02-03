@@ -1,11 +1,17 @@
-import Head from "next/head";
-import styles from "@/styles/Home.module.css";
-import { gql, useQuery } from "@apollo/client";
 import { GetBookQuery, GetBookQueryVariables } from "@/gql/generated/graphql";
+import styles from "@/styles/Home.module.css";
+import { gql, useQuery, useSubscription } from "@apollo/client";
+import Head from "next/head";
 
 const GET_BOOK = gql`
     query getBook {
         book
+    }
+`;
+
+const CHAT_SUBSCRIPTION = gql`
+    subscription onChat {
+        counter
     }
 `;
 
@@ -30,6 +36,7 @@ export default function Home() {
             </Head>
             <main className={styles.main}>
                 <div className={styles.description}>
+                    <Counter />
                     <p>
                         {data?.book} {loading}
                     </p>
@@ -37,4 +44,10 @@ export default function Home() {
             </main>
         </>
     );
+}
+
+function Counter() {
+    const { data, loading } = useSubscription(CHAT_SUBSCRIPTION);
+
+    return <p>{data?.counter}</p>;
 }
