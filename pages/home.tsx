@@ -25,11 +25,7 @@ export default function Home() {
         GetBookQueryVariables
     >(GET_BOOK);
 
-    return (
-        <AppLayout>
-            <p className="font-bold text-2xl">Home</p>
-        </AppLayout>
-    );
+    return <AppLayout title="Home"></AppLayout>;
 }
 
 function Counter() {
