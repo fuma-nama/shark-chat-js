@@ -28,7 +28,7 @@ export default function Sidebar({
                 )}
             >
                 <button
-                    className="p-2 rounded-lg bg-dark-700 absolute top-0 right-0 md:hidden"
+                    className="p-2 rounded-lg dark:bg-dark-700 absolute top-0 right-0 md:hidden"
                     onClick={onClose}
                 >
                     <Cross1Icon className="w-5 h-5" />
