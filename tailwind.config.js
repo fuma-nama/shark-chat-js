@@ -31,9 +31,7 @@ module.exports = {
                     900: "#11047A",
                 },
                 accent: {
-                    ...colors.gray,
-                },
-                secondaryGray: {
+                    50: colors.gray[50],
                     100: "#E0E5F2",
                     200: "#E1E9F8",
                     300: "#F4F7FE",
@@ -43,6 +41,10 @@ module.exports = {
                     700: "#707EAE",
                     800: "#707EAE",
                     900: "#1B2559",
+                },
+                light: {
+                    DEFAULT: "white",
+                    ...colors.slate,
                 },
             },
         },
