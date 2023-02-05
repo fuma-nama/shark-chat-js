@@ -29,18 +29,21 @@ export default function Sidebar() {
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 gap-3 bg-light-50 dark:bg-dark-800 z-10",
+                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 z-10",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:min-h-screen",
                     "max-md:transition-transform max-md:duration-500",
                     !isOpen && "max-md:-translate-x-full"
                 )}
             >
                 <button
-                    className="p-2 rounded-lg dark:bg-dark-700 absolute top-0 right-0 md:hidden"
+                    className="p-2 rounded-lg dark:bg-dark-800 absolute top-0 right-0 md:hidden"
                     onClick={onClose}
                 >
                     <Cross1Icon className="w-5 h-5" />
                 </button>
+                <div className="flex flex-col items-center justify-center aspect-[5/2] bg-gradient-to-br from-brand-400 to-brand-500 rounded-xl text-5xl mb-4">
+                    <p className="font-light text-white">Shark</p>
+                </div>
                 <Items />
                 <div className="mt-auto" />
                 <BottomCard />
@@ -105,7 +108,7 @@ function Item({
                     active &&
                         "bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
                     !active &&
-                        "text-brand-400 bg-brand-100/40 dark:text-brand-200 dark:bg-brand-400/30"
+                        "text-brand-400 bg-brand-100/40 dark:text-brand-200 dark:bg-brand-400/50"
                 )}
             >
                 {icon}
@@ -133,18 +136,19 @@ function BottomCard() {
         <Link
             href="/settings"
             className={clsx(
-                "p-4 rounded-xl flex flex-row gap-3 group cursor-pointer",
-                "bg-light-100 dark:bg-dark-700",
-                "hover:bg-light-200 dark:hover:bg-dark-600/30 transition-colors"
+                "-mx-2 p-2 rounded-xl flex flex-row items-center group cursor-pointer",
+                "hover:bg-brand-200/20 dark:hover:bg-brand-300/10 transition-colors"
             )}
         >
-            <Avatar
-                src={user.image ?? undefined}
-                fallback={user.name ?? undefined}
-            />
-            <div className="flex-1">
+            <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
+                <Avatar
+                    src={user.image ?? undefined}
+                    fallback={user.name ?? undefined}
+                />
+            </div>
+            <div className="flex-1 overflow-hidden flex flex-col">
                 <p className="font-semibold">{user.name}</p>
-                <p className="text-accent-800 dark:text-accent-600 text-sm">
+                <p className="text-accent-800 dark:text-accent-600 text-sm text-ellipsis inline-block w-full break-keep overflow-hidden">
                     {user.email}
                 </p>
             </div>
