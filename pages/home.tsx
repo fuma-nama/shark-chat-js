@@ -1,32 +1,36 @@
 import { AppLayout } from "@/components/layout/app";
+import { gql } from "@/gql";
 import {
     GetBookQuery,
     GetBookQueryVariables,
     OnChatSubscription,
     OnChatSubscriptionVariables,
 } from "@/gql/generated/graphql";
-import { gql, useQuery, useSubscription } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
+import { NextPageWithLayout } from "./_app";
 
-const GET_BOOK = gql`
+const GET_BOOK = gql(/* GraphQL */ `
     query getBook {
         book
     }
-`;
+`);
 
-const CHAT_SUBSCRIPTION = gql`
+const CHAT_SUBSCRIPTION = gql(/* GraphQL */ `
     subscription onChat {
         counter
     }
-`;
+`);
 
-export default function Home() {
+const Home: NextPageWithLayout = () => {
     const { data, loading, subscribeToMore } = useQuery<
         GetBookQuery,
         GetBookQueryVariables
     >(GET_BOOK);
 
-    return <AppLayout title="Home"></AppLayout>;
-}
+    return <p>Hello World</p>;
+};
+
+Home.getLayout = (children) => <AppLayout title="Home">{children}</AppLayout>;
 
 function Counter() {
     const { data, loading } = useSubscription<
@@ -36,3 +40,5 @@ function Counter() {
 
     return <p>{data?.counter}</p>;
 }
+
+export default Home;
