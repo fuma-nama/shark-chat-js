@@ -56,7 +56,6 @@ module.exports = {
                     900: "#1B2559",
                 },
                 light: {
-                    DEFAULT: "white",
                     ...colors.slate,
                 },
             },
