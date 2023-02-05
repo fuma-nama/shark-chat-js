@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import React from "react";
 
 type Props = Omit<React.ComponentProps<"button">, "className"> & {
-    variant?: "primary";
+    variant?: "primary" | "danger";
 };
 
 const Button = React.forwardRef<HTMLButtonElement, Props>(
@@ -26,6 +26,11 @@ const Button = React.forwardRef<HTMLButtonElement, Props>(
                 variant === "primary" && [
                     "rounded-lg px-6 py-3 text-base font-semibold transition-colors shadow-lg shadow-brand-400/50",
                     "bg-brand-500 hover:bg-brand-400 dark:bg-brand-400 text-gray-50 dark:hover:bg-brand-500 dark:shadow-none",
+                    "focus-visible:ring-0",
+                ],
+                variant === "danger" && [
+                    "rounded-md px-4 py-2 text-sm font-semibold transition-colors",
+                    "bg-red-500 hover:bg-red-400 dark:bg-red-500 text-gray-50 dark:hover:bg-red-600",
                     "focus-visible:ring-0",
                 ]
             )}
