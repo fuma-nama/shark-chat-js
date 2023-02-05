@@ -1,19 +1,27 @@
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { usePageStore } from "@/stores/page";
+import {
+    ChevronRightIcon,
+    Cross1Icon,
+    GearIcon,
+    HomeIcon,
+} from "@radix-ui/react-icons";
 import clsx from "clsx";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { ReactNode } from "react";
 import Avatar from "../Avatar";
-import Button from "../Button";
 
-export default function Sidebar({
-    open,
-    onClose,
-}: {
-    open: boolean;
-    onClose: () => void;
-}) {
+export default function Sidebar() {
+    const [isOpen, setOpen] = usePageStore((v) => [
+        v.isSidebarOpen,
+        v.setSidebarOpen,
+    ]);
+    const onClose = () => setOpen(false);
+
     return (
         <>
-            {open && (
+            {isOpen && (
                 <div
                     className="fixed w-full h-full bg-black/30 md:hidden animate-fade-in"
                     onClick={onClose}
@@ -21,10 +29,10 @@ export default function Sidebar({
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col gap-3 bg-light-50 dark:bg-dark-800",
+                    "relative flex flex-col p-4 gap-3 bg-light-50 dark:bg-dark-800 z-10",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:min-h-screen",
                     "max-md:transition-transform max-md:duration-500",
-                    !open && "max-md:-translate-x-full"
+                    !isOpen && "max-md:-translate-x-full"
                 )}
             >
                 <button
@@ -33,6 +41,7 @@ export default function Sidebar({
                 >
                     <Cross1Icon className="w-5 h-5" />
                 </button>
+                <Items />
                 <div className="mt-auto" />
                 <BottomCard />
             </aside>
@@ -40,19 +49,106 @@ export default function Sidebar({
     );
 }
 
-function BottomCard() {
-    const { status, data } = useSession();
-    if (status === "unauthenticated" || status === "loading")
-        return <Button>Login</Button>;
+function Items() {
+    const items = [
+        {
+            name: "Home",
+            route: "/home",
+            icon: <HomeIcon className="w-5 h-5" />,
+        },
+        {
+            name: "Settings",
+            route: "/settings",
+            icon: <GearIcon className="w-5 h-5" />,
+        },
+    ];
+    const current = useRouter().route;
 
     return (
-        <div className="p-4 rounded-xl">
+        <>
+            {items.map(({ name, route, icon }) => (
+                <Item
+                    key={route}
+                    active={current === route}
+                    icon={icon}
+                    route={route}
+                >
+                    {name}
+                </Item>
+            ))}
+        </>
+    );
+}
+
+function Item({
+    active,
+    children,
+    icon,
+    route,
+}: {
+    active: boolean;
+    route: string;
+    icon: ReactNode;
+    children: string;
+}) {
+    return (
+        <Link
+            href={route}
+            className={clsx(
+                "rounded-xl -mx-2 p-2 flex flex-row gap-2 items-center",
+                active && "bg-brand-200/20 dark:bg-brand-300/10"
+            )}
+        >
+            <div
+                className={clsx(
+                    "rounded-xl p-1.5",
+                    active &&
+                        "bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
+                    !active &&
+                        "text-brand-400 bg-brand-100/40 dark:text-brand-200 dark:bg-brand-400/30"
+                )}
+            >
+                {icon}
+            </div>
+            <p
+                className={clsx(
+                    "text-base",
+                    active && "text-brand-500 dark:text-white font-bold",
+                    !active &&
+                        "font-semibold text-accent-800 dark:text-accent-600"
+                )}
+            >
+                {children}
+            </p>
+        </Link>
+    );
+}
+
+function BottomCard() {
+    const { status, data } = useSession();
+    const user = data?.user;
+    if (status !== "authenticated" || user == null) return <></>;
+
+    return (
+        <Link
+            href="/settings"
+            className={clsx(
+                "p-4 rounded-xl flex flex-row gap-3 group cursor-pointer",
+                "bg-light-100 dark:bg-dark-700",
+                "hover:bg-light-200 dark:hover:bg-dark-600/30 transition-colors"
+            )}
+        >
             <Avatar
-                src={data?.user?.image ?? undefined}
-                fallback={data?.user?.name ?? undefined}
+                src={user.image ?? undefined}
+                fallback={user.name ?? undefined}
             />
-            <p>{data?.user?.name}</p>
-            <Button onClick={() => signOut()}>Logout</Button>
-        </div>
+            <div className="flex-1">
+                <p className="font-semibold">{user.name}</p>
+                <p className="text-accent-800 dark:text-accent-600 text-sm">
+                    {user.email}
+                </p>
+            </div>
+            <ChevronRightIcon className="w-6 h-6 group-hover:translate-x-1 transition-transform my-auto text-accent-800" />
+        </Link>
     );
 }
