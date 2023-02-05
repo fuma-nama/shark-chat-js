@@ -30,6 +30,7 @@ export default function SignIn({ providers }: Props) {
                         key={provider.name}
                         onClick={() => signIn(provider.id)}
                         variant="primary"
+                        size="large"
                     >
                         {provider.id === "github" && (
                             <GitHubLogoIcon className="w-6 h-6 mr-2" />
