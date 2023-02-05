@@ -9,14 +9,15 @@ export default function Avatar({
     src?: string;
     alt?: string;
     fallback?: string;
-    variant?: "large";
+    variant?: "large" | "small";
 }) {
     return (
         <AvatarBase.Root
             className={clsx(
                 "relative inline-flex",
-                variant == null && "h-10 w-10",
-                variant == "large" && "w-20 h-20"
+                variant == null && "h-11 w-11",
+                variant === "large" && "w-20 h-20",
+                variant === "small" && "w-7 h-7"
             )}
         >
             <AvatarBase.Image
