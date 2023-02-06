@@ -1,6 +1,7 @@
 import Avatar from "@/components/Avatar";
+import Button from "@/components/Button";
 import { AppLayout } from "@/components/layout/app";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 
 const Settings: NextPageWithLayout = () => {
@@ -17,6 +18,11 @@ const Settings: NextPageWithLayout = () => {
                 fallback={user.name ?? undefined}
             />
             <h2 className="font-bold text-2xl">{user.name}</h2>
+            <div>
+                <Button variant="danger" onClick={() => signOut()}>
+                    Logout
+                </Button>
+            </div>
         </>
     );
 };
