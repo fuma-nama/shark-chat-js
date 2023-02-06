@@ -1,5 +1,4 @@
-import { client } from "@/gql";
-import { ApolloProvider } from "@apollo/client";
+import { trpc } from "@/server/client";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
@@ -15,7 +14,7 @@ type AppPropsWithLayout = AppProps & {
     Component: NextPageWithLayout;
 };
 
-export default function App({
+function App({
     Component,
     pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) {
@@ -23,11 +22,11 @@ export default function App({
 
     return (
         <SessionProvider session={session}>
-            <ApolloProvider client={client}>
-                <ThemeProvider attribute="class" disableTransitionOnChange>
-                    {getLayout(<Component {...pageProps} />)}
-                </ThemeProvider>
-            </ApolloProvider>
+            <ThemeProvider attribute="class" disableTransitionOnChange>
+                {getLayout(<Component {...pageProps} />)}
+            </ThemeProvider>
         </SessionProvider>
     );
 }
+
+export default trpc.withTRPC(App);

@@ -2,37 +2,13 @@ import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
-import { gql } from "@/gql";
-import {
-    GetBookQuery,
-    GetBookQueryVariables,
-    OnChatSubscription,
-    OnChatSubscriptionVariables,
-} from "@/gql/generated/graphql";
-import { useQuery, useSubscription } from "@apollo/client";
+import { trpc } from "@/server/client";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 
-const GET_BOOK = gql(/* GraphQL */ `
-    query getBook {
-        book
-    }
-`);
-
-const CHAT_SUBSCRIPTION = gql(/* GraphQL */ `
-    subscription onChat {
-        counter
-    }
-`);
-
 const Home: NextPageWithLayout = () => {
-    const { data, loading, subscribeToMore } = useQuery<
-        GetBookQuery,
-        GetBookQueryVariables
-    >(GET_BOOK);
-
     return (
         <>
             <h1 className="text-4xl font-bold">Recent Chat</h1>
@@ -52,6 +28,9 @@ const Home: NextPageWithLayout = () => {
 };
 
 function ChatItem() {
+    const { data: message } = trpc.hello.useQuery({
+        text: "MONEY",
+    });
     const user = useSession().data?.user;
 
     if (user == null) return <></>;
@@ -71,7 +50,7 @@ function ChatItem() {
             <div>
                 <p className="font-semibold text-base">SonMooSans</p>
                 <p className="text-accent-700 dark:text-accent-600 text-sm">
-                    Sleeping
+                    Sleeping {message?.greeting}
                 </p>
             </div>
         </div>
@@ -90,14 +69,5 @@ Home.getLayout = (children) => (
         {children}
     </AppLayout>
 );
-
-function Counter() {
-    const { data, loading } = useSubscription<
-        OnChatSubscription,
-        OnChatSubscriptionVariables
-    >(CHAT_SUBSCRIPTION);
-
-    return <p>{data?.counter}</p>;
-}
 
 export default Home;

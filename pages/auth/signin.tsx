@@ -59,7 +59,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
     // Note: Make sure not to redirect to the same page
     // To avoid an infinite loop!
     if (session) {
-        return { redirect: { destination: "/" }, props: { providers: [] } };
+        return { redirect: { destination: "/home" }, props: { providers: [] } };
     }
 
     const providers = await getProviders();
