@@ -14,3 +14,7 @@ export function getBaseUrl() {
     // assume localhost
     return `http://localhost:${process.env.PORT ?? 3000}`;
 }
+
+export function getBaseWSUrl() {
+    return "ws://localhost:8000";
+}

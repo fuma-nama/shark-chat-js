@@ -6,6 +6,7 @@ import { trpc } from "@/server/client";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
 
 const Home: NextPageWithLayout = () => {
@@ -28,8 +29,11 @@ const Home: NextPageWithLayout = () => {
 };
 
 function ChatItem() {
-    const { data: message } = trpc.hello.useQuery({
-        text: "MONEY",
+    const [latest, setLatest] = useState<string>();
+    trpc.chat.onAdd.useSubscription(undefined, {
+        onData(data) {
+            setLatest(data);
+        },
     });
     const user = useSession().data?.user;
 
@@ -50,7 +54,7 @@ function ChatItem() {
             <div>
                 <p className="font-semibold text-base">SonMooSans</p>
                 <p className="text-accent-700 dark:text-accent-600 text-sm">
-                    Sleeping {message?.greeting}
+                    Sleeping {latest}
                 </p>
             </div>
         </div>
