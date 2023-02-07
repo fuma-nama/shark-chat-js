@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { procedure, router } from "../trpc";
+import { procedure, protectedProcedure, router } from "../trpc";
 
 export const appRouter = router({
     hello: procedure
@@ -13,6 +13,9 @@ export const appRouter = router({
                 greeting: `hello ${input.text}`,
             };
         }),
+    name: protectedProcedure.query(({ ctx }) => {
+        return ctx.session?.user.name;
+    }),
 });
 
 // export type definition of API
