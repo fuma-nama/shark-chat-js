@@ -45,6 +45,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  groups Group[]
 }
 
 model VerificationToken {
@@ -53,4 +54,12 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Group {
+    id Int @id @default(autoincrement())
+    name String @db.VarChar(256)
+    owner_id String
+
+    owner User @relation(fields: [owner_id], references: [id])
 }
