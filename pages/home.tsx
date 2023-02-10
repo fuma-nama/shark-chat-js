@@ -3,6 +3,7 @@ import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
 import { trpc } from "@/server/client";
+import { useChannel } from "@ably-labs/react-hooks";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
@@ -29,12 +30,14 @@ const Home: NextPageWithLayout = () => {
 };
 
 function ChatItem() {
-    const [latest, setLatest] = useState<string>();
-    trpc.chat.onAdd.useSubscription(undefined, {
-        onData(data) {
-            setLatest(data);
-        },
+    const [latest, setLatest] = useState("");
+
+    useChannel("test", (message) => {
+        console.log(message);
+        setLatest(message.data);
     });
+
+    const send = trpc.chat.send.useMutation();
     const user = useSession().data?.user;
 
     if (user == null) return <></>;
@@ -45,6 +48,7 @@ function ChatItem() {
                 "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
+            onClick={() => send.mutate({ message: "Hello World" })}
         >
             <Avatar
                 alt="avatar"

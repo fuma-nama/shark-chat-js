@@ -25,7 +25,7 @@ export default function SignIn({ providers }: Props) {
                     Login or register an account to start your life on Shark
                     Chat
                 </p>
-                {providers.map((provider) => (
+                {providers?.map((provider) => (
                     <Button
                         key={provider.name}
                         onClick={() => signIn(provider.id)}

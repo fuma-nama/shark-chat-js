@@ -1,24 +1,26 @@
-import { observable } from "@trpc/server/observable";
-import { procedure, router } from "./../trpc";
+import { z } from "zod";
+import ably from "../ably";
+import { protectedProcedure, router } from "./../trpc";
 
 export const chatRouter = router({
-    onAdd: procedure.subscription(() => {
-        // `resolve()` is triggered for each client when they start subscribing `onAdd`
-        // return an `observable` with a callback which is triggered immediately
-        return observable<string>((emit) => {
-            const onAdd = (data: string) => {
-                // emit data to client
-                emit.next(data);
-            };
-            // trigger `onAdd()` when `add` is triggered in our event emitter
-            onAdd("Hello World");
-            let num = 0;
+    send: protectedProcedure
+        .input(
+            z.object({
+                message: z.string(),
+            })
+        )
+        .mutation(({ input, ctx }) => {
+            const clientId = ctx.session?.user.id;
+            if (clientId == null) return;
 
-            setInterval(() => {
-                onAdd(`Hello World ${num++}`);
+            const channel = ably.channels.get("test");
+            let time = 0;
+
+            const timer = setInterval(() => {
+                channel.publish("message_sent", input.message + time);
+                time++;
+
+                if (time >= 10) clearInterval(timer);
             }, 1000);
-            // unsubscribe function when client disconnects or stops subscribing
-            return () => {};
-        });
-    }),
+        }),
 });
