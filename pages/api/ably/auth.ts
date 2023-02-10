@@ -19,6 +19,9 @@ export default async function handler(
 
     const tokenRequestData = await ably.auth.createTokenRequest({
         clientId: clientId,
+        capability: {
+            [`private:${clientId}`]: ["subscribe"],
+        },
     });
 
     return res.status(200).json(tokenRequestData);

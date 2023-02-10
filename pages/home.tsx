@@ -3,6 +3,7 @@ import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
 import { trpc } from "@/server/client";
+import { parseMessage } from "@/utils/channels";
 import { useChannel } from "@ably-labs/react-hooks";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
@@ -32,13 +33,17 @@ const Home: NextPageWithLayout = () => {
 function ChatItem() {
     const [latest, setLatest] = useState("");
 
-    useChannel("test", (message) => {
-        console.log(message);
-        setLatest(message.data);
-    });
-
     const send = trpc.chat.send.useMutation();
     const user = useSession().data?.user;
+
+    useChannel(`private:${user?.id}`, (raw) => {
+        const message = parseMessage(raw, "private");
+        console.log(message);
+
+        if (message.event === "message_sent") {
+            setLatest(message.data.message);
+        }
+    });
 
     if (user == null) return <></>;
 
