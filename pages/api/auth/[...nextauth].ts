@@ -5,7 +5,7 @@ import { DefaultJWT } from "next-auth/jwt";
 import GithubProvider from "next-auth/providers/github";
 
 declare module "next-auth" {
-    interface Session extends DefaultSession {
+    interface Session extends Omit<DefaultSession, "user"> {
         user: {
             id: string;
             name: string;

@@ -11,14 +11,12 @@ export const chatRouter = router({
             })
         )
         .mutation(({ input, ctx }) => {
-            const clientId = ctx.session?.user.id;
-            if (clientId == null) return;
-
+            const clientId = ctx.session!!.user.id;
             const channel: TypedChannelPromise<"private"> = ably.channels.get(
                 `private:${clientId}`
             );
-            let time = 0;
 
+            let time = 0;
             const timer = setInterval(() => {
                 publishMessage(channel, "message_sent", {
                     message: input.message + time++,
