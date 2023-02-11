@@ -1,5 +1,10 @@
+import { Types } from "ably";
 import { z, ZodType } from "zod";
 import { Channels } from "./channels";
+
+export type TypedChannelPromise<C extends keyof Channels> = {
+    [K in keyof Types.RealtimeChannelPromise]: Types.RealtimeChannelPromise[K];
+};
 
 export type TypedChannels = {
     [key: string]: {
@@ -15,7 +20,7 @@ export type InferChannelTypes<Channels extends TypedChannels> = {
     };
 };
 
-export type InferMessageData<
+export type MessageData<
     C extends keyof Channels,
     E extends keyof Channels[C]
 > = Channels[C][E];

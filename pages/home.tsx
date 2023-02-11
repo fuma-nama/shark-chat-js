@@ -3,8 +3,7 @@ import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
 import { trpc } from "@/server/client";
-import { parseMessage } from "@/utils/channels";
-import { useChannel } from "@ably-labs/react-hooks";
+import { useTypedChannel, useTypedChannelEvent } from "@/utils/ably/hooks";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
@@ -36,14 +35,18 @@ function ChatItem() {
     const send = trpc.chat.send.useMutation();
     const user = useSession().data?.user;
 
-    useChannel(`private:${user?.id}`, (raw) => {
-        const message = parseMessage(raw, "private");
-        console.log(message);
+    useTypedChannelEvent(
+        {
+            channel: ["private", user?.id ?? ""],
+            event: "message_sent",
+            enabled: user != null,
+        },
+        (message) => {
+            console.log(message);
 
-        if (message.event === "message_sent") {
             setLatest(message.data.message);
         }
-    });
+    );
 
     if (user == null) return <></>;
 
