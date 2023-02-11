@@ -2,6 +2,7 @@ import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
+import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/server/client";
 import { useTypedChannel, useTypedChannelEvent } from "@/utils/ably/hooks";
 import { PlusIcon } from "@radix-ui/react-icons";
@@ -78,7 +79,9 @@ Home.getLayout = (children) => (
         title="Home"
         items={
             <>
-                <Button variant="primary">Create Group</Button>
+                <CreateGroupModal>
+                    <Button variant="primary">Create Group</Button>
+                </CreateGroupModal>
             </>
         }
     >

@@ -16,7 +16,6 @@ const Button = React.forwardRef<HTMLButtonElement, Props>(
                 "focus:outline-none focus-visible:ring",
                 // Register all radix states
                 "group",
-                "radix-state-open:bg-light-100 dark:radix-state-open:bg-dark-900",
                 "radix-state-on:bg-light-100 dark:radix-state-on:bg-dark-900",
                 "radix-state-instant-open:bg-light-100 radix-state-delayed-open:bg-light-50",
                 size === "large" && "px-6 py-3 text-base font-semibold",
