@@ -30,6 +30,7 @@ specifiers:
   postcss: ^8.4.21
   prisma: ^4.9.0
   react: 18.2.0
+  react-cropper: ^2.1.8
   react-dom: 18.2.0
   tailwindcss: ^3.2.4
   tailwindcss-radix: ^2.7.0
@@ -60,6 +61,7 @@ dependencies:
   next-cloudinary: 2.2.0_next@13.1.6+react@18.2.0
   next-themes: 0.2.1_3vryta7zmbcsw4rrqf4axjqggm
   react: 18.2.0
+  react-cropper: 2.1.8_react@18.2.0
   react-dom: 18.2.0_react@18.2.0
   zod: 3.20.2
   zustand: 4.3.2_react@18.2.0
@@ -1390,6 +1392,10 @@ packages:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
     dev: false
     optional: true
+
+  /cropperjs/1.5.13:
+    resolution: {integrity: sha512-by7jKAo73y5/Do0K6sxdTKHgndY0NMjG2bEdgeJxycbcmHuCiMXqw8sxy5C5Y5WTOTcDGmbT7Sr5CgKOXR06OA==}
+    dev: false
 
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
@@ -3502,6 +3508,15 @@ packages:
       unpipe: 1.0.0
     dev: false
     optional: true
+
+  /react-cropper/2.1.8_react@18.2.0:
+    resolution: {integrity: sha512-QEj6CE9et/gMRqpaKMgZQdBgtzLjjq+zj1pmHwtoWG6GqscDl4QpTwoEElWN2pieYxkwFaZa0lPiD2b9nwqLKQ==}
+    peerDependencies:
+      react: '>=16.0.0'
+    dependencies:
+      cropperjs: 1.5.13
+      react: 18.2.0
+    dev: false
 
   /react-dom/18.2.0_react@18.2.0:
     resolution: {integrity: sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==}

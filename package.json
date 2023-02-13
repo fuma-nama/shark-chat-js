@@ -30,6 +30,7 @@
         "next-cloudinary": "^2.2.0",
         "next-themes": "^0.2.1",
         "react": "18.2.0",
+        "react-cropper": "^2.1.8",
         "react-dom": "18.2.0",
         "zod": "^3.20.2",
         "zustand": "^4.3.2"
