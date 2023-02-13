@@ -18,6 +18,7 @@ const Button = React.forwardRef<HTMLButtonElement, Props>(
                 "group",
                 "radix-state-on:bg-light-100 dark:radix-state-on:bg-dark-900",
                 "radix-state-instant-open:bg-light-100 radix-state-delayed-open:bg-light-50",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
                 size === "large" && "px-6 py-3 text-base font-semibold",
                 size == null && "px-4 py-2 text-sm font-semibold",
                 variant == null && [
