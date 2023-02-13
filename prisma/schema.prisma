@@ -59,6 +59,7 @@ model VerificationToken {
 model Group {
     id Int @id @default(autoincrement())
     name String @db.VarChar(256)
+    icon_hash Int?
     owner_id String
 
     owner User @relation(fields: [owner_id], references: [id])
