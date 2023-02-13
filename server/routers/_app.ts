@@ -1,4 +1,5 @@
-import { chatRouter } from './chat';
+import { groupRouter } from "./group";
+import { chatRouter } from "./chat";
 import { z } from "zod";
 import { procedure, protectedProcedure, router } from "../trpc";
 
@@ -17,7 +18,8 @@ export const appRouter = router({
     name: protectedProcedure.query(({ ctx }) => {
         return ctx.session?.user.name;
     }),
-    chat: chatRouter
+    chat: chatRouter,
+    group: groupRouter,
 });
 
 // export type definition of API

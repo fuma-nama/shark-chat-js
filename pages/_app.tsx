@@ -2,10 +2,12 @@ import { trpc } from "@/server/client";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
-import "@/styles/globals.css";
 import { ReactElement, ReactNode, useEffect } from "react";
 import { NextPage } from "next";
 import { configureAbly } from "@ably-labs/react-hooks";
+
+import "cropperjs/dist/cropper.css";
+import "@/styles/globals.css";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     getLayout?: (page: ReactElement) => ReactNode;
