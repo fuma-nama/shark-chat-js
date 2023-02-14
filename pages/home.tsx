@@ -39,7 +39,10 @@ const Home: NextPageWithLayout = () => {
 };
 
 function Groups() {
-    const groups = trpc.group.all.useQuery();
+    const { status } = useSession();
+    const groups = trpc.group.all.useQuery(undefined, {
+        enabled: status === "authenticated",
+    });
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 mt-6 ">
@@ -122,9 +125,7 @@ Home.getLayout = (children) => (
         items={
             <>
                 <CreateGroupModal>
-                    <div className="max-md:hidden">
-                        <Button variant="primary">Create Group</Button>
-                    </div>
+                    <Button variant="primary">Create Group</Button>
                 </CreateGroupModal>
             </>
         }
