@@ -4,9 +4,9 @@ import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/server/client";
-import { useTypedChannel, useTypedChannelEvent } from "@/utils/ably/hooks";
+import { useTypedChannelEvent } from "@/utils/ably/hooks";
 import { groupIcon } from "@/utils/media";
-import { PlusIcon } from "@radix-ui/react-icons";
+import { ChatBubbleIcon, PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -23,11 +23,9 @@ const Home: NextPageWithLayout = () => {
                 <ChatItem />
                 <ChatItem />
             </div>
-            <h1 className="text-lg font-semibold text-accent-700 mt-6">
-                Chat Groups
-            </h1>
+            <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
             <Groups />
-            <div className="fixed bottom-6 right-6">
+            <div className="fixed bottom-6 right-6 md:hidden">
                 <CreateGroupModal>
                     <IconButton aria-label="Create Group">
                         <PlusIcon className="w-7 h-7" />
@@ -54,7 +52,7 @@ function Groups() {
                         "shadow-2xl dark:shadow-none shadow-brand-500/10"
                     )}
                 >
-                    {group.icon_hash != null && (
+                    {group.icon_hash != null ? (
                         <CldImage
                             width="60"
                             height="60"
@@ -63,10 +61,12 @@ function Groups() {
                                 group.id.toString(),
                                 group.icon_hash
                             )}
-                            className="rounded-xl"
+                            className="rounded-xl bg-brand-500 dark:bg-brand-400"
                         />
+                    ) : (
+                        <ChatBubbleIcon className="w-[60px] h-[60px] text-accent-50 bg-brand-500 dark:bg-brand-400 rounded-xl flex items-center justify-center p-4" />
                     )}
-                    <p className="font-semibold text-lg text-accent-900 dark:text-accent-50 overflow-hidden text-ellipsis max-w-full break-keep">
+                    <p className="font-semibold text-lg overflow-hidden text-ellipsis max-w-full break-keep">
                         {group.name}
                     </p>
                 </div>
