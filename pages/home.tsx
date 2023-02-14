@@ -5,30 +5,72 @@ import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/server/client";
 import { useTypedChannel, useTypedChannelEvent } from "@/utils/ably/hooks";
+import { groupIcon } from "@/utils/media";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
+import { CldImage } from "next-cloudinary";
 
 const Home: NextPageWithLayout = () => {
     return (
         <>
             <h1 className="text-4xl font-bold">Recent Chat</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
                 <ChatItem />
                 <ChatItem />
                 <ChatItem />
                 <ChatItem />
             </div>
-            <div className="md:hidden fixed bottom-6 right-6">
-                <IconButton aria-label="Create Group">
-                    <PlusIcon className="w-7 h-7" />
-                </IconButton>
+            <h1 className="text-lg font-semibold text-accent-700 mt-6">
+                Chat Groups
+            </h1>
+            <Groups />
+            <div className="fixed bottom-6 right-6">
+                <CreateGroupModal>
+                    <IconButton aria-label="Create Group">
+                        <PlusIcon className="w-7 h-7" />
+                    </IconButton>
+                </CreateGroupModal>
             </div>
         </>
     );
 };
+
+function Groups() {
+    const groups = trpc.group.all.useQuery();
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 mt-6 ">
+            {groups.data?.map((group) => (
+                <div
+                    key={group.id}
+                    className={clsx(
+                        "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-col gap-4",
+                        "shadow-2xl dark:shadow-none shadow-brand-500/10"
+                    )}
+                >
+                    {group.icon_hash != null && (
+                        <CldImage
+                            width="60"
+                            height="60"
+                            alt="icon"
+                            src={groupIcon(
+                                group.id.toString(),
+                                group.icon_hash
+                            )}
+                            className="rounded-xl"
+                        />
+                    )}
+                    <p className="font-semibold text-lg text-accent-900 dark:text-accent-50 overflow-hidden text-ellipsis max-w-full break-keep">
+                        {group.name}
+                    </p>
+                </div>
+            ))}
+        </div>
+    );
+}
 
 function ChatItem() {
     const [latest, setLatest] = useState("");
@@ -80,7 +122,9 @@ Home.getLayout = (children) => (
         items={
             <>
                 <CreateGroupModal>
-                    <Button variant="primary">Create Group</Button>
+                    <div className="max-md:hidden">
+                        <Button variant="primary">Create Group</Button>
+                    </div>
                 </CreateGroupModal>
             </>
         }
