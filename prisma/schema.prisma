@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -45,7 +45,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  groups Group[]
+  groups        Group[]
+  members       Member[]
 }
 
 model VerificationToken {
@@ -57,10 +58,21 @@ model VerificationToken {
 }
 
 model Group {
-    id Int @id @default(autoincrement())
-    name String @db.VarChar(256)
-    icon_hash Int?
-    owner_id String
+  id        Int    @id @default(autoincrement())
+  name      String @db.VarChar(256)
+  icon_hash Int?
+  owner_id  String
 
-    owner User @relation(fields: [owner_id], references: [id])
+  owner   User     @relation(fields: [owner_id], references: [id])
+  members Member[]
+}
+
+model Member {
+  group_id Int
+  user_id  String
+
+  group Group @relation(fields: [group_id], references: [id])
+  user  User  @relation(fields: [user_id], references: [id])
+
+  @@id([group_id, user_id])
 }

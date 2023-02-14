@@ -19,17 +19,20 @@ export const groupRouter = router({
     create: protectedProcedure
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session!!.user.id;
+
             let result = await prisma.group.create({
                 data: {
                     name: input.name,
-                    owner_id: ctx.session!!.user.id,
+                    owner_id: userId,
+                    members: {
+                        create: {
+                            user_id: userId,
+                        },
+                    },
                 },
             });
 
-            cloudinary.utils.api_sign_request(
-                {},
-                process.env.CLOUDINARY_API_SECRET as string
-            );
             if (input.icon != null) {
                 const res = await cloudinary.uploader.upload(input.icon, {
                     public_id: `icons/${result.id}`,
@@ -50,10 +53,19 @@ export const groupRouter = router({
                         icon_hash: res.version,
                     },
                 });
-
-                console.log(res);
             }
 
             return result;
         }),
+    all: protectedProcedure.query(async ({ ctx }) => {
+        return await prisma.group.findMany({
+            where: {
+                members: {
+                    some: {
+                        user_id: ctx.session!!.user.id,
+                    },
+                },
+            },
+        });
+    }),
 });
