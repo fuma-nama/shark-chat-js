@@ -14,7 +14,7 @@ export default function Avatar({
     return (
         <AvatarBase.Root
             className={clsx(
-                "relative inline-flex",
+                "relative inline-flex aspect-square",
                 variant == null && "h-11 w-11",
                 variant === "large" && "w-20 h-20",
                 variant === "small" && "w-7 h-7"
