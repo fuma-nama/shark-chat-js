@@ -30,15 +30,8 @@ export function CreateGroupModal({ children }: DialogProps) {
 function Content({ onClose }: { onClose: () => void }) {
     const [name, setName] = useState("");
     const [icon, setIcon] = useState<string | null>(null);
-    const utils = trpc.useContext();
     const create = trpc.group.create.useMutation({
-        onSuccess(data) {
-            utils.group.all.setData(undefined, (groups) =>
-                groups != null ? [data, ...groups] : undefined
-            );
-
-            onClose();
-        },
+        onSuccess: onClose,
     });
 
     return (

@@ -37,7 +37,21 @@ const Home: NextPageWithLayout = () => {
 };
 
 function Groups() {
-    const { status } = useSession();
+    const { status, data } = useSession();
+    const utils = trpc.useContext();
+    useTypedChannelEvent(
+        {
+            channel: ["private", data?.user?.id ?? ""],
+            enabled: status === "authenticated",
+            event: "group_created",
+        },
+        (message) => {
+            console.log(message);
+            utils.group.all.setData(undefined, (groups) =>
+                groups != null ? [...groups, message.data] : undefined
+            );
+        }
+    );
     const groups = trpc.group.all.useQuery(undefined, {
         enabled: status === "authenticated",
     });

@@ -4,9 +4,10 @@ import {
     ChannelNameAndOptions,
 } from "@ably-labs/react-hooks";
 import { Types } from "ably";
-import { useCallback, useEffect, useMemo } from "react";
-import { Channels, parseMessage } from "./channels";
+import { useCallback, useEffect } from "react";
+import { Channels } from "./channels";
 import { ParsedMessage } from "./types";
+import { parseMessage } from "./utils";
 
 export type UseTypedChannelParam<C extends keyof Channels> = Omit<
     UseChannelParam,

@@ -1,7 +1,9 @@
 import prisma from "@/prisma/client";
 import { z } from "zod";
+import ably from "../ably";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
+import { getChannel, publishMessage } from "@/utils/ably";
 
 const imageSchema = z.string({
     description: "Base64 format file",
@@ -20,6 +22,7 @@ export const groupRouter = router({
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
             const userId = ctx.session!!.user.id;
+            const channel = getChannel(ably, "private", userId);
 
             let result = await prisma.group.create({
                 data: {
@@ -55,6 +58,7 @@ export const groupRouter = router({
                 });
             }
 
+            await publishMessage(channel, "group_created", result);
             return result;
         }),
     all: protectedProcedure.query(async ({ ctx }) => {
