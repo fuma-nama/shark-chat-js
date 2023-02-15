@@ -4,6 +4,7 @@ import ably from "../ably";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
 import { getChannel, publishMessage } from "@/utils/ably";
+import { groupIcon } from "@/utils/media";
 
 const imageSchema = z.string({
     description: "Base64 format file",
@@ -37,16 +38,10 @@ export const groupRouter = router({
             });
 
             if (input.icon != null) {
-                const res = await cloudinary.uploader.upload(input.icon, {
-                    public_id: `icons/${result.id}`,
-                    resource_type: "image",
-                    transformation: {
-                        width: 300,
-                        height: 300,
-                        crop: "pad",
-                        audio_codec: "none",
-                    },
-                });
+                const res = await cloudinary.uploader.upload(
+                    input.icon,
+                    groupIcon.uploadOptions(result.id)
+                );
 
                 result = await prisma.group.update({
                     where: {

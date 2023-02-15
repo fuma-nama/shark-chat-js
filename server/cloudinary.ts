@@ -9,4 +9,14 @@ cloudinary.config({
 });
 console.log("Connected to Cloudinary!");
 
+cloudinary.api.create_upload_preset({
+    name: "",
+    resource_type: "image",
+    transformation: {
+        width: 300,
+        height: 300,
+        crop: "pad",
+        audio_codec: "none",
+    },
+});
 export default cloudinary;

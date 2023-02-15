@@ -71,10 +71,7 @@ function Groups() {
                             width="60"
                             height="60"
                             alt="icon"
-                            src={groupIcon(
-                                group.id.toString(),
-                                group.icon_hash
-                            )}
+                            src={groupIcon.url([group.id], group.icon_hash)}
                             className="rounded-xl bg-brand-500 dark:bg-brand-400"
                         />
                     ) : (
