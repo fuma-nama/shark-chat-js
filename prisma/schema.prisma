@@ -47,6 +47,7 @@ model User {
   sessions      Session[]
   groups        Group[]
   members       Member[]
+  messages Message[]
 }
 
 model VerificationToken {
@@ -75,4 +76,13 @@ model Member {
   user  User  @relation(fields: [user_id], references: [id])
 
   @@id([group_id, user_id])
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  author_id String
+  content String @db.VarChar(2000)
+  timestamp DateTime @default(now())
+
+  author User @relation(fields: [author_id], references: [id])
 }
