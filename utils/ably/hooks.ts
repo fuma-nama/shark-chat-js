@@ -5,60 +5,6 @@ import {
 } from "@ably-labs/react-hooks";
 import { Types } from "ably";
 import { useCallback, useEffect } from "react";
-import { Channels } from "./channels";
-import { ParsedMessage } from "./types";
-import { parseMessage } from "./utils";
-
-export type UseTypedChannelParam<C extends keyof Channels> = Omit<
-    UseChannelParam,
-    "channelName" | "events"
-> & {
-    channel: [name: C, ...data: string[]];
-};
-
-export function useTypedChannel<C extends keyof Channels>(
-    { channel, ...options }: UseTypedChannelParam<C>,
-    callback: (message: ParsedMessage<C>) => void
-): ChannelAndClient {
-    return useChannel(
-        {
-            ...options,
-            channelName: channel.join(":"),
-        },
-        (raw) => {
-            const message = parseMessage<C>(raw, channel[0]);
-
-            return callback(message);
-        }
-    );
-}
-
-export function useTypedChannelEvent<
-    C extends keyof Channels,
-    E extends keyof Channels[C]
->(
-    {
-        channel,
-        event,
-        ...options
-    }: UseTypedChannelParam<C> & {
-        event: E;
-    },
-    callback: (message: ParsedMessage<C, E>) => void
-): ChannelAndClient {
-    return useChannel(
-        {
-            ...options,
-            channelName: channel.join(":"),
-            events: event as string,
-        },
-        (raw) => {
-            const message = parseMessage<C>(raw, channel[0]);
-
-            return callback(message as unknown as ParsedMessage<C, E>);
-        }
-    );
-}
 
 type ChannelAndClient = [
     channel: Types.RealtimeChannelPromise,

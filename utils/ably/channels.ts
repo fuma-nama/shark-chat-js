@@ -1,25 +1,30 @@
 import { z } from "zod";
-import { InferChannelTypes } from "./types";
+import { a } from "./ably-ts";
 
-export const channels = {
+export const channels = a.channels({
     /**
      * Private channel for per user
      */
-    private: {
-        message_sent: z.object({
-            message: z.string(),
-        }),
-        message_deleted: z.object({
-            id: z.string(),
-        }),
-        group_created: z.strictObject({
-            name: z.string(),
-            icon_hash: z.number().nullable(),
-            id: z.number(),
-            owner_id: z.string(),
-        }),
-    },
-    chat: {},
-};
-
-export type Channels = InferChannelTypes<typeof channels>;
+    private: a.channel(([clientId]: [clientId: string]) => [clientId], {
+        group_created: a.event(
+            z.strictObject({
+                name: z.string(),
+                icon_hash: z.number().nullable(),
+                id: z.number(),
+                owner_id: z.string(),
+            })
+        ),
+    }),
+    chat: a.channel(() => [], {
+        message_sent: a.event(
+            z.object({
+                message: z.string(),
+            })
+        ),
+        message_deleted: a.event(
+            z.object({
+                id: z.string(),
+            })
+        ),
+    }),
+});

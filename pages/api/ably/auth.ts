@@ -21,6 +21,7 @@ export default async function handler(
         clientId: clientId,
         capability: {
             [`private:${clientId}`]: ["subscribe"],
+            [`chat`]: ["subscribe"],
         },
     });
 

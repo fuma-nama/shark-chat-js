@@ -3,7 +3,7 @@ import { z } from "zod";
 import ably from "../ably";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
-import { getChannel, publishMessage } from "@/utils/ably";
+import { channels, getChannel, publishMessage } from "@/utils/ably";
 import { groupIcon } from "@/utils/media";
 
 const imageSchema = z.string({
@@ -23,7 +23,7 @@ export const groupRouter = router({
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
             const userId = ctx.session!!.user.id;
-            const channel = getChannel(ably, "private", userId);
+            const channel = getChannel(ably, channels.private, [userId]);
 
             let result = await prisma.group.create({
                 data: {
@@ -53,7 +53,11 @@ export const groupRouter = router({
                 });
             }
 
-            await publishMessage(channel, "group_created", result);
+            await publishMessage(
+                channel,
+                channels.private.group_created,
+                result
+            );
             return result;
         }),
     all: protectedProcedure.query(async ({ ctx }) => {

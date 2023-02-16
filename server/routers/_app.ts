@@ -1,7 +1,7 @@
 import { groupRouter } from "./group";
 import { chatRouter } from "./chat";
 import { z } from "zod";
-import { procedure, protectedProcedure, router } from "../trpc";
+import { procedure, router } from "../trpc";
 
 export const appRouter = router({
     hello: procedure
@@ -15,9 +15,6 @@ export const appRouter = router({
                 greeting: `hello ${input.text}`,
             };
         }),
-    name: protectedProcedure.query(({ ctx }) => {
-        return ctx.session?.user.name;
-    }),
     chat: chatRouter,
     group: groupRouter,
 });

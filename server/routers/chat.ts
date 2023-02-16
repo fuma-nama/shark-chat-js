@@ -1,4 +1,4 @@
-import { getChannel, publishMessage } from "@/utils/ably";
+import { channels, getChannel, publishMessage } from "@/utils/ably";
 import { z } from "zod";
 import ably from "../ably";
 import { protectedProcedure, router } from "./../trpc";
@@ -10,13 +10,12 @@ export const chatRouter = router({
                 message: z.string(),
             })
         )
-        .mutation(({ input, ctx }) => {
-            const clientId = ctx.session!!.user.id;
-            const channel = getChannel(ably, "private", clientId);
+        .mutation(({ input }) => {
+            const channel = getChannel(ably, channels.chat, undefined);
 
             let time = 0;
             const timer = setInterval(() => {
-                publishMessage(channel, "message_sent", {
+                publishMessage(channel, channels.chat.message_sent, {
                     message: input.message + time++,
                 });
 

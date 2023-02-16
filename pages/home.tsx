@@ -4,7 +4,6 @@ import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/server/client";
-import { useTypedChannelEvent } from "@/utils/ably/hooks";
 import { groupIcon } from "@/utils/media";
 import { ChatBubbleIcon, PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
@@ -12,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
 import { CldImage } from "next-cloudinary";
+import { channels } from "@/utils/ably";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -39,11 +39,11 @@ const Home: NextPageWithLayout = () => {
 function Groups() {
     const { status, data } = useSession();
     const utils = trpc.useContext();
-    useTypedChannelEvent(
+
+    channels.private.group_created.useChannel(
+        [data?.user?.id ?? ""],
         {
-            channel: ["private", data?.user?.id ?? ""],
             enabled: status === "authenticated",
-            event: "group_created",
         },
         (message) => {
             console.log(message);
@@ -57,7 +57,7 @@ function Groups() {
     });
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 mt-6 ">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
             {groups.data?.map((group) => (
                 <div
                     key={group.id}
@@ -92,10 +92,9 @@ function ChatItem() {
     const send = trpc.chat.send.useMutation();
     const user = useSession().data?.user;
 
-    useTypedChannelEvent(
+    channels.chat.message_sent.useChannel(
+        undefined,
         {
-            channel: ["private", user?.id ?? ""],
-            event: "message_sent",
             enabled: user != null,
         },
         (message) => {

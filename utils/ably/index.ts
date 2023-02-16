@@ -1,3 +1,4 @@
 export * from "./channels";
-export * from "./types";
 export * from "./utils";
+export * from "./ably-ts";
+export * from "./hooks";
