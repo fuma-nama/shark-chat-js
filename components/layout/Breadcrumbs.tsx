@@ -1,6 +1,7 @@
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { Fragment } from "react";
 import Avatar from "../Avatar";
 
 export type BreadcrumbItem = {
@@ -22,16 +23,12 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
                 />
             </Link>
             {items.map((item) => (
-                <>
+                <Fragment key={item.href}>
                     <Separator />
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className="font-semibold text-sm"
-                    >
+                    <Link href={item.href} className="font-semibold text-sm">
                         {item.text}
                     </Link>
-                </>
+                </Fragment>
             ))}
         </div>
     );

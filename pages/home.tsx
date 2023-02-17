@@ -137,7 +137,7 @@ function ChatItem() {
     );
 }
 
-Home.getLayout = (children) => (
+Home.useLayout = (children) => (
     <AppLayout
         title="Home"
         items={

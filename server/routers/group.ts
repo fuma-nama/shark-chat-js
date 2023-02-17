@@ -67,4 +67,17 @@ export const groupRouter = router({
             },
         });
     }),
+    info: protectedProcedure
+        .input(
+            z.object({
+                groupId: z.number(),
+            })
+        )
+        .query(async ({ input }) => {
+            return await prisma.group.findUnique({
+                where: {
+                    id: input.groupId,
+                },
+            });
+        }),
 });

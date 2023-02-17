@@ -2,7 +2,7 @@ import { trpc } from "@/server/client";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
-import { ReactElement, ReactNode, useEffect } from "react";
+import { ReactElement, useEffect } from "react";
 import { NextPage } from "next";
 import { configureAbly } from "@ably-labs/react-hooks";
 
@@ -10,7 +10,7 @@ import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-    getLayout?: (page: ReactElement) => ReactNode;
+    useLayout?: (page: ReactElement) => ReactElement;
 };
 
 type AppPropsWithLayout = AppProps & {
@@ -47,16 +47,24 @@ function App({
     Component,
     pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) {
-    const getLayout = Component.getLayout ?? ((page) => page);
-
     return (
         <SessionProvider session={session}>
             <Connect />
             <ThemeProvider attribute="class" disableTransitionOnChange>
-                {getLayout(<Component {...pageProps} />)}
+                <Content Component={Component} pageProps={pageProps} />
             </ThemeProvider>
         </SessionProvider>
     );
+}
+
+function Content({
+    Component,
+    pageProps,
+}: Pick<AppPropsWithLayout, "Component" | "pageProps">) {
+    const useLayout = Component.useLayout ?? ((page) => page);
+    const layout = useLayout(<Component {...pageProps} />);
+
+    return layout;
 }
 
 export default trpc.withTRPC(App);

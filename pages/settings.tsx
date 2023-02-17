@@ -27,7 +27,7 @@ const Settings: NextPageWithLayout = () => {
     );
 };
 
-Settings.getLayout = (children) => (
+Settings.useLayout = (children) => (
     <AppLayout title="Settings">{children}</AppLayout>
 );
 
