@@ -6,7 +6,7 @@ import {
 import { Types } from "ably";
 import { useCallback, useEffect } from "react";
 
-type ChannelAndClient = [
+export type ChannelAndClient = [
     channel: Types.RealtimeChannelPromise,
     message: Types.RealtimePromise
 ];

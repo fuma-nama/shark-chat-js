@@ -1,6 +1,6 @@
 import { z, ZodType } from "zod";
 import { Types } from "ably";
-import { useChannel } from "./hooks";
+import { ChannelAndClient, useChannel } from "./hooks";
 
 type ConnectParams = {
     enabled?: boolean;
@@ -9,11 +9,12 @@ type ConnectParams = {
 export type AnyChannel<Args> = Channel<Args, Record<string, any>>;
 export type Channel<Args, Events extends EventsRecord<Args>> = {
     channelName(args: Args): string;
+    get(ably: Types.RealtimePromise, args: Args): Types.RealtimeChannelPromise;
     useChannel(
         args: Args,
         params: ConnectParams,
         callback: (msg: AnyMessage<Events>) => void
-    ): void;
+    ): ChannelAndClient;
     _def: {
         data: (args: Args) => string[];
         name: string | null;
@@ -36,11 +37,12 @@ type EventsRecord<Args> = Record<string, Event<Args, any>>;
 
 export type Event<Args, T> = {
     parse(raw: Types.Message): T;
+    publish(channel: Types.RealtimeChannelPromise, data: T): Promise<void>;
     useChannel(
         args: Args,
         params: ConnectParams,
         callback: (msg: EventMessage<T>) => void
-    ): void;
+    ): ChannelAndClient;
     _def: {
         name: string | null;
         channel: Channel<Args, EventsRecord<Args>> | null;
@@ -60,8 +62,11 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
         channelName(args) {
             return [this._def.name, ...this._def.data(args)].join(":");
         },
+        get(ably, args) {
+            return ably.channels.get(this.channelName(args));
+        },
         useChannel(args, params, callback) {
-            useChannel(
+            return useChannel(
                 {
                     channelName: this.channelName(args),
                     ...params,
@@ -105,11 +110,14 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
         parse(raw) {
             return schema.parse(raw.data);
         },
+        publish(channel, data) {
+            return channel.publish(this._def.name!!, data);
+        },
         useChannel(args, params, callback) {
             const channel = this._def.channel!!.channelName(args);
             const event = this._def.name!!;
 
-            useChannel(
+            return useChannel(
                 {
                     channelName: channel,
                     events: [event],
