@@ -12,6 +12,8 @@ import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
 import { CldImage } from "next-cloudinary";
 import { channels } from "@/utils/ably";
+import Link from "next/link";
+import { Group } from "@prisma/client";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -39,6 +41,9 @@ const Home: NextPageWithLayout = () => {
 function Groups() {
     const { status, data } = useSession();
     const utils = trpc.useContext();
+    const groups = trpc.group.all.useQuery(undefined, {
+        enabled: status === "authenticated",
+    });
 
     channels.private.group_created.useChannel(
         [data?.user?.id ?? ""],
@@ -52,37 +57,40 @@ function Groups() {
             );
         }
     );
-    const groups = trpc.group.all.useQuery(undefined, {
-        enabled: status === "authenticated",
-    });
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
             {groups.data?.map((group) => (
-                <div
-                    key={group.id}
-                    className={clsx(
-                        "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-col gap-4",
-                        "shadow-2xl dark:shadow-none shadow-brand-500/10"
-                    )}
-                >
-                    {group.icon_hash != null ? (
-                        <CldImage
-                            width="60"
-                            height="60"
-                            alt="icon"
-                            src={groupIcon.url([group.id], group.icon_hash)}
-                            className="rounded-xl bg-brand-500 dark:bg-brand-400"
-                        />
-                    ) : (
-                        <ChatBubbleIcon className="w-[60px] h-[60px] text-accent-50 bg-brand-500 dark:bg-brand-400 rounded-xl flex items-center justify-center p-4" />
-                    )}
-                    <p className="font-semibold text-lg overflow-hidden text-ellipsis max-w-full break-keep">
-                        {group.name}
-                    </p>
-                </div>
+                <GroupItem key={group.id} group={group} />
             ))}
         </div>
+    );
+}
+
+function GroupItem({ group }: { group: Group }) {
+    return (
+        <Link
+            href={`/chat/${group.id}`}
+            className={clsx(
+                "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-col gap-4",
+                "shadow-2xl dark:shadow-none shadow-brand-500/10"
+            )}
+        >
+            {group.icon_hash != null ? (
+                <CldImage
+                    width="60"
+                    height="60"
+                    alt="icon"
+                    src={groupIcon.url([group.id], group.icon_hash)}
+                    className="rounded-xl bg-brand-500 dark:bg-brand-400"
+                />
+            ) : (
+                <ChatBubbleIcon className="w-[60px] h-[60px] text-accent-50 bg-brand-500 dark:bg-brand-400 rounded-xl flex items-center justify-center p-4" />
+            )}
+            <p className="font-semibold text-lg overflow-hidden text-ellipsis max-w-full break-keep">
+                {group.name}
+            </p>
+        </Link>
     );
 }
 

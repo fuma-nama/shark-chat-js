@@ -2,14 +2,17 @@ import Sidebar from "@/components/layout/Sidebar";
 import clsx from "clsx";
 import Head from "next/head";
 import { ReactNode } from "react";
+import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
 
 export function AppLayout({
     title,
     items,
     children,
+    breadcrumb,
 }: {
     title: string;
+    breadcrumb?: BreadcrumbItem[];
     items?: ReactNode;
     children?: ReactNode;
 }) {
@@ -36,8 +39,9 @@ export function AppLayout({
                 <Sidebar />
                 <div className="flex flex-row">
                     <div className="max-w-screen-2xl mx-auto flex-1 flex flex-col p-4">
-                        <Navbar title={title}>{items}</Navbar>
-
+                        <Navbar title={title} breadcrumb={breadcrumb}>
+                            {items}
+                        </Navbar>
                         {children}
                     </div>
                 </div>

@@ -1,16 +1,32 @@
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { usePageStore } from "@/stores/page";
-import { ChevronRightIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
-import { ReactNode } from "react";
-import { Breadcrumbs } from "./Breadcrumbs";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/router";
+import { ReactNode, useMemo } from "react";
+import { BreadcrumbItem, Breadcrumbs } from "./Breadcrumbs";
 
 export function Navbar({
-    title,
     children,
+    ...props
 }: {
     title: string;
+    breadcrumb?: BreadcrumbItem[];
     children?: ReactNode;
 }) {
+    const router = useRouter();
+    const breadcrumb = useMemo(() => {
+        if (props.breadcrumb != null) return props.breadcrumb;
+
+        const nodes = router.route.split("/").filter((v) => v.length > 0);
+
+        return nodes.map((subpath, idx) => {
+            const href = "/" + nodes.slice(0, idx + 1).join("/");
+            return {
+                href,
+                text: subpath.slice(0, 1).toUpperCase() + subpath.slice(1),
+            };
+        });
+    }, [props.breadcrumb, router.route]);
     const [setSidebarOpen] = usePageStore((v) => [v.setSidebarOpen]);
 
     return (
@@ -18,7 +34,7 @@ export function Navbar({
             <button className="md:hidden" onClick={() => setSidebarOpen(true)}>
                 <HamburgerMenuIcon className="w-6 h-6" />
             </button>
-            <Breadcrumbs />
+            <Breadcrumbs items={breadcrumb} />
             <div className="ml-auto" />
             <div className="flex flex-row gap-2 items-center max-md:hidden">
                 {children}
@@ -26,8 +42,4 @@ export function Navbar({
             <ThemeSwitch />
         </div>
     );
-}
-
-export function Sepator() {
-    return <ChevronRightIcon className="h-5 w-5 text-accent-800" />;
 }
