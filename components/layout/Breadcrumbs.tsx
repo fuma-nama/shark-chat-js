@@ -1,11 +1,11 @@
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, ReactNode } from "react";
 import Avatar from "../Avatar";
 
 export type BreadcrumbItem = {
-    text: string;
+    text: string | ReactNode;
     href: string;
 };
 
@@ -13,18 +13,22 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
     const user = useSession().data?.user;
 
     return (
-        <div className="flex flex-row gap-1 items-center ">
-            <Link href="/home">
+        <div className="flex flex-row gap-1 items-center">
+            <Link
+                href="/home"
+                className="flex flex-row gap-1 items-center max-sm:hidden"
+            >
                 <Avatar
                     alt="avatar"
                     src={user?.image ?? undefined}
                     fallback={user?.name ?? undefined}
                     variant="small"
                 />
+                <Separator />
             </Link>
-            {items.map((item) => (
+            {items.map((item, i) => (
                 <Fragment key={item.href}>
-                    <Separator />
+                    {i !== 0 && <Separator />}
                     <Link href={item.href} className="font-semibold text-sm">
                         {item.text}
                     </Link>
