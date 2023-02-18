@@ -9,20 +9,23 @@ export const chatRouter = router({
     send: protectedProcedure
         .input(
             z.object({
+                groupId: z.number(),
                 message: z.string(),
             })
         )
-        .mutation(({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+            const userId = ctx.session!!.user.id;
             const channel = channels.chat.get(ably);
 
-            let time = 0;
-            const timer = setInterval(() => {
-                channels.chat.message_sent.publish(channel, {
-                    message: input.message + time++,
-                });
+            const message = await prisma.message.create({
+                data: {
+                    author_id: userId,
+                    content: input.message,
+                    group_id: input.groupId,
+                },
+            });
 
-                if (time >= 10) clearInterval(timer);
-            }, 1000);
+            return message;
         }),
     messages: protectedProcedure
         .input(
@@ -52,7 +55,7 @@ export const chatRouter = router({
                 });
             }
 
-            return prisma.message.findMany({
+            return await prisma.message.findMany({
                 where: {
                     group_id: input.groupId,
                 },

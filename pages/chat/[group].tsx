@@ -6,10 +6,88 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../_app";
 import { CldImage } from "next-cloudinary";
-import { ChatBubbleIcon } from "@radix-ui/react-icons";
+import { ChatBubbleIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
+import { GetServerSideProps } from "next";
+import Textarea from "@/components/input/Textarea";
+import { useState } from "react";
+import IconButton from "@/components/IconButton";
+import clsx from "clsx";
 
-const GroupChat: NextPageWithLayout = () => {
-    return <></>;
+type Props = {
+    group: number;
+};
+
+const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
+    const { status } = useSession();
+    const [text, setText] = useState("");
+    const messages = trpc.chat.messages.useQuery(
+        { groupId: group },
+        { enabled: status === "authenticated" }
+    );
+
+    const send = trpc.chat.send.useMutation({
+        onSuccess: (data) => {
+            setText("");
+            console.log(data);
+        },
+    });
+
+    const onSend = () => {
+        send.mutate({
+            groupId: group,
+            message: text,
+        });
+    };
+
+    return (
+        <>
+            {messages.data?.map((message) => (
+                <p key={message.id}>{message.content}</p>
+            ))}
+            <fieldset
+                className={clsx(
+                    "mt-auto flex flex-row gap-3 bg-light-50 shadow-xl shadow-brand-500/10 dark:shadow-none dark:bg-dark-800 p-3 rounded-3xl",
+                    "max-sm:mt-auto max-sm:-m-4 max-sm:rounded-none max-sm:gap-2"
+                )}
+            >
+                <Textarea
+                    id="text"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    rows={Math.min(20, text.split("\n").length)}
+                    wrap="virtual"
+                    className="resize-none h-auto max-h-[50vh]"
+                    placeholder="Type message"
+                    autoComplete="off"
+                    typeof="search"
+                    onKeyDown={(e) => {
+                        if (e.shiftKey && e.key === "Enter") {
+                            onSend();
+                            e.preventDefault();
+                        }
+                    }}
+                />
+                <IconButton
+                    type="submit"
+                    className="aspect-square h-full max-h-11"
+                    disabled={send.isLoading || text.trim().length === 0}
+                    onClick={onSend}
+                >
+                    <PaperPlaneIcon />
+                </IconButton>
+            </fieldset>
+        </>
+    );
+};
+
+export const getServerSideProps: GetServerSideProps<Props> = async (props) => {
+    const { group } = props.query;
+
+    return {
+        props: {
+            group: Number(group),
+        },
+    };
 };
 
 GroupChat.useLayout = (children) => {
