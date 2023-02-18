@@ -1,3 +1,4 @@
+import { Message, User } from "@prisma/client";
 import { z } from "zod";
 import { a } from "./ably-ts";
 
@@ -17,9 +18,11 @@ export const channels = a.channels({
     }),
     chat: a.channel(() => [], {
         message_sent: a.event(
-            z.object({
-                message: z.string(),
-            })
+            z.custom<
+                Message & {
+                    author: User;
+                }
+            >()
         ),
         message_deleted: a.event(
             z.object({
