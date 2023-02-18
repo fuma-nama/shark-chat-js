@@ -108,7 +108,7 @@ function Item({
                     active &&
                         "bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
                     !active &&
-                        "text-brand-600 bg-brand-100 dark:text-brand-200 dark:bg-brand-400/50"
+                        "text-brand-400 bg-brand-100/40 dark:text-brand-100 dark:bg-brand-400/30"
                 )}
             >
                 {icon}
@@ -117,7 +117,7 @@ function Item({
                 className={clsx(
                     "text-base",
                     active && "text-brand-500 dark:text-white font-semibold",
-                    !active && "text-accent-900 dark:text-accent-600"
+                    !active && "text-accent-900 dark:text-accent-100"
                 )}
             >
                 {children}
