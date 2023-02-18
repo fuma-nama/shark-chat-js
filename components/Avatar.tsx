@@ -28,7 +28,7 @@ const avatar = tv({
 });
 
 export type AvatarProps = {
-    src?: string;
+    src?: string | null;
     alt?: string;
     fallback?: string;
 } & VariantProps<typeof avatar>;
@@ -38,7 +38,11 @@ export default function Avatar({ size, ...props }: AvatarProps) {
 
     return (
         <AvatarBase.Root className={styles.root()}>
-            <AvatarBase.Image {...props} className={styles.image()} />
+            <AvatarBase.Image
+                {...props}
+                src={props.src ?? undefined}
+                className={styles.image()}
+            />
             <AvatarBase.Fallback className={styles.fallback()} delayMs={600}>
                 <AvatarIcon className="text-sm font-medium uppercase text-accent-700 dark:text-accent-400" />
             </AvatarBase.Fallback>
