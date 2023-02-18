@@ -35,12 +35,9 @@ function Content({ onClose }: { onClose: () => void }) {
 
     return (
         <>
-            <form className="mt-2 space-y-2">
+            <form className="mt-8 space-y-2">
                 <fieldset>
-                    <label
-                        htmlFor="icon"
-                        className="text-xs font-medium text-gray-700 dark:text-accent-700"
-                    >
+                    <label htmlFor="icon" className="sr-only">
                         Icon
                     </label>
                     <ImagePicker
@@ -54,9 +51,10 @@ function Content({ onClose }: { onClose: () => void }) {
                 <fieldset>
                     <label
                         htmlFor="firstName"
-                        className="text-xs font-medium text-gray-700 dark:text-accent-700"
+                        className="text-[0.875rem] font-medium text-gray-700 dark:text-accent-400 "
                     >
                         Name
+                        <span className="text-red-400 mx-1 text-base">*</span>
                     </label>
                     <TextField
                         id="firstName"
@@ -64,6 +62,7 @@ function Content({ onClose }: { onClose: () => void }) {
                         autoComplete="given-name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        aria-required
                     />
                 </fieldset>
             </form>
@@ -77,7 +76,7 @@ function Content({ onClose }: { onClose: () => void }) {
                             icon: icon ?? undefined,
                         })
                     }
-                    disabled={create.isLoading}
+                    disabled={create.isLoading || name.trim().length === 0}
                 >
                     {create.isLoading && (
                         <div className="mr-2">
