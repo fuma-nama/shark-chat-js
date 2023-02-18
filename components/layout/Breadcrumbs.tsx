@@ -22,7 +22,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
                     alt="avatar"
                     src={user?.image ?? undefined}
                     fallback={user?.name ?? undefined}
-                    variant="small"
+                    size="small"
                 />
                 <Separator />
             </Link>

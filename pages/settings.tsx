@@ -12,14 +12,14 @@ const Settings: NextPageWithLayout = () => {
     return (
         <>
             <Avatar
-                variant="large"
+                size="large"
                 alt="avatar"
                 src={user.image ?? undefined}
                 fallback={user.name ?? undefined}
             />
             <h2 className="font-bold text-2xl">{user.name}</h2>
             <div>
-                <Button variant="danger" onClick={() => signOut()}>
+                <Button color="danger" onClick={() => signOut()}>
                     Logout
                 </Button>
             </div>

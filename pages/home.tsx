@@ -143,7 +143,7 @@ Home.useLayout = (children) => (
         items={
             <>
                 <CreateGroupModal>
-                    <Button variant="primary">Create Group</Button>
+                    <Button color="primary">Create Group</Button>
                 </CreateGroupModal>
             </>
         }

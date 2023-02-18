@@ -1,33 +1,45 @@
 import * as AvatarBase from "@radix-ui/react-avatar";
 import { AvatarIcon } from "@radix-ui/react-icons";
-import clsx from "clsx";
+import { tv, VariantProps } from "tailwind-variants";
 
-export default function Avatar({
-    variant,
-    ...props
-}: {
+const avatar = tv({
+    slots: {
+        root: "relative inline-flex aspect-square",
+        image: "h-full w-full object-cover rounded-full",
+        fallback:
+            "flex h-full w-full items-center justify-center bg-light dark:bg-dark-800",
+    },
+    variants: {
+        size: {
+            small: {
+                root: "w-7 h-7",
+            },
+            medium: {
+                root: "w-11 h-11",
+            },
+            large: {
+                root: "w-20 h-20",
+            },
+        },
+    },
+    defaultVariants: {
+        size: "medium",
+    },
+});
+
+export type AvatarProps = {
     src?: string;
     alt?: string;
     fallback?: string;
-    variant?: "large" | "small";
-}) {
+} & VariantProps<typeof avatar>;
+
+export default function Avatar({ size, ...props }: AvatarProps) {
+    const styles = avatar({ size });
+
     return (
-        <AvatarBase.Root
-            className={clsx(
-                "relative inline-flex aspect-square",
-                variant == null && "h-11 w-11",
-                variant === "large" && "w-20 h-20",
-                variant === "small" && "w-7 h-7"
-            )}
-        >
-            <AvatarBase.Image
-                {...props}
-                className="h-full w-full object-cover rounded-full"
-            />
-            <AvatarBase.Fallback
-                className="flex h-full w-full items-center justify-center bg-light dark:bg-dark-800"
-                delayMs={600}
-            >
+        <AvatarBase.Root className={styles.root()}>
+            <AvatarBase.Image {...props} className={styles.image()} />
+            <AvatarBase.Fallback className={styles.fallback()} delayMs={600}>
                 <AvatarIcon className="text-sm font-medium uppercase text-accent-700 dark:text-accent-400" />
             </AvatarBase.Fallback>
         </AvatarBase.Root>

@@ -1,16 +1,31 @@
-import clsx from "clsx";
+import { tv, VariantProps } from "tailwind-variants";
 
-export function Spinner({ size = "small" }: { size?: "small" | "large" }) {
+const spinner = tv({
+    slots: {
+        container: "flex justify-center items-center",
+        status: "align-[-0.125rem] border-r-transparent animate-spin inline-block rounded-full",
+    },
+    variants: {
+        size: {
+            small: {
+                container: "w-4 h-4 border-2",
+            },
+            large: {
+                container: "w-8 h-8 border-4",
+            },
+        },
+    },
+    defaultVariants: {
+        size: "small",
+    },
+});
+
+export function Spinner({ size }: VariantProps<typeof spinner>) {
+    const { container, status } = spinner({ size });
+
     return (
-        <div className="flex justify-center items-center">
-            <div
-                className={clsx(
-                    "align-[-0.125rem] border-r-transparent animate-spin inline-block rounded-full",
-                    size === "small" && "w-4 h-4 border-2",
-                    size === "large" && "w-8 h-8 border-4"
-                )}
-                role="status"
-            />
+        <div className={container()}>
+            <div className={status()} role="status" />
         </div>
     );
 }

@@ -29,7 +29,7 @@ export default function SignIn({ providers }: Props) {
                     <Button
                         key={provider.name}
                         onClick={() => signIn(provider.id)}
-                        variant="primary"
+                        color="primary"
                         size="large"
                     >
                         {provider.id === "github" && (
