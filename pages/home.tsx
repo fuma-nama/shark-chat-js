@@ -8,7 +8,6 @@ import { groupIcon } from "@/utils/media";
 import { ChatBubbleIcon, PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
 import { CldImage } from "next-cloudinary";
 import { channels } from "@/utils/ably";
@@ -95,22 +94,7 @@ function GroupItem({ group }: { group: Group }) {
 }
 
 function ChatItem() {
-    const [latest, setLatest] = useState("");
-
-    const send = trpc.chat.send.useMutation();
     const user = useSession().data?.user;
-
-    channels.chat.message_sent.useChannel(
-        undefined,
-        {
-            enabled: user != null,
-        },
-        (message) => {
-            console.log(message);
-
-            setLatest(message.data.message);
-        }
-    );
 
     if (user == null) return <></>;
 
@@ -120,7 +104,6 @@ function ChatItem() {
                 "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
-            onClick={() => send.mutate({ message: "Hello World" })}
         >
             <Avatar
                 alt="avatar"
@@ -130,7 +113,7 @@ function ChatItem() {
             <div>
                 <p className="font-semibold text-base">SonMooSans</p>
                 <p className="text-accent-700 dark:text-accent-600 text-sm">
-                    Sleeping {latest}
+                    Sleeping
                 </p>
             </div>
         </div>

@@ -29,7 +29,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
             {items.map((item, i) => (
                 <Fragment key={item.href}>
                     {i !== 0 && <Separator />}
-                    <Link href={item.href} className="font-semibold text-sm">
+                    <Link href={item.href} className="font-semibold text-base">
                         {item.text}
                     </Link>
                 </Fragment>
