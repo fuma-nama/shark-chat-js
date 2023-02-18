@@ -41,41 +41,58 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
 
     return (
         <>
-            {messages.data?.map((message) => (
-                <p key={message.id}>{message.content}</p>
-            ))}
-            <fieldset
-                className={clsx(
-                    "mt-auto flex flex-row gap-3 bg-light-50 shadow-xl shadow-brand-500/10 dark:shadow-none dark:bg-dark-800 p-3 rounded-3xl",
-                    "max-sm:mt-auto max-sm:-m-4 max-sm:rounded-none max-sm:gap-2"
-                )}
-            >
-                <Textarea
-                    id="text"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    rows={Math.min(20, text.split("\n").length)}
-                    wrap="virtual"
-                    className="resize-none h-auto max-h-[50vh]"
-                    placeholder="Type message"
-                    autoComplete="off"
-                    typeof="search"
-                    onKeyDown={(e) => {
-                        if (e.shiftKey && e.key === "Enter") {
-                            onSend();
-                            e.preventDefault();
-                        }
-                    }}
-                />
-                <IconButton
-                    type="submit"
-                    className="aspect-square h-full max-h-11"
-                    disabled={send.isLoading || text.trim().length === 0}
-                    onClick={onSend}
+            <div className="flex flex-col gap-3">
+                {messages.data?.map((message) => (
+                    <div
+                        key={message.id}
+                        className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2"
+                    >
+                        <Avatar
+                            src={message.author.image}
+                            fallback={message.author.name!!}
+                        />
+                        <div>
+                            <p className="font-semibold">
+                                {message.author.name}
+                            </p>
+                            <p>{message.content}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="sticky bottom-0 pb-4 mt-auto bg-light-100 dark:bg-dark-900">
+                <div
+                    className={clsx(
+                        "flex flex-row gap-3 bg-light-50 shadow-xl shadow-brand-500/10 dark:shadow-none dark:bg-dark-800 p-3 rounded-3xl",
+                        "max-sm:-m-4 max-sm:rounded-none max-sm:gap-2"
+                    )}
                 >
-                    <PaperPlaneIcon />
-                </IconButton>
-            </fieldset>
+                    <Textarea
+                        id="text"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        rows={Math.min(20, text.split("\n").length)}
+                        wrap="virtual"
+                        className="resize-none h-auto max-h-[50vh]"
+                        placeholder="Type message"
+                        autoComplete="off"
+                        onKeyDown={(e) => {
+                            if (e.shiftKey && e.key === "Enter") {
+                                onSend();
+                                e.preventDefault();
+                            }
+                        }}
+                    />
+                    <IconButton
+                        type="submit"
+                        disabled={send.isLoading || text.trim().length === 0}
+                        className="aspect-square h-[41.6px]"
+                        onClick={onSend}
+                    >
+                        <PaperPlaneIcon />
+                    </IconButton>
+                </div>
+            </div>
         </>
     );
 };

@@ -56,6 +56,13 @@ export const chatRouter = router({
             }
 
             return await prisma.message.findMany({
+                select: {
+                    author: true,
+                    content: true,
+                    group: true,
+                    id: true,
+                    timestamp: true,
+                },
                 where: {
                     group_id: input.groupId,
                 },
