@@ -8,10 +8,10 @@ const spinner = tv({
     variants: {
         size: {
             small: {
-                container: "w-4 h-4 border-2",
+                status: "w-4 h-4 border-2",
             },
             large: {
-                container: "w-8 h-8 border-4",
+                status: "w-8 h-8 border-4",
             },
         },
     },
