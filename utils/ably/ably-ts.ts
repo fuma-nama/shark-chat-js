@@ -1,6 +1,7 @@
 import { z, ZodType } from "zod";
 import { Types } from "ably";
 import { ChannelAndClient, useChannel } from "./hooks";
+import { Serialize } from "../types";
 
 type ConnectParams = {
     enabled?: boolean;
@@ -28,7 +29,7 @@ type AnyMessage<
 > = Events extends Events
     ? {
           event: E;
-          data: InferEventData<Events[E]>;
+          data: Serialize<InferEventData<Events[E]>>;
       }
     : never;
 
@@ -51,7 +52,7 @@ export type Event<Args, T> = {
 };
 
 type EventMessage<T> = {
-    data: T;
+    data: Serialize<T>;
 };
 
 function channel<Args = void, Events extends EventsRecord<Args> = {}>(

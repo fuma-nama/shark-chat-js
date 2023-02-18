@@ -23,8 +23,17 @@ export const chatRouter = router({
                     content: input.message,
                     group_id: input.groupId,
                 },
+                select: {
+                    author: true,
+                    author_id: true,
+                    content: true,
+                    group_id: true,
+                    id: true,
+                    timestamp: true,
+                },
             });
 
+            await channels.chat.message_sent.publish(channel, message);
             return message;
         }),
     messages: protectedProcedure
@@ -58,8 +67,9 @@ export const chatRouter = router({
             return await prisma.message.findMany({
                 select: {
                     author: true,
+                    author_id: true,
                     content: true,
-                    group: true,
+                    group_id: true,
                     id: true,
                     timestamp: true,
                 },
