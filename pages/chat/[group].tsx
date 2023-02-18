@@ -38,7 +38,7 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
 
     return (
         <>
-            <div className="flex flex-col gap-3 mb-5">
+            <div className="flex flex-col-reverse gap-3 mb-5">
                 {messages.data?.map((message) => (
                     <div
                         key={message.id}

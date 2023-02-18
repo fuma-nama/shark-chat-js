@@ -73,6 +73,9 @@ export const chatRouter = router({
                     id: true,
                     timestamp: true,
                 },
+                orderBy: {
+                    timestamp: "desc",
+                },
                 where: {
                     group_id: input.groupId,
                 },
