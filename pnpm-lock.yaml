@@ -25,7 +25,7 @@ specifiers:
   eslint-config-next: 13.1.6
   next: 13.1.6
   next-auth: ^4.19.2
-  next-cloudinary: ^2.2.0
+  next-cloudinary: ^2.3.0
   next-themes: ^0.2.1
   postcss: ^8.4.21
   prisma: ^4.9.0
@@ -58,7 +58,7 @@ dependencies:
   clsx: 1.2.1
   next: 13.1.6_biqbaboplfbrettd7655fr4n2y
   next-auth: 4.19.2_3vryta7zmbcsw4rrqf4axjqggm
-  next-cloudinary: 2.2.0_next@13.1.6+react@18.2.0
+  next-cloudinary: 2.3.0_next@13.1.6+react@18.2.0
   next-themes: 0.2.1_3vryta7zmbcsw4rrqf4axjqggm
   react: 18.2.0
   react-cropper: 2.1.8_react@18.2.0
@@ -3015,8 +3015,8 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /next-cloudinary/2.2.0_next@13.1.6+react@18.2.0:
-    resolution: {integrity: sha512-MSiay0e8xFPT4GvIdMIAvGBoFeND+tSJw4e6LvfsSI/LHrNuxaEArKg0v1TYz+lbxiqIjZFarmAYR6gX6FZvFw==}
+  /next-cloudinary/2.3.0_next@13.1.6+react@18.2.0:
+    resolution: {integrity: sha512-csgek4+BcWTgjaN24R2BHcvoW4T3EONLMsaRASBjcwnpgRprnaTurarq80uqDnv7Fxkrq14Fuhz+mwu0lJdGUA==}
     peerDependencies:
       next: ^12 || ^13
       react: ^17 || ^18
