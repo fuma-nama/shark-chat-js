@@ -23,13 +23,13 @@ export default function Sidebar() {
         <>
             {isOpen && (
                 <div
-                    className="fixed w-full h-full bg-black/30 md:hidden animate-fade-in"
+                    className="fixed w-full h-full bg-black/30 md:hidden animate-fade-in z-50"
                     onClick={onClose}
                 />
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 z-10 overflow-y-auto",
+                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 z-50 overflow-y-auto",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:min-h-screen",
                     "max-md:transition-transform max-md:duration-500",
                     !isOpen && "max-md:-translate-x-full"

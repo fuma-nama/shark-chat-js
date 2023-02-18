@@ -60,7 +60,7 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
                     </div>
                 ))}
             </div>
-            <div className="sticky bottom-0 pb-4 mt-auto bg-light-100 dark:bg-dark-900">
+            <div className="sticky bottom-0 mt-auto bg-light-100 dark:bg-dark-900">
                 <div
                     className={clsx(
                         "flex flex-row gap-3 bg-light-50 shadow-xl shadow-brand-500/10 dark:shadow-none dark:bg-dark-800 p-3 rounded-3xl",

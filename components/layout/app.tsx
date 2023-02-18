@@ -38,7 +38,7 @@ export function AppLayout({
             >
                 <Sidebar />
                 <div className="flex flex-row overflow-y-auto">
-                    <div className="max-w-screen-2xl mx-auto flex-1 flex flex-col p-4 pb-0">
+                    <div className="max-w-screen-2xl mx-auto flex-1 flex flex-col pt-2 p-4 h-fit min-h-full">
                         <Navbar title={title} breadcrumb={breadcrumb}>
                             {items}
                         </Navbar>
