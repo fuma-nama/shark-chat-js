@@ -1,10 +1,29 @@
-import Ably from "ably";
+import Ably, { Types } from "ably";
 
-// For the full code sample see here: https://github.com/ably/quickstart-js
-const ably = new Ably.Realtime.Promise({
-    key: process.env.ABLY_API_KEY,
-});
+function connect() {
+    const ably = new Ably.Realtime.Promise({
+        key: process.env.ABLY_API_KEY,
+    });
 
-console.log("Connected to Ably!");
+    ably.connection.on("connected", () => console.log("Connected to Ably!"));
+
+    return ably;
+}
+
+declare global {
+    var dev_ably: Types.RealtimePromise;
+}
+
+let ably: Types.RealtimePromise;
+
+if (process.env.NODE_ENV === "development") {
+    if (global.dev_ably == null) {
+        global.dev_ably = connect();
+    }
+
+    ably = global.dev_ably;
+} else {
+    ably = connect();
+}
 
 export default ably;
