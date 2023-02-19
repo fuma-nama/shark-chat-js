@@ -14,7 +14,7 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ input, ctx }) => {
-            const userId = ctx.session!!.user.id;
+            const userId = ctx.session.user.id;
             const channel = channels.chat.get(ably);
 
             const message = await prisma.message.create({

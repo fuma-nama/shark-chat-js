@@ -22,7 +22,7 @@ export const groupRouter = router({
     create: protectedProcedure
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx.session!!.user.id;
+            const userId = ctx.session.user.id;
             const channel = channels.private.get(ably, [userId]);
 
             let result = await prisma.group.create({
@@ -61,7 +61,7 @@ export const groupRouter = router({
             where: {
                 members: {
                     some: {
-                        user_id: ctx.session!!.user.id,
+                        user_id: ctx.session.user.id,
                     },
                 },
             },
