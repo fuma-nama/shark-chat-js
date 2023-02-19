@@ -32,6 +32,7 @@ specifiers:
   react: 18.2.0
   react-cropper: ^2.1.8
   react-dom: 18.2.0
+  react-infinite-scroll-hook: ^4.0.4
   tailwind-variants: ^0.0.30
   tailwindcss: ^3.2.4
   tailwindcss-radix: ^2.7.0
@@ -64,6 +65,7 @@ dependencies:
   react: 18.2.0
   react-cropper: 2.1.8_react@18.2.0
   react-dom: 18.2.0_react@18.2.0
+  react-infinite-scroll-hook: 4.0.4_react@18.2.0
   tailwind-variants: 0.0.30_tailwindcss@3.2.4
   zod: 3.20.2
   zustand: 4.3.2_react@18.2.0
@@ -3480,6 +3482,24 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+    dev: false
+
+  /react-infinite-scroll-hook/4.0.4_react@18.2.0:
+    resolution: {integrity: sha512-fCjG9xwCfnV9GcAHVz9rXGnLqO55fcYsbeshSxgEH2biF8fVFHmfzZrfX4iTzoOWO1Rrz5hxrK4bBcqL5fAy9Q==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-intersection-observer-hook: 2.0.6_react@18.2.0
+    dev: false
+
+  /react-intersection-observer-hook/2.0.6_react@18.2.0:
+    resolution: {integrity: sha512-NTx+4Qat1tS9Bn4CXa6YgmbxLGcxFttV94Us7ZUEZ4mIZD3XaCpnm6U/FU35c6cJOMIfc7UfSzpju69ckfmb+Q==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-is/16.13.1:

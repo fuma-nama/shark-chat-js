@@ -1,6 +1,7 @@
 import Sidebar from "@/components/layout/Sidebar";
 import clsx from "clsx";
 import Head from "next/head";
+import React from "react";
 import { ReactNode } from "react";
 import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
@@ -37,8 +38,8 @@ export function AppLayout({
                 )}
             >
                 <Sidebar />
-                <div className="flex flex-row overflow-y-auto">
-                    <div className="max-w-screen-2xl mx-auto flex-1 flex flex-col pt-2 p-4 h-fit min-h-full">
+                <div className="flex flex-col overflow-y-auto">
+                    <div className="max-w-screen-2xl w-full mx-auto flex flex-col pt-2 p-4 min-h-full">
                         <Navbar title={title} breadcrumb={breadcrumb}>
                             {items}
                         </Navbar>

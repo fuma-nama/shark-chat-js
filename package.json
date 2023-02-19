@@ -32,6 +32,7 @@
         "react": "18.2.0",
         "react-cropper": "^2.1.8",
         "react-dom": "18.2.0",
+        "react-infinite-scroll-hook": "^4.0.4",
         "tailwind-variants": "^0.0.30",
         "zod": "^3.20.2",
         "zustand": "^4.3.2"

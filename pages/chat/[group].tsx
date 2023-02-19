@@ -6,13 +6,21 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../_app";
 import { CldImage } from "next-cloudinary";
-import { ChatBubbleIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
+import {
+    BookmarkIcon,
+    ChatBubbleIcon,
+    PaperPlaneIcon,
+} from "@radix-ui/react-icons";
 import { GetServerSideProps } from "next";
 import Textarea from "@/components/input/Textarea";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import IconButton from "@/components/IconButton";
 import clsx from "clsx";
 import { channels } from "@/utils/ably";
+import { Message, User } from "@prisma/client";
+import { Serialize } from "@/utils/types";
+import useInfiniteScroll from "react-infinite-scroll-hook";
+import React from "react";
 
 type Props = {
     group: number;
@@ -20,40 +28,80 @@ type Props = {
 
 const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
     const { status } = useSession();
-    const messages = trpc.chat.messages.useQuery(
-        { groupId: group },
-        { enabled: status === "authenticated" }
+    const query = trpc.chat.messages.useInfiniteQuery(
+        {
+            groupId: group,
+            count: 30,
+            cursorType: "before",
+        },
+        {
+            enabled: status === "authenticated",
+            getPreviousPageParam: (messages) =>
+                messages.length != 0
+                    ? messages[messages.length - 1].timestamp
+                    : null,
+        }
     );
+    const pages = query.data?.pages;
+
     const utils = trpc.useContext();
     channels.chat.message_sent.useChannel(
         undefined,
         { enabled: status === "authenticated" },
         (message) => {
             console.log(message);
-            utils.chat.messages.setData({ groupId: group }, (prev) =>
-                prev == null ? prev : [...prev, message.data]
-            );
+            utils.chat.messages.setInfiniteData({ groupId: group }, (prev) => {
+                if (prev == null) return prev;
+
+                return {
+                    ...prev,
+                    pages: [...prev.pages, [message.data]],
+                };
+            });
         }
     );
 
+    const [sentryRef, { rootRef }] = useInfiniteScroll({
+        hasNextPage: query.hasPreviousPage ?? true,
+        onLoadMore: () => {
+            console.log("load more");
+
+            return query.fetchPreviousPage();
+        },
+        disabled: query.isLoading,
+        delayInMs: 100,
+        loading: query.isFetchingPreviousPage,
+        rootMargin: "20px",
+    });
+
+    const { handleRootScroll, scrollableRootRef } = useBottomScroll([pages]);
+
+    useEffect(() => {
+        rootRef(scrollableRootRef.current);
+    }, [rootRef, scrollableRootRef]);
+
     return (
         <>
-            <div className="flex flex-col-reverse gap-3 mb-5">
-                {messages.data?.map((message) => (
+            <div
+                className="flex flex-col flex-1 overflow-y-auto h-0 gap-3 mb-5"
+                ref={scrollableRootRef}
+                onScroll={handleRootScroll}
+            >
+                {query.hasPreviousPage ?? true ? (
+                    <p ref={sentryRef} className="text-4xl">
+                        Loading
+                    </p>
+                ) : (
+                    <Welcome />
+                )}
+                {pages?.map((messages, i) => (
                     <div
-                        key={message.id}
-                        className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2"
+                        key={messages[0]?.id ?? `undefined-${i}`}
+                        className="flex flex-col-reverse gap-3"
                     >
-                        <Avatar
-                            src={message.author.image}
-                            fallback={message.author.name!!}
-                        />
-                        <div>
-                            <p className="font-semibold">
-                                {message.author.name}
-                            </p>
-                            <p>{message.content}</p>
-                        </div>
+                        {messages.map((message) => (
+                            <Message key={message.id} message={message} />
+                        ))}
                     </div>
                 ))}
             </div>
@@ -61,6 +109,47 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
         </>
     );
 };
+
+function Message({
+    message,
+}: {
+    message: Serialize<Message & { author: User }>;
+}) {
+    return (
+        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2">
+            <Avatar
+                src={message.author.image}
+                fallback={message.author.name!!}
+            />
+            <div>
+                <p className="font-semibold">{message.author.name}</p>
+                <p>
+                    {message.content}{" "}
+                    {new Date(message.timestamp).toLocaleString()}
+                </p>
+            </div>
+        </div>
+    );
+}
+
+function Welcome() {
+    return (
+        <div className="flex flex-col gap-3 mb-10">
+            <BookmarkIcon
+                className={clsx(
+                    "w-10 h-10 md:w-20 md:h-20 bg-brand-500 p-2 rounded-xl text-accent-400",
+                    "dark:bg-brand-400 dark:text-accent-50"
+                )}
+            />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
+                The beginning of this Story
+            </h1>
+            <p className="text-accent-800 dark:text-accent-600 text-lg">
+                Let&apos;s send your first message here
+            </p>
+        </div>
+    );
+}
 
 function Sendbar({ group }: { group: number }) {
     const [text, setText] = useState("");
@@ -170,5 +259,31 @@ GroupChat.useLayout = (children) => {
         </AppLayout>
     );
 };
+
+function useBottomScroll(dependencies: React.DependencyList) {
+    const scrollableRootRef = useRef<HTMLDivElement | null>(null);
+    const lastScrollDistanceToBottomRef = useRef<number>();
+
+    useEffect(() => {
+        const scrollableRoot = scrollableRootRef.current;
+        const lastScrollDistanceToBottom =
+            lastScrollDistanceToBottomRef.current ?? 0;
+        if (scrollableRoot) {
+            scrollableRoot.scrollTop =
+                scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
+        }
+    }, [dependencies]);
+
+    const handleRootScroll = React.useCallback(() => {
+        const rootNode = scrollableRootRef.current;
+        if (rootNode) {
+            const scrollDistanceToBottom =
+                rootNode.scrollHeight - rootNode.scrollTop;
+            lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
+        }
+    }, []);
+
+    return { scrollableRootRef, handleRootScroll };
+}
 
 export default GroupChat;

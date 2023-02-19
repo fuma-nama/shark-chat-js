@@ -37,15 +37,14 @@ export const chatRouter = router({
         .input(
             z.object({
                 groupId: z.number(),
-                count: z.number().max(50).default(50),
-                after: z.number().optional(),
-                before: z.number().optional(),
+                count: z.number().min(0).max(50).default(50),
+                cursorType: z.enum(["after", "before"]).default("before"),
+                cursor: z.string().datetime().optional(),
             })
         )
         .query(async ({ input, ctx }) => {
             await checkIsMemberOf(input.groupId, ctx.session);
-
-            return await prisma.message.findMany({
+            const messages = await prisma.message.findMany({
                 include: {
                     author: true,
                 },
@@ -54,9 +53,18 @@ export const chatRouter = router({
                 },
                 where: {
                     group_id: input.groupId,
+                    timestamp:
+                        input.cursor != null
+                            ? {
+                                  [input.cursorType === "after" ? "gt" : "lt"]:
+                                      input.cursor,
+                              }
+                            : undefined,
                 },
                 take: Math.min(input.count, 50),
             });
+
+            return messages;
         }),
 });
 
