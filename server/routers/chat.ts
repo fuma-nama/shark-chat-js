@@ -23,13 +23,8 @@ export const chatRouter = router({
                     content: input.message,
                     group_id: input.groupId,
                 },
-                select: {
+                include: {
                     author: true,
-                    author_id: true,
-                    content: true,
-                    group_id: true,
-                    id: true,
-                    timestamp: true,
                 },
             });
 
@@ -65,13 +60,8 @@ export const chatRouter = router({
             }
 
             return await prisma.message.findMany({
-                select: {
+                include: {
                     author: true,
-                    author_id: true,
-                    content: true,
-                    group_id: true,
-                    id: true,
-                    timestamp: true,
                 },
                 orderBy: {
                     timestamp: "desc",
