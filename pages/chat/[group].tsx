@@ -13,7 +13,7 @@ import {
 } from "@radix-ui/react-icons";
 import { GetServerSideProps } from "next";
 import Textarea from "@/components/input/Textarea";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import IconButton from "@/components/IconButton";
 import clsx from "clsx";
 import { channels } from "@/utils/ably";
@@ -21,6 +21,7 @@ import { Message, User } from "@prisma/client";
 import { Serialize } from "@/utils/types";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import React from "react";
+import { useBottomScroll } from "@/utils/use-bottom-scroll";
 
 type Props = {
     group: number;
@@ -87,10 +88,21 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
                 ref={scrollableRootRef}
                 onScroll={handleRootScroll}
             >
-                {query.hasPreviousPage ?? true ? (
-                    <p ref={sentryRef} className="text-4xl">
-                        Loading
-                    </p>
+                {query.isLoading || query.hasPreviousPage ? (
+                    <div
+                        ref={sentryRef}
+                        className="flex flex-col gap-3 text-4xl"
+                    >
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-28" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-32" />
+                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-28" />
+                    </div>
                 ) : (
                     <Welcome />
                 )}
@@ -259,31 +271,5 @@ GroupChat.useLayout = (children) => {
         </AppLayout>
     );
 };
-
-function useBottomScroll(dependencies: React.DependencyList) {
-    const scrollableRootRef = useRef<HTMLDivElement | null>(null);
-    const lastScrollDistanceToBottomRef = useRef<number>();
-
-    useEffect(() => {
-        const scrollableRoot = scrollableRootRef.current;
-        const lastScrollDistanceToBottom =
-            lastScrollDistanceToBottomRef.current ?? 0;
-        if (scrollableRoot) {
-            scrollableRoot.scrollTop =
-                scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
-        }
-    }, [dependencies]);
-
-    const handleRootScroll = React.useCallback(() => {
-        const rootNode = scrollableRootRef.current;
-        if (rootNode) {
-            const scrollDistanceToBottom =
-                rootNode.scrollHeight - rootNode.scrollTop;
-            lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
-        }
-    }, []);
-
-    return { scrollableRootRef, handleRootScroll };
-}
 
 export default GroupChat;
