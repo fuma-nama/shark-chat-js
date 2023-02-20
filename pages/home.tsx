@@ -3,7 +3,7 @@ import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
-import { trpc } from "@/server/client";
+import { trpc } from "@/utils/trpc";
 import { groupIcon } from "@/utils/media";
 import { ChatBubbleIcon, PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";

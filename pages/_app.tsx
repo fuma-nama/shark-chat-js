@@ -1,4 +1,4 @@
-import { trpc } from "@/server/client";
+import { trpc } from "@/utils/trpc";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
