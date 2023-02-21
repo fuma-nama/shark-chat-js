@@ -97,14 +97,14 @@ function Message({
     message: Serialize<Message & { author: User }>;
 }) {
     return (
-        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2">
+        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 shadow-md dark:shadow-none shadow-brand-500/10">
             <Avatar
                 src={message.author.image}
                 fallback={message.author.name!!}
             />
             <div>
                 <p className="font-semibold">{message.author.name}</p>
-                <p>
+                <p className="whitespace-pre">
                     {message.content}{" "}
                     {new Date(message.timestamp).toLocaleString()}
                 </p>

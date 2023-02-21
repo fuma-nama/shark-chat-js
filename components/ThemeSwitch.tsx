@@ -37,7 +37,7 @@ export function ThemeSwitch() {
                 <Select.ScrollUpButton className="flex items-center justify-center text-gray-700 dark:text-gray-300">
                     <ChevronUpIcon />
                 </Select.ScrollUpButton>
-                <Select.Viewport className="bg-white dark:bg-dark-800 p-2 rounded-lg shadow-lg">
+                <Select.Viewport className="bg-white p-2 rounded-lg shadow-lg shadow-brand-500/10 dark:shadow-none dark:bg-dark-800">
                     <Select.Group>
                         {options.map((item) => (
                             <Select.Item

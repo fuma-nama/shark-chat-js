@@ -19,8 +19,8 @@ export const button = tv({
                 "focus-visible:ring-0",
             ],
             secondary: [
-                "rounded-md transition-colors shadow-xl shadow-light-200",
-                "bg-white text-gray-700 hover:bg-light-200 dark:bg-dark-800 dark:text-gray-50 dark:hover:bg-dark-700 dark:shadow-none",
+                "rounded-md transition-colors shadow-lg shadow-brand-500/10 bg-white text-gray-700 hover:bg-light-200",
+                "dark:bg-dark-800 dark:text-gray-50 dark:hover:bg-dark-700 dark:shadow-none",
                 "focus-visible:ring-0",
             ],
             danger: [
