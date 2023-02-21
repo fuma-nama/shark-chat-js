@@ -17,6 +17,7 @@ import React from "react";
 import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { useMessageEvents } from "@/utils/chat";
+import { Spinner } from "@/components/Spinner";
 
 type Props = {
     group: number;
@@ -68,19 +69,8 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
                 onScroll={handleRootScroll}
             >
                 {query.isLoading || query.hasPreviousPage ? (
-                    <div
-                        ref={sentryRef}
-                        className="flex flex-col gap-3 text-4xl"
-                    >
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-28" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-16" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-32" />
-                        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 h-28" />
+                    <div ref={sentryRef} className="flex flex-col m-auto">
+                        <Spinner size="large" />
                     </div>
                 ) : (
                     <Welcome />
