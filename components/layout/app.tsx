@@ -1,7 +1,7 @@
 import Sidebar from "@/components/layout/Sidebar";
 import clsx from "clsx";
 import Head from "next/head";
-import React from "react";
+import React, { FC } from "react";
 import { ReactNode } from "react";
 import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
@@ -11,11 +11,13 @@ export function AppLayout({
     items,
     children,
     breadcrumb,
+    layout: Body = (props) => <div {...props} className="overflow-y-auto" />,
 }: {
     title: string;
     breadcrumb?: BreadcrumbItem[];
     items?: ReactNode;
     children?: ReactNode;
+    layout?: FC<{ children: ReactNode }>;
 }) {
     return (
         <>
@@ -38,14 +40,14 @@ export function AppLayout({
                 )}
             >
                 <Sidebar />
-                <div className="flex flex-col overflow-y-auto">
-                    <div className="max-w-screen-2xl w-full mx-auto flex flex-col pt-2 p-4 min-h-full">
+                <Body>
+                    <div className="max-w-screen-2xl w-full mx-auto flex flex-col pt-2 p-4 min-h-full max-h-[none]">
                         <Navbar title={title} breadcrumb={breadcrumb}>
                             {items}
                         </Navbar>
                         {children}
                     </div>
-                </div>
+                </Body>
             </main>
         </>
     );

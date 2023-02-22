@@ -1,4 +1,3 @@
-import Avatar from "@/components/Avatar";
 import { AppLayout } from "@/components/layout/app";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "@/utils/media";
@@ -8,23 +7,35 @@ import { NextPageWithLayout } from "../_app";
 import { CldImage } from "next-cloudinary";
 import { BookmarkIcon, ChatBubbleIcon } from "@radix-ui/react-icons";
 import { GetServerSideProps } from "next";
-import { useEffect } from "react";
+import {
+    createContext,
+    ReactNode,
+    RefObject,
+    useContext,
+    useEffect,
+} from "react";
 import clsx from "clsx";
-import { Message, User } from "@prisma/client";
-import { Serialize } from "@/utils/types";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import React from "react";
 import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { useMessageEvents } from "@/utils/chat";
 import { Spinner } from "@/components/Spinner";
+import { MessageItem } from "@/components/chat/MessageItem";
 
-type Props = {
-    group: number;
-};
+const ViewContext = createContext<
+    | {
+          viewRef: RefObject<HTMLDivElement>;
+          scrollToBottom: () => void;
+      }
+    | undefined
+>(undefined);
 
-const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
+const GroupChat: NextPageWithLayout = () => {
+    const group = Number(useRouter().query.group);
+
     const { status } = useSession();
+    const { scrollToBottom, viewRef } = useContext(ViewContext)!!;
     const variables = {
         groupId: group,
         count: 30,
@@ -55,19 +66,17 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
         rootMargin: "20px",
     });
 
-    const { handleRootScroll, scrollableRootRef } = useBottomScroll([pages]);
+    useEffect(() => {
+        rootRef(viewRef.current);
+    }, [rootRef, viewRef]);
 
     useEffect(() => {
-        rootRef(scrollableRootRef.current);
-    }, [rootRef, scrollableRootRef]);
+        scrollToBottom();
+    }, [pages, scrollToBottom]);
 
     return (
         <>
-            <div
-                className="flex flex-col flex-1 overflow-y-auto h-0 gap-3 mb-5"
-                ref={scrollableRootRef}
-                onScroll={handleRootScroll}
-            >
+            <div className="flex flex-col gap-3 mb-8">
                 {query.isLoading || query.hasPreviousPage ? (
                     <div ref={sentryRef} className="flex flex-col m-auto">
                         <Spinner size="large" />
@@ -81,7 +90,7 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
                         className="flex flex-col-reverse gap-3"
                     >
                         {messages.map((message) => (
-                            <Message key={message.id} message={message} />
+                            <MessageItem key={message.id} message={message} />
                         ))}
                     </div>
                 ))}
@@ -90,28 +99,6 @@ const GroupChat: NextPageWithLayout<Props> = ({ group }) => {
         </>
     );
 };
-
-function Message({
-    message,
-}: {
-    message: Serialize<Message & { author: User }>;
-}) {
-    return (
-        <div className="p-3 rounded-xl bg-light-50 dark:bg-dark-800 flex flex-row gap-2 shadow-md dark:shadow-none shadow-brand-500/10">
-            <Avatar
-                src={message.author.image}
-                fallback={message.author.name!!}
-            />
-            <div>
-                <p className="font-semibold">{message.author.name}</p>
-                <p className="whitespace-pre">
-                    {message.content}{" "}
-                    {new Date(message.timestamp).toLocaleString()}
-                </p>
-            </div>
-        </div>
-    );
-}
 
 function Welcome() {
     return (
@@ -132,52 +119,66 @@ function Welcome() {
     );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (props) => {
-    const { group } = props.query;
+function Body({ children }: { children: ReactNode }) {
+    const { handleRootScroll, scrollableRootRef, scrollToBottom } =
+        useBottomScroll();
 
-    return {
-        props: {
-            group: Number(group),
-        },
-    };
-};
+    return (
+        <ViewContext.Provider
+            value={{ scrollToBottom, viewRef: scrollableRootRef }}
+        >
+            <div
+                className="overflow-y-auto"
+                ref={scrollableRootRef}
+                onScroll={handleRootScroll}
+            >
+                {children}
+            </div>
+        </ViewContext.Provider>
+    );
+}
+
+function UserItem({ group }: { group: number }) {
+    const { status } = useSession();
+    const info = trpc.group.info.useQuery(
+        { groupId: group },
+        { enabled: status === "authenticated" }
+    );
+    if (info.data == null) {
+        return (
+            <div className="w-28 h-5 rounded-lg bg-light-300 dark:bg-dark-700" />
+        );
+    }
+
+    return (
+        <div className="flex flex-row gap-2 items-center">
+            {info.data.icon_hash != null ? (
+                <CldImage
+                    src={groupIcon.url([info.data.id], info.data.icon_hash)}
+                    alt="icon"
+                    width="28"
+                    height="28"
+                    className="rounded-full"
+                />
+            ) : (
+                <ChatBubbleIcon className="w-7 h-7" />
+            )}
+            <span>{info.data.name}</span>
+        </div>
+    );
+}
 
 GroupChat.useLayout = (children) => {
     const router = useRouter();
-    const { group } = router.query;
-    const { status } = useSession();
-    const info = trpc.group.info.useQuery(
-        { groupId: Number(group) },
-        { enabled: status === "authenticated" }
-    );
+    const group = Number(router.query.group);
 
     return (
         <AppLayout
             title="Group Chat"
+            layout={Body}
             breadcrumb={[
                 {
-                    text:
-                        info.data != null ? (
-                            <div className="flex flex-row gap-2 items-center">
-                                {info.data.icon_hash != null ? (
-                                    <CldImage
-                                        src={groupIcon.url(
-                                            [info.data.id],
-                                            info.data.icon_hash
-                                        )}
-                                        alt="icon"
-                                        width="28"
-                                        height="28"
-                                        className="rounded-full"
-                                    />
-                                ) : (
-                                    <ChatBubbleIcon className="w-7 h-7" />
-                                )}
-                                <span>{info.data.name}</span>
-                            </div>
-                        ) : (
-                            <div className="w-28 h-5 rounded-lg bg-light-300 dark:bg-dark-700" />
-                        ),
+                    text: <UserItem group={group} />,
                     href: `/chat/${group}`,
                 },
             ]}

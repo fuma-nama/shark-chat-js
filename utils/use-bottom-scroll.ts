@@ -1,18 +1,19 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useCallback } from "react";
 
-export function useBottomScroll(dependencies: React.DependencyList) {
+export function useBottomScroll() {
     const scrollableRootRef = useRef<HTMLDivElement | null>(null);
     const lastScrollDistanceToBottomRef = useRef<number>();
 
-    useEffect(() => {
+    const scrollToBottom = useCallback(() => {
         const scrollableRoot = scrollableRootRef.current;
         const lastScrollDistanceToBottom =
             lastScrollDistanceToBottomRef.current ?? 0;
+
         if (scrollableRoot) {
             scrollableRoot.scrollTop =
                 scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
         }
-    }, [dependencies]);
+    }, []);
 
     const handleRootScroll = React.useCallback(() => {
         const rootNode = scrollableRootRef.current;
@@ -23,5 +24,5 @@ export function useBottomScroll(dependencies: React.DependencyList) {
         }
     }, []);
 
-    return { scrollableRootRef, handleRootScroll };
+    return { scrollableRootRef, handleRootScroll, scrollToBottom };
 }
