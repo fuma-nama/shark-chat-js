@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../_app";
 import { CldImage } from "next-cloudinary";
 import { BookmarkIcon, ChatBubbleIcon } from "@radix-ui/react-icons";
-import { GetServerSideProps } from "next";
 import {
     createContext,
     ReactNode,
@@ -42,6 +41,7 @@ const GroupChat: NextPageWithLayout = () => {
         cursorType: "before",
     } as const;
 
+    useMessageEvents(variables);
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
         staleTime: Infinity,
@@ -50,7 +50,6 @@ const GroupChat: NextPageWithLayout = () => {
                 ? messages[messages.length - 1].timestamp
                 : null,
     });
-    useMessageEvents(variables);
 
     const pages = query.data?.pages;
     const [sentryRef, { rootRef }] = useInfiniteScroll({

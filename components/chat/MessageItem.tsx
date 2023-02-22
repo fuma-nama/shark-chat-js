@@ -15,10 +15,14 @@ export function MessageItem({
                 fallback={message.author.name!!}
             />
             <div className="flex-1 flex flex-col">
-                <div className="flex flex-row">
+                <div className="flex flex-row items-center">
                     <p className="font-semibold">{message.author.name}</p>
-                    <p className="text-xs sm:text-sm text-accent-700 dark:text-accent-600 ml-auto">
-                        {new Date(message.timestamp).toLocaleString()}
+                    <p className="text-xs sm:text-xs text-accent-800 dark:text-accent-600 ml-auto sm:ml-2">
+                        {new Date(message.timestamp).toLocaleString(undefined, {
+                            dateStyle: "short",
+                            timeStyle: "short",
+                            hourCycle: "h24",
+                        })}
                     </p>
                 </div>
                 <p className="whitespace-pre">{message.content}</p>

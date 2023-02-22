@@ -12,7 +12,6 @@ export function Sendbar({ group }: { group: number }) {
     const send = trpc.chat.send.useMutation({
         onSuccess: (data) => {
             setText("");
-            console.log(data);
         },
     });
 
