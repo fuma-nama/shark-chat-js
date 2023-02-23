@@ -1,4 +1,4 @@
-import { tv } from "tailwind-variants";
+import { tv, VariantProps } from "tailwind-variants";
 
 export const contextMenu = tv({
     slots: {
@@ -9,6 +9,7 @@ export const contextMenu = tv({
     },
 });
 
+export type MenuItemVariants = VariantProps<typeof menuItem>;
 export const menuItem = tv({
     slots: {
         root: [
