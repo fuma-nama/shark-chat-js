@@ -39,6 +39,7 @@ export function Sendbar({ group }: { group: number }) {
                     className="resize-none h-auto max-h-[50vh]"
                     placeholder="Type message"
                     autoComplete="off"
+                    color="primary"
                     onKeyDown={(e) => {
                         if (e.shiftKey && e.key === "Enter") {
                             onSend();
