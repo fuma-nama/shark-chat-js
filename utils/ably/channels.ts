@@ -16,7 +16,7 @@ export const channels = a.channels({
             })
         ),
     }),
-    chat: a.channel(() => [], {
+    chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
         message_sent: a.event(
             z.custom<
                 Message & {

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import type { NextApiRequest, NextApiResponse } from "next";
 import ably from "@/server/ably";
 import { authOptions } from "../auth/[...nextauth]";
+import { channels } from "@/utils/ably";
 
 export default async function handler(
     req: NextApiRequest,
@@ -15,13 +16,14 @@ export default async function handler(
             .status(401)
             .json("You must be login before connecting to Ably");
     }
+
     console.log(`Ably auth called ${clientId}`);
 
     const tokenRequestData = await ably.auth.createTokenRequest({
         clientId: clientId,
         capability: {
-            [`private:${clientId}`]: ["subscribe"],
-            [`chat`]: ["subscribe"],
+            [channels.private.channelName([clientId])]: ["subscribe"],
+            ["chat:*"]: ["subscribe"],
         },
     });
 

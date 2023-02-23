@@ -11,7 +11,7 @@ export function useMessageEvents(
     const utils = trpc.useContext();
 
     channels.chat.message_sent.useChannel(
-        undefined,
+        [variables.groupId],
         { enabled: status === "authenticated" },
         (message) => {
             utils.chat.messages.setInfiniteData(variables, (prev) => {

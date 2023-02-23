@@ -18,7 +18,7 @@ export const chatRouter = router({
             await checkIsMemberOf(input.groupId, ctx.session);
 
             const userId = ctx.session.user.id;
-            const channel = channels.chat.get(ably);
+            const channel = channels.chat.get(ably, [input.groupId]);
             const message = await prisma.message.create({
                 data: {
                     author_id: userId,
