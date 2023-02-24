@@ -6,12 +6,16 @@ import { ReactNode } from "react";
 import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
 
+function DefaultBody(props: { children: ReactNode }) {
+    return <div className="overflow-y-auto">{props.children}</div>;
+}
+
 export function AppLayout({
     title,
     items,
     children,
     breadcrumb,
-    layout: Body = (props) => <div {...props} className="overflow-y-auto" />,
+    layout: Body = DefaultBody,
 }: {
     title: string;
     breadcrumb?: BreadcrumbItem[];
