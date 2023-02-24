@@ -29,6 +29,7 @@ export function MessageItem({
     const onDelete = () => {
         deleteMutation.mutate({
             messageId: message.id,
+            groupId: message.group_id,
         });
     };
 
@@ -89,6 +90,7 @@ function EditMessage({
         editMutation.mutate({
             content: edit,
             messageId: message.id,
+            groupId: message.group_id,
         });
     };
 

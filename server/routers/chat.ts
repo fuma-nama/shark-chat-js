@@ -72,6 +72,7 @@ export const chatRouter = router({
         .input(
             z.object({
                 messageId: z.number(),
+                groupId: z.number(),
                 content: contentSchema,
             })
         )
@@ -91,11 +92,18 @@ export const chatRouter = router({
                     code: "BAD_REQUEST",
                     message: "No permission or message doesn't exist",
                 });
+
+            const channel = channels.chat.get(ably, [input.groupId]);
+            await channels.chat.message_updated.publish(channel, {
+                id: input.messageId,
+                content: input.content,
+            });
         }),
     delete: protectedProcedure
         .input(
             z.object({
                 messageId: z.number(),
+                groupId: z.number(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -103,6 +111,7 @@ export const chatRouter = router({
                 where: {
                     id: input.messageId,
                     author_id: ctx.session.user.id,
+                    group_id: input.groupId,
                 },
             });
 
@@ -111,6 +120,11 @@ export const chatRouter = router({
                     code: "BAD_REQUEST",
                     message: "No permission or message doesn't exist",
                 });
+
+            const channel = channels.chat.get(ably, [input.groupId]);
+            await channels.chat.message_deleted.publish(channel, {
+                id: input.messageId,
+            });
         }),
 });
 

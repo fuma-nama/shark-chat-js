@@ -24,9 +24,15 @@ export const channels = a.channels({
                 }
             >()
         ),
+        message_updated: a.event(
+            z.object({
+                id: z.number(),
+                content: z.string(),
+            })
+        ),
         message_deleted: a.event(
             z.object({
-                id: z.string(),
+                id: z.number(),
             })
         ),
     }),
