@@ -114,7 +114,6 @@ export const chatRouter = router({
                     group_id: input.groupId,
                 },
             });
-            console.log(result);
 
             if (result.count === 0)
                 throw new TRPCError({
