@@ -2,6 +2,7 @@ import { groupRouter } from "./group";
 import { chatRouter } from "./chat";
 import { z } from "zod";
 import { procedure, router } from "../trpc";
+import { accountRouter } from "./account";
 
 export const appRouter = router({
     hello: procedure
@@ -17,6 +18,7 @@ export const appRouter = router({
         }),
     chat: chatRouter,
     group: groupRouter,
+    account: accountRouter,
 });
 
 // export type definition of API

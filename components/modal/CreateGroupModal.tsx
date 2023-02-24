@@ -5,6 +5,7 @@ import { trpc } from "@/utils/trpc";
 import { Spinner } from "../Spinner";
 import { ImagePicker } from "../input/ImagePicker";
 import { Dialog } from "../Dialog";
+import { label } from "../system/text";
 
 export type DialogProps = {
     children: ReactNode;
@@ -49,10 +50,7 @@ function Content({ onClose }: { onClose: () => void }) {
                 </fieldset>
 
                 <fieldset>
-                    <label
-                        htmlFor="firstName"
-                        className="text-[0.875rem] font-medium text-gray-700 dark:text-accent-400 "
-                    >
+                    <label htmlFor="firstName" className={label()}>
                         Name
                         <span className="text-red-400 mx-1 text-base">*</span>
                     </label>
