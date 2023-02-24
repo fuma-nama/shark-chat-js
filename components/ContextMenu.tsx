@@ -1,3 +1,5 @@
+import * as ContextMenu from "@radix-ui/react-context-menu";
+import { ReactNode } from "react";
 import { tv, VariantProps } from "tailwind-variants";
 
 export const contextMenu = tv({
@@ -39,3 +41,82 @@ export const menuItem = tv({
         color: "secondary",
     },
 });
+
+export type RootProps = {
+    trigger: ReactNode;
+    children: ReactNode;
+};
+
+export function Root({ trigger, children }: RootProps) {
+    const styles = contextMenu({});
+
+    return (
+        <ContextMenu.Root>
+            <ContextMenu.Trigger asChild>{trigger}</ContextMenu.Trigger>
+            <ContextMenu.Portal>
+                <ContextMenu.Content className={styles.content()}>
+                    {children}
+                </ContextMenu.Content>
+            </ContextMenu.Portal>
+        </ContextMenu.Root>
+    );
+}
+
+export type MenuItemProps = MenuItemVariants & {
+    children: ReactNode;
+    shortcut?: string;
+    icon?: ReactNode;
+    onClick?: () => void;
+};
+
+export function Item({
+    children,
+    shortcut,
+    icon,
+    color,
+    ...props
+}: MenuItemProps) {
+    const item = menuItem({ color });
+
+    return (
+        <ContextMenu.Item {...props} className={item.root()}>
+            <p className="flex flex-row gap-1 items-center -ml-5">
+                {icon} {children}
+            </p>
+
+            <div className={item.right()}>{shortcut}</div>
+        </ContextMenu.Item>
+    );
+}
+
+export type CheckboxItemProps = MenuItemProps & {
+    value: boolean;
+    onChange: (v: boolean) => void;
+};
+
+export function CheckboxItem({
+    children,
+    shortcut,
+    icon,
+    color,
+    value,
+    onChange,
+    ...props
+}: CheckboxItemProps) {
+    const item = menuItem({ color });
+
+    return (
+        <ContextMenu.CheckboxItem
+            {...props}
+            className={item.root()}
+            checked={value}
+            onCheckedChange={(v) => onChange(v === true)}
+        >
+            <p className="flex flex-row gap-1 items-center -ml-5">
+                {icon} {children}
+            </p>
+
+            <div className={item.right()}>{shortcut}</div>
+        </ContextMenu.CheckboxItem>
+    );
+}
