@@ -7,10 +7,16 @@ import Button from "../Button";
 import Textarea from "../input/Textarea";
 
 import * as ContextMenu from "../ContextMenu";
-import { Cross1Icon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
+import {
+    CopyIcon,
+    Cross1Icon,
+    Pencil1Icon,
+    TrashIcon,
+} from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { trpc } from "@/utils/trpc";
 import { Spinner } from "../Spinner";
+import { useSession } from "next-auth/react";
 
 export function MessageItem({
     message,
@@ -18,7 +24,6 @@ export function MessageItem({
     message: Serialize<Message & { author: User }>;
 }) {
     const [isEditing, setIsEditing] = useState(false);
-    const deleteMutation = trpc.chat.delete.useMutation();
 
     const date = new Date(message.timestamp).toLocaleString(undefined, {
         dateStyle: "short",
@@ -26,18 +31,11 @@ export function MessageItem({
         hourCycle: "h24",
     });
 
-    const onDelete = () => {
-        deleteMutation.mutate({
-            messageId: message.id,
-            groupId: message.group_id,
-        });
-    };
-
     return (
         <MessageMenu
             isEditing={isEditing}
             setIsEditing={setIsEditing}
-            onDelete={onDelete}
+            message={message}
         >
             <div
                 className={clsx(
@@ -144,37 +142,62 @@ function EditMessage({
 function MessageMenu({
     isEditing,
     setIsEditing,
-    onDelete,
+    message,
     children,
 }: {
     isEditing: boolean;
     setIsEditing: (v: boolean) => void;
-    onDelete: () => void;
     children: ReactNode;
+    message: Serialize<Message>;
 }) {
+    const { status, data } = useSession();
+    const isAuthor =
+        status === "authenticated" && message.author_id === data.user.id;
+
+    const deleteMutation = trpc.chat.delete.useMutation();
+
+    const onDelete = () => {
+        deleteMutation.mutate({
+            messageId: message.id,
+            groupId: message.group_id,
+        });
+    };
+
     return (
         <ContextMenu.Root trigger={children}>
-            <ContextMenu.CheckboxItem
-                icon={
-                    isEditing ? (
-                        <Cross1Icon className="w-4 h-4" />
-                    ) : (
-                        <Pencil1Icon className="w-4 h-4" />
-                    )
-                }
-                value={isEditing}
-                onChange={setIsEditing}
-            >
-                {isEditing ? "Close Edit" : "Edit"}
-            </ContextMenu.CheckboxItem>
             <ContextMenu.Item
-                icon={<TrashIcon className="w-4 h-4" />}
-                shortcut="⌘+D"
-                color="danger"
-                onClick={onDelete}
+                icon={<CopyIcon className="w-4 h-4" />}
+                onClick={() => {
+                    navigator.clipboard.writeText(message.content);
+                }}
             >
-                Delete
+                Copy
             </ContextMenu.Item>
+            {isAuthor && (
+                <ContextMenu.CheckboxItem
+                    icon={
+                        isEditing ? (
+                            <Cross1Icon className="w-4 h-4" />
+                        ) : (
+                            <Pencil1Icon className="w-4 h-4" />
+                        )
+                    }
+                    value={isEditing}
+                    onChange={setIsEditing}
+                >
+                    {isEditing ? "Close Edit" : "Edit"}
+                </ContextMenu.CheckboxItem>
+            )}
+            {isAuthor && (
+                <ContextMenu.Item
+                    icon={<TrashIcon className="w-4 h-4" />}
+                    shortcut="⌘+D"
+                    color="danger"
+                    onClick={onDelete}
+                >
+                    Delete
+                </ContextMenu.Item>
+            )}
         </ContextMenu.Root>
     );
 }

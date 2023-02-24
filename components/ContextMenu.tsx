@@ -16,6 +16,7 @@ export const menuItem = tv({
     slots: {
         root: [
             "flex flex-row items-center gap-12 pl-6 pr-2 py-1 text-sm rounded-md cursor-pointer group",
+            "radix-disabled:cursor-not-allowed radix-disabled:opacity-50",
         ],
         right: ["ml-auto text-accent-600 group-radix-highlighted:text-white"],
     },
@@ -62,12 +63,12 @@ export function Root({ trigger, children }: RootProps) {
     );
 }
 
-export type MenuItemProps = MenuItemVariants & {
-    children: ReactNode;
-    shortcut?: string;
-    icon?: ReactNode;
-    onClick?: () => void;
-};
+export type MenuItemProps = MenuItemVariants &
+    Pick<ContextMenu.MenuItemProps, "onClick" | "disabled"> & {
+        children: ReactNode;
+        shortcut?: string;
+        icon?: ReactNode;
+    };
 
 export function Item({
     children,
