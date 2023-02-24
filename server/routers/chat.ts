@@ -6,12 +6,14 @@ import ably from "../ably";
 import { protectedProcedure, router } from "./../trpc";
 import { Session } from "next-auth";
 
+export const contentSchema = z.string().min(1).max(2000).trim();
+
 export const chatRouter = router({
     send: protectedProcedure
         .input(
             z.object({
                 groupId: z.number(),
-                message: z.string(),
+                message: contentSchema,
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -65,6 +67,50 @@ export const chatRouter = router({
             });
 
             return messages;
+        }),
+    update: protectedProcedure
+        .input(
+            z.object({
+                messageId: z.number(),
+                content: contentSchema,
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const result = await prisma.message.updateMany({
+                where: {
+                    id: input.messageId,
+                    author_id: ctx.session.user.id,
+                },
+                data: {
+                    content: input.content,
+                },
+            });
+
+            if (result.count === 0)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "No permission or message doesn't exist",
+                });
+        }),
+    delete: protectedProcedure
+        .input(
+            z.object({
+                messageId: z.number(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const result = await prisma.message.deleteMany({
+                where: {
+                    id: input.messageId,
+                    author_id: ctx.session.user.id,
+                },
+            });
+
+            if (result.count === 0)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "No permission or message doesn't exist",
+                });
         }),
 });
 
