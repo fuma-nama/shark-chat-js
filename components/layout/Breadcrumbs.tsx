@@ -1,5 +1,5 @@
+import useProfile from "@/utils/auth/use-profile";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Fragment, ReactNode } from "react";
 import Avatar from "../Avatar";
@@ -10,7 +10,7 @@ export type BreadcrumbItem = {
 };
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
-    const user = useSession().data?.user;
+    const { profile } = useProfile();
 
     return (
         <div className="flex flex-row gap-1 items-center">
@@ -20,8 +20,8 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
             >
                 <Avatar
                     alt="avatar"
-                    src={user?.image ?? undefined}
-                    fallback={user?.name ?? undefined}
+                    src={profile?.image}
+                    fallback={profile?.name ?? undefined}
                     size="small"
                 />
                 <Separator />

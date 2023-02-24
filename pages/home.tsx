@@ -13,6 +13,7 @@ import { CldImage } from "next-cloudinary";
 import { channels } from "@/utils/ably";
 import Link from "next/link";
 import { Group } from "@prisma/client";
+import useProfile from "@/utils/auth/use-profile";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -94,9 +95,9 @@ function GroupItem({ group }: { group: Group }) {
 }
 
 function ChatItem() {
-    const user = useSession().data?.user;
+    const { profile } = useProfile();
 
-    if (user == null) return <></>;
+    if (profile == null) return <></>;
 
     return (
         <div
@@ -107,8 +108,8 @@ function ChatItem() {
         >
             <Avatar
                 alt="avatar"
-                src={user.image ?? undefined}
-                fallback={user.name ?? undefined}
+                src={profile.image ?? undefined}
+                fallback={profile.name ?? undefined}
             />
             <div>
                 <p className="font-semibold text-base">SonMooSans</p>

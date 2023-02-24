@@ -1,4 +1,5 @@
 import { usePageStore } from "@/stores/page";
+import useProfile from "@/utils/auth/use-profile";
 import {
     ChevronRightIcon,
     Cross1Icon,
@@ -6,7 +7,6 @@ import {
     HomeIcon,
 } from "@radix-ui/react-icons";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
@@ -127,9 +127,8 @@ function Item({
 }
 
 function BottomCard() {
-    const { status, data } = useSession();
-    const user = data?.user;
-    if (status !== "authenticated" || user == null) return <></>;
+    const { status, profile } = useProfile();
+    if (status !== "authenticated") return <></>;
 
     return (
         <Link
@@ -141,14 +140,14 @@ function BottomCard() {
         >
             <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
                 <Avatar
-                    src={user.image ?? undefined}
-                    fallback={user.name ?? undefined}
+                    src={profile.image ?? undefined}
+                    fallback={profile.name ?? undefined}
                 />
             </div>
             <div className="flex-1 overflow-hidden flex flex-col">
-                <p className="font-semibold">{user.name}</p>
+                <p className="font-semibold">{profile.name}</p>
                 <p className="text-accent-800 dark:text-accent-600 text-sm text-ellipsis inline-block w-full break-keep overflow-hidden">
-                    {user.email}
+                    {profile.email}
                 </p>
             </div>
             <ChevronRightIcon className="w-6 h-6 group-hover:translate-x-1 transition-transform my-auto text-accent-800" />
