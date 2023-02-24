@@ -81,11 +81,11 @@ model Member {
 
 model Message {
   id Int @id @default(autoincrement())
-  group_id Int?
+  group_id Int
   author_id String
   content String @db.VarChar(2000)
   timestamp DateTime @default(now())
 
-  group Group? @relation(fields: [group_id], references: [id])
+  group Group @relation(fields: [group_id], references: [id])
   author User @relation(fields: [author_id], references: [id])
 }
