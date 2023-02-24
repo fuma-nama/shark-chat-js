@@ -26,7 +26,7 @@ export type Channel<Args, Events extends EventsRecord<Args>> = {
 type AnyMessage<
     Events extends EventsRecord<never>,
     E extends keyof Events = keyof Events
-> = Events extends Events
+> = E extends keyof Events
     ? {
           event: E;
           data: Serialize<InferEventData<Events[E]>>;
