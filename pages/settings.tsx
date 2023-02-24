@@ -33,7 +33,12 @@ const Settings: NextPageWithLayout = () => {
                 src={profile.image ?? undefined}
                 fallback={profile.name ?? undefined}
             />
-            <h2 className="font-bold text-2xl">{profile.name}</h2>
+            <div>
+                <h2 className="font-bold text-2xl">{profile.name}</h2>
+                <p className="text-accent-800 dark:text-accent-600 text-base">
+                    {profile.email}
+                </p>
+            </div>
             <div className="flex flex-row gap-3 mt-3">
                 <Button color="primary" onClick={() => setEdit(true)}>
                     Edit Profile

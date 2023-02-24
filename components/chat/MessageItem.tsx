@@ -115,7 +115,7 @@ function EditMessage({
                 htmlFor="edit-message"
                 className="text-xs text-accent-800 dark:text-accent-600"
             >
-                editing the message
+                Press ⇧ enter to save • escape to exit
             </label>
 
             <div className="flex flex-row gap-3 mt-3">
@@ -131,7 +131,11 @@ function EditMessage({
                     )}
                     Save changes
                 </Button>
-                <Button color="secondary" onClick={onCancel}>
+                <Button
+                    color="secondary"
+                    onClick={onCancel}
+                    className="dark:bg-dark-700"
+                >
                     Cancel
                 </Button>
             </div>
