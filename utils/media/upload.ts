@@ -51,7 +51,7 @@ async function uploadImage(options: UploadOptions) {
 export function useUpdateProfileMutation() {
     const { status } = useSession();
     const client = trpc.useContext().client;
-    const sign = trpc.account.signUploadAvatar.useQuery(undefined, {
+    const sign = trpc.upload.signAvatar.useQuery(undefined, {
         enabled: status === "authenticated",
     });
 
