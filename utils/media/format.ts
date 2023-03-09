@@ -1,9 +1,20 @@
 import type { TransformationOptions, UploadApiOptions } from "cloudinary";
 
-const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+export const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
 export const groupIcon = media<[groupId: number]>({
     publicId: ([groupId]) => `icons/${groupId}`,
+    type: "image",
+    transformation: {
+        width: 300,
+        height: 300,
+        crop: "pad",
+        audio_codec: "none",
+    },
+});
+
+export const userAvatar = media<[userId: string]>({
+    publicId: ([userId]) => `avatars/${userId}`,
     type: "image",
     transformation: {
         width: 300,

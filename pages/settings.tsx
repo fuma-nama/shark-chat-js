@@ -1,14 +1,18 @@
 import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
+import { ImagePicker } from "@/components/input/ImagePicker";
 import TextField from "@/components/input/TextField";
 import { AppLayout } from "@/components/layout/app";
 import { Spinner } from "@/components/Spinner";
 import { label } from "@/components/system/text";
 import useProfile from "@/utils/auth/use-profile";
 import { trpc } from "@/utils/trpc";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
+import { User } from "@prisma/client";
+import { Serialize } from "@/utils/types";
+import { useUpdateProfileMutation } from "@/utils/media/upload";
 
 const Settings: NextPageWithLayout = () => {
     const { status, profile } = useProfile();
@@ -18,10 +22,7 @@ const Settings: NextPageWithLayout = () => {
 
     if (edit) {
         return (
-            <UpdateProfile
-                initialName={profile.name ?? ""}
-                onCancel={() => setEdit(false)}
-            />
+            <UpdateProfile profile={profile} onCancel={() => setEdit(false)} />
         );
     }
 
@@ -52,30 +53,44 @@ const Settings: NextPageWithLayout = () => {
 };
 
 function UpdateProfile({
-    initialName,
+    profile,
     onCancel,
 }: {
-    initialName: string;
+    profile: Serialize<User>;
     onCancel: () => void;
 }) {
-    const [name, setName] = useState(initialName);
-    const updateMutation = trpc.account.updateProfile.useMutation();
+    const [name, setName] = useState<string>(profile.name);
+    const [avatar, setAvatar] = useState<string | undefined>();
+    const utils = trpc.useContext();
+    const mutation = useUpdateProfileMutation();
 
     const onSave = () => {
-        updateMutation.mutate({
-            name,
-        });
+        return mutation.mutate(
+            { name, avatar },
+            {
+                onSuccess(data) {
+                    utils.account.get.setData(undefined, () => data);
+                    onCancel();
+                },
+            }
+        );
     };
 
     return (
         <div className="flex flex-col gap-3 max-w-2xl">
+            <ImagePicker
+                previewClassName="max-w-[150px] max-h-[150px]"
+                value={avatar ?? profile.image}
+                onChange={setAvatar}
+            />
+
             <fieldset>
                 <label htmlFor="username" className={label()}>
                     Username
                 </label>
                 <TextField
                     id="username"
-                    placeholder={initialName}
+                    placeholder={profile.name}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                 />
@@ -84,9 +99,9 @@ function UpdateProfile({
                 <Button
                     color="primary"
                     onClick={onSave}
-                    disabled={updateMutation.isLoading}
+                    disabled={mutation.isLoading}
                 >
-                    {updateMutation.isLoading && (
+                    {mutation.isLoading && (
                         <div className="mr-2 inline">
                             <Spinner size="small" />
                         </div>
