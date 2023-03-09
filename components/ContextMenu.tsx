@@ -5,8 +5,8 @@ import { tv, VariantProps } from "tailwind-variants";
 export const contextMenu = tv({
     slots: {
         content: [
-            "bg-white shadow-xl shadow-brand-500/10 rounded-2xl p-1 py-2",
-            "dark:bg-dark-900 dark:shadow-brand-700/50",
+            "bg-white shadow-xl shadow-brand-500/10 rounded-2xl p-2",
+            "dark:bg-dark-900 dark:shadow-black/20",
         ],
     },
 });
@@ -15,9 +15,10 @@ export type MenuItemVariants = VariantProps<typeof menuItem>;
 export const menuItem = tv({
     slots: {
         root: [
-            "flex flex-row items-center gap-12 pl-6 pr-2 py-1 text-sm rounded-md cursor-pointer group",
+            "flex flex-row items-center gap-12 pl-6 pr-2 py-1 rounded-md cursor-pointer group",
             "radix-disabled:cursor-not-allowed radix-disabled:opacity-50",
         ],
+        label: ["flex flex-row gap-2 items-center -ml-5"],
         right: ["ml-auto text-accent-600 group-radix-highlighted:text-white"],
     },
     variants: {
@@ -81,7 +82,7 @@ export function Item({
 
     return (
         <ContextMenu.Item {...props} className={item.root()}>
-            <p className="flex flex-row gap-1 items-center -ml-5">
+            <p className={item.label()}>
                 {icon} {children}
             </p>
 
@@ -113,7 +114,7 @@ export function CheckboxItem({
             checked={value}
             onCheckedChange={(v) => onChange(v === true)}
         >
-            <p className="flex flex-row gap-1 items-center -ml-5">
+            <p className={item.label()}>
                 {icon} {children}
             </p>
 

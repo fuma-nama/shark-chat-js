@@ -18,7 +18,7 @@ const avatar = tv({
                 root: "w-11 h-11",
             },
             large: {
-                root: "w-20 h-20",
+                root: "w-24 h-24",
             },
         },
     },
