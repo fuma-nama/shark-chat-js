@@ -1,13 +1,15 @@
 import * as AvatarBase from "@radix-ui/react-avatar";
-import { AvatarIcon } from "@radix-ui/react-icons";
+import { ReactNode, useMemo } from "react";
 import { tv, VariantProps } from "tailwind-variants";
 
 const avatar = tv({
     slots: {
         root: "relative inline-flex aspect-square",
         image: "h-full w-full object-cover rounded-full",
-        fallback:
-            "flex h-full w-full items-center justify-center bg-light dark:bg-dark-800",
+        fallback: [
+            "flex h-full w-full text-center items-center justify-center bg-brand-500 text-sm font-medium uppercase rounded-full",
+            "text-accent-50 dark:bg-brand-400",
+        ],
     },
     variants: {
         size: {
@@ -16,9 +18,11 @@ const avatar = tv({
             },
             medium: {
                 root: "w-11 h-11",
+                fallback: "text-md",
             },
             large: {
                 root: "w-24 h-24",
+                fallback: "text-lg",
             },
         },
     },
@@ -29,22 +33,43 @@ const avatar = tv({
 
 export type AvatarProps = {
     src?: string | null;
-    alt?: string;
     fallback?: string;
+    alt?: string;
+    asImage?: ReactNode;
 } & VariantProps<typeof avatar>;
 
-export default function Avatar({ size, ...props }: AvatarProps) {
+export default function Avatar({
+    size,
+    fallback,
+    asImage,
+    src,
+    alt,
+}: AvatarProps) {
     const styles = avatar({ size });
+    const fallbackText = useMemo(() => {
+        return fallback
+            ?.split(/\s/)
+            .map((v) => (v.length > 0 ? v.charAt(0) : ""))
+            .join("");
+    }, [fallback]);
 
     return (
         <AvatarBase.Root className={styles.root()}>
-            <AvatarBase.Image
-                {...props}
-                src={props.src ?? undefined}
-                className={styles.image()}
-            />
-            <AvatarBase.Fallback className={styles.fallback()} delayMs={600}>
-                <AvatarIcon className="text-sm font-medium uppercase text-accent-700 dark:text-accent-400" />
+            {src != null && (
+                <AvatarBase.Image
+                    alt={fallback ?? alt ?? "avatar"}
+                    src={src}
+                    className={styles.image()}
+                    asChild={asImage != null}
+                >
+                    {asImage}
+                </AvatarBase.Image>
+            )}
+            <AvatarBase.Fallback
+                className={styles.fallback()}
+                delayMs={src != null ? 200 : 0}
+            >
+                <p>{fallbackText}</p>
             </AvatarBase.Fallback>
         </AvatarBase.Root>
     );
