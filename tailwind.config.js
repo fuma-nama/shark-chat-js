@@ -24,15 +24,17 @@ module.exports = {
                 ],
             },
             animation: {
-                "fade-in": "fade-in 0.2s ease-out",
+                "zoom-in": "zoom-in 0.2s ease-out",
             },
             keyframes: {
-                "fade-in": {
+                "zoom-in": {
                     from: {
                         opacity: "0",
+                        transform: "scale(0.8)",
                     },
                     to: {
                         opacity: "100%",
+                        transform: "scale(1)",
                     },
                 },
             },

@@ -10,13 +10,12 @@ export const dialog = tv({
             "focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
         ],
         content: [
-            "relative m-auto z-50",
+            "relative m-auto z-50 animate-zoom-in",
             "w-[95vw] max-w-md rounded-lg p-4 md:w-full",
             "bg-light-50 dark:bg-dark-900",
             "focus:outline-none",
         ],
-        overlay:
-            "fixed inset-0 z-20 bg-black/50 overflow-y-auto flex animate-fade-in",
+        overlay: "fixed inset-0 z-20 bg-black/50 overflow-y-auto flex",
         title: "text-lg font-bold text-accent-900 dark:text-accent-50",
         description:
             "mt-2 text-sm font-normal text-accent-800 dark:text-accent-600",
