@@ -45,7 +45,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  groups        Group[]
+  owned_groups        Group[]
   members       Member[]
   messages Message[]
 }
@@ -73,8 +73,8 @@ model Member {
   group_id Int
   user_id  String
 
-  group Group @relation(fields: [group_id], references: [id])
-  user  User  @relation(fields: [user_id], references: [id])
+  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([group_id, user_id])
 }
@@ -86,6 +86,6 @@ model Message {
   content String @db.VarChar(2000)
   timestamp DateTime @default(now())
 
-  group Group @relation(fields: [group_id], references: [id])
-  author User @relation(fields: [author_id], references: [id])
+  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  author User @relation(fields: [author_id], references: [id], onDelete: Cascade)
 }
