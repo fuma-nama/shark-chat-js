@@ -1,3 +1,4 @@
+import Avatar from "@/components/Avatar";
 import Button from "@/components/Button";
 import { useGroupLayout } from "@/components/layout/group";
 import { AlertDialog } from "@/components/system/alert-dialog";
@@ -6,7 +7,6 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { groupIcon } from "@/utils/media";
 import { trpc } from "@/utils/trpc";
 import clsx from "clsx";
-import { CldImage } from "next-cloudinary";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { getQuery } from ".";
@@ -23,15 +23,15 @@ const Settings: NextPageWithLayout = () => {
     const info = query.data;
     return (
         <div className="flex flex-col gap-3">
-            {info.icon_hash != null && (
-                <CldImage
-                    src={groupIcon.url([groupId], info.icon_hash)}
-                    width={100}
-                    height={100}
-                    alt={info.name}
-                    className="rounded-full"
-                />
-            )}
+            <Avatar
+                size="large"
+                src={
+                    info.icon_hash != null
+                        ? groupIcon.url([groupId], info.icon_hash)
+                        : null
+                }
+                fallback={info.name}
+            />
             <h2 className="text-2xl font-bold">{info.name}</h2>
 
             <div className="flex flex-row gap-3">
@@ -45,7 +45,7 @@ const Settings: NextPageWithLayout = () => {
             ></div>
             <div
                 className={clsx(
-                    "flex flex-col p-3 border-2 border-red-500 rounded-md mt-5",
+                    "flex flex-col p-3 border-[1px] border-red-500 rounded-md mt-5",
                     "sm:p-4"
                 )}
             >

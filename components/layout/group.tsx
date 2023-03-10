@@ -1,10 +1,9 @@
 import { getQuery } from "@/pages/chat/[group]";
 import { groupIcon } from "@/utils/media";
 import { trpc } from "@/utils/trpc";
-import { ChatBubbleIcon } from "@radix-ui/react-icons";
-import { CldImage } from "next-cloudinary";
 import { useRouter } from "next/router";
 import { ComponentProps } from "react";
+import Avatar from "../Avatar";
 import { AppLayout } from "./app";
 
 function GroupItem({ group }: { group: number }) {
@@ -17,17 +16,16 @@ function GroupItem({ group }: { group: number }) {
 
     return (
         <div className="flex flex-row gap-2 items-center">
-            {info.data.icon_hash != null ? (
-                <CldImage
-                    src={groupIcon.url([info.data.id], info.data.icon_hash)}
-                    alt="icon"
-                    width="28"
-                    height="28"
-                    className="rounded-full"
-                />
-            ) : (
-                <ChatBubbleIcon className="w-7 h-7" />
-            )}
+            <Avatar
+                size="small"
+                src={
+                    info.data.icon_hash != null
+                        ? groupIcon.url([info.data.id], info.data.icon_hash)
+                        : null
+                }
+                alt="icon"
+                fallback={info.data.name}
+            />
             <span>{info.data.name}</span>
         </div>
     );

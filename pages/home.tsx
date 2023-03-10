@@ -5,11 +5,10 @@ import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "@/utils/media";
-import { ChatBubbleIcon, PlusIcon } from "@radix-ui/react-icons";
+import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
-import { CldImage } from "next-cloudinary";
 import { channels } from "@/utils/ably";
 import Link from "next/link";
 import { Group } from "@prisma/client";
@@ -76,17 +75,15 @@ function GroupItem({ group }: { group: Group }) {
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
         >
-            {group.icon_hash != null ? (
-                <CldImage
-                    width="60"
-                    height="60"
-                    alt="icon"
-                    src={groupIcon.url([group.id], group.icon_hash)}
-                    className="rounded-xl bg-brand-500 dark:bg-brand-400"
-                />
-            ) : (
-                <ChatBubbleIcon className="w-[60px] h-[60px] text-accent-50 bg-brand-500 dark:bg-brand-400 rounded-xl flex items-center justify-center p-4" />
-            )}
+            <Avatar
+                src={
+                    group.icon_hash != null
+                        ? groupIcon.url([group.id], group.icon_hash)
+                        : null
+                }
+                alt="icon"
+                fallback={group.name}
+            />
             <p className="font-semibold text-lg overflow-hidden text-ellipsis max-w-full break-keep">
                 {group.name}
             </p>
@@ -106,11 +103,7 @@ function ChatItem() {
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
         >
-            <Avatar
-                alt="avatar"
-                src={profile.image ?? undefined}
-                fallback={profile.name ?? undefined}
-            />
+            <Avatar src={profile.image} fallback={profile.name} />
             <div>
                 <p className="font-semibold text-base">SonMooSans</p>
                 <p className="text-accent-700 dark:text-accent-600 text-sm">

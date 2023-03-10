@@ -3,7 +3,6 @@ import Button from "@/components/Button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import TextField from "@/components/input/TextField";
 import { AppLayout } from "@/components/layout/app";
-import { Spinner } from "@/components/Spinner";
 import { label } from "@/components/system/text";
 import useProfile from "@/utils/auth/use-profile";
 import { trpc } from "@/utils/trpc";
@@ -28,12 +27,7 @@ const Settings: NextPageWithLayout = () => {
 
     return (
         <div className="flex flex-col gap-3">
-            <Avatar
-                size="large"
-                alt="avatar"
-                src={profile.image ?? undefined}
-                fallback={profile.name ?? undefined}
-            />
+            <Avatar size="large" src={profile.image} fallback={profile.name} />
             <div>
                 <h2 className="font-bold text-2xl">{profile.name}</h2>
                 <p className="text-accent-800 dark:text-accent-600 text-base">

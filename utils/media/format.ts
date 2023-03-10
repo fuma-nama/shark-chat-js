@@ -44,7 +44,7 @@ function media<Args extends any[]>({
             resource_type: type,
             transformation,
         }),
-        url: (args, hash, format) => {
+        url: (args, hash, format = "png") => {
             return `https://res.cloudinary.com/${cloudName}/image/upload/v${hash}/${publicId(
                 args
             )}.${format}`;

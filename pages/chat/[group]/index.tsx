@@ -1,11 +1,8 @@
-import { AppLayout } from "@/components/layout/app";
 import { trpc } from "@/utils/trpc";
-import { groupIcon } from "@/utils/media";
 import { useSession } from "next-auth/react";
 import { NextRouter, useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
-import { CldImage } from "next-cloudinary";
-import { BookmarkIcon, ChatBubbleIcon, GearIcon } from "@radix-ui/react-icons";
+import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import {
     createContext,
     ReactNode,

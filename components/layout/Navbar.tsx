@@ -30,7 +30,7 @@ export function Navbar({
     const [setSidebarOpen] = usePageStore((v) => [v.setSidebarOpen]);
 
     return (
-        <div className="sticky top-0 bg-light-100 dark:bg-dark-900 z-10 py-2 flex flex-row gap-2 mb-8">
+        <div className="sticky top-0 bg-light-100 dark:bg-dark-900 z-10 py-2 flex flex-row gap-2 mb-8 min-h-[52px]">
             <button className="md:hidden" onClick={() => setSidebarOpen(true)}>
                 <HamburgerMenuIcon className="w-6 h-6" />
             </button>

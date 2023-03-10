@@ -19,7 +19,6 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
                 className="flex flex-row gap-1 items-center max-sm:hidden"
             >
                 <Avatar
-                    alt="avatar"
                     src={profile?.image}
                     fallback={profile?.name ?? undefined}
                     size="small"
