@@ -2,7 +2,6 @@ import React, { ReactNode, useState } from "react";
 import Button from "../Button";
 import TextField from "../input/TextField";
 import { trpc } from "@/utils/trpc";
-import { Spinner } from "../Spinner";
 import { ImagePicker } from "../input/ImagePicker";
 import { Dialog } from "../Dialog";
 import { label } from "../system/text";
@@ -74,13 +73,9 @@ function Content({ onClose }: { onClose: () => void }) {
                             icon: icon ?? undefined,
                         })
                     }
+                    isLoading={create.isLoading}
                     disabled={create.isLoading || name.trim().length === 0}
                 >
-                    {create.isLoading && (
-                        <div className="mr-2">
-                            <Spinner />
-                        </div>
-                    )}
                     Save
                 </Button>
             </div>

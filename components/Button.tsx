@@ -1,5 +1,6 @@
 import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
+import { Spinner } from "./Spinner";
 
 export const button = tv({
     base: [
@@ -41,15 +42,23 @@ export const button = tv({
 });
 
 export type ButtonProps = React.ComponentProps<"button"> &
-    VariantProps<typeof button>;
+    VariantProps<typeof button> & {
+        isLoading?: boolean;
+    };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ children, color, size, ...props }, ref) => (
+    ({ children, color, size, isLoading, ...props }, ref) => (
         <button
             ref={ref}
+            disabled={isLoading === true}
             {...props}
             className={button({ color, size, className: props.className })}
         >
+            {isLoading === true && (
+                <div className="mr-2 inline">
+                    <Spinner size="small" />
+                </div>
+            )}
             {children}
         </button>
     )

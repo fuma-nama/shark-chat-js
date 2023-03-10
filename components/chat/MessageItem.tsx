@@ -15,7 +15,6 @@ import {
 } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { trpc } from "@/utils/trpc";
-import { Spinner } from "../Spinner";
 import { useSession } from "next-auth/react";
 
 export function MessageItem({
@@ -122,13 +121,8 @@ function EditMessage({
                 <Button
                     color="primary"
                     onClick={onSave}
-                    disabled={editMutation.isLoading}
+                    isLoading={editMutation.isLoading}
                 >
-                    {editMutation.isLoading && (
-                        <div className="inline mr-2">
-                            <Spinner size="small" />
-                        </div>
-                    )}
                     Save changes
                 </Button>
                 <Button
