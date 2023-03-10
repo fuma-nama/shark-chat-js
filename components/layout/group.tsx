@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { ComponentProps } from "react";
 import { AppLayout } from "./app";
 
-function UserItem({ group }: { group: number }) {
+function GroupItem({ group }: { group: number }) {
     const info = trpc.group.info.useQuery({ groupId: group });
     if (info.data == null) {
         return (
@@ -45,7 +45,7 @@ export function useGroupLayout(
             {...props}
             breadcrumb={[
                 {
-                    text: <UserItem group={group} />,
+                    text: <GroupItem group={group} />,
                     href: `/chat/${group}`,
                 },
                 ...(props.breadcrumb ?? []),
