@@ -2,9 +2,10 @@ import prisma from "@/prisma/client";
 import { z } from "zod";
 import ably from "../ably";
 import cloudinary from "../cloudinary";
-import { protectedProcedure, router } from "../trpc";
+import { procedure, protectedProcedure, router } from "../trpc";
 import { channels } from "@/utils/ably";
 import { groupIcon } from "@/utils/media";
+import { checkIsOwnerOf } from "./chat";
 
 const imageSchema = z.string({
     description: "Base64 format file",
@@ -67,7 +68,7 @@ export const groupRouter = router({
             },
         });
     }),
-    info: protectedProcedure
+    info: procedure
         .input(
             z.object({
                 groupId: z.number(),
@@ -75,6 +76,17 @@ export const groupRouter = router({
         )
         .query(async ({ input }) => {
             return await prisma.group.findUnique({
+                where: {
+                    id: input.groupId,
+                },
+            });
+        }),
+    delete: protectedProcedure
+        .input(z.object({ groupId: z.number() }))
+        .mutation(async ({ ctx, input }) => {
+            checkIsOwnerOf(input.groupId, ctx.session);
+
+            return await prisma.group.delete({
                 where: {
                     id: input.groupId,
                 },

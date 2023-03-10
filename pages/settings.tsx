@@ -99,13 +99,8 @@ function UpdateProfile({
                 <Button
                     color="primary"
                     onClick={onSave}
-                    disabled={mutation.isLoading}
+                    isLoading={mutation.isLoading}
                 >
-                    {mutation.isLoading && (
-                        <div className="mr-2 inline">
-                            <Spinner size="small" />
-                        </div>
-                    )}
                     Save Changes
                 </Button>
                 <Button onClick={onCancel}>Cancel</Button>
