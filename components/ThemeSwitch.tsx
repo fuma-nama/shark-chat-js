@@ -8,7 +8,7 @@ import {
     MoonIcon,
     SunIcon,
 } from "@radix-ui/react-icons";
-import Button from "./Button";
+import { Button } from "./system/button";
 import clsx from "clsx";
 import { useMemo } from "react";
 import { useMounted } from "@/utils/use-mounted";

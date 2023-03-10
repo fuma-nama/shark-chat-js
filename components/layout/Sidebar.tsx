@@ -10,7 +10,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import Avatar from "../Avatar";
+import Avatar from "../system/avatar";
 
 export default function Sidebar() {
     const [isOpen, setOpen] = usePageStore((v) => [

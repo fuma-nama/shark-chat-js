@@ -2,11 +2,11 @@ import { Serialize } from "@/utils/types";
 import type { Message } from "@prisma/client";
 import { User } from "next-auth";
 import { ReactNode, useState } from "react";
-import Avatar from "../Avatar";
-import Button from "../Button";
+import Avatar from "../system/avatar";
+import { Button } from "../system/button";
 import Textarea from "../input/Textarea";
 
-import * as ContextMenu from "../ContextMenu";
+import * as ContextMenu from "../system/context-menu";
 import {
     CopyIcon,
     Cross1Icon,

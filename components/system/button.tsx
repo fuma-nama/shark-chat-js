@@ -1,6 +1,8 @@
+import { ComponentProps, forwardRef } from "react";
+
 import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
-import { Spinner } from "./Spinner";
+import { Spinner } from "./spinner";
 
 export const button = tv({
     base: [
@@ -41,12 +43,12 @@ export const button = tv({
     },
 });
 
-export type ButtonProps = React.ComponentProps<"button"> &
+type ButtonProps = React.ComponentProps<"button"> &
     VariantProps<typeof button> & {
         isLoading?: boolean;
     };
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ children, color, size, isLoading, ...props }, ref) => (
         <button
             ref={ref}
@@ -65,4 +67,25 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = "Button";
-export default Button;
+
+const iconButton = tv({
+    base: [
+        "inline-flex flex-row items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50 p-3",
+        "disabled:bg-brand-400/50 disabled:bg-none disabled:cursor-not-allowed disabled:text-accent-50 dark:disabled:text-accent-500",
+    ],
+});
+
+type IconButtonProps = ComponentProps<"button"> &
+    VariantProps<typeof iconButton>;
+
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+    (props, ref) => (
+        <button
+            {...props}
+            ref={ref}
+            className={iconButton({ className: props.className })}
+        />
+    )
+);
+
+IconButton.displayName = "IconButton";

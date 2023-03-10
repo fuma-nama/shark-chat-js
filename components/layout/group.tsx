@@ -3,7 +3,7 @@ import { groupIcon } from "@/utils/media";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { ComponentProps } from "react";
-import Avatar from "../Avatar";
+import Avatar from "../system/avatar";
 import { AppLayout } from "./app";
 
 function GroupItem({ group }: { group: number }) {

@@ -16,9 +16,9 @@ import React from "react";
 import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { useMessageEvents } from "@/utils/chat";
-import { Spinner } from "@/components/Spinner";
+import { Spinner } from "@/components/system/spinner";
 import { MessageItem } from "@/components/chat/MessageItem";
-import { button } from "@/components/Button";
+import { button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
 

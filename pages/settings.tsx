@@ -1,5 +1,5 @@
-import Avatar from "@/components/Avatar";
-import Button from "@/components/Button";
+import Avatar from "@/components/system/avatar";
+import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import TextField from "@/components/input/TextField";
 import { AppLayout } from "@/components/layout/app";

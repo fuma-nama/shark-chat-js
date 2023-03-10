@@ -1,9 +1,9 @@
 import React, { ReactNode, useState } from "react";
-import Button from "../Button";
+import { Button } from "../system/button";
 import TextField from "../input/TextField";
 import { trpc } from "@/utils/trpc";
 import { ImagePicker } from "../input/ImagePicker";
-import { Dialog } from "../Dialog";
+import { Dialog } from "../system/dialog";
 import { label } from "../system/text";
 
 export type DialogProps = {

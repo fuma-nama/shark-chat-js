@@ -1,5 +1,5 @@
-import Avatar from "@/components/Avatar";
-import Button from "@/components/Button";
+import Avatar from "@/components/system/avatar";
+import { Button } from "@/components/system/button";
 import { useGroupLayout } from "@/components/layout/group";
 import { AlertDialog } from "@/components/system/alert-dialog";
 import { text } from "@/components/system/text";

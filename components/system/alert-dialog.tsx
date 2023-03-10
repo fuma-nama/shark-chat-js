@@ -1,6 +1,6 @@
 import * as Base from "@radix-ui/react-alert-dialog";
-import { dialog } from "../Dialog";
-import Button from "../Button";
+import { dialog } from "./dialog";
+import { Button } from "./button";
 import { ReactNode } from "react";
 
 export type AlertDialogProps = {

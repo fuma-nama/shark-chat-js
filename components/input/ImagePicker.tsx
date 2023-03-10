@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { createRef, useEffect, useRef, useState } from "react";
-import Button from "../Button";
+import { Button } from "../system/button";
 import { Cropper, ReactCropperElement } from "react-cropper";
 import clsx from "clsx";
 

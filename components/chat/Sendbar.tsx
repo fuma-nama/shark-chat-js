@@ -2,7 +2,7 @@ import { trpc } from "@/utils/trpc";
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
 import Textarea from "@/components/input/Textarea";
 import { useState } from "react";
-import IconButton from "@/components/IconButton";
+import { IconButton } from "@/components/system/button";
 import clsx from "clsx";
 import React from "react";
 

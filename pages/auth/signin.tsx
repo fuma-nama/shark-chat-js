@@ -2,7 +2,7 @@ import type { GetServerSideProps } from "next";
 import { ClientSafeProvider, getProviders, signIn } from "next-auth/react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
-import Button from "@/components/Button";
+import { Button } from "@/components/system/button";
 import { BaseLayout } from "@/components/layout/base";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";

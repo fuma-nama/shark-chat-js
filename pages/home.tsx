@@ -1,6 +1,6 @@
-import Avatar from "@/components/Avatar";
-import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import Avatar from "@/components/system/avatar";
+import { Button } from "@/components/system/button";
+import { IconButton } from "@/components/system/button";
 import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/utils/trpc";
