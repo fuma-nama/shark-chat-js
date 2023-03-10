@@ -2,7 +2,7 @@ import useProfile from "@/utils/auth/use-profile";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { Fragment, ReactNode } from "react";
-import Avatar from "../system/avatar";
+import { Avatar } from "../system/avatar";
 
 export type BreadcrumbItem = {
     text: string | ReactNode;

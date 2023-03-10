@@ -38,13 +38,7 @@ export type AvatarProps = {
     asImage?: ReactNode;
 } & VariantProps<typeof avatar>;
 
-export default function Avatar({
-    size,
-    fallback,
-    asImage,
-    src,
-    alt,
-}: AvatarProps) {
+export function Avatar({ size, fallback, asImage, src, alt }: AvatarProps) {
     const styles = avatar({ size });
     const fallbackText = useMemo(() => {
         return fallback

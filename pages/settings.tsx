@@ -1,4 +1,4 @@
-import Avatar from "@/components/system/avatar";
+import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import TextField from "@/components/input/TextField";

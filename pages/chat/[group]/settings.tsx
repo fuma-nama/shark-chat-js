@@ -1,4 +1,4 @@
-import Avatar from "@/components/system/avatar";
+import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { useGroupLayout } from "@/components/layout/group";
 import { AlertDialog } from "@/components/system/alert-dialog";

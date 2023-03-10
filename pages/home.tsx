@@ -1,4 +1,4 @@
-import Avatar from "@/components/system/avatar";
+import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { IconButton } from "@/components/system/button";
 import { AppLayout } from "@/components/layout/app";

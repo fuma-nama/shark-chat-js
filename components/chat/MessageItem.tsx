@@ -2,7 +2,7 @@ import { Serialize } from "@/utils/types";
 import type { Message } from "@prisma/client";
 import { User } from "next-auth";
 import { ReactNode, useState } from "react";
-import Avatar from "../system/avatar";
+import { Avatar } from "../system/avatar";
 import { Button } from "../system/button";
 import Textarea from "../input/Textarea";
 
