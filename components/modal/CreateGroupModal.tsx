@@ -11,11 +11,11 @@ const Content = dynamic(async () => import("./dynamic/create-group"), {
     ),
 });
 
-export type DialogProps = {
+type Props = {
     children: ReactNode;
 };
 
-export function CreateGroupModal({ children }: DialogProps) {
+export function CreateGroupModal({ children }: Props) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (

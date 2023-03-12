@@ -112,7 +112,7 @@ function EditGroupPanel({
                 id="icon"
                 value={icon ?? default_icon}
                 onChange={setIcon}
-                previewClassName="w-[300px] h-[300px]"
+                previewClassName="w-[150px] h-[150px] max-w-full"
             />
             <TextField
                 id="name"
