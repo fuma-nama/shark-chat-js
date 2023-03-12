@@ -10,15 +10,29 @@ import clsx from "clsx";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { getQuery } from ".";
+import { ImagePicker } from "@/components/input/ImagePicker";
+import { Serialize } from "@/utils/types";
+import { Group } from "@prisma/client";
+import TextField from "@/components/input/TextField";
+import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
     const { groupId } = getQuery(router);
     const query = trpc.group.info.useQuery({ groupId });
+    const [edit, setEdit] = useState(false);
 
     if (query.data == null) {
         return <></>;
     }
+
+    if (edit)
+        return (
+            <EditGroupPanel
+                group={query.data}
+                onCancel={() => setEdit(false)}
+            />
+        );
 
     const info = query.data;
     return (
@@ -35,14 +49,10 @@ const Settings: NextPageWithLayout = () => {
             <h2 className="text-2xl font-bold">{info.name}</h2>
 
             <div className="flex flex-row gap-3">
-                <Button color="primary">Edit Info</Button>
+                <Button color="primary" onClick={() => setEdit(true)}>
+                    Edit Info
+                </Button>
             </div>
-            <div
-                className={clsx(
-                    "flex flex-col p-3 border-2 border-dark-600 rounded-md mt-5",
-                    "sm:p-4"
-                )}
-            ></div>
             <div
                 className={clsx(
                     "flex flex-col p-3 border-[1px] border-red-500 rounded-md mt-5",
@@ -61,6 +71,64 @@ const Settings: NextPageWithLayout = () => {
         </div>
     );
 };
+
+function EditGroupPanel({
+    group,
+    onCancel,
+}: {
+    group: Serialize<Group>;
+    onCancel: () => void;
+}) {
+    const [name, setName] = useState(group.name);
+    const [icon, setIcon] = useState<string | undefined>(undefined);
+    const utils = trpc.useContext();
+    const mutation = useUpdateGroupInfoMutation();
+
+    const default_icon =
+        group.icon_hash != null
+            ? groupIcon.url([group.id], group.icon_hash)
+            : null;
+
+    const onSave = () => {
+        mutation.mutate(
+            { groupId: group.id, icon, name },
+            {
+                onSuccess(data) {
+                    utils.group.info.setData({ groupId: data.id }, () => data);
+                    onCancel();
+                },
+            }
+        );
+    };
+    return (
+        <form
+            className="flex flex-col gap-3 items-start"
+            onSubmit={(e) => {
+                onSave();
+                e.preventDefault();
+            }}
+        >
+            <ImagePicker
+                id="icon"
+                value={icon ?? default_icon}
+                onChange={setIcon}
+                previewClassName="w-[300px] h-[300px]"
+            />
+            <TextField
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+            />
+            <Button
+                type="submit"
+                color="primary"
+                isLoading={mutation.isLoading}
+            >
+                Save Changes
+            </Button>
+        </form>
+    );
+}
 
 function DeleteGroupButton({ group }: { group: number }) {
     const [open, setOpen] = useState(false);

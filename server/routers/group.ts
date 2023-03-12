@@ -81,6 +81,27 @@ export const groupRouter = router({
                 },
             });
         }),
+    update: protectedProcedure
+        .input(
+            z.object({
+                groupId: z.number(),
+                name: z.string().optional(),
+                icon_hash: z.number().optional(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            checkIsOwnerOf(input.groupId, ctx.session);
+
+            return await prisma.group.update({
+                where: {
+                    id: input.groupId,
+                },
+                data: {
+                    name: input.name,
+                    icon_hash: input.icon_hash,
+                },
+            });
+        }),
     delete: protectedProcedure
         .input(z.object({ groupId: z.number() }))
         .mutation(async ({ ctx, input }) => {
