@@ -1,10 +1,15 @@
 import React, { ReactNode, useState } from "react";
-import { Button } from "../system/button";
-import TextField from "../input/TextField";
-import { trpc } from "@/utils/trpc";
-import { ImagePicker } from "../input/ImagePicker";
 import { Dialog } from "../system/dialog";
-import { label } from "../system/text";
+import dynamic from "next/dynamic";
+import { Spinner } from "../system/spinner";
+
+const Content = dynamic(async () => import("./dynamic/create-group"), {
+    loading: () => (
+        <div className="flex items-center justify-center py-10">
+            <Spinner size="large" />
+        </div>
+    ),
+});
 
 export type DialogProps = {
     children: ReactNode;
@@ -23,62 +28,5 @@ export function CreateGroupModal({ children }: DialogProps) {
         >
             <Content onClose={() => setIsOpen(false)} />
         </Dialog>
-    );
-}
-
-function Content({ onClose }: { onClose: () => void }) {
-    const [name, setName] = useState("");
-    const [icon, setIcon] = useState<string | null>(null);
-    const create = trpc.group.create.useMutation({
-        onSuccess: onClose,
-    });
-
-    return (
-        <>
-            <form className="mt-8 space-y-2">
-                <fieldset>
-                    <label htmlFor="icon" className="sr-only">
-                        Icon
-                    </label>
-                    <ImagePicker
-                        id="icon"
-                        value={icon}
-                        onChange={(v) => setIcon(v)}
-                        previewClassName="mx-auto w-[120px] aspect-square flex flex-col gap-3 items-center"
-                    />
-                </fieldset>
-
-                <fieldset>
-                    <label htmlFor="firstName" className={label()}>
-                        Name
-                        <span className="text-red-400 mx-1 text-base">*</span>
-                    </label>
-                    <TextField
-                        id="firstName"
-                        placeholder="My Group"
-                        autoComplete="given-name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        aria-required
-                    />
-                </fieldset>
-            </form>
-
-            <div className="mt-4 flex justify-end">
-                <Button
-                    color="primary"
-                    onClick={() =>
-                        create.mutate({
-                            name,
-                            icon: icon ?? undefined,
-                        })
-                    }
-                    isLoading={create.isLoading}
-                    disabled={create.isLoading || name.trim().length === 0}
-                >
-                    Save
-                </Button>
-            </div>
-        </>
     );
 }

@@ -11,7 +11,7 @@ const spinner = tv({
                 status: "w-4 h-4 border-2",
             },
             large: {
-                status: "w-8 h-8 border-4",
+                status: "w-10 h-10 border-[3px]",
             },
         },
     },
