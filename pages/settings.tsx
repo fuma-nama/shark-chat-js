@@ -11,7 +11,7 @@ import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
 import { User } from "@prisma/client";
 import { Serialize } from "@/utils/types";
-import { useUpdateProfileMutation } from "@/utils/media/upload";
+import { useUpdateProfileMutation } from "@/utils/trpc/update-profile";
 
 const Settings: NextPageWithLayout = () => {
     const { status, profile } = useProfile();

@@ -1,24 +1,19 @@
-import { useMutation } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
+import { SignResponse } from "@/server/routers/upload";
 import { z } from "zod";
-import { trpc } from "../trpc";
 import { cloudName } from "./format";
 
 const uploadResponseSchema = z.object({
     secure_url: z.string(),
+    version: z.number(),
 });
+
+type UploadResponse = z.infer<typeof uploadResponseSchema>;
 
 export type UploadOptions = {
     file: string;
-    signature: string;
-    api_key: string;
-    timestamp: number;
-    resource_type?: "image";
-    transformation?: string;
-    public_id?: string;
-};
+} & SignResponse;
 
-async function uploadImage(options: UploadOptions) {
+async function uploadAsset(options: UploadOptions): Promise<UploadResponse> {
     const body = new FormData();
 
     body.append("file", options.file);
@@ -48,40 +43,11 @@ async function uploadImage(options: UploadOptions) {
     return uploadResponseSchema.parse(await res.json());
 }
 
-export function useUpdateProfileMutation() {
-    const { status } = useSession();
-    const client = trpc.useContext().client;
-    const sign = trpc.upload.signAvatar.useQuery(undefined, {
-        enabled: status === "authenticated",
+export async function upload(sign: () => Promise<SignResponse>, file: string) {
+    const signed = await sign();
+
+    return uploadAsset({
+        file: file,
+        ...signed,
     });
-
-    const uploadAvatar = async (avatar: string) => {
-        const signed = sign.data;
-
-        if (avatar != null && status === "authenticated" && signed != null) {
-            return uploadImage({
-                file: avatar,
-                resource_type: "image",
-                ...signed,
-            });
-        }
-
-        return null;
-    };
-
-    return useMutation(
-        async ({ name, avatar }: { name?: string; avatar?: string }) => {
-            let avatar_url: string | undefined;
-
-            if (avatar != null) {
-                const res = await uploadAvatar(avatar);
-                avatar_url = res?.secure_url;
-            }
-
-            return client.account.updateProfile.mutate({
-                name,
-                avatar_url,
-            });
-        }
-    );
 }
