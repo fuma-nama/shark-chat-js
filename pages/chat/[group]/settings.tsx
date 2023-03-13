@@ -119,13 +119,18 @@ function EditGroupPanel({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
             />
-            <Button
-                type="submit"
-                color="primary"
-                isLoading={mutation.isLoading}
-            >
-                Save Changes
-            </Button>
+            <div className="flex flex-row gap-3">
+                <Button
+                    type="submit"
+                    color="primary"
+                    isLoading={mutation.isLoading}
+                >
+                    Save Changes
+                </Button>
+                <Button disabled={mutation.isLoading} onClick={onCancel}>
+                    Cancel
+                </Button>
+            </div>
         </form>
     );
 }
