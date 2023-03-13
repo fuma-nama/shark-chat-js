@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import prisma from "@/prisma/client";
 import { z } from "zod";
 import ably from "../ably";
@@ -110,6 +111,39 @@ export const groupRouter = router({
             return await prisma.group.delete({
                 where: {
                     id: input.groupId,
+                },
+            });
+        }),
+    leave: protectedProcedure
+        .input(
+            z.object({
+                groupId: z.number(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const group = await prisma.group.findUnique({
+                where: {
+                    id: input.groupId,
+                },
+            });
+            if (group == null)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Group doesn't exist",
+                });
+            if (group.owner_id === ctx.session.user.id)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message:
+                        "The group owner cannot leave the group, please transfer your permissions before leaving it",
+                });
+
+            return prisma.member.delete({
+                where: {
+                    group_id_user_id: {
+                        group_id: input.groupId,
+                        user_id: ctx.session.user.id,
+                    },
                 },
             });
         }),

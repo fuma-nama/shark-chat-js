@@ -6,7 +6,6 @@ import { text } from "@/components/system/text";
 import { NextPageWithLayout } from "@/pages/_app";
 import { groupIcon } from "@/utils/media";
 import { trpc } from "@/utils/trpc";
-import clsx from "clsx";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { getQuery } from ".";
@@ -15,6 +14,16 @@ import { Serialize } from "@/utils/types";
 import { Group } from "@prisma/client";
 import TextField from "@/components/input/TextField";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
+import { tv } from "tailwind-variants";
+
+const box = tv({
+    base: ["flex flex-col p-3 border-[1px] rounded-md mt-5", "sm:p-4"],
+    variants: {
+        colors: {
+            red: "border-red-500",
+        },
+    },
+});
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
@@ -53,12 +62,16 @@ const Settings: NextPageWithLayout = () => {
                     Edit Info
                 </Button>
             </div>
-            <div
-                className={clsx(
-                    "flex flex-col p-3 border-[1px] border-red-500 rounded-md mt-5",
-                    "sm:p-4"
-                )}
-            >
+            <div className={box({ colors: "red" })}>
+                <div>
+                    <h3 className="text-xl font-semibold">Leave Group</h3>
+                    <p
+                        className={text({ type: "secondary" })}
+                    >{`You can still join the group after leaving it`}</p>
+                    <LeaveGroupButton group={groupId} />
+                </div>
+            </div>
+            <div className={box({ colors: "red" })}>
                 <div>
                     <h3 className="text-xl font-semibold">Delete Group</h3>
                     <p
@@ -71,6 +84,26 @@ const Settings: NextPageWithLayout = () => {
         </div>
     );
 };
+
+function LeaveGroupButton({ group }: { group: number }) {
+    const router = useRouter();
+    const mutation = trpc.group.leave.useMutation({
+        onSuccess: () => {
+            router.push("/home");
+        },
+    });
+
+    return (
+        <Button
+            color="danger"
+            isLoading={mutation.isLoading}
+            onClick={() => mutation.mutate({ groupId: group })}
+            className="mt-4"
+        >
+            Leave
+        </Button>
+    );
+}
 
 function EditGroupPanel({
     group,
