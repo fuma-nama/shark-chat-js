@@ -1,4 +1,3 @@
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { usePageStore } from "@/stores/page";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/router";
@@ -36,10 +35,7 @@ export function Navbar({
             </button>
             <Breadcrumbs items={breadcrumb} />
             <div className="ml-auto" />
-            <div className="flex flex-row gap-2 items-center max-md:hidden">
-                {children}
-            </div>
-            <ThemeSwitch />
+            <div className="flex flex-row gap-2 items-center">{children}</div>
         </div>
     );
 }

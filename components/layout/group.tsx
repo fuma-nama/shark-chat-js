@@ -1,6 +1,7 @@
 import { getQuery } from "@/pages/chat/[group]";
 import { groupIcon } from "@/utils/media";
 import { trpc } from "@/utils/trpc";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { ComponentProps } from "react";
 import { Avatar } from "../system/avatar";
@@ -8,6 +9,7 @@ import { AppLayout } from "./app";
 
 function GroupItem({ group }: { group: number }) {
     const info = trpc.group.info.useQuery({ groupId: group });
+
     if (info.data == null) {
         return (
             <div className="w-28 h-5 rounded-lg bg-light-300 dark:bg-dark-700" />

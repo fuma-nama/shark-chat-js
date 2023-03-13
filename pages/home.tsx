@@ -13,6 +13,7 @@ import { channels } from "@/utils/ably";
 import Link from "next/link";
 import { Group } from "@prisma/client";
 import useProfile from "@/utils/auth/use-profile";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -26,7 +27,7 @@ const Home: NextPageWithLayout = () => {
             </div>
             <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
             <Groups />
-            <div className="fixed bottom-6 right-6 md:hidden">
+            <div className="fixed bottom-6 right-6 sm:hidden">
                 <CreateGroupModal>
                     <IconButton aria-label="Create Group">
                         <PlusIcon className="w-7 h-7" />
@@ -118,11 +119,13 @@ Home.useLayout = (children) => (
     <AppLayout
         title="Home"
         items={
-            <>
+            <div className="max-sm:hidden">
                 <CreateGroupModal>
                     <Button color="primary">Create Group</Button>
                 </CreateGroupModal>
-            </>
+
+                <ThemeSwitch />
+            </div>
         }
     >
         {children}
