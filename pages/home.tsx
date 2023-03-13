@@ -4,7 +4,7 @@ import { IconButton } from "@/components/system/button";
 import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/utils/trpc";
-import { groupIcon } from "@/utils/media";
+import { groupIcon } from "@/utils/media/format";
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
@@ -119,7 +119,7 @@ Home.useLayout = (children) => (
     <AppLayout
         title="Home"
         items={
-            <div className="max-sm:hidden">
+            <div className="max-sm:hidden flex flex-row gap-3">
                 <CreateGroupModal>
                     <Button color="primary">Create Group</Button>
                 </CreateGroupModal>
