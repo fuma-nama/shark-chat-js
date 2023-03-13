@@ -1,7 +1,6 @@
 import { getQuery } from "@/pages/chat/[group]";
-import { groupIcon } from "@/utils/media";
+import { groupIcon } from "@/utils/media/format";
 import { trpc } from "@/utils/trpc";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { ComponentProps } from "react";
 import { Avatar } from "../system/avatar";

@@ -4,11 +4,11 @@ export type PageStore = {
     isSidebarOpen: boolean;
     setSidebarOpen: (v: boolean) => void;
     errors: ToastError[];
-    removeError: (id: string, index: number) => void;
+    addError: (error: ToastError) => void;
+    removeError: (index: number) => void;
 };
 
 export type ToastError = {
-    id: string;
     title: string;
     description: string;
 };
@@ -16,16 +16,15 @@ export type ToastError = {
 export const usePageStore = create<PageStore>((set) => ({
     isSidebarOpen: false,
     setSidebarOpen: (v: boolean) => set({ isSidebarOpen: v }),
-    errors: [
-        {
-            id: "test",
-            title: "Failed to fetch",
-            description: 'Unexpected token at index 0: "json"',
-        },
-    ],
-    removeError: (id, index) => {
+    errors: [],
+    addError: (error) => set((prev) => ({ errors: [...prev.errors, error] })),
+    removeError: (index) => {
         set((c) => ({
-            errors: c.errors.filter((v, i) => i !== index && v.id !== id),
+            errors: c.errors.filter((_, i) => i !== index),
         }));
     },
 }));
+
+export function showErrorToast(error: ToastError) {
+    return usePageStore.getState().addError(error);
+}

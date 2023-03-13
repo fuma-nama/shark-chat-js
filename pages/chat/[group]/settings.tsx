@@ -4,7 +4,7 @@ import { useGroupLayout } from "@/components/layout/group";
 import { AlertDialog } from "@/components/system/alert-dialog";
 import { text } from "@/components/system/text";
 import { NextPageWithLayout } from "@/pages/_app";
-import { groupIcon } from "@/utils/media";
+import { groupIcon } from "@/utils/media/format";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -15,6 +15,7 @@ import { Group } from "@prisma/client";
 import TextField from "@/components/input/TextField";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 import { tv } from "tailwind-variants";
+import { showErrorToast } from "@/stores/page";
 
 const box = tv({
     base: ["flex flex-col p-3 border-[1px] rounded-md mt-5", "sm:p-4"],
@@ -90,6 +91,12 @@ function LeaveGroupButton({ group }: { group: number }) {
     const mutation = trpc.group.leave.useMutation({
         onSuccess: () => {
             router.push("/home");
+        },
+        onError: (error) => {
+            showErrorToast({
+                title: "Failed to leave group",
+                description: error.message,
+            });
         },
     });
 

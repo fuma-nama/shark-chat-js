@@ -5,7 +5,7 @@ import ably from "../ably";
 import cloudinary from "../cloudinary";
 import { procedure, protectedProcedure, router } from "../trpc";
 import { channels } from "@/utils/ably";
-import { groupIcon } from "@/utils/media";
+import { groupIcon } from "@/utils/media/format";
 import { checkIsOwnerOf } from "./chat";
 
 const imageSchema = z.string({

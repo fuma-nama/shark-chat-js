@@ -1,5 +1,4 @@
-import { groupIcon } from "./../../utils/media/format";
-import { userAvatar } from "@/utils/media";
+import { userAvatar, groupIcon } from "@/utils/media/format";
 import { getTimestamp } from "@/utils/media/timestamp";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
