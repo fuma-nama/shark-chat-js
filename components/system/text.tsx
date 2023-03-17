@@ -12,6 +12,7 @@ export const text = tv({
         },
         size: {
             "2xl": ["text-2xl font-bold"],
+            xl: ["text-xl font-bold"],
             lg: ["text-lg font-semibold"],
         },
     },

@@ -14,17 +14,7 @@ import { Serialize } from "@/utils/types";
 import { Group } from "@prisma/client";
 import TextField from "@/components/input/TextField";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
-import { tv } from "tailwind-variants";
 import { showErrorToast } from "@/stores/page";
-
-const box = tv({
-    base: ["flex flex-col p-3 border-[1px] rounded-md mt-5", "sm:p-4"],
-    variants: {
-        colors: {
-            red: "border-red-500",
-        },
-    },
-});
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
@@ -46,7 +36,7 @@ const Settings: NextPageWithLayout = () => {
 
     const info = query.data;
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-6">
             <Avatar
                 size="large"
                 src={
@@ -63,23 +53,26 @@ const Settings: NextPageWithLayout = () => {
                     Edit Info
                 </Button>
             </div>
-            <div className={box({ colors: "red" })}>
-                <div>
-                    <h3 className="text-xl font-semibold">Leave Group</h3>
-                    <p
-                        className={text({ type: "secondary" })}
-                    >{`You can still join the group after leaving it`}</p>
-                    <LeaveGroupButton group={groupId} />
-                </div>
-            </div>
-            <div className={box({ colors: "red" })}>
-                <div>
-                    <h3 className="text-xl font-semibold">Delete Group</h3>
-                    <p
-                        className={text({ type: "secondary" })}
-                    >{`This action is irreversible and can not be undone`}</p>
-                </div>
 
+            <h2 className={text({ size: "xl", type: "primary" })}>
+                Danger Zone
+            </h2>
+            <div>
+                <h3 className={text({ size: "lg", type: "primary" })}>
+                    Leave Group
+                </h3>
+                <p
+                    className={text({ type: "secondary" })}
+                >{`You can still join the group after leaving it`}</p>
+                <LeaveGroupButton group={groupId} />
+            </div>
+            <div>
+                <h3 className={text({ size: "lg", type: "primary" })}>
+                    Delete Group
+                </h3>
+                <p
+                    className={text({ type: "secondary" })}
+                >{`This action is irreversible and can not be undone`}</p>
                 <DeleteGroupButton group={groupId} />
             </div>
         </div>
