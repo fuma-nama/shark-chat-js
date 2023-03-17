@@ -28,25 +28,28 @@ export const toast = tv({
 });
 
 export function ToastProvider({ children }: { children?: ReactNode }) {
-    const [errors, remove] = usePageStore((s) => [s.errors, s.removeError]);
+    const [messages, remove] = usePageStore((s) => [
+        s.messages,
+        s.removeMessage,
+    ]);
 
     return (
         <Base.Provider swipeDirection="right">
-            {errors.map((error, i) => (
+            {messages.map((error) => (
                 <Toast
-                    key={i}
+                    key={error.id}
                     title={error.title}
                     description={error.description}
-                    color="red"
+                    color={error.variant}
                     onOpenChange={(open) => {
                         if (!open) {
-                            remove(i);
+                            remove(error.id);
                         }
                     }}
                 />
             ))}
             {children}
-            <Base.Viewport className="fixed bottom-0 right-0 z-50 w-[30rem] max-w-[100vw] p-3 flex flex-col gap-3" />
+            <Base.Viewport className="fixed bottom-0 right-0 z-50 w-[30rem] max-w-[100vw] p-3 flex flex-col gap-3 list-none" />
         </Base.Provider>
     );
 }
@@ -73,7 +76,10 @@ export function Toast({
             <Base.Description className={text({ type: "secondary" })}>
                 {description}
             </Base.Description>
-            <Base.ToastClose asChild className="absolute right-3 top-3">
+            <Base.ToastClose
+                asChild
+                className="absolute right-3 top-3 cursor-pointer"
+            >
                 <Cross1Icon />
             </Base.ToastClose>
             {children}
