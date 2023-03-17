@@ -13,7 +13,14 @@ import clsx from "clsx";
 import { useMemo } from "react";
 import { useMounted } from "@/utils/use-mounted";
 
-export function ThemeSwitch() {
+export type ThemeSwitchProps = Omit<
+    Select.SelectProps,
+    "value" | "onValueChanged"
+> & {
+    id?: string;
+};
+
+export function ThemeSwitch({ id, ...props }: ThemeSwitchProps) {
     const { theme, themes, setTheme } = useTheme();
     const options = useMemo(() => themes.map(getInfo), [themes]);
     const mounted = useMounted();
@@ -23,8 +30,12 @@ export function ThemeSwitch() {
     const selected = theme == null ? null : getInfo(theme);
 
     return (
-        <Select.Root value={theme} onValueChange={(v) => setTheme(v)}>
-            <Select.Trigger asChild aria-label="Food">
+        <Select.Root
+            value={theme}
+            onValueChange={(v) => setTheme(v)}
+            {...props}
+        >
+            <Select.Trigger asChild aria-label="Theme" id={id}>
                 <Button>
                     <Select.Icon className="mr-2">{selected?.icon}</Select.Icon>
                     <Select.Value />

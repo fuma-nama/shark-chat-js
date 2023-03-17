@@ -3,7 +3,7 @@ import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import TextField from "@/components/input/TextField";
 import { AppLayout } from "@/components/layout/app";
-import { label } from "@/components/system/text";
+import { label, text } from "@/components/system/text";
 import useProfile from "@/utils/auth/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
@@ -12,6 +12,7 @@ import { NextPageWithLayout } from "./_app";
 import { User } from "@prisma/client";
 import { Serialize } from "@/utils/types";
 import { useUpdateProfileMutation } from "@/utils/trpc/update-profile";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 const Settings: NextPageWithLayout = () => {
     const { status, profile } = useProfile();
@@ -26,7 +27,7 @@ const Settings: NextPageWithLayout = () => {
     }
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-6">
             <Avatar size="large" src={profile.image} fallback={profile.name} />
             <div>
                 <h2 className="font-bold text-2xl">{profile.name}</h2>
@@ -34,7 +35,7 @@ const Settings: NextPageWithLayout = () => {
                     {profile.email}
                 </p>
             </div>
-            <div className="flex flex-row gap-3 mt-3">
+            <div className="flex flex-row gap-3">
                 <Button color="primary" onClick={() => setEdit(true)}>
                     Edit Profile
                 </Button>
@@ -42,6 +43,21 @@ const Settings: NextPageWithLayout = () => {
                     Logout
                 </Button>
             </div>
+
+            <fieldset className="flex flex-col gap-3 items-start">
+                <div>
+                    <label
+                        htmlFor="theme"
+                        className={text({ size: "lg", type: "primary" })}
+                    >
+                        Appearance
+                    </label>
+                    <p className={text({ type: "secondary" })}>
+                        Change the color theme of UI
+                    </p>
+                </div>
+                <ThemeSwitch id="theme" />
+            </fieldset>
         </div>
     );
 };
