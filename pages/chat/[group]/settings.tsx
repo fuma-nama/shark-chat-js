@@ -15,6 +15,8 @@ import { Group } from "@prisma/client";
 import TextField from "@/components/input/TextField";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 import { showErrorToast } from "@/stores/page";
+import { useCopyTextMutation } from "@/utils/use-copy-text";
+import { CopyIcon } from "@radix-ui/react-icons";
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
@@ -53,6 +55,7 @@ const Settings: NextPageWithLayout = () => {
                     Edit Info
                 </Button>
             </div>
+            <Invite group={groupId} />
 
             <h2 className={text({ size: "xl", type: "primary" })}>
                 Danger Zone
@@ -78,6 +81,63 @@ const Settings: NextPageWithLayout = () => {
         </div>
     );
 };
+
+function Invite({ group }: { group: number }) {
+    const utils = trpc.useContext();
+    const query = trpc.group.invite.get.useQuery({
+        groupId: group,
+    });
+    const copy = useCopyTextMutation();
+    const createMutation = trpc.group.invite.create.useMutation({
+        onSuccess: (data) => {
+            utils.group.invite.get.setData({ groupId: group }, data);
+        },
+    });
+    const deleteMutation = trpc.group.invite.delete.useMutation({
+        onSuccess: () => {
+            utils.group.invite.get.setData({ groupId: group }, () => null);
+        },
+    });
+
+    const data = query.data;
+    return (
+        <div>
+            <h2 className={text({ size: "xl", type: "primary" })}>
+                Invite Code
+            </h2>
+            <p className={text({ type: "secondary" })}>
+                Only one public invite code is allowed per group
+            </p>
+            {data != null && (
+                <div className="flex flex-row gap-3 mt-3 max-w-xl">
+                    <TextField readOnly value={data.code} />
+                    <Button
+                        isLoading={copy.isLoading}
+                        onClick={() => copy.mutate(data.code)}
+                    >
+                        <CopyIcon />
+                    </Button>
+                </div>
+            )}
+            <div className="flex flex-row gap-3 mt-3">
+                <Button
+                    color="primary"
+                    isLoading={createMutation.isLoading}
+                    onClick={() => createMutation.mutate({ groupId: group })}
+                >
+                    Generate
+                </Button>
+                <Button
+                    color="danger"
+                    isLoading={deleteMutation.isLoading}
+                    onClick={() => deleteMutation.mutate({ groupId: group })}
+                >
+                    Delete
+                </Button>
+            </div>
+        </div>
+    );
+}
 
 function LeaveGroupButton({ group }: { group: number }) {
     const router = useRouter();

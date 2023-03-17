@@ -7,6 +7,7 @@ import { procedure, protectedProcedure, router } from "../trpc";
 import { channels } from "@/utils/ably";
 import { groupIcon } from "@/utils/media/format";
 import { checkIsOwnerOf } from "./chat";
+import { inviteRouter } from "./group/invite";
 
 const imageSchema = z.string({
     description: "Base64 format file",
@@ -147,4 +148,5 @@ export const groupRouter = router({
                 },
             });
         }),
+    invite: inviteRouter,
 });
