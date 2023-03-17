@@ -10,6 +10,7 @@ export const toast = tv({
         root: [
             "relative rounded-xl bg-white dark:bg-dark-800 p-3 shadow-2xl shadow-brand-500/10",
             "dark:shadow-none",
+            "radix-state-open:animate-zoom-in",
         ],
     },
     variants: {
