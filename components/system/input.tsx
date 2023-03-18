@@ -1,11 +1,6 @@
-import clsx from "clsx";
-import { ComponentProps } from "react";
-import { tv, VariantProps } from "tailwind-variants";
+import { tv } from "tailwind-variants";
 
-export type TextFieldProps = ComponentProps<"input"> &
-    VariantProps<typeof input>;
-
-const input = tv({
+export const input = tv({
     base: [
         "block w-full rounded-md px-3 py-2",
         "text-sm text-accent-900 placeholder:text-accent-600 dark:text-accent-400 dark:placeholder:text-accent-700",
@@ -14,13 +9,3 @@ const input = tv({
         "transition-shadow",
     ],
 });
-
-export default function TextField(props: TextFieldProps) {
-    return (
-        <input
-            {...props}
-            type="text"
-            className={input({ className: props.className })}
-        />
-    );
-}

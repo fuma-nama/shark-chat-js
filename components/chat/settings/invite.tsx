@@ -1,4 +1,4 @@
-import TextField from "@/components/input/TextField";
+import { input } from "@/components/system/input";
 import { Button, IconButton } from "@/components/system/button";
 import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
@@ -82,7 +82,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
 
     return (
         <div className="flex flex-row gap-3 mt-3 max-w-xl">
-            <TextField readOnly value={invite.code} />
+            <input readOnly className={input()} value={invite.code} />
             <Button
                 aria-label="copy"
                 isLoading={copy.isLoading}

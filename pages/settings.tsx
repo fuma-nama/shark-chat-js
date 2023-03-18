@@ -1,7 +1,6 @@
 import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
-import TextField from "@/components/input/TextField";
 import { AppLayout } from "@/components/layout/app";
 import { label, text } from "@/components/system/text";
 import useProfile from "@/utils/auth/use-profile";
@@ -13,6 +12,7 @@ import { User } from "@prisma/client";
 import { Serialize } from "@/utils/types";
 import { useUpdateProfileMutation } from "@/utils/trpc/update-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { input } from "@/components/system/input";
 
 const Settings: NextPageWithLayout = () => {
     const { status, profile } = useProfile();
@@ -98,11 +98,12 @@ function UpdateProfile({
                 <label htmlFor="username" className={label()}>
                     Username
                 </label>
-                <TextField
+                <input
                     id="username"
                     placeholder={profile.name}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    className={input()}
                 />
             </fieldset>
             <div className="flex flex-row gap-3 mt-3">
