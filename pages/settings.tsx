@@ -48,11 +48,11 @@ const Settings: NextPageWithLayout = () => {
                 <div>
                     <label
                         htmlFor="theme"
-                        className={text({ size: "lg", type: "primary" })}
+                        className={text({ size: "md", type: "primary" })}
                     >
                         Appearance
                     </label>
-                    <p className={text({ type: "secondary" })}>
+                    <p className={text({ size: "sm", type: "secondary" })}>
                         Change the color theme of UI
                     </p>
                 </div>

@@ -14,6 +14,8 @@ export const text = tv({
             "2xl": ["text-2xl font-bold"],
             xl: ["text-xl font-bold"],
             lg: ["text-lg font-semibold"],
+            md: ["text-base font-medium"],
+            sm: ["text-sm"],
         },
     },
     defaultVariants: { type: "secondary" },
