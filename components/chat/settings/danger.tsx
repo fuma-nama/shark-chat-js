@@ -8,7 +8,7 @@ import { useState } from "react";
 
 export function Danger({ group }: { group: number }) {
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
             <h2 className={text({ size: "lg", type: "primary" })}>
                 Danger Zone
             </h2>
@@ -21,7 +21,7 @@ export function Danger({ group }: { group: number }) {
                 >{`You can still join the group after leaving it`}</p>
                 <LeaveGroupButton group={group} />
             </div>
-            <div>
+            <div className="mt-3">
                 <h3 className={text({ size: "md", type: "primary" })}>
                     Delete Group
                 </h3>

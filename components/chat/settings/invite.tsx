@@ -28,7 +28,7 @@ export function Invite({ group }: { group: number }) {
 
     const invites = query.data;
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
             <h2 className={text({ size: "lg", type: "primary" })}>
                 Invite Members
             </h2>
@@ -40,7 +40,7 @@ export function Invite({ group }: { group: number }) {
                     Anyone can join your server without an invite
                 </p>
             </div>
-            <div>
+            <div className="mt-3">
                 <h3 className={text({ size: "md", type: "primary" })}>
                     Private
                 </h3>
