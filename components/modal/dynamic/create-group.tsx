@@ -1,7 +1,7 @@
+import { input } from "@/components/system/input";
 import { trpc } from "@/utils/trpc";
 import { useState } from "react";
 import { ImagePicker } from "../../input/ImagePicker";
-import TextField from "../../input/TextField";
 import { Button } from "../../system/button";
 import { label } from "../../system/text";
 
@@ -20,7 +20,7 @@ export default function Content({ onClose }: { onClose: () => void }) {
                         Icon
                     </label>
                     <ImagePicker
-                        id="icon"
+                        input={{ id: "icon" }}
                         value={icon}
                         onChange={(v) => setIcon(v)}
                         previewClassName="mx-auto w-[120px] aspect-square flex flex-col gap-3 items-center"
@@ -32,10 +32,11 @@ export default function Content({ onClose }: { onClose: () => void }) {
                         Name
                         <span className="text-red-400 mx-1 text-base">*</span>
                     </label>
-                    <TextField
-                        id="firstName"
+                    <input
+                        id="name"
                         placeholder="My Group"
                         autoComplete="given-name"
+                        className={input()}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         aria-required
