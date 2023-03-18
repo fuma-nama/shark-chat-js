@@ -70,21 +70,46 @@ Button.displayName = "Button";
 
 const iconButton = tv({
     base: [
-        "inline-flex flex-row items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50 p-3",
-        "disabled:bg-brand-400/50 disabled:bg-none disabled:cursor-not-allowed disabled:text-accent-50 dark:disabled:text-accent-500",
+        "inline-flex flex-row items-center justify-center p-3",
+        "disabled:cursor-not-allowed",
     ],
+    variants: {
+        color: {
+            primary: [
+                "rounded-full bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
+                "disabled:bg-brand-400/50 disabled:bg-none disabled:text-accent-50 dark:disabled:text-accent-500",
+            ],
+            danger: [
+                "rounded-md bg-red-500 hover:bg-red-400 dark:bg-red-500 text-gray-50 dark:hover:bg-red-600",
+                "disabled:bg-red-400/50 disabled:text-gray-50/80",
+            ],
+        },
+    },
+    defaultVariants: {
+        color: "primary",
+    },
 });
 
 type IconButtonProps = ComponentProps<"button"> &
-    VariantProps<typeof iconButton>;
+    VariantProps<typeof iconButton> & {
+        isLoading?: boolean;
+    };
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-    (props, ref) => (
+    ({ children, isLoading, color, ...props }, ref) => (
         <button
             {...props}
             ref={ref}
-            className={iconButton({ className: props.className })}
-        />
+            className={iconButton({ color, className: props.className })}
+        >
+            {isLoading === true ? (
+                <div className="inline">
+                    <Spinner size="small" />
+                </div>
+            ) : (
+                children
+            )}
+        </button>
     )
 );
 
