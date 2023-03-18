@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@ably-labs/react-hooks": "^2.1.0",
+        "@hookform/resolvers": "^2.9.11",
         "@next-auth/prisma-adapter": "^1.0.5",
         "@next/font": "13.1.6",
         "@prisma/client": "^4.9.0",

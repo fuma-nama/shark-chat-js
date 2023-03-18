@@ -1,5 +1,5 @@
 import { ImagePicker } from "@/components/input/ImagePicker";
-import TextField from "@/components/input/TextField";
+import { input } from "@/components/system/input";
 import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { label, text } from "@/components/system/text";
@@ -10,6 +10,11 @@ import { Group } from "@prisma/client";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import clsx from "clsx";
 import { useState } from "react";
+
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { updateGroupSchema } from "@/server/schema/group";
 
 export function Info({ group }: { group: number }) {
     const query = trpc.group.info.useQuery({ groupId: group });
@@ -54,6 +59,12 @@ export function Info({ group }: { group: number }) {
     );
 }
 
+const schema = updateGroupSchema
+    .omit({ groupId: true, icon_hash: true })
+    .extend({
+        icon: z.string().optional(),
+    });
+
 function EditGroupPanel({
     group,
     onCancel,
@@ -61,9 +72,18 @@ function EditGroupPanel({
     group: Serialize<Group>;
     onCancel: () => void;
 }) {
-    const [name, setName] = useState(group.name);
-    const [uniqueName, setUniqueName] = useState(group.unique_name ?? "");
-    const [icon, setIcon] = useState<string | undefined>(undefined);
+    const { register, handleSubmit, control } = useForm<z.infer<typeof schema>>(
+        {
+            resolver: zodResolver(schema),
+            defaultValues: {
+                unique_name: group.unique_name ?? undefined,
+                name: group.name,
+                public: group.public,
+                icon: undefined,
+            },
+        }
+    );
+
     const utils = trpc.useContext();
     const mutation = useUpdateGroupInfoMutation();
 
@@ -72,41 +92,38 @@ function EditGroupPanel({
             ? groupIcon.url([group.id], group.icon_hash)
             : null;
 
-    const onSave = () => {
+    const onSave = handleSubmit((values) => {
         mutation.mutate(
-            { groupId: group.id, icon, name, unique_name: uniqueName },
+            { groupId: group.id, ...values },
             {
-                onSuccess(data) {
-                    utils.group.info.setData({ groupId: data.id }, () => data);
+                onSuccess(data, { groupId }) {
+                    utils.group.info.setData({ groupId }, () => data);
                     onCancel();
                 },
             }
         );
-    };
+    });
 
     return (
-        <form
-            className="flex flex-col gap-3 items-start"
-            onSubmit={(e) => {
-                onSave();
-                e.preventDefault();
-            }}
-        >
-            <ImagePicker
-                id="icon"
-                value={icon ?? default_icon}
-                onChange={setIcon}
-                previewClassName="w-[150px] h-[150px] max-w-full"
+        <form className="flex flex-col gap-3 items-start" onSubmit={onSave}>
+            <Controller
+                name="icon"
+                control={control}
+                render={({ field: { value, onChange, ...field } }) => (
+                    <ImagePicker
+                        input={{ id: "icon", ...field }}
+                        value={value ?? default_icon}
+                        onChange={onChange}
+                        previewClassName="w-[150px] h-[150px] max-w-full"
+                    />
+                )}
             />
+
             <fieldset className="w-full max-w-xl">
                 <label htmlFor="name" className={label()}>
                     Name
                 </label>
-                <TextField
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
+                <input id="name" className={input()} {...register("name")} />
             </fieldset>
             <fieldset className="w-full max-w-xl">
                 <label htmlFor="unique_name" className={label()}>
@@ -121,12 +138,11 @@ function EditGroupPanel({
                     >
                         <p className="text-lg m-auto">@</p>
                     </div>
-                    <TextField
+                    <input
                         id="unique_name"
-                        value={uniqueName}
-                        onChange={(e) => setUniqueName(e.target.value)}
-                        className="rounded-l-none"
+                        className={input({ className: "rounded-l-none" })}
                         placeholder="Optional"
+                        {...register("unique_name")}
                     />
                 </div>
             </fieldset>

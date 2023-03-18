@@ -1,13 +1,14 @@
 import { TRPCError } from "@trpc/server";
 import prisma from "@/prisma/client";
 import { z } from "zod";
-import ably from "../ably";
-import cloudinary from "../cloudinary";
-import { procedure, protectedProcedure, router } from "../trpc";
+import ably from "../../ably";
+import cloudinary from "../../cloudinary";
+import { procedure, protectedProcedure, router } from "../../trpc";
 import { channels } from "@/utils/ably";
 import { groupIcon } from "@/utils/media/format";
-import { checkIsOwnerOf } from "./chat";
-import { inviteRouter } from "./group/invite";
+import { checkIsOwnerOf } from "../chat";
+import { inviteRouter } from "./invite";
+import { updateGroupSchema } from "../../schema/group";
 
 const imageSchema = z.string({
     description: "Base64 format file",
@@ -93,17 +94,12 @@ export const groupRouter = router({
         return group == null;
     }),
     update: protectedProcedure
-        .input(
-            z.object({
-                groupId: z.number(),
-                name: z.string().optional(),
-                icon_hash: z.number().optional(),
-                public: z.boolean().optional(),
-                unique_name: z.string().min(2).nullable().optional(),
-            })
-        )
+        .input(updateGroupSchema)
         .mutation(async ({ ctx, input }) => {
             checkIsOwnerOf(input.groupId, ctx.session);
+
+            const unique_name =
+                input.unique_name?.length === 0 ? null : input.unique_name;
 
             return await prisma.group.update({
                 where: {
@@ -112,7 +108,7 @@ export const groupRouter = router({
                 data: {
                     name: input.name,
                     icon_hash: input.icon_hash,
-                    unique_name: input.unique_name,
+                    unique_name: unique_name,
                     public: input.public,
                 },
             });

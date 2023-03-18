@@ -1,4 +1,4 @@
-import { groupRouter } from "./group";
+import { groupRouter } from "./group/group";
 import { chatRouter } from "./chat";
 import { router } from "../trpc";
 import { accountRouter } from "./account";
