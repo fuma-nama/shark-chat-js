@@ -81,7 +81,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
     });
 
     return (
-        <div className="flex flex-row gap-3 mt-3 max-w-xl">
+        <div className="flex flex-row gap-3 mt-3">
             <input readOnly className={input()} value={invite.code} />
             <Button
                 aria-label="copy"

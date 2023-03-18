@@ -16,6 +16,7 @@ export const text = tv({
             lg: ["text-lg font-semibold"],
             md: ["text-base font-medium"],
             sm: ["text-sm"],
+            xs: ["text-xs"],
         },
     },
     defaultVariants: { type: "secondary" },

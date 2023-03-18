@@ -87,7 +87,7 @@ function UpdateProfile({
     };
 
     return (
-        <div className="flex flex-col gap-3 max-w-2xl">
+        <div className="flex flex-col gap-3 max-w-3xl">
             <ImagePicker
                 previewClassName="max-w-[150px] max-h-[150px]"
                 value={avatar ?? profile.image}

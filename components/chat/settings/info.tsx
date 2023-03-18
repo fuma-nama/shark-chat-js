@@ -46,9 +46,11 @@ export function Info({ group }: { group: number }) {
             />
             <div>
                 <h2 className="text-2xl font-bold">{info.name}</h2>
-                <p className={text({ size: "sm", type: "secondary" })}>
-                    @{info.unique_name ?? "no_name_yet"}
-                </p>
+                {info.unique_name != null && (
+                    <p className={text({ size: "sm", type: "secondary" })}>
+                        @{info.unique_name}
+                    </p>
+                )}
             </div>
             <div className="flex flex-row gap-3">
                 <Button color="primary" onClick={() => setEdit(true)}>
@@ -105,7 +107,7 @@ function EditGroupPanel({
     });
 
     return (
-        <form className="flex flex-col gap-3 items-start" onSubmit={onSave}>
+        <form className="flex flex-col gap-3" onSubmit={onSave}>
             <Controller
                 name="icon"
                 control={control}
@@ -119,17 +121,25 @@ function EditGroupPanel({
                 )}
             />
 
-            <fieldset className="w-full max-w-xl">
+            <fieldset>
                 <label htmlFor="name" className={label()}>
                     Name
                 </label>
                 <input id="name" className={input()} {...register("name")} />
             </fieldset>
-            <fieldset className="w-full max-w-xl">
+            <fieldset>
                 <label htmlFor="unique_name" className={label()}>
                     Unique Name
                 </label>
-                <div className="flex flex-row mt-1">
+                <p
+                    className={text({
+                        size: "sm",
+                        type: "secondary",
+                    })}
+                >
+                    People can find a group by its unique name
+                </p>
+                <div className="flex flex-row mt-3">
                     <div
                         className={clsx(
                             "rounded-l-md border-[1px] border-r-0 bg-light-50 border-accent-600 px-2 flex",
@@ -145,6 +155,15 @@ function EditGroupPanel({
                         {...register("unique_name")}
                     />
                 </div>
+                <p
+                    className={text({
+                        size: "xs",
+                        type: "secondary",
+                        className: "mt-1",
+                    })}
+                >
+                    Only lower-case letters, numbers, underscore
+                </p>
             </fieldset>
 
             <div className="flex flex-row gap-3">

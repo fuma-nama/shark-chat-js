@@ -11,7 +11,7 @@ const Settings: NextPageWithLayout = () => {
     const { groupId } = getQuery(router);
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-10 max-w-3xl">
             <Info group={groupId} />
             <Invite group={groupId} />
             <Danger group={groupId} />
