@@ -83,12 +83,23 @@ export const groupRouter = router({
                 },
             });
         }),
+    isValidUniqueName: procedure.input(z.string()).query(async ({ input }) => {
+        const group = await prisma.group.findUnique({
+            where: {
+                unique_name: input,
+            },
+        });
+
+        return group == null;
+    }),
     update: protectedProcedure
         .input(
             z.object({
                 groupId: z.number(),
                 name: z.string().optional(),
                 icon_hash: z.number().optional(),
+                public: z.boolean().optional(),
+                unique_name: z.string().min(2).nullable().optional(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -101,6 +112,8 @@ export const groupRouter = router({
                 data: {
                     name: input.name,
                     icon_hash: input.icon_hash,
+                    unique_name: input.unique_name,
+                    public: input.public,
                 },
             });
         }),

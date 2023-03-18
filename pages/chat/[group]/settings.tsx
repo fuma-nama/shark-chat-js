@@ -1,5 +1,5 @@
 import { Avatar } from "@/components/system/avatar";
-import { Button } from "@/components/system/button";
+import { Button, IconButton } from "@/components/system/button";
 import { useGroupLayout } from "@/components/layout/group";
 import { AlertDialog } from "@/components/system/alert-dialog";
 import { text } from "@/components/system/text";
@@ -11,12 +11,13 @@ import { useState } from "react";
 import { getQuery } from ".";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import { Serialize } from "@/utils/types";
-import { Group } from "@prisma/client";
+import { Group, GroupInvite } from "@prisma/client";
 import TextField from "@/components/input/TextField";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 import { showErrorToast } from "@/stores/page";
 import { useCopyTextMutation } from "@/utils/use-copy-text";
-import { CopyIcon } from "@radix-ui/react-icons";
+import { CopyIcon, TrashIcon } from "@radix-ui/react-icons";
+import { useSession } from "next-auth/react";
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
@@ -83,58 +84,101 @@ const Settings: NextPageWithLayout = () => {
 };
 
 function Invite({ group }: { group: number }) {
+    const { status } = useSession();
     const utils = trpc.useContext();
-    const query = trpc.group.invite.get.useQuery({
-        groupId: group,
-    });
-    const copy = useCopyTextMutation();
+
+    const query = trpc.group.invite.get.useQuery(
+        {
+            groupId: group,
+        },
+        { enabled: status === "authenticated" }
+    );
     const createMutation = trpc.group.invite.create.useMutation({
         onSuccess: (data) => {
-            utils.group.invite.get.setData({ groupId: group }, data);
-        },
-    });
-    const deleteMutation = trpc.group.invite.delete.useMutation({
-        onSuccess: () => {
-            utils.group.invite.get.setData({ groupId: group }, () => null);
+            utils.group.invite.get.setData({ groupId: group }, (prev) =>
+                prev != null ? [...prev, data] : prev
+            );
         },
     });
 
-    const data = query.data;
+    const invites = query.data;
     return (
-        <div>
+        <>
             <h2 className={text({ size: "xl", type: "primary" })}>
-                Invite Code
+                Invite Members
             </h2>
-            <p className={text({ type: "secondary" })}>
-                Only one public invite code is allowed per group
-            </p>
-            {data != null && (
-                <div className="flex flex-row gap-3 mt-3 max-w-xl">
-                    <TextField readOnly value={data.code} />
+            <div>
+                <h3 className={text({ size: "lg", type: "primary" })}>
+                    Pubilc
+                </h3>
+                <p className={text({ type: "secondary" })}>
+                    Anyone can join your server without an invite
+                </p>
+            </div>
+            <div>
+                <h3 className={text({ size: "lg", type: "primary" })}>
+                    Private
+                </h3>
+                <p className={text({ type: "secondary" })}>
+                    Only peoples with the invite can join The group
+                </p>
+                {invites?.map((invite) => (
+                    <PrivateInviteItem key={invite.code} invite={invite} />
+                ))}
+                <div className="flex flex-row gap-3 mt-3">
                     <Button
-                        isLoading={copy.isLoading}
-                        onClick={() => copy.mutate(data.code)}
+                        color="primary"
+                        isLoading={createMutation.isLoading}
+                        onClick={() =>
+                            createMutation.mutate({
+                                groupId: group,
+                                once: false,
+                            })
+                        }
                     >
-                        <CopyIcon />
+                        New Invite
                     </Button>
                 </div>
-            )}
-            <div className="flex flex-row gap-3 mt-3">
-                <Button
-                    color="primary"
-                    isLoading={createMutation.isLoading}
-                    onClick={() => createMutation.mutate({ groupId: group })}
-                >
-                    Generate
-                </Button>
-                <Button
-                    color="danger"
-                    isLoading={deleteMutation.isLoading}
-                    onClick={() => deleteMutation.mutate({ groupId: group })}
-                >
-                    Delete
-                </Button>
             </div>
+        </>
+    );
+}
+
+function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
+    const copy = useCopyTextMutation();
+    const utils = trpc.useContext();
+    const deleteMutation = trpc.group.invite.delete.useMutation({
+        onSuccess: (_, { groupId, code }) => {
+            utils.group.invite.get.setData({ groupId }, (prev) =>
+                prev?.filter((invite) => invite.code !== code)
+            );
+        },
+    });
+
+    return (
+        <div className="flex flex-row gap-3 mt-3 max-w-xl">
+            <TextField readOnly value={invite.code} />
+            <Button
+                aria-label="copy"
+                isLoading={copy.isLoading}
+                onClick={() => copy.mutate(invite.code)}
+            >
+                <CopyIcon />
+            </Button>
+            <IconButton
+                aria-label="delete"
+                color="danger"
+                isLoading={deleteMutation.isLoading}
+                className="w-14"
+                onClick={() =>
+                    deleteMutation.mutate({
+                        groupId: invite.group_id,
+                        code: invite.code,
+                    })
+                }
+            >
+                <TrashIcon />
+            </IconButton>
         </div>
     );
 }
