@@ -4,9 +4,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { Button } from "@/components/system/button";
 import { BaseLayout } from "@/components/layout/base";
-import { ThemeSwitchProps } from "@/components/ThemeSwitch";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 type Props = {
     providers: ClientSafeProvider[];
