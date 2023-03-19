@@ -7,38 +7,66 @@ import { GroupInvite } from "@prisma/client";
 import { CopyIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useSession } from "next-auth/react";
+import { Switch } from "@/components/system/switch";
+import { Spinner } from "@/components/system/spinner";
 
 export function Invite({ group }: { group: number }) {
     const { status } = useSession();
     const utils = trpc.useContext();
 
-    const query = trpc.group.invite.get.useQuery(
+    const groupQuery = trpc.group.info.useQuery({ groupId: group });
+    const invitesQuery = trpc.group.invite.get.useQuery(
         {
             groupId: group,
         },
         { enabled: status === "authenticated" }
     );
+    const updateMutation = trpc.group.update.useMutation({
+        onSuccess: (data, { groupId }) => {
+            return utils.group.info.setData({ groupId }, data);
+        },
+    });
     const createMutation = trpc.group.invite.create.useMutation({
-        onSuccess: (data) => {
-            utils.group.invite.get.setData({ groupId: group }, (prev) =>
+        onSuccess: (data, { groupId }) => {
+            return utils.group.invite.get.setData({ groupId }, (prev) =>
                 prev != null ? [...prev, data] : prev
             );
         },
     });
 
-    const invites = query.data;
+    const onSetPublic = (v: boolean) => {
+        updateMutation.mutate({
+            groupId: group,
+            public: v,
+        });
+    };
+
+    const invites = invitesQuery.data;
+    const groupData = groupQuery.data;
     return (
         <div className="flex flex-col gap-3">
             <h2 className={text({ size: "lg", type: "primary" })}>
                 Invite Members
             </h2>
-            <div>
-                <h3 className={text({ size: "md", type: "primary" })}>
-                    Pubilc
-                </h3>
-                <p className={text({ size: "sm", type: "secondary" })}>
-                    Anyone can join your server without an invite
-                </p>
+            <div className="flex flex-row gap-3 justify-between">
+                <label htmlFor="public">
+                    <h3 className={text({ size: "md", type: "primary" })}>
+                        Pubilc
+                    </h3>
+                    <p className={text({ size: "sm", type: "secondary" })}>
+                        Anyone can join your server without an invite
+                    </p>
+                </label>
+                {groupData == null ? (
+                    <Spinner size="small" />
+                ) : (
+                    <Switch
+                        id="public"
+                        checked={groupData.public}
+                        onCheckedChange={onSetPublic}
+                        disabled={updateMutation.isLoading}
+                    />
+                )}
             </div>
             <div className="mt-3">
                 <h3 className={text({ size: "md", type: "primary" })}>
