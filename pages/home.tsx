@@ -14,11 +14,20 @@ import Link from "next/link";
 import { Group } from "@prisma/client";
 import useProfile from "@/utils/auth/use-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
 
 const Home: NextPageWithLayout = () => {
     return (
         <>
             <h1 className="text-4xl font-bold">Recent Chat</h1>
+            <div className="flex flex-row gap-3 mt-6">
+                <CreateGroupModal>
+                    <Button color="primary">Create Group</Button>
+                </CreateGroupModal>
+                <JoinGroupModal>
+                    <Button>Join Group</Button>
+                </JoinGroupModal>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
                 <ChatItem />
                 <ChatItem />
@@ -120,10 +129,6 @@ Home.useLayout = (children) => (
         title="Home"
         items={
             <div className="max-sm:hidden flex flex-row gap-3">
-                <CreateGroupModal>
-                    <Button color="primary">Create Group</Button>
-                </CreateGroupModal>
-
                 <ThemeSwitch />
             </div>
         }

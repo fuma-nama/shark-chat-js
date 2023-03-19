@@ -9,6 +9,7 @@ export const text = tv({
         type: {
             secondary: ["text-accent-800 dark:text-accent-600"],
             primary: ["text-accent-900 dark:text-accent-50"],
+            error: ["text-red-400 dark:text-red-400"],
         },
         size: {
             "2xl": ["text-2xl font-bold"],

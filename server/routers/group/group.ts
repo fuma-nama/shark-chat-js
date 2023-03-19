@@ -27,8 +27,6 @@ export const groupRouter = router({
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
-            const channel = channels.private.get(ably, [userId]);
-
             let result = await prisma.group.create({
                 data: {
                     name: input.name,
@@ -57,7 +55,11 @@ export const groupRouter = router({
                 });
             }
 
-            await channels.private.group_created.publish(channel, result);
+            await channels.private.group_created.publish(
+                ably,
+                [userId],
+                result
+            );
             return result;
         }),
     all: protectedProcedure.query(async ({ ctx }) => {
@@ -93,6 +95,53 @@ export const groupRouter = router({
 
         return group == null;
     }),
+    join: protectedProcedure
+        .input(
+            z.object({
+                code: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const invite = await prisma.groupInvite.findUnique({
+                where: {
+                    code: input.code,
+                },
+            });
+            if (invite == null)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Invite not found",
+                });
+            if (invite.once) {
+                await prisma.groupInvite.delete({
+                    where: { code: invite.code },
+                });
+            }
+
+            const result = await prisma.member
+                .create({
+                    data: {
+                        group_id: invite.group_id,
+                        user_id: ctx.session.user.id,
+                    },
+                    select: {
+                        group: true,
+                    },
+                })
+                .catch(() => {
+                    throw new TRPCError({
+                        code: "FORBIDDEN",
+                        message: "You had been joined the group",
+                    });
+                });
+
+            await channels.private.group_created.publish(
+                ably,
+                [ctx.session.user.id],
+                result.group
+            );
+            return result.group;
+        }),
     update: protectedProcedure
         .input(updateGroupSchema)
         .mutation(async ({ ctx, input }) => {

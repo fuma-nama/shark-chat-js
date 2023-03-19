@@ -13,6 +13,8 @@ export const channels = a.channels({
                 icon_hash: z.number().nullable(),
                 id: z.number(),
                 owner_id: z.string(),
+                public: z.boolean(),
+                unique_name: z.string().nullable(),
             })
         ),
     }),

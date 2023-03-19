@@ -38,7 +38,7 @@ type EventsRecord<Args> = Record<string, Event<Args, any>>;
 
 export type Event<Args, T> = {
     parse(raw: Types.Message): T;
-    publish(channel: Types.RealtimeChannelPromise, data: T): Promise<void>;
+    publish(ably: Types.RealtimePromise, args: Args, data: T): Promise<void>;
     useChannel(
         args: Args,
         params: ConnectParams,
@@ -111,7 +111,9 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
         parse(raw) {
             return schema.parse(raw.data);
         },
-        publish(channel, data) {
+        publish(ably, args, data) {
+            const channel = this._def.channel!!.get(ably, args);
+
             return channel.publish(this._def.name!!, data);
         },
         useChannel(args, params, callback) {

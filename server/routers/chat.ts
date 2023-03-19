@@ -20,7 +20,6 @@ export const chatRouter = router({
             await checkIsMemberOf(input.groupId, ctx.session);
 
             const userId = ctx.session.user.id;
-            const channel = channels.chat.get(ably, [input.groupId]);
             const message = await prisma.message.create({
                 data: {
                     author_id: userId,
@@ -32,7 +31,11 @@ export const chatRouter = router({
                 },
             });
 
-            await channels.chat.message_sent.publish(channel, message);
+            await channels.chat.message_sent.publish(
+                ably,
+                [input.groupId],
+                message
+            );
             return message;
         }),
     messages: protectedProcedure
@@ -93,8 +96,7 @@ export const chatRouter = router({
                     message: "No permission or message doesn't exist",
                 });
 
-            const channel = channels.chat.get(ably, [input.groupId]);
-            await channels.chat.message_updated.publish(channel, {
+            await channels.chat.message_updated.publish(ably, [input.groupId], {
                 id: input.messageId,
                 content: input.content,
             });
@@ -121,8 +123,7 @@ export const chatRouter = router({
                     message: "No permission or message doesn't exist",
                 });
 
-            const channel = channels.chat.get(ably, [input.groupId]);
-            await channels.chat.message_deleted.publish(channel, {
+            await channels.chat.message_deleted.publish(ably, [input.groupId], {
                 id: input.messageId,
             });
         }),
