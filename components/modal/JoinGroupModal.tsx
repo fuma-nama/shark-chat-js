@@ -8,6 +8,21 @@ import { label, text } from "../system/text";
 
 export function JoinGroupModal({ children }: { children: ReactNode }) {
     const [open, setOpen] = useState(false);
+
+    return (
+        <Dialog
+            title="Join Group"
+            description="Chat with other peoples in the group"
+            trigger={children}
+            open={open}
+            onOpenChange={setOpen}
+        >
+            <JoinGroup onClose={() => setOpen(false)} />
+        </Dialog>
+    );
+}
+
+function JoinGroup({ onClose }: { onClose: () => void }) {
     const utils = trpc.useContext();
 
     const { register, handleSubmit } = useForm<{ code: string }>({
@@ -18,8 +33,7 @@ export function JoinGroupModal({ children }: { children: ReactNode }) {
     const joinMutation = trpc.group.join.useMutation({
         onSuccess: (data) => {
             utils.group.info.setData({ groupId: data.id }, data);
-
-            setOpen(false);
+            onClose();
         },
     });
 
@@ -30,37 +44,29 @@ export function JoinGroupModal({ children }: { children: ReactNode }) {
     );
 
     return (
-        <Dialog
-            title="Join Group"
-            description="Chat with other peoples in the group"
-            trigger={children}
-            open={open}
-            onOpenChange={setOpen}
-        >
-            <form onSubmit={onJoin}>
-                <fieldset className="mt-3">
-                    <label htmlFor="code" className={label()}>
-                        Invite code
-                    </label>
-                    <input
-                        id="code"
-                        className={input()}
-                        placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
-                        {...register("code")}
-                    />
-                    <p className={text({ size: "xs", type: "error" })}>
-                        {joinMutation.error?.message}
-                    </p>
-                </fieldset>
-                <Button
-                    type="submit"
-                    color="primary"
-                    className="mt-6 w-full"
-                    isLoading={joinMutation.isLoading}
-                >
-                    Join
-                </Button>
-            </form>
-        </Dialog>
+        <form onSubmit={onJoin}>
+            <fieldset className="mt-3">
+                <label htmlFor="code" className={label()}>
+                    Invite code
+                </label>
+                <input
+                    id="code"
+                    className={input()}
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
+                    {...register("code")}
+                />
+                <p className={text({ size: "xs", type: "error" })}>
+                    {joinMutation.error?.message}
+                </p>
+            </fieldset>
+            <Button
+                type="submit"
+                color="primary"
+                className="mt-6 w-full"
+                isLoading={joinMutation.isLoading}
+            >
+                Join
+            </Button>
+        </form>
     );
 }
