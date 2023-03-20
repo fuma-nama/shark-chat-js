@@ -31,7 +31,7 @@ export const uploadRouter = router({
             })
         )
         .query(async ({ input: { groupId }, ctx }) => {
-            checkIsOwnerOf(groupId, ctx.session);
+            await checkIsOwnerOf(groupId, ctx.session);
 
             return sign({
                 public_id: groupIcon.id(groupId),

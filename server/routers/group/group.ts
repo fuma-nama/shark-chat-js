@@ -115,7 +115,7 @@ export const groupRouter = router({
     update: protectedProcedure
         .input(updateGroupSchema)
         .mutation(async ({ ctx, input }) => {
-            checkIsOwnerOf(input.groupId, ctx.session);
+            await checkIsOwnerOf(input.groupId, ctx.session);
 
             const unique_name =
                 input.unique_name?.length === 0 ? null : input.unique_name;
@@ -143,7 +143,7 @@ export const groupRouter = router({
     delete: protectedProcedure
         .input(z.object({ groupId: z.number() }))
         .mutation(async ({ ctx, input }) => {
-            checkIsOwnerOf(input.groupId, ctx.session);
+            await checkIsOwnerOf(input.groupId, ctx.session);
 
             return await prisma.group.delete({
                 where: {
