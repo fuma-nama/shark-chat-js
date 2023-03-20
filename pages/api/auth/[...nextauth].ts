@@ -1,4 +1,4 @@
-import prisma from "@/prisma/client";
+import prisma from "@/server/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import NextAuth, { DefaultSession, type AuthOptions } from "next-auth";
 import { DefaultJWT } from "next-auth/jwt";

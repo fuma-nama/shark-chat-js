@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import prisma from "@/prisma/client";
+import prisma from "@/server/prisma";
 import { z } from "zod";
 import ably from "../../ably";
 import { procedure, protectedProcedure, router } from "../../trpc";

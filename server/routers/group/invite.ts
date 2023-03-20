@@ -1,4 +1,4 @@
-import prisma from "@/prisma/client";
+import prisma from "@/server/prisma";
 import { protectedProcedure, router } from "@/server/trpc";
 import { z } from "zod";
 import { checkIsOwnerOf } from "../chat";
