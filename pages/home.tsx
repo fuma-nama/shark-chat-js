@@ -47,8 +47,7 @@ const Home: NextPageWithLayout = () => {
 };
 
 function Groups() {
-    const { status, data } = useSession();
-    const utils = trpc.useContext();
+    const { status } = useSession();
     const groups = trpc.group.all.useQuery(undefined, {
         enabled: status === "authenticated",
     });
@@ -101,7 +100,7 @@ function ChatItem() {
         >
             <Avatar src={profile.image} fallback={profile.name} />
             <div>
-                <p className="font-semibold text-base">SonMooSans</p>
+                <p className="font-semibold text-base">{profile.name}</p>
                 <p className="text-accent-700 dark:text-accent-600 text-sm">
                     Sleeping
                 </p>

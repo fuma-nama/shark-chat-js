@@ -1,9 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import prisma from "@/server/prisma";
 import { z } from "zod";
-import ably from "../../ably";
 import { procedure, protectedProcedure, router } from "../../trpc";
-import { channels } from "@/utils/ably";
 import { checkIsOwnerOf } from "../chat";
 import { inviteRouter } from "./invite";
 import { createGroupSchema, updateGroupSchema } from "../../schema/group";
@@ -13,7 +11,7 @@ export const groupRouter = router({
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
-            let result = await prisma.group.create({
+            return await prisma.group.create({
                 data: {
                     name: input.name,
                     owner_id: userId,
@@ -24,13 +22,6 @@ export const groupRouter = router({
                     },
                 },
             });
-
-            await channels.private.group_created.publish(
-                ably,
-                [userId],
-                result
-            );
-            return result;
         }),
     all: protectedProcedure.query(async ({ ctx }) => {
         return await prisma.group.findMany({
@@ -56,15 +47,6 @@ export const groupRouter = router({
                 },
             });
         }),
-    isValidUniqueName: procedure.input(z.string()).query(async ({ input }) => {
-        const group = await prisma.group.findUnique({
-            where: {
-                unique_name: input,
-            },
-        });
-
-        return group == null;
-    }),
     join: protectedProcedure
         .input(
             z.object({
@@ -105,11 +87,6 @@ export const groupRouter = router({
                     });
                 });
 
-            await channels.private.group_created.publish(
-                ably,
-                [ctx.session.user.id],
-                result.group
-            );
             return result.group;
         }),
     update: protectedProcedure
@@ -120,7 +97,7 @@ export const groupRouter = router({
             const unique_name =
                 input.unique_name?.length === 0 ? null : input.unique_name;
 
-            const result = await prisma.group.update({
+            return await prisma.group.update({
                 where: {
                     id: input.groupId,
                 },
@@ -131,14 +108,6 @@ export const groupRouter = router({
                     public: input.public,
                 },
             });
-
-            await channels.private.group_updated.publish(
-                ably,
-                [ctx.session.user.id],
-                result
-            );
-
-            return result;
         }),
     delete: protectedProcedure
         .input(z.object({ groupId: z.number() }))

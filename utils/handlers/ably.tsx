@@ -1,6 +1,37 @@
 import { trpc, type RouterInput } from "@/utils/trpc";
+import { assertConfiguration } from "@ably-labs/react-hooks";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably";
+import { useBaseHandlers } from "./base";
+
+export function useAblyHandlers() {
+    const ably = assertConfiguration();
+    const { data, status } = useSession();
+    const handlers = useBaseHandlers();
+
+    channels.private.useChannel(
+        [data?.user?.id ?? ""],
+        {
+            enabled: status === "authenticated",
+        },
+        (message) => {
+            const self = ably.connection.id === message.connectionId;
+
+            switch (message.name) {
+                case "group_created": {
+                    if (self) return;
+
+                    handlers.createGroup(message.data);
+                }
+                case "group_updated": {
+                    if (self) return;
+
+                    handlers.updateGroup(message.data);
+                }
+            }
+        }
+    );
+}
 
 export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
     const { status } = useSession();

@@ -22,7 +22,10 @@ export default async function handler(
     const tokenRequestData = await ably.auth.createTokenRequest({
         clientId: clientId,
         capability: {
-            [channels.private.channelName([clientId])]: ["subscribe"],
+            [channels.private.channelName([clientId])]: [
+                "subscribe",
+                "publish",
+            ],
             ["chat:*"]: ["subscribe"],
         },
     });

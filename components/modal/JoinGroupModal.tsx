@@ -32,7 +32,7 @@ function JoinGroup({ onClose }: { onClose: () => void }) {
     });
 
     const joinMutation = trpc.group.join.useMutation({
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             handlers.createGroup(data);
             onClose();
         },

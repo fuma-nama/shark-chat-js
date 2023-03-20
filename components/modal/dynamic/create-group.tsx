@@ -29,6 +29,7 @@ export default function Content({ onClose }: { onClose: () => void }) {
     const updateMutation = useUpdateGroupInfoMutation();
     const create = trpc.group.create.useMutation();
 
+    const isLoading = updateMutation.isLoading || create.isLoading;
     const onSubmit = handleSubmit(({ name, icon }) => {
         return create.mutate(
             {
@@ -83,11 +84,7 @@ export default function Content({ onClose }: { onClose: () => void }) {
                     />
                 </fieldset>
                 <div className="mt-4 flex justify-end">
-                    <Button
-                        type="submit"
-                        color="primary"
-                        isLoading={create.isLoading}
-                    >
+                    <Button type="submit" color="primary" isLoading={isLoading}>
                         Save
                     </Button>
                 </div>
