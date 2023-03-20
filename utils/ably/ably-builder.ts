@@ -79,12 +79,15 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
                         return;
                     }
 
-                    const message = {
-                        event: raw.name,
+                    const message: AnyMessage<EventsRecord<never>, string> = {
+                        ...raw,
+                        name: raw.name,
                         data: event.parse(raw),
-                    } as unknown as AnyMessage<Events, keyof Events>;
+                    };
 
-                    return callback(message);
+                    return callback(
+                        message as AnyMessage<Events, keyof Events>
+                    );
                 }
             );
         },
