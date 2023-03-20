@@ -1,4 +1,5 @@
 import { trpc } from "@/utils/trpc";
+import { useTrpcHandlers } from "@/utils/handlers/trpc";
 import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../system/button";
@@ -23,16 +24,16 @@ export function JoinGroupModal({ children }: { children: ReactNode }) {
 }
 
 function JoinGroup({ onClose }: { onClose: () => void }) {
-    const utils = trpc.useContext();
-
+    const handlers = useTrpcHandlers();
     const { register, handleSubmit } = useForm<{ code: string }>({
         defaultValues: {
             code: "",
         },
     });
+
     const joinMutation = trpc.group.join.useMutation({
         onSuccess: (data) => {
-            utils.group.info.setData({ groupId: data.id }, data);
+            handlers.createGroup(data);
             onClose();
         },
     });

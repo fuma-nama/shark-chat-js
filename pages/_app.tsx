@@ -9,6 +9,8 @@ import { configureAbly } from "@ably-labs/react-hooks";
 import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
 import { ToastProvider } from "@/components/system/toast";
+import { channels } from "@/utils/ably";
+import { useBaseHandlers } from "@/utils/handlers/base";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     useLayout?: (page: ReactElement) => ReactElement;
@@ -27,7 +29,7 @@ ably.connection.on("connected", () => console.log("Ably Client connected"));
 ably.connection.on("closed", () => console.log("Ably Client disconnected"));
 
 function Connect() {
-    const status = useSession().status;
+    const { status, data } = useSession();
 
     useEffect(() => {
         const connected = ably.connection.state === "connected";
@@ -40,6 +42,31 @@ function Connect() {
             ably.close();
         }
     }, [status]);
+
+    const handlers = useBaseHandlers();
+
+    channels.private.useChannel(
+        [data?.user?.id ?? ""],
+        {
+            enabled: status === "authenticated",
+        },
+        (message) => {
+            const self = ably.connection.id === message.connectionId;
+
+            switch (message.name) {
+                case "group_created": {
+                    if (self) return;
+
+                    handlers.createGroup(message.data);
+                }
+                case "group_updated": {
+                    if (self) return;
+
+                    handlers.updateGroup(message.data);
+                }
+            }
+        }
+    );
 
     return <></>;
 }

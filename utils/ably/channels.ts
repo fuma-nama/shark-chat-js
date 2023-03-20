@@ -1,22 +1,15 @@
+import { groupSchema } from "@/server/schema/group";
 import { Message, User } from "@prisma/client";
 import { z } from "zod";
-import { a } from "./ably-ts";
+import { a } from "./ably-builder";
 
 export const channels = a.channels({
     /**
      * Private channel for per user
      */
     private: a.channel(([clientId]: [clientId: string]) => [clientId], {
-        group_created: a.event(
-            z.strictObject({
-                name: z.string(),
-                icon_hash: z.number().nullable(),
-                id: z.number(),
-                owner_id: z.string(),
-                public: z.boolean(),
-                unique_name: z.string().nullable(),
-            })
-        ),
+        group_updated: a.event(groupSchema),
+        group_created: a.event(groupSchema),
     }),
     chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
         message_sent: a.event(

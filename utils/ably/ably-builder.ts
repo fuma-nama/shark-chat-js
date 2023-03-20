@@ -7,6 +7,10 @@ type ConnectParams = {
     enabled?: boolean;
 };
 
+type EventMessage<T> = Omit<Types.Message, "data"> & {
+    data: Serialize<T>;
+};
+
 export type AnyChannel<Args> = Channel<Args, Record<string, any>>;
 export type Channel<Args, Events extends EventsRecord<Args>> = {
     channelName(args: Args): string;
@@ -27,9 +31,8 @@ type AnyMessage<
     Events extends EventsRecord<never>,
     E extends keyof Events = keyof Events
 > = E extends keyof Events
-    ? {
-          event: E;
-          data: Serialize<InferEventData<Events[E]>>;
+    ? Omit<EventMessage<Serialize<InferEventData<Events[E]>>>, "name"> & {
+          name: E;
       }
     : never;
 
@@ -49,10 +52,6 @@ export type Event<Args, T> = {
         channel: Channel<Args, EventsRecord<Args>> | null;
         init(name: string, channel: Channel<Args, any>): void;
     };
-};
-
-type EventMessage<T> = {
-    data: Serialize<T>;
 };
 
 function channel<Args = void, Events extends EventsRecord<Args> = {}>(
@@ -128,6 +127,7 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
                 },
                 (raw) => {
                     const message: EventMessage<T> = {
+                        ...raw,
                         data: this.parse(raw),
                     };
 

@@ -1,12 +1,8 @@
-import { trpc } from "@/utils/trpc";
-import { inferProcedureInput } from "@trpc/server";
+import { trpc, type RouterInput } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably";
-import { Procedures } from "../trpc/types";
 
-export function useMessageEvents(
-    variables: inferProcedureInput<Procedures["chat"]["messages"]>
-) {
+export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
     const { status } = useSession();
     const utils = trpc.useContext();
 
@@ -14,7 +10,7 @@ export function useMessageEvents(
         [variables.groupId],
         { enabled: status === "authenticated" },
         (message) => {
-            if (message.event === "message_sent") {
+            if (message.name === "message_sent") {
                 return utils.chat.messages.setInfiniteData(
                     variables,
                     (prev) => {
@@ -28,7 +24,7 @@ export function useMessageEvents(
                 );
             }
 
-            if (message.event === "message_updated") {
+            if (message.name === "message_updated") {
                 return utils.chat.messages.setInfiniteData(
                     variables,
                     (prev) => {
@@ -55,7 +51,7 @@ export function useMessageEvents(
                 );
             }
 
-            if (message.event === "message_deleted") {
+            if (message.name === "message_deleted") {
                 return utils.chat.messages.setInfiniteData(
                     variables,
                     (prev) => {

@@ -86,7 +86,6 @@ function EditGroupPanel({
         }
     );
 
-    const utils = trpc.useContext();
     const mutation = useUpdateGroupInfoMutation();
 
     const default_icon =
@@ -99,7 +98,6 @@ function EditGroupPanel({
             { groupId: group.id, ...values },
             {
                 onSuccess(data, { groupId }) {
-                    utils.group.info.setData({ groupId }, () => data);
                     onCancel();
                 },
             }

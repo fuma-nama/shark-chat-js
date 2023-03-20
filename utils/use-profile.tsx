@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { trpc } from "../trpc";
-import { Serialize } from "../types";
+import { trpc } from "./trpc";
+import { Serialize } from "./types";
 
 export type Result =
     | {

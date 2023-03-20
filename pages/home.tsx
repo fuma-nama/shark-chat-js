@@ -9,10 +9,9 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
-import { channels } from "@/utils/ably";
 import Link from "next/link";
 import { Group } from "@prisma/client";
-import useProfile from "@/utils/auth/use-profile";
+import useProfile from "@/utils/use-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
 
@@ -53,19 +52,6 @@ function Groups() {
     const groups = trpc.group.all.useQuery(undefined, {
         enabled: status === "authenticated",
     });
-
-    channels.private.group_created.useChannel(
-        [data?.user?.id ?? ""],
-        {
-            enabled: status === "authenticated",
-        },
-        (message) => {
-            console.log(message);
-            utils.group.all.setData(undefined, (groups) =>
-                groups != null ? [...groups, message.data] : undefined
-            );
-        }
-    );
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">

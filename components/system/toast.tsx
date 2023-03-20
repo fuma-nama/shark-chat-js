@@ -1,5 +1,5 @@
 import * as Base from "@radix-ui/react-toast";
-import { usePageStore } from "@/stores/page";
+import { usePageStore } from "@/utils/stores/page";
 import { ReactNode } from "react";
 import { text } from "./text";
 import { tv, VariantProps } from "tailwind-variants";

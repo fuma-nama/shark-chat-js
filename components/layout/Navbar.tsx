@@ -1,4 +1,4 @@
-import { usePageStore } from "@/stores/page";
+import { usePageStore } from "@/utils/stores/page";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/router";
 import { ReactNode, useMemo } from "react";

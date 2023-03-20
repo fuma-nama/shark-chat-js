@@ -15,7 +15,7 @@ import useInfiniteScroll from "react-infinite-scroll-hook";
 import React from "react";
 import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
-import { useMessageEvents } from "@/utils/chat";
+import { useMessageHandlers } from "@/utils/handlers/ably";
 import { Spinner } from "@/components/system/spinner";
 import { MessageItem } from "@/components/chat/MessageItem";
 import { button } from "@/components/system/button";
@@ -51,7 +51,7 @@ const GroupChat: NextPageWithLayout = () => {
         cursorType: "before",
     } as const;
 
-    useMessageEvents(variables);
+    useMessageHandlers(variables);
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
         staleTime: Infinity,
