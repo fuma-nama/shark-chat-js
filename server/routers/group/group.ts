@@ -2,25 +2,11 @@ import { TRPCError } from "@trpc/server";
 import prisma from "@/prisma/client";
 import { z } from "zod";
 import ably from "../../ably";
-import cloudinary from "../../cloudinary";
 import { procedure, protectedProcedure, router } from "../../trpc";
 import { channels } from "@/utils/ably";
-import { groupIcon } from "@/utils/media/format";
 import { checkIsOwnerOf } from "../chat";
 import { inviteRouter } from "./invite";
-import { updateGroupSchema } from "../../schema/group";
-
-const imageSchema = z.string({
-    description: "Base64 format file",
-});
-
-const createGroupSchema = z.object({
-    name: z.string().min(1).max(100),
-    /**
-     * Base64 file
-     */
-    icon: imageSchema.optional(),
-});
+import { createGroupSchema, updateGroupSchema } from "../../schema/group";
 
 export const groupRouter = router({
     create: protectedProcedure
@@ -38,22 +24,6 @@ export const groupRouter = router({
                     },
                 },
             });
-
-            if (input.icon != null) {
-                const res = await cloudinary.uploader.upload(
-                    input.icon,
-                    groupIcon.uploadOptions(result.id)
-                );
-
-                result = await prisma.group.update({
-                    where: {
-                        id: result.id,
-                    },
-                    data: {
-                        icon_hash: res.version,
-                    },
-                });
-            }
 
             await channels.private.group_created.publish(
                 ably,
@@ -150,7 +120,7 @@ export const groupRouter = router({
             const unique_name =
                 input.unique_name?.length === 0 ? null : input.unique_name;
 
-            return await prisma.group.update({
+            const result = await prisma.group.update({
                 where: {
                     id: input.groupId,
                 },
@@ -161,6 +131,14 @@ export const groupRouter = router({
                     public: input.public,
                 },
             });
+
+            await channels.private.group_updated.publish(
+                ably,
+                [ctx.session.user.id],
+                result
+            );
+
+            return result;
         }),
     delete: protectedProcedure
         .input(z.object({ groupId: z.number() }))
