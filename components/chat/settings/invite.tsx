@@ -2,9 +2,9 @@ import { input } from "@/components/system/input";
 import { Button, IconButton } from "@/components/system/button";
 import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
-import { useCopyTextMutation } from "@/utils/use-copy-text";
+import { useCopyText } from "@/utils/use-copy-text";
 import { GroupInvite } from "@prisma/client";
-import { CopyIcon, TrashIcon } from "@radix-ui/react-icons";
+import { CheckIcon, CopyIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useSession } from "next-auth/react";
 import { Switch } from "@/components/system/switch";
@@ -98,7 +98,7 @@ export function Invite({ group }: { group: number }) {
 }
 
 function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
-    const copy = useCopyTextMutation();
+    const copy = useCopyText();
     const utils = trpc.useContext();
     const deleteMutation = trpc.group.invite.delete.useMutation({
         onSuccess: (_, { groupId, code }) => {
@@ -114,9 +114,9 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
             <Button
                 aria-label="copy"
                 isLoading={copy.isLoading}
-                onClick={() => copy.mutate(invite.code)}
+                onClick={() => copy.copy(invite.code)}
             >
-                <CopyIcon />
+                {copy.isShow ? <CheckIcon /> : <CopyIcon />}
             </Button>
             <IconButton
                 aria-label="delete"
