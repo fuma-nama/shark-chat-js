@@ -15,12 +15,14 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { updateGroupSchema } from "@/server/schema/group";
+import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
 
 export function Info({ group }: { group: number }) {
     const query = trpc.group.info.useQuery({ groupId: group });
+    const isAdmin = useIsGroupAdmin({ groupId: group });
     const [edit, setEdit] = useState(false);
 
-    if (query.data == null) {
+    if (query.data == null || isAdmin.loading) {
         return <></>;
     }
 
@@ -52,11 +54,13 @@ export function Info({ group }: { group: number }) {
                     </p>
                 )}
             </div>
-            <div className="flex flex-row gap-3">
-                <Button color="primary" onClick={() => setEdit(true)}>
-                    Edit Info
-                </Button>
-            </div>
+            {isAdmin.value && (
+                <div className="flex flex-row gap-3">
+                    <Button color="primary" onClick={() => setEdit(true)}>
+                        Edit Info
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

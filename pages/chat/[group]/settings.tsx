@@ -5,16 +5,25 @@ import { getQuery } from ".";
 import { Invite } from "@/components/chat/settings/invite";
 import { Danger } from "@/components/chat/settings/danger";
 import { Info } from "@/components/chat/settings/info";
+import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
+import { Spinner } from "@/components/system/spinner";
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
     const { groupId } = getQuery(router);
+    const isAdmin = useIsGroupAdmin({ groupId });
 
     return (
         <div className="flex flex-col gap-10 max-w-3xl">
-            <Info group={groupId} />
-            <Invite group={groupId} />
-            <Danger group={groupId} />
+            {isAdmin.loading ? (
+                <Spinner size="large" />
+            ) : (
+                <>
+                    <Info group={groupId} />
+                    {isAdmin.value && <Invite group={groupId} />}
+                    {isAdmin.value && <Danger group={groupId} />}
+                </>
+            )}
         </div>
     );
 };
