@@ -30,7 +30,6 @@ const Settings: NextPageWithLayout = () => {
 
 Settings.useLayout = (children) =>
     useGroupLayout((group) => ({
-        title: "Settings",
         breadcrumb: [{ href: `/chat/${group}/settings`, text: "Settings" }],
         children,
     }));

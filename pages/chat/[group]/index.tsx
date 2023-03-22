@@ -149,7 +149,6 @@ function Body({ children }: { children: ReactNode }) {
 
 GroupChat.useLayout = (children) =>
     useGroupLayout((group) => ({
-        title: "Group Chat",
         children,
         layout: Body,
         items: (

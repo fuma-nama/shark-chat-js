@@ -11,13 +11,11 @@ function DefaultBody(props: { children: ReactNode }) {
 }
 
 export function AppLayout({
-    title,
     items,
     children,
     breadcrumb,
     layout: Body = DefaultBody,
 }: {
-    title: string;
     breadcrumb?: BreadcrumbItem[];
     items?: ReactNode;
     children?: ReactNode;
@@ -46,9 +44,7 @@ export function AppLayout({
                 <Sidebar />
                 <Body>
                     <div className="max-w-screen-2xl w-full mx-auto flex flex-col pt-2 p-4 min-h-full max-h-[none]">
-                        <Navbar title={title} breadcrumb={breadcrumb}>
-                            {items}
-                        </Navbar>
+                        <Navbar breadcrumb={breadcrumb}>{items}</Navbar>
                         {children}
                     </div>
                 </Body>

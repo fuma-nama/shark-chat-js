@@ -19,7 +19,7 @@ const Home: NextPageWithLayout = () => {
     return (
         <>
             <h1 className="text-4xl font-bold">Recent Chat</h1>
-            <div className="flex flex-row gap-3 mt-6">
+            <div className="flex flex-row gap-3 mt-3">
                 <CreateGroupModal>
                     <Button color="primary">Create Group</Button>
                 </CreateGroupModal>
@@ -111,7 +111,6 @@ function ChatItem() {
 
 Home.useLayout = (children) => (
     <AppLayout
-        title="Home"
         items={
             <div className="max-sm:hidden flex flex-row gap-3">
                 <ThemeSwitch />

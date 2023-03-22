@@ -120,8 +120,6 @@ function UpdateProfile({
     );
 }
 
-Settings.useLayout = (children) => (
-    <AppLayout title="Settings">{children}</AppLayout>
-);
+Settings.useLayout = (children) => <AppLayout>{children}</AppLayout>;
 
 export default Settings;
