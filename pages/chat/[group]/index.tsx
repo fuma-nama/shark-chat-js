@@ -17,7 +17,7 @@ import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { useMessageHandlers } from "@/utils/handlers/ably";
 import { Spinner } from "@/components/system/spinner";
-import { MessageItem } from "@/components/chat/MessageItem";
+import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
@@ -99,7 +99,10 @@ const GroupChat: NextPageWithLayout = () => {
                         className="flex flex-col-reverse gap-3"
                     >
                         {messages.map((message) => (
-                            <MessageItem key={message.id} message={message} />
+                            <GroupMessageItem
+                                key={message.id}
+                                message={message}
+                            />
                         ))}
                     </div>
                 ))}

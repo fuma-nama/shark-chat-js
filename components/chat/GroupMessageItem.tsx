@@ -1,19 +1,20 @@
-import { Serialize } from "@/utils/types";
-import type { DirectMessage, User } from "@prisma/client";
-import { useState } from "react";
-import * as Item from "./MessageItem";
 import { trpc } from "@/utils/trpc";
+import { Serialize } from "@/utils/types";
+import type { Message, User } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
-export function DirectMessageItem({
+import * as Item from "./MessageItem";
+
+export function GroupMessageItem({
     message,
 }: {
-    message: Serialize<DirectMessage & { author: User }>;
+    message: Serialize<Message & { author: User }>;
 }) {
     const { status, data } = useSession();
     const [editing, setEditing] = useState(false);
-    const deleteMutation = trpc.dm.delete.useMutation();
-    const editMutation = trpc.dm.update.useMutation({
+    const deleteMutation = trpc.chat.delete.useMutation();
+    const editMutation = trpc.chat.update.useMutation({
         onSuccess: () => {
             setEditing(false);
         },
@@ -23,7 +24,7 @@ export function DirectMessageItem({
         editMutation.mutate({
             content: v.content,
             messageId: message.id,
-            userId: message.receiver_id,
+            groupId: message.group_id,
         });
     };
 
@@ -39,7 +40,7 @@ export function DirectMessageItem({
             onDelete={() =>
                 deleteMutation.mutate({
                     messageId: message.id,
-                    userId: message.receiver_id,
+                    groupId: message.group_id,
                 })
             }
         >

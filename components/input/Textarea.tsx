@@ -1,7 +1,7 @@
 import { ComponentProps } from "react";
 import { tv, VariantProps } from "tailwind-variants";
 
-const textArea = tv({
+export const textArea = tv({
     base: [
         "block w-full",
         "text-base border border-accent-500 text-accent-900 placeholder:text-accent-600 dark:text-accent-400 dark:placeholder:text-accent-800",
