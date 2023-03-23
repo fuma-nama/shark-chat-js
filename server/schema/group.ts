@@ -6,7 +6,7 @@ export const groupSchema = z.object({
     id: z.number(),
     owner_id: z.string(),
     public: z.boolean(),
-    unique_name: z.string().nullable(),
+    unique_name: z.string(),
 });
 
 export const updateGroupSchema = z.object({
