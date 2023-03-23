@@ -1,5 +1,4 @@
-import { ComponentProps } from "react";
-import { tv, VariantProps } from "tailwind-variants";
+import { tv } from "tailwind-variants";
 
 export const textArea = tv({
     base: [
@@ -24,19 +23,3 @@ export const textArea = tv({
         color: "long",
     },
 });
-
-export type TextareaProps = ComponentProps<"textarea"> &
-    VariantProps<typeof textArea>;
-
-export default function Textarea({
-    className,
-    color,
-    ...props
-}: TextareaProps) {
-    return (
-        <textarea
-            {...props}
-            className={textArea({ className: className, color })}
-        />
-    );
-}

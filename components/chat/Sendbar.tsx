@@ -1,5 +1,5 @@
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
-import Textarea from "@/components/input/Textarea";
+import { textArea } from "@/components/input/Textarea";
 import { useState } from "react";
 import { IconButton } from "@/components/system/button";
 import clsx from "clsx";
@@ -32,16 +32,18 @@ export function Sendbar({
                     "max-sm:-m-4 max-sm:rounded-none max-sm:gap-2"
                 )}
             >
-                <Textarea
+                <textarea
                     id="text"
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     rows={Math.min(20, text.split("\n").length)}
                     wrap="virtual"
-                    className="resize-none h-auto max-h-[50vh]"
+                    className={textArea({
+                        color: "primary",
+                        className: "resize-none h-auto max-h-[50vh]",
+                    })}
                     placeholder="Type message"
                     autoComplete="off"
-                    color="primary"
                     onKeyDown={(e) => {
                         if (e.shiftKey && e.key === "Enter") {
                             onSend();
