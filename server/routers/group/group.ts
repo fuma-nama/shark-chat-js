@@ -94,9 +94,6 @@ export const groupRouter = router({
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
-            const unique_name =
-                input.unique_name?.length === 0 ? null : input.unique_name;
-
             return await prisma.group.update({
                 where: {
                     id: input.groupId,
@@ -104,7 +101,7 @@ export const groupRouter = router({
                 data: {
                     name: input.name,
                     icon_hash: input.icon_hash,
-                    unique_name: unique_name,
+                    unique_name: input.unique_name,
                     public: input.public,
                 },
             });

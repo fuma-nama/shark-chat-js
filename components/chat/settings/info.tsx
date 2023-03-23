@@ -78,19 +78,18 @@ function EditGroupPanel({
     group: Serialize<Group>;
     onCancel: () => void;
 }) {
+    const mutation = useUpdateGroupInfoMutation();
     const { register, handleSubmit, control } = useForm<z.infer<typeof schema>>(
         {
             resolver: zodResolver(schema),
             defaultValues: {
-                unique_name: group.unique_name ?? undefined,
+                unique_name: group.unique_name,
                 name: group.name,
                 public: group.public,
                 icon: undefined,
             },
         }
     );
-
-    const mutation = useUpdateGroupInfoMutation();
 
     const default_icon =
         group.icon_hash != null
@@ -101,9 +100,7 @@ function EditGroupPanel({
         mutation.mutate(
             { groupId: group.id, ...values },
             {
-                onSuccess(data, { groupId }) {
-                    onCancel();
-                },
+                onSuccess: onCancel,
             }
         );
     });
@@ -153,7 +150,7 @@ function EditGroupPanel({
                     <input
                         id="unique_name"
                         className={input({ className: "rounded-l-none" })}
-                        placeholder="Optional"
+                        placeholder={control._defaultValues.unique_name}
                         {...register("unique_name")}
                     />
                 </div>

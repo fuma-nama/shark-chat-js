@@ -63,7 +63,7 @@ model VerificationToken {
 model Group {
   id        Int    @id @default(autoincrement())
   name      String @db.VarChar(256)
-  unique_name   String? @db.VarChar(256) @unique
+  unique_name   String @db.VarChar(32) @unique @default(cuid())
   icon_hash Int?
   owner_id  String
   public Boolean @default(false)
