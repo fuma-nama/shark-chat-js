@@ -1,8 +1,10 @@
+import { AppLayout } from "@/components/layout/app";
+import { Avatar } from "@/components/system/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { NextRouter, useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
-import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
+import { BookmarkIcon } from "@radix-ui/react-icons";
 import {
     createContext,
     ReactNode,
@@ -10,17 +12,17 @@ import {
     useContext,
     useEffect,
 } from "react";
-import clsx from "clsx";
 import useInfiniteScroll from "react-infinite-scroll-hook";
-import React from "react";
 import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
-import { useMessageHandlers } from "@/utils/handlers/ably";
+import { useDirectMessageHandlers } from "@/utils/handlers/ably";
 import { Spinner } from "@/components/system/spinner";
-import { MessageItem } from "@/components/chat/MessageItem";
-import { button } from "@/components/system/button";
-import Link from "next/link";
-import { useGroupLayout } from "@/components/layout/group";
+import clsx from "clsx";
+import { DirectMessageItem } from "@/components/chat/DirectMessageItem";
+
+export type Params = {
+    user: string;
+};
 
 const ViewContext = createContext<
     | {
@@ -40,19 +42,18 @@ export function getQuery(router: NextRouter) {
     };
 }
 
-const GroupChat: NextPageWithLayout = () => {
-    const group = getQuery(useRouter()).groupId;
-
+const DMPage: NextPageWithLayout = () => {
+    const { user } = useRouter().query as Params;
     const { status } = useSession();
     const { scrollToBottom, viewRef } = useContext(ViewContext)!!;
     const variables = {
-        groupId: group,
+        userId: user,
         count: 30,
         cursorType: "before",
     } as const;
 
-    useMessageHandlers(variables);
-    const query = trpc.chat.messages.useInfiniteQuery(variables, {
+    useDirectMessageHandlers(variables);
+    const query = trpc.dm.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
         staleTime: Infinity,
         getPreviousPageParam: (messages) =>
@@ -99,25 +100,31 @@ const GroupChat: NextPageWithLayout = () => {
                         className="flex flex-col-reverse gap-3"
                     >
                         {messages.map((message) => (
-                            <MessageItem key={message.id} message={message} />
+                            <DirectMessageItem
+                                key={message.id}
+                                message={message}
+                            />
                         ))}
                     </div>
                 ))}
             </div>
-            <GroupSendbar />
+            <DMSendbar />
         </>
     );
 };
 
-function GroupSendbar() {
-    const { groupId } = getQuery(useRouter());
-    const sendMutation = trpc.chat.send.useMutation();
+function DMSendbar() {
+    const { user } = useRouter().query as Params;
+    const sendMutation = trpc.dm.send.useMutation();
 
     return (
         <Sendbar
             isLoading={sendMutation.isLoading}
             onSend={({ content }) =>
-                sendMutation.mutateAsync({ message: content, groupId })
+                sendMutation.mutateAsync({
+                    userId: user,
+                    message: content,
+                })
             }
         />
     );
@@ -161,22 +168,43 @@ function Body({ children }: { children: ReactNode }) {
     );
 }
 
-GroupChat.useLayout = (children) =>
-    useGroupLayout((group) => ({
-        children,
-        layout: Body,
-        items: (
-            <>
-                <Link
-                    href={`/chat/${group}/settings`}
-                    className={button({
-                        color: "secondary",
-                        className: "gap-2",
-                    })}
-                >
-                    <GearIcon /> Settings
-                </Link>
-            </>
-        ),
-    }));
-export default GroupChat;
+function BreadcrumbItem() {
+    const { user } = useRouter().query as Params;
+    const { status } = useSession();
+    const query = trpc.dm.info.useQuery(
+        { userId: user },
+        { enabled: status === "authenticated" }
+    );
+
+    return query.data == null ? (
+        <div className="w-28 h-5 rounded-lg bg-light-300 dark:bg-dark-700" />
+    ) : (
+        <div className="flex flex-row gap-2 items-center">
+            <Avatar
+                src={query.data.image}
+                fallback={query.data.name}
+                size="small"
+            />
+            <span>{query.data.name}</span>
+        </div>
+    );
+}
+
+DMPage.useLayout = (c) => {
+    const router = useRouter();
+
+    return (
+        <AppLayout
+            layout={Body}
+            breadcrumb={[
+                {
+                    text: <BreadcrumbItem />,
+                    href: router.asPath,
+                },
+            ]}
+        >
+            {c}
+        </AppLayout>
+    );
+};
+export default DMPage;

@@ -1,4 +1,3 @@
-import { trpc } from "@/utils/trpc";
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
 import Textarea from "@/components/input/Textarea";
 import { useState } from "react";
@@ -6,20 +5,23 @@ import { IconButton } from "@/components/system/button";
 import clsx from "clsx";
 import React from "react";
 
-export function Sendbar({ group }: { group: number }) {
+type Data = {
+    content: string;
+};
+
+export function Sendbar({
+    onSend: send,
+    isLoading,
+}: {
+    onSend: (data: Data) => Promise<unknown>;
+    isLoading: boolean;
+}) {
     const [text, setText] = useState("");
 
-    const send = trpc.chat.send.useMutation({
-        onSuccess: (data) => {
-            setText("");
-        },
-    });
+    const onSend = async () => {
+        await send({ content: text });
 
-    const onSend = () => {
-        send.mutate({
-            groupId: group,
-            message: text,
-        });
+        setText("");
     };
 
     return (
@@ -49,7 +51,7 @@ export function Sendbar({ group }: { group: number }) {
                 />
                 <IconButton
                     type="submit"
-                    disabled={send.isLoading || text.trim().length === 0}
+                    disabled={isLoading || text.trim().length === 0}
                     className="aspect-square h-[41.6px]"
                     onClick={onSend}
                 >

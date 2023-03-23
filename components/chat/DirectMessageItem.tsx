@@ -1,5 +1,5 @@
 import { Serialize } from "@/utils/types";
-import type { Message } from "@prisma/client";
+import type { DirectMessage, Message } from "@prisma/client";
 import { User } from "next-auth";
 import { ReactNode, useState } from "react";
 import { Avatar } from "../system/avatar";
@@ -16,16 +16,13 @@ import {
 import clsx from "clsx";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 
-export function MessageItem({
+export function DirectMessageItem({
     message,
 }: {
-    message: Serialize<Message & { author: User }>;
+    message: Serialize<DirectMessage & { author: User }>;
 }) {
     const [isEditing, setIsEditing] = useState(false);
-
-    const dmUrl = `/dm/${message.author_id}`;
     const date = new Date(message.timestamp).toLocaleString(undefined, {
         dateStyle: "short",
         timeStyle: "short",
@@ -44,18 +41,13 @@ export function MessageItem({
                     "dark:shadow-none dark:bg-dark-800"
                 )}
             >
-                <Link href={dmUrl} className="h-fit">
-                    <Avatar
-                        src={message.author.image}
-                        fallback={message.author.name!!}
-                    />
-                </Link>
-
+                <Avatar
+                    src={message.author.image}
+                    fallback={message.author.name!!}
+                />
                 <div className="flex-1 flex flex-col">
                     <div className="flex flex-row items-center">
-                        <Link href={dmUrl} className="font-semibold">
-                            {message.author.name}
-                        </Link>
+                        <p className="font-semibold">{message.author.name}</p>
                         <p className="text-xs sm:text-xs text-accent-800 dark:text-accent-600 ml-auto sm:ml-2">
                             {date}
                         </p>
@@ -80,11 +72,11 @@ function EditMessage({
     message,
 }: {
     onCancel: () => void;
-    message: Serialize<Message & { author: User }>;
+    message: Serialize<DirectMessage & { author: User }>;
 }) {
     const [edit, setEdit] = useState<string>(message.content);
 
-    const editMutation = trpc.chat.update.useMutation({
+    const editMutation = trpc.dm.update.useMutation({
         onSuccess: onCancel,
     });
 
@@ -94,7 +86,7 @@ function EditMessage({
         editMutation.mutate({
             content: edit,
             messageId: message.id,
-            groupId: message.group_id,
+            userId: message.receiver_id,
         });
     };
 
@@ -153,18 +145,18 @@ function MessageMenu({
     isEditing: boolean;
     setIsEditing: (v: boolean) => void;
     children: ReactNode;
-    message: Serialize<Message>;
+    message: Serialize<DirectMessage>;
 }) {
     const { status, data } = useSession();
     const isAuthor =
         status === "authenticated" && message.author_id === data.user.id;
 
-    const deleteMutation = trpc.chat.delete.useMutation();
+    const deleteMutation = trpc.dm.delete.useMutation();
 
     const onDelete = () => {
         deleteMutation.mutate({
             messageId: message.id,
-            groupId: message.group_id,
+            userId: message.receiver_id,
         });
     };
 
