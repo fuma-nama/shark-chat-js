@@ -40,7 +40,6 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String
-  unique_name   String? @db.VarChar(256) @unique
   email         String?   @unique
   emailVerified DateTime?
   image         String?
@@ -49,6 +48,8 @@ model User {
   owned_groups        Group[]
   members       Member[]
   messages Message[]
+  sent_dms DirectMessage[] @relation(name: "sent_dms")
+  received_dms DirectMessage[] @relation(name: "received_dms")
 }
 
 model VerificationToken {
@@ -71,6 +72,17 @@ model Group {
   members Member[]
   messages Message[]
   invites GroupInvite[]
+}
+
+model DirectMessage {
+  id Int @id @default(autoincrement())
+  author_id    String
+  receiver_id String
+  content String @db.VarChar(2000)
+  timestamp DateTime @default(now())
+
+  author User @relation(name: "sent_dms", fields: [author_id], references: [id], onDelete: Cascade)
+  receiver User @relation(name: "received_dms", fields: [receiver_id], references: [id], onDelete: Cascade)
 }
 
 model GroupInvite {
