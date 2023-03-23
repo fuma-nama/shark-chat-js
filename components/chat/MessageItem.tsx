@@ -1,10 +1,7 @@
-import { Serialize } from "@/utils/types";
-import type { Message } from "@prisma/client";
-import { User } from "next-auth";
-import { ReactNode, useState } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { Avatar } from "../system/avatar";
 import { Button } from "../system/button";
-import Textarea from "../input/Textarea";
+import { textArea } from "../input/Textarea";
 
 import * as ContextMenu from "../system/context-menu";
 import {
@@ -14,108 +11,67 @@ import {
     TrashIcon,
 } from "@radix-ui/react-icons";
 import clsx from "clsx";
-import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
+import { User } from "@prisma/client";
+import { Serialize } from "@/utils/types";
 import Link from "next/link";
+import { Controller, useForm } from "react-hook-form";
 
-export function MessageItem({
-    message,
-}: {
-    message: Serialize<Message & { author: User }>;
-}) {
-    const [isEditing, setIsEditing] = useState(false);
+const MessageContext = createContext<{
+    editing: boolean;
+    cancel: () => void;
+}>({
+    editing: false,
+    cancel: () => {},
+});
 
-    const dmUrl = `/dm/${message.author_id}`;
-    const date = new Date(message.timestamp).toLocaleString(undefined, {
-        dateStyle: "short",
-        timeStyle: "short",
-        hourCycle: "h24",
+type EditProps = {
+    initialValue: string;
+    isLoading: boolean;
+    onEdit: (d: EditPayload) => void;
+};
+
+export type EditPayload = { content: string };
+
+export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
+    const { cancel } = useContext(MessageContext);
+    const { control, handleSubmit } = useForm<EditPayload>({
+        defaultValues: {
+            content: initialValue,
+        },
     });
 
-    return (
-        <MessageMenu
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            message={message}
-        >
-            <div
-                className={clsx(
-                    "p-3 rounded-xl bg-light-50 flex flex-row gap-2 shadow-md shadow-brand-500/10",
-                    "dark:shadow-none dark:bg-dark-800"
-                )}
-            >
-                <Link href={dmUrl} className="h-fit">
-                    <Avatar
-                        src={message.author.image}
-                        fallback={message.author.name!!}
-                    />
-                </Link>
-
-                <div className="flex-1 flex flex-col">
-                    <div className="flex flex-row items-center">
-                        <Link href={dmUrl} className="font-semibold">
-                            {message.author.name}
-                        </Link>
-                        <p className="text-xs sm:text-xs text-accent-800 dark:text-accent-600 ml-auto sm:ml-2">
-                            {date}
-                        </p>
-                    </div>
-
-                    {isEditing ? (
-                        <EditMessage
-                            message={message}
-                            onCancel={() => setIsEditing(false)}
-                        />
-                    ) : (
-                        <p className="whitespace-pre">{message.content}</p>
-                    )}
-                </div>
-            </div>
-        </MessageMenu>
-    );
-}
-
-function EditMessage({
-    onCancel,
-    message,
-}: {
-    onCancel: () => void;
-    message: Serialize<Message & { author: User }>;
-}) {
-    const [edit, setEdit] = useState<string>(message.content);
-
-    const editMutation = trpc.chat.update.useMutation({
-        onSuccess: onCancel,
-    });
-
-    const onSave = () => {
-        if (edit == null) return;
-
-        editMutation.mutate({
-            content: edit,
-            messageId: message.id,
-            groupId: message.group_id,
-        });
-    };
+    const onSave = handleSubmit(onEdit);
 
     return (
         <>
-            <Textarea
-                id="edit-message"
-                value={edit}
-                onChange={(e) => setEdit(e.target.value)}
-                className="resize-none"
-                placeholder="Edit message"
-                autoComplete="off"
-                onKeyDown={(e) => {
-                    if (e.shiftKey && e.key === "Enter") {
-                        return onSave();
-                    }
+            <Controller
+                control={control}
+                name="content"
+                render={({ field }) => (
+                    <textarea
+                        id="edit-message"
+                        placeholder="Edit message"
+                        autoComplete="off"
+                        rows={Math.min(20, field.value.split("\n").length)}
+                        wrap="virtual"
+                        color="primary"
+                        className={textArea({
+                            color: "long",
+                            className:
+                                "resize-none min-h-[80px] h-auto max-h-[50vh]",
+                        })}
+                        onKeyDown={(e) => {
+                            if (e.shiftKey && e.key === "Enter") {
+                                return onSave();
+                            }
 
-                    if (e.key === "Escape") {
-                        return onCancel();
-                    }
-                }}
+                            if (e.key === "Escape") {
+                                return cancel();
+                            }
+                        }}
+                        {...field}
+                    />
+                )}
             />
             <label
                 htmlFor="edit-message"
@@ -125,16 +81,12 @@ function EditMessage({
             </label>
 
             <div className="flex flex-row gap-3 mt-3">
-                <Button
-                    color="primary"
-                    onClick={onSave}
-                    isLoading={editMutation.isLoading}
-                >
+                <Button color="primary" onClick={onSave} isLoading={isLoading}>
                     Save changes
                 </Button>
                 <Button
                     color="secondary"
-                    onClick={onCancel}
+                    onClick={cancel}
                     className="dark:bg-dark-700"
                 >
                     Cancel
@@ -144,37 +96,79 @@ function EditMessage({
     );
 }
 
-function MessageMenu({
-    isEditing,
-    setIsEditing,
-    message,
+export function Content({
+    user,
+    timestamp,
     children,
 }: {
-    isEditing: boolean;
-    setIsEditing: (v: boolean) => void;
+    user: Serialize<User>;
+    timestamp: string;
     children: ReactNode;
-    message: Serialize<Message>;
 }) {
-    const { status, data } = useSession();
-    const isAuthor =
-        status === "authenticated" && message.author_id === data.user.id;
-
-    const deleteMutation = trpc.chat.delete.useMutation();
-
-    const onDelete = () => {
-        deleteMutation.mutate({
-            messageId: message.id,
-            groupId: message.group_id,
-        });
-    };
+    const date = new Date(timestamp).toLocaleString(undefined, {
+        dateStyle: "short",
+        timeStyle: "short",
+        hourCycle: "h24",
+    });
 
     return (
-        <ContextMenu.Root trigger={children}>
+        <>
+            <Avatar src={user.image} fallback={user.name} />
+            <div className="flex-1 flex flex-col">
+                <div className="flex flex-row items-center">
+                    <Link href={`/dm/${user.id}`} className="font-semibold">
+                        {user.name}
+                    </Link>
+                    <p className="text-xs sm:text-xs text-accent-800 dark:text-accent-600 ml-auto sm:ml-2">
+                        {date}
+                    </p>
+                </div>
+                {children}
+            </div>
+        </>
+    );
+}
+
+export function Root({
+    children,
+    isLoading,
+    onCopy,
+    onDelete,
+    isAuthor,
+    isEditing,
+    onEditChange,
+}: {
+    isEditing: boolean;
+    onEditChange: (v: boolean) => void;
+    onCopy: () => void;
+    onDelete: () => void;
+    isLoading: boolean;
+    isAuthor: boolean;
+    children: ReactNode;
+}) {
+    return (
+        <ContextMenu.Root
+            trigger={
+                <div
+                    className={clsx(
+                        "p-3 rounded-xl bg-light-50 flex flex-row gap-2 shadow-md shadow-brand-500/10",
+                        "dark:shadow-none dark:bg-dark-800"
+                    )}
+                >
+                    <MessageContext.Provider
+                        value={{
+                            editing: isEditing,
+                            cancel: () => onEditChange(false),
+                        }}
+                    >
+                        {children}
+                    </MessageContext.Provider>
+                </div>
+            }
+        >
             <ContextMenu.Item
                 icon={<CopyIcon className="w-4 h-4" />}
-                onClick={() => {
-                    navigator.clipboard.writeText(message.content);
-                }}
+                onClick={onCopy}
             >
                 Copy
             </ContextMenu.Item>
@@ -188,7 +182,8 @@ function MessageMenu({
                         )
                     }
                     value={isEditing}
-                    onChange={setIsEditing}
+                    disabled={isLoading}
+                    onChange={onEditChange}
                 >
                     {isEditing ? "Close Edit" : "Edit"}
                 </ContextMenu.CheckboxItem>
@@ -198,6 +193,7 @@ function MessageMenu({
                     icon={<TrashIcon className="w-4 h-4" />}
                     shortcut="⌘+D"
                     color="danger"
+                    disabled={isLoading}
                     onClick={onDelete}
                 >
                     Delete
