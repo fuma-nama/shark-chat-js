@@ -79,12 +79,16 @@ export const dmRouter = router({
                     timestamp: "desc",
                 },
                 where: {
-                    receiver_id: {
-                        in: [input.userId, userId],
-                    },
-                    author_id: {
-                        in: [input.userId, userId],
-                    },
+                    OR: [
+                        {
+                            receiver_id: input.userId,
+                            author_id: userId,
+                        },
+                        {
+                            receiver_id: userId,
+                            author_id: input.userId,
+                        },
+                    ],
                     timestamp:
                         input.cursor != null
                             ? {

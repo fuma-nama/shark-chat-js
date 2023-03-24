@@ -133,12 +133,10 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
                 },
                 useCallback(
                     (raw) => {
-                        const message: EventMessage<T> = {
+                        return callback({
                             ...raw,
                             data: this.parse(raw),
-                        };
-
-                        return callback(message);
+                        });
                     },
                     [callback]
                 )
