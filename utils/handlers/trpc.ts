@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { assertConfiguration } from "@ably-labs/react-hooks";
 import { Group } from "@prisma/client";
 import { useSession } from "next-auth/react";
@@ -10,19 +11,28 @@ export function useTrpcHandlers() {
     const base = useBaseHandlers();
     const { data } = useSession();
 
-    const userId = () => data!!.user.id;
-
     //Don't await publish()
     //For faster speed
-    return {
-        ...base,
-        createGroup: (group: Serialize<Group>) => {
-            base.createGroup(group);
-            channels.private.group_created.publish(ably, [userId()], group);
-        },
-        updateGroup: (group: Serialize<Group>) => {
-            base.updateGroup(group);
-            channels.private.group_updated.publish(ably, [userId()], group);
-        },
-    };
+    return useMemo(
+        () => ({
+            ...base,
+            createGroup: (group: Serialize<Group>) => {
+                base.createGroup(group);
+                channels.private.group_created.publish(
+                    ably,
+                    [data!!.user.id],
+                    group
+                );
+            },
+            updateGroup: (group: Serialize<Group>) => {
+                base.updateGroup(group);
+                channels.private.group_updated.publish(
+                    ably,
+                    [data!!.user.id],
+                    group
+                );
+            },
+        }),
+        [ably, base, data]
+    );
 }

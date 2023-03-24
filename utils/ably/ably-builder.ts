@@ -2,6 +2,7 @@ import { z, ZodType } from "zod";
 import { Types } from "ably";
 import { ChannelAndClient, useChannel } from "./hooks";
 import { Serialize } from "../types";
+import { useCallback } from "react";
 
 type ConnectParams = {
     enabled?: boolean;
@@ -11,6 +12,15 @@ type EventMessage<T> = Omit<Types.Message, "data"> & {
     data: Serialize<T>;
 };
 
+export type ChannelMessage<
+    Events extends EventsRecord<never>,
+    E extends keyof Events = keyof Events
+> = E extends keyof Events
+    ? Omit<EventMessage<Serialize<InferEventData<Events[E]>>>, "name"> & {
+          name: E;
+      }
+    : never;
+
 export type AnyChannel<Args> = Channel<Args, Record<string, any>>;
 export type Channel<Args, Events extends EventsRecord<Args>> = {
     channelName(args: Args): string;
@@ -18,7 +28,7 @@ export type Channel<Args, Events extends EventsRecord<Args>> = {
     useChannel(
         args: Args,
         params: ConnectParams,
-        callback: (msg: AnyMessage<Events>) => void
+        callback: (msg: ChannelMessage<Events>) => void
     ): ChannelAndClient;
     _def: {
         data: (args: Args) => string[];
@@ -27,14 +37,8 @@ export type Channel<Args, Events extends EventsRecord<Args>> = {
     };
 } & Events;
 
-type AnyMessage<
-    Events extends EventsRecord<never>,
-    E extends keyof Events = keyof Events
-> = E extends keyof Events
-    ? Omit<EventMessage<Serialize<InferEventData<Events[E]>>>, "name"> & {
-          name: E;
-      }
-    : never;
+export type InferChannelMessage<C extends Channel<never, any>> =
+    C extends Channel<never, infer T> ? ChannelMessage<T> : never;
 
 type InferEventData<E> = E extends Event<never, infer T> ? T : never;
 type EventsRecord<Args> = Record<string, Event<Args, any>>;
@@ -71,24 +75,23 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
                     channelName: this.channelName(args),
                     ...params,
                 },
-                (raw) => {
-                    const event = events[raw.name];
+                useCallback(
+                    (raw) => {
+                        const event = events[raw.name];
 
-                    if (event == null) {
-                        console.error(`Unkown event: ${raw.name}`);
-                        return;
-                    }
+                        if (event == null) {
+                            console.error(`Unkown event: ${raw.name}`);
+                            return;
+                        }
 
-                    const message: AnyMessage<EventsRecord<never>, string> = {
-                        ...raw,
-                        name: raw.name,
-                        data: event.parse(raw),
-                    };
-
-                    return callback(
-                        message as AnyMessage<Events, keyof Events>
-                    );
-                }
+                        return callback({
+                            ...raw,
+                            name: raw.name,
+                            data: event.parse(raw),
+                        } as ChannelMessage<Events, keyof Events>);
+                    },
+                    [callback]
+                )
             );
         },
         _def: {
@@ -128,14 +131,17 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
                     events: [event],
                     ...params,
                 },
-                (raw) => {
-                    const message: EventMessage<T> = {
-                        ...raw,
-                        data: this.parse(raw),
-                    };
+                useCallback(
+                    (raw) => {
+                        const message: EventMessage<T> = {
+                            ...raw,
+                            data: this.parse(raw),
+                        };
 
-                    return callback(message);
-                }
+                        return callback(message);
+                    },
+                    [callback]
+                )
             );
         },
         _def: {
@@ -149,7 +155,7 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
     };
 }
 
-export type Channels<C> = {
+type ChannelsBuilder<C> = {
     [K in keyof C]: C[K] extends Channel<any, any> ? C[K] : never;
 };
 
@@ -159,7 +165,7 @@ function channels<
             ? C[K]
             : never;
     }
->(root: C): Channels<C> {
+>(root: C): ChannelsBuilder<C> {
     for (const [key, channel] of Object.entries(root as any)) {
         (channel as Channel<unknown, EventsRecord<unknown>>)._def.init(key);
     }

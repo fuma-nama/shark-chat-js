@@ -24,6 +24,8 @@ function dmKey(user1: string, user2: string): [user1: string, user2: string] {
     }
 }
 
+export type Channels = typeof channels;
+
 export const channels = a.channels({
     /**
      * Private channel for per user

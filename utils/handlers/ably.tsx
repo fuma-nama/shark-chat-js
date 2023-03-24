@@ -1,7 +1,8 @@
 import { trpc, type RouterInput } from "@/utils/trpc";
 import { assertConfiguration } from "@ably-labs/react-hooks";
 import { useSession } from "next-auth/react";
-import { channels } from "../ably";
+import { useCallback } from "react";
+import { Channels, channels, InferChannelMessage } from "../ably";
 import { useBaseHandlers } from "./base";
 
 export function useAblyHandlers() {
@@ -9,12 +10,8 @@ export function useAblyHandlers() {
     const { data, status } = useSession();
     const handlers = useBaseHandlers();
 
-    channels.private.useChannel(
-        [data?.user?.id ?? ""],
-        {
-            enabled: status === "authenticated",
-        },
-        (message) => {
+    const onEvent = useCallback(
+        (message: InferChannelMessage<Channels["private"]>) => {
             const self = ably.connection.id === message.connectionId;
 
             switch (message.name) {
@@ -29,7 +26,16 @@ export function useAblyHandlers() {
                     handlers.updateGroup(message.data);
                 }
             }
-        }
+        },
+        [ably.connection.id, handlers]
+    );
+
+    channels.private.useChannel(
+        [data?.user?.id ?? ""],
+        {
+            enabled: status === "authenticated",
+        },
+        onEvent
     );
 }
 
@@ -37,10 +43,8 @@ export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
     const { status } = useSession();
     const utils = trpc.useContext();
 
-    channels.chat.useChannel(
-        [variables.groupId],
-        { enabled: status === "authenticated" },
-        (message) => {
+    const onEvent = useCallback(
+        (message: InferChannelMessage<Channels["chat"]>) => {
             if (message.name === "message_sent") {
                 return utils.chat.messages.setInfiniteData(
                     variables,
@@ -100,7 +104,14 @@ export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
                     }
                 );
             }
-        }
+        },
+        [utils.chat.messages, variables]
+    );
+
+    channels.chat.useChannel(
+        [variables.groupId],
+        { enabled: status === "authenticated" },
+        onEvent
     );
 }
 
@@ -110,10 +121,8 @@ export function useDirectMessageHandlers(
     const { status, data } = useSession();
     const utils = trpc.useContext();
 
-    channels.dm.useChannel(
-        [variables.userId, data?.user?.id ?? ""],
-        { enabled: status === "authenticated" },
-        (message) => {
+    const onEvent = useCallback(
+        (message: InferChannelMessage<Channels["dm"]>) => {
             if (message.name === "message_sent") {
                 return utils.dm.messages.setInfiniteData(variables, (prev) => {
                     if (prev == null) return prev;
@@ -162,6 +171,15 @@ export function useDirectMessageHandlers(
                     };
                 });
             }
-        }
+        },
+        [utils.dm.messages, variables]
+    );
+
+    channels.dm.useChannel(
+        [variables.userId, data?.user?.id ?? ""],
+        {
+            enabled: status === "authenticated",
+        },
+        onEvent
     );
 }

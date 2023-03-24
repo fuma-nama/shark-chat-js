@@ -24,10 +24,8 @@ export type UseChannelParam = ChannelNameAndOptions & {
  */
 export function useChannel(
     options: UseChannelParam,
-    callbackOnMessage: AblyMessageCallback
+    listener: AblyMessageCallback
 ): ChannelAndClient {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const listener = useCallback(callbackOnMessage, []);
     const ably = assertConfiguration();
     const channel = ably.channels.get(options.channelName, options.options);
     const enabled = options.enabled ?? true;
