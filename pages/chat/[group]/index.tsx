@@ -3,17 +3,9 @@ import { useSession } from "next-auth/react";
 import { NextRouter, useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
-import {
-    createContext,
-    ReactNode,
-    RefObject,
-    useContext,
-    useEffect,
-} from "react";
+import { useEffect } from "react";
 import clsx from "clsx";
-import useInfiniteScroll from "react-infinite-scroll-hook";
 import React from "react";
-import { useBottomScroll } from "@/utils/use-bottom-scroll";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { useMessageHandlers } from "@/utils/handlers/ably";
 import { Spinner } from "@/components/system/spinner";
@@ -21,14 +13,7 @@ import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
-
-const ViewContext = createContext<
-    | {
-          viewRef: RefObject<HTMLDivElement>;
-          scrollToBottom: () => void;
-      }
-    | undefined
->(undefined);
+import { ChatViewLayout, useChatView } from "@/components/chat/ChatView";
 
 export function getQuery(router: NextRouter) {
     const query = router.query as {
@@ -42,9 +27,7 @@ export function getQuery(router: NextRouter) {
 
 const GroupChat: NextPageWithLayout = () => {
     const group = getQuery(useRouter()).groupId;
-
     const { status } = useSession();
-    const { scrollToBottom, viewRef } = useContext(ViewContext)!!;
     const variables = {
         groupId: group,
         count: 30,
@@ -62,22 +45,12 @@ const GroupChat: NextPageWithLayout = () => {
     });
 
     const pages = query.data?.pages;
-    const [sentryRef, { rootRef }] = useInfiniteScroll({
+    const { scrollToBottom, sentryRef } = useChatView({
         hasNextPage: query.hasPreviousPage ?? true,
-        onLoadMore: () => {
-            console.log("load more");
-
-            return query.fetchPreviousPage();
-        },
+        onLoadMore: () => query.fetchPreviousPage(),
         disabled: query.isLoading,
-        delayInMs: 100,
         loading: query.isFetchingPreviousPage,
-        rootMargin: "20px",
     });
-
-    useEffect(() => {
-        rootRef(viewRef.current);
-    }, [rootRef, viewRef]);
 
     useEffect(() => {
         scrollToBottom();
@@ -93,19 +66,16 @@ const GroupChat: NextPageWithLayout = () => {
                 ) : (
                     <Welcome />
                 )}
-                {pages?.map((messages, i) => (
-                    <div
-                        key={messages[0]?.id ?? `undefined-${i}`}
-                        className="flex flex-col-reverse gap-3"
-                    >
-                        {messages.map((message) => (
+                {pages?.map((messages) =>
+                    [...messages]
+                        .reverse()
+                        .map((message) => (
                             <GroupMessageItem
                                 key={message.id}
                                 message={message}
                             />
-                        ))}
-                    </div>
-                ))}
+                        ))
+                )}
             </div>
             <GroupSendbar />
         </>
@@ -145,29 +115,10 @@ function Welcome() {
     );
 }
 
-function Body({ children }: { children: ReactNode }) {
-    const { handleRootScroll, scrollableRootRef, scrollToBottom } =
-        useBottomScroll();
-
-    return (
-        <ViewContext.Provider
-            value={{ scrollToBottom, viewRef: scrollableRootRef }}
-        >
-            <div
-                className="overflow-y-auto"
-                ref={scrollableRootRef}
-                onScroll={handleRootScroll}
-            >
-                {children}
-            </div>
-        </ViewContext.Provider>
-    );
-}
-
 GroupChat.useLayout = (children) =>
     useGroupLayout((group) => ({
         children,
-        layout: Body,
+        layout: ChatViewLayout,
         items: (
             <>
                 <Link
@@ -182,4 +133,5 @@ GroupChat.useLayout = (children) =>
             </>
         ),
     }));
+
 export default GroupChat;

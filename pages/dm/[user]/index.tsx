@@ -4,37 +4,21 @@ import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import type { NextPageWithLayout } from "../../_app";
-import {
-    createContext,
-    ReactNode,
-    RefObject,
-    useContext,
-    useEffect,
-} from "react";
-import useInfiniteScroll from "react-infinite-scroll-hook";
-import { useBottomScroll } from "@/utils/use-bottom-scroll";
+import { useEffect } from "react";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { useDirectMessageHandlers } from "@/utils/handlers/ably";
 import { Spinner } from "@/components/system/spinner";
 import { DirectMessageItem } from "@/components/chat/DirectMessageItem";
 import { skeleton } from "@/components/system/skeleton";
+import { ChatViewLayout, useChatView } from "@/components/chat/ChatView";
 
 type Params = {
     user: string;
 };
 
-const ViewContext = createContext<
-    | {
-          viewRef: RefObject<HTMLDivElement>;
-          scrollToBottom: () => void;
-      }
-    | undefined
->(undefined);
-
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as Params;
     const { status } = useSession();
-    const { scrollToBottom, viewRef } = useContext(ViewContext)!!;
     const variables = {
         userId: user,
         count: 30,
@@ -52,22 +36,12 @@ const DMPage: NextPageWithLayout = () => {
     });
 
     const pages = query.data?.pages;
-    const [sentryRef, { rootRef }] = useInfiniteScroll({
+    const { scrollToBottom, sentryRef } = useChatView({
         hasNextPage: query.hasPreviousPage ?? true,
-        onLoadMore: () => {
-            console.log("load more");
-
-            return query.fetchPreviousPage();
-        },
+        onLoadMore: () => query.fetchPreviousPage(),
         disabled: query.isLoading,
-        delayInMs: 100,
         loading: query.isFetchingPreviousPage,
-        rootMargin: "20px",
     });
-
-    useEffect(() => {
-        rootRef(viewRef.current);
-    }, [rootRef, viewRef]);
 
     useEffect(() => {
         scrollToBottom();
@@ -83,19 +57,18 @@ const DMPage: NextPageWithLayout = () => {
                 ) : (
                     <Welcome />
                 )}
-                {pages?.map((messages, i) => (
-                    <div
-                        key={messages[0]?.id ?? `undefined-${i}`}
-                        className="flex flex-col-reverse gap-3"
-                    >
-                        {messages.map((message) => (
-                            <DirectMessageItem
-                                key={message.id}
-                                message={message}
-                            />
-                        ))}
-                    </div>
-                ))}
+                <div className="flex flex-col gap-3">
+                    {pages?.map((messages) =>
+                        [...messages]
+                            .reverse()
+                            .map((message) => (
+                                <DirectMessageItem
+                                    key={message.id}
+                                    message={message}
+                                />
+                            ))
+                    )}
+                </div>
             </div>
             <DMSendbar />
         </>
@@ -152,25 +125,6 @@ function Welcome() {
     );
 }
 
-function Body({ children }: { children: ReactNode }) {
-    const { handleRootScroll, scrollableRootRef, scrollToBottom } =
-        useBottomScroll();
-
-    return (
-        <ViewContext.Provider
-            value={{ scrollToBottom, viewRef: scrollableRootRef }}
-        >
-            <div
-                className="overflow-y-auto"
-                ref={scrollableRootRef}
-                onScroll={handleRootScroll}
-            >
-                {children}
-            </div>
-        </ViewContext.Provider>
-    );
-}
-
 function BreadcrumbItem() {
     const { user } = useRouter().query as Params;
     const { status } = useSession();
@@ -198,7 +152,7 @@ DMPage.useLayout = (c) => {
 
     return (
         <AppLayout
-            layout={Body}
+            layout={ChatViewLayout}
             breadcrumb={[
                 {
                     text: <BreadcrumbItem />,
@@ -210,4 +164,5 @@ DMPage.useLayout = (c) => {
         </AppLayout>
     );
 };
+
 export default DMPage;
