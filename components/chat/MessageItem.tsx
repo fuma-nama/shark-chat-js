@@ -62,10 +62,12 @@ export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
                         })}
                         onKeyDown={(e) => {
                             if (e.shiftKey && e.key === "Enter") {
+                                e.preventDefault();
                                 return onSave();
                             }
 
                             if (e.key === "Escape") {
+                                e.preventDefault();
                                 return cancel();
                             }
                         }}
