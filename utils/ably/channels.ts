@@ -1,5 +1,8 @@
-import { groupSchema } from "@/server/schema/group";
-import { DirectMessage, Message, User } from "@prisma/client";
+import {
+    DirectMessageType,
+    groupSchema,
+    MessageType,
+} from "@/server/schema/group";
 import { z } from "zod";
 import { a } from "./ably-builder";
 
@@ -41,13 +44,7 @@ export const channels = a.channels({
             return [`dm-${user1}-${user2}`];
         },
         {
-            message_sent: a.event(
-                z.custom<
-                    DirectMessage & {
-                        author: User;
-                    }
-                >()
-            ),
+            message_sent: a.event(z.custom<DirectMessageType>()),
             message_updated: a.event(
                 z.object({
                     id: z.number(),
@@ -62,13 +59,7 @@ export const channels = a.channels({
         }
     ),
     chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
-        message_sent: a.event(
-            z.custom<
-                Message & {
-                    author: User;
-                }
-            >()
-        ),
+        message_sent: a.event(z.custom<MessageType>()),
         message_updated: a.event(
             z.object({
                 id: z.number(),

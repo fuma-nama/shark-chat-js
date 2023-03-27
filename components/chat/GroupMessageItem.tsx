@@ -1,6 +1,6 @@
+import { MessageType } from "@/server/schema/group";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "@/utils/types";
-import type { Message, User } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -9,7 +9,7 @@ import * as Item from "./MessageItem";
 export function GroupMessageItem({
     message,
 }: {
-    message: Serialize<Message & { author: User }>;
+    message: Serialize<MessageType>;
 }) {
     const { status, data } = useSession();
     const [editing, setEditing] = useState(false);

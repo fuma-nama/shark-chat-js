@@ -1,14 +1,14 @@
 import { Serialize } from "@/utils/types";
-import type { DirectMessage, User } from "@prisma/client";
 import { useState } from "react";
 import * as Item from "./MessageItem";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
+import { DirectMessageType } from "@/server/schema/group";
 
 export function DirectMessageItem({
     message,
 }: {
-    message: Serialize<DirectMessage & { author: User }>;
+    message: Serialize<DirectMessageType>;
 }) {
     const { status, data } = useSession();
     const [editing, setEditing] = useState(false);

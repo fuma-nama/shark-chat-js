@@ -48,7 +48,13 @@ export const dmRouter = router({
                     receiver_id: input.userId,
                 },
                 include: {
-                    author: true,
+                    author: {
+                        select: {
+                            name: true,
+                            id: true,
+                            image: true,
+                        },
+                    },
                 },
             });
 
@@ -73,7 +79,13 @@ export const dmRouter = router({
             const userId = ctx.session.user.id;
             const messages = await prisma.directMessage.findMany({
                 include: {
-                    author: true,
+                    author: {
+                        select: {
+                            name: true,
+                            id: true,
+                            image: true,
+                        },
+                    },
                 },
                 orderBy: {
                     timestamp: "desc",

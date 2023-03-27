@@ -27,7 +27,13 @@ export const chatRouter = router({
                     group_id: input.groupId,
                 },
                 include: {
-                    author: true,
+                    author: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                        },
+                    },
                 },
             });
 
@@ -51,7 +57,13 @@ export const chatRouter = router({
             await checkIsMemberOf(input.groupId, ctx.session);
             const messages = await prisma.message.findMany({
                 include: {
-                    author: true,
+                    author: {
+                        select: {
+                            name: true,
+                            id: true,
+                            image: true,
+                        },
+                    },
                 },
                 orderBy: {
                     timestamp: "desc",

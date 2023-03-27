@@ -11,10 +11,10 @@ import {
     TrashIcon,
 } from "@radix-ui/react-icons";
 import clsx from "clsx";
-import { User } from "@prisma/client";
-import { Serialize } from "@/utils/types";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
+import type { Serialize } from "@/utils/types";
+import type { MessageType } from "@/server/schema/group";
 
 const MessageContext = createContext<{
     editing: boolean;
@@ -101,7 +101,7 @@ export function Content({
     timestamp,
     children,
 }: {
-    user: Serialize<User>;
+    user: Serialize<MessageType["author"]>;
     timestamp: string;
     children: ReactNode;
 }) {
