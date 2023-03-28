@@ -3,9 +3,9 @@ import { router } from "../trpc";
 import { z } from "zod";
 import prisma from "../prisma";
 import { TRPCError } from "@trpc/server";
-import { contentSchema } from "./chat";
 import { channels } from "@/utils/ably";
 import ably from "../ably";
+import { RecentChatType, contentSchema } from "../schema/chat";
 
 export const dmRouter = router({
     info: protectedProcedure
@@ -66,6 +66,76 @@ export const dmRouter = router({
 
             return message;
         }),
+    recentChats: protectedProcedure.query(async ({ ctx }) => {
+        const count = 10;
+        const select = {
+            id: true,
+            content: true,
+            timestamp: true,
+            receiver: true,
+            author: {
+                select: {
+                    image: true,
+                    name: true,
+                    id: true,
+                },
+            },
+        } as const;
+
+        const received_messages = await prisma.directMessage.findMany({
+            select,
+            distinct: "author_id",
+            orderBy: {
+                timestamp: "desc",
+            },
+            where: {
+                receiver_id: ctx.session.user.id,
+            },
+            take: count,
+        });
+
+        const sent_messages = await prisma.directMessage.findMany({
+            select,
+            distinct: "receiver_id",
+            orderBy: {
+                timestamp: "desc",
+            },
+            where: {
+                author_id: ctx.session.user.id,
+            },
+            take: count,
+        });
+
+        const all = [...received_messages, ...sent_messages];
+        const filterMap = new Map<string, RecentChatType>();
+
+        for (const chat of all) {
+            const user =
+                chat.receiver.id === ctx.session.user.id
+                    ? chat.author
+                    : chat.receiver;
+            const old = filterMap.get(user.id);
+
+            if (old != null && old.timestamp >= chat.timestamp) {
+                continue;
+            }
+
+            filterMap.set(user.id, {
+                content: chat.content,
+                id: chat.id,
+                timestamp: chat.timestamp,
+                user,
+            });
+        }
+
+        return Array.from(filterMap.values())
+            .sort((a, b) => {
+                if (a.timestamp === b.timestamp) return 0;
+
+                return a.timestamp < b.timestamp ? 1 : -1;
+            })
+            .slice(0, count);
+    }),
     messages: protectedProcedure
         .input(
             z.object({

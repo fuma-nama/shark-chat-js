@@ -11,9 +11,10 @@ import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { Group } from "@prisma/client";
-import useProfile from "@/utils/use-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
+import { RecentChatType } from "@/server/schema/chat";
+import { Serialize } from "@/utils/types";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -27,12 +28,7 @@ const Home: NextPageWithLayout = () => {
                     <Button>Join Group</Button>
                 </JoinGroupModal>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
-                <ChatItem />
-                <ChatItem />
-                <ChatItem />
-                <ChatItem />
-            </div>
+            <RecentChats />
             <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
             <Groups />
             <div className="fixed bottom-6 right-6 sm:hidden">
@@ -86,26 +82,41 @@ function GroupItem({ group }: { group: Group }) {
     );
 }
 
-function ChatItem() {
-    const { profile } = useProfile();
-
-    if (profile == null) return <></>;
+function RecentChats() {
+    const { status } = useSession();
+    const query = trpc.dm.recentChats.useQuery(undefined, {
+        enabled: status === "authenticated",
+    });
 
     return (
-        <div
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
+            {query.data?.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+            ))}
+        </div>
+    );
+}
+
+function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
+    const user = chat.user;
+    const url = `/dm/${user.id}`;
+
+    return (
+        <Link
+            href={url}
             className={clsx(
                 "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
         >
-            <Avatar src={profile.image} fallback={profile.name} />
-            <div>
-                <p className="font-semibold text-base">{profile.name}</p>
-                <p className="text-accent-700 dark:text-accent-600 text-sm">
-                    Sleeping
+            <Avatar src={user.image} fallback={user.name} />
+            <div className="flex-1 w-0">
+                <p className="font-semibold text-base">{user.name}</p>
+                <p className="text-accent-700 dark:text-accent-600 text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                    {chat.content}
                 </p>
             </div>
-        </div>
+        </Link>
     );
 }
 
