@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext } from "react";
 import { Avatar } from "../system/avatar";
 import { Button } from "../system/button";
-import { textArea } from "../input/Textarea";
+import { textArea } from "../system/textarea";
 
 import * as ContextMenu from "../system/context-menu";
 import {
@@ -14,7 +14,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import type { Serialize } from "@/utils/types";
-import type { MessageType } from "@/server/schema/group";
+import type { MessageType } from "@/server/schema/chat";
 
 const MessageContext = createContext<{
     editing: boolean;

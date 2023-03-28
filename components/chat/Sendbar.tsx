@@ -1,5 +1,5 @@
 import { PaperPlaneIcon } from "@radix-ui/react-icons";
-import { textArea } from "@/components/input/Textarea";
+import { textArea } from "@/components/system/textarea";
 import { useState } from "react";
 import { IconButton } from "@/components/system/button";
 import clsx from "clsx";
