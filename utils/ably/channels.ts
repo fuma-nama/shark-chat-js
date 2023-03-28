@@ -1,8 +1,5 @@
-import {
-    DirectMessageType,
-    groupSchema,
-    MessageType,
-} from "@/server/schema/group";
+import { groupSchema } from "@/server/schema/group";
+import type { DirectMessageType, MessageType } from "@/server/schema/chat";
 import { z } from "zod";
 import { a } from "./ably-builder";
 

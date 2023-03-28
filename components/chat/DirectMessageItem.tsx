@@ -3,7 +3,7 @@ import { useState } from "react";
 import * as Item from "./MessageItem";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { DirectMessageType } from "@/server/schema/group";
+import { DirectMessageType } from "@/server/schema/chat";
 
 export function DirectMessageItem({
     message,

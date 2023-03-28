@@ -1,4 +1,4 @@
-import { MessageType } from "@/server/schema/group";
+import { MessageType } from "@/server/schema/chat";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "@/utils/types";
 import { useSession } from "next-auth/react";

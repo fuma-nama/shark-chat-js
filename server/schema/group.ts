@@ -1,4 +1,3 @@
-import { DirectMessage, Message, User } from "@prisma/client";
 import { z } from "zod";
 
 export const groupSchema = z.object({
@@ -29,11 +28,3 @@ export const updateGroupSchema = z.object({
 export const createGroupSchema = z.object({
     name: z.string().min(1).max(100).trim(),
 });
-
-export type MessageType = Message & {
-    author: Pick<User, "id" | "name" | "image">;
-};
-
-export type DirectMessageType = DirectMessage & {
-    author: Pick<User, "id" | "name" | "image">;
-};

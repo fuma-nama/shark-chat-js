@@ -5,8 +5,7 @@ import { z } from "zod";
 import ably from "../ably";
 import { protectedProcedure, router } from "./../trpc";
 import { Session } from "next-auth";
-
-export const contentSchema = z.string().min(1).max(2000).trim();
+import { contentSchema } from "../schema/chat";
 
 export const chatRouter = router({
     send: protectedProcedure
