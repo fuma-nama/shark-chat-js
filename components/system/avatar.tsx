@@ -24,6 +24,15 @@ const avatar = tv({
                 root: "w-24 h-24",
                 fallback: "text-lg",
             },
+            xlarge: {
+                root: "w-32 h-32",
+                fallback: "text-xl",
+            },
+        },
+        border: {
+            wide: {
+                image: "border-4 border-light-100 dark:border-dark-900",
+            },
         },
     },
     defaultVariants: {
@@ -38,8 +47,15 @@ export type AvatarProps = {
     asImage?: ReactNode;
 } & VariantProps<typeof avatar>;
 
-export function Avatar({ size, fallback, asImage, src, alt }: AvatarProps) {
-    const styles = avatar({ size });
+export function Avatar({
+    size,
+    fallback,
+    asImage,
+    src,
+    alt,
+    border,
+}: AvatarProps) {
+    const styles = avatar({ size, border });
     const fallbackText = useMemo(() => {
         return fallback
             ?.split(/\s/)
