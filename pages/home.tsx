@@ -1,11 +1,9 @@
 import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
-import { IconButton } from "@/components/system/button";
 import { AppLayout } from "@/components/layout/app";
 import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "@/utils/media/format";
-import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
@@ -15,6 +13,7 @@ import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
 import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -27,17 +26,14 @@ const Home: NextPageWithLayout = () => {
                 <JoinGroupModal>
                     <Button>Join Group</Button>
                 </JoinGroupModal>
+                <Button className="text-accent-800 dark:text-accent-600 flex-1 justify-start">
+                    <MagnifyingGlassIcon className="mr-2" />
+                    Search...
+                </Button>
             </div>
             <RecentChats />
             <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
             <Groups />
-            <div className="fixed bottom-6 right-6 sm:hidden">
-                <CreateGroupModal>
-                    <IconButton aria-label="Create Group">
-                        <PlusIcon className="w-7 h-7" />
-                    </IconButton>
-                </CreateGroupModal>
-            </div>
         </>
     );
 };

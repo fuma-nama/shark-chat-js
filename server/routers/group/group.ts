@@ -70,23 +70,36 @@ export const groupRouter = router({
                 });
             }
 
-            const result = await prisma.member
-                .create({
-                    data: {
-                        group_id: invite.group_id,
-                        user_id: ctx.session.user.id,
-                    },
-                    select: {
-                        group: true,
-                    },
-                })
-                .catch(() => {
-                    throw new TRPCError({
-                        code: "FORBIDDEN",
-                        message: "You had been joined the group",
-                    });
+            const result = await joinMember(
+                invite.group_id,
+                ctx.session.user.id
+            );
+            return result.group;
+        }),
+    joinByUniqueName: protectedProcedure
+        .input(
+            z.object({
+                uniqueName: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const group = await prisma.group.findUnique({
+                where: {
+                    unique_name: input.uniqueName,
+                },
+            });
+            if (group == null)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Group not found",
+                });
+            if (!group.public)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "The group isn't a public group",
                 });
 
+            const result = await joinMember(group.id, ctx.session.user.id);
             return result.group;
         }),
     update: protectedProcedure
@@ -152,3 +165,22 @@ export const groupRouter = router({
         }),
     invite: inviteRouter,
 });
+
+async function joinMember(groupId: number, userId: string) {
+    try {
+        return await prisma.member.create({
+            data: {
+                group_id: groupId,
+                user_id: userId,
+            },
+            select: {
+                group: true,
+            },
+        });
+    } catch (e) {
+        throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You had been joined the group",
+        });
+    }
+}
