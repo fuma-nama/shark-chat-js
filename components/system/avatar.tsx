@@ -32,6 +32,7 @@ const avatar = tv({
         border: {
             wide: {
                 image: "border-4 border-light-100 dark:border-dark-900",
+                fallback: "border-4 border-light-100 dark:border-dark-900",
             },
         },
     },
