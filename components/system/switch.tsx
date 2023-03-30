@@ -5,9 +5,8 @@ import { tv } from "tailwind-variants";
 const switchStyles = tv({
     slots: {
         root: [
-            "relative rounded-full bg-light-400",
-            "dark:bg-dark-700",
-            "radix-state-checked:bg-brand-400",
+            "relative rounded-full bg-light-400 radix-state-checked:bg-brand-500",
+            "dark:bg-dark-700 dark:radix-state-checked:bg-brand-400",
             "radix-disabled:opacity-50 radix-disabled:cursor-not-allowed",
         ],
         thumb: [
