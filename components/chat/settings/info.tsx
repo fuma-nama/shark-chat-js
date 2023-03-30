@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { updateGroupSchema } from "@/server/schema/group";
 import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
+import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 
 export function Info({ group }: { group: number }) {
     const query = trpc.group.info.useQuery({ groupId: group });
@@ -138,22 +139,14 @@ function EditGroupPanel({
                 >
                     People can find a group by its unique name
                 </p>
-                <div className="flex flex-row mt-3">
-                    <div
-                        className={clsx(
-                            "rounded-l-md border-[1px] border-r-0 bg-light-50 border-accent-600 px-2 flex",
-                            "dark:border-accent-900 dark:bg-dark-800"
-                        )}
-                    >
-                        <p className="text-lg m-auto">@</p>
-                    </div>
-                    <input
-                        id="unique_name"
-                        className={input({ className: "rounded-l-none" })}
-                        placeholder={control._defaultValues.unique_name}
-                        {...register("unique_name")}
-                    />
-                </div>
+                <UniqueNameInput
+                    root={{ className: "mt-3" }}
+                    input={{
+                        id: "unique_name",
+                        placeholder: control._defaultValues.unique_name,
+                        ...register("unique_name"),
+                    }}
+                />
                 <p
                     className={text({
                         size: "xs",
