@@ -19,7 +19,7 @@ const Settings: NextPageWithLayout = () => {
                 <Spinner size="large" />
             ) : (
                 <>
-                    <Info group={groupId} />
+                    <Info group={groupId} isAdmin={isAdmin.value} />
                     {isAdmin.value && <Invite group={groupId} />}
                     <Danger group={groupId} isAdmin={isAdmin.value} />
                 </>

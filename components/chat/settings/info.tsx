@@ -8,22 +8,19 @@ import { trpc } from "@/utils/trpc";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 import { Group } from "@prisma/client";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
-import clsx from "clsx";
 import { useState } from "react";
 
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { updateGroupSchema } from "@/server/schema/group";
-import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 
-export function Info({ group }: { group: number }) {
+export function Info({ group, isAdmin }: { group: number; isAdmin: boolean }) {
     const query = trpc.group.info.useQuery({ groupId: group });
-    const isAdmin = useIsGroupAdmin({ groupId: group });
     const [edit, setEdit] = useState(false);
 
-    if (query.data == null || isAdmin.loading) {
+    if (query.data == null) {
         return <></>;
     }
 
@@ -37,31 +34,41 @@ export function Info({ group }: { group: number }) {
 
     const info = query.data;
     return (
-        <div className="flex flex-col gap-3">
-            <Avatar
-                size="large"
-                src={
-                    info.icon_hash != null
-                        ? groupIcon.url([group], info.icon_hash)
-                        : null
-                }
-                fallback={info.name}
-            />
-            <div>
-                <h2 className="text-2xl font-bold">{info.name}</h2>
-                {info.unique_name != null && (
-                    <p className={text({ size: "sm", type: "secondary" })}>
-                        @{info.unique_name}
-                    </p>
-                )}
-            </div>
-            {isAdmin.value && (
-                <div className="flex flex-row gap-3">
-                    <Button color="primary" onClick={() => setEdit(true)}>
-                        Edit Info
-                    </Button>
+        <div className="flex flex-col">
+            <div className="h-auto aspect-[3/1] xl:rounded-lg bg-brand-500 dark:bg-brand-400 -mx-4" />
+            <div className="flex flex-col gap-3 -mt-[4rem]">
+                <div className="w-full flex flex-row justify-between items-end">
+                    <Avatar
+                        border="wide"
+                        size="xlarge"
+                        src={
+                            info.icon_hash != null
+                                ? groupIcon.url([group], info.icon_hash)
+                                : null
+                        }
+                        fallback={info.name}
+                    />
+                    {isAdmin && (
+                        <div className="flex flex-row gap-3">
+                            <Button
+                                color="primary"
+                                onClick={() => setEdit(true)}
+                            >
+                                Edit Info
+                            </Button>
+                        </div>
+                    )}
                 </div>
-            )}
+
+                <div>
+                    <h2 className="text-2xl font-bold">{info.name}</h2>
+                    {info.unique_name != null && (
+                        <p className={text({ size: "sm", type: "secondary" })}>
+                            @{info.unique_name}
+                        </p>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
