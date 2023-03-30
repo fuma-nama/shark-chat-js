@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import prisma from "@/server/prisma";
 import { z } from "zod";
 import { procedure, protectedProcedure, router } from "../../trpc";
-import { checkIsOwnerOf } from "../chat";
+import { checkIsOwnerOf } from "@/utils/trpc/permissions";
 import { inviteRouter } from "./invite";
 import { createGroupSchema, updateGroupSchema } from "../../schema/group";
 

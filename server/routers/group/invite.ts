@@ -1,7 +1,7 @@
 import prisma from "@/server/prisma";
 import { protectedProcedure, router } from "@/server/trpc";
 import { z } from "zod";
-import { checkIsOwnerOf } from "../chat";
+import { checkIsOwnerOf } from "@/utils/trpc/permissions";
 
 /**
  * Only the group owner can manage invites

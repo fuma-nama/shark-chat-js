@@ -4,8 +4,8 @@ import { channels } from "@/utils/ably";
 import { z } from "zod";
 import ably from "../ably";
 import { protectedProcedure, router } from "./../trpc";
-import { Session } from "next-auth";
 import { contentSchema } from "../schema/chat";
+import { checkIsMemberOf } from "@/utils/trpc/permissions";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -112,66 +112,59 @@ export const chatRouter = router({
                 content: input.content,
             });
         }),
+    /**
+     * Group owner can delete anyone's messages
+     * Author can only delete their messages
+     */
     delete: protectedProcedure
         .input(
             z.object({
                 messageId: z.number(),
-                groupId: z.number(),
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const result = await prisma.message.deleteMany({
+            const message = await prisma.message.findUnique({
+                include: {
+                    group: {
+                        select: {
+                            owner_id: true,
+                        },
+                    },
+                },
                 where: {
                     id: input.messageId,
-                    author_id: ctx.session.user.id,
-                    group_id: input.groupId,
                 },
             });
 
-            if (result.count === 0)
+            if (message == null)
                 throw new TRPCError({
-                    code: "BAD_REQUEST",
-                    message: "No permission or message doesn't exist",
+                    code: "NOT_FOUND",
+                    message: "Message not found",
                 });
 
-            await channels.chat.message_deleted.publish(ably, [input.groupId], {
-                id: input.messageId,
+            const allowed =
+                message.author_id === ctx.session.user.id ||
+                message.group.owner_id === ctx.session.user.id;
+
+            if (!allowed) {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Missing required permission",
+                });
+            }
+
+            await prisma.message.delete({
+                where: {
+                    id: input.messageId,
+                },
             });
+
+            await channels.chat.message_deleted.publish(
+                ably,
+                [message.group_id],
+                {
+                    id: message.id,
+                }
+            );
         }),
 });
-
-export async function checkIsMemberOf(group: number, user: Session) {
-    const member = await prisma.member.findUnique({
-        where: {
-            group_id_user_id: {
-                group_id: group,
-                user_id: user.user.id,
-            },
-        },
-    });
-
-    if (member == null) {
-        throw new TRPCError({
-            message: "You must be the owner of the group to do this action",
-            code: "BAD_REQUEST",
-        });
-    }
-
-    return member;
-}
-
-export async function checkIsOwnerOf(group: number, user: Session) {
-    const res = await prisma.group.findFirst({
-        where: {
-            id: group,
-            owner_id: user.user.id,
-        },
-    });
-
-    if (res == null) {
-        throw new TRPCError({
-            message: "You must join the group in order to receive messages",
-            code: "BAD_REQUEST",
-        });
-    }
-}

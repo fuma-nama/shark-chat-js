@@ -3,7 +3,7 @@ import { getTimestamp } from "@/utils/media/timestamp";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
 import { z } from "zod";
-import { checkIsOwnerOf } from "./chat";
+import { checkIsOwnerOf } from "@/utils/trpc/permissions";
 
 export type SignOptions = {
     resource_type?: "image";

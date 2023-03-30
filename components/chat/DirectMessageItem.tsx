@@ -19,6 +19,9 @@ export function DirectMessageItem({
         },
     });
 
+    const isAuthor =
+        status === "authenticated" && message.author_id == data.user.id;
+
     const onEdit = (v: Item.EditPayload) => {
         editMutation.mutate({
             content: v.content,
@@ -27,21 +30,21 @@ export function DirectMessageItem({
         });
     };
 
+    const onDelete = () => {
+        deleteMutation.mutate({
+            messageId: message.id,
+            userId: message.receiver_id,
+        });
+    };
+
     return (
         <Item.Root
             isEditing={editing}
-            isAuthor={
-                status === "authenticated" && message.author_id == data.user.id
-            }
-            isLoading={editMutation.isLoading || deleteMutation.isLoading}
+            canEdit={isAuthor}
+            canDelete={isAuthor}
             onCopy={() => navigator.clipboard.writeText(message.content)}
             onEditChange={setEditing}
-            onDelete={() =>
-                deleteMutation.mutate({
-                    messageId: message.id,
-                    userId: message.receiver_id,
-                })
-            }
+            onDelete={onDelete}
         >
             <Item.Content user={message.author} timestamp={message.timestamp}>
                 {editing ? (

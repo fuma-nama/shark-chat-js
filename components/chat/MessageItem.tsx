@@ -17,20 +17,18 @@ import type { Serialize } from "@/utils/types";
 import type { MessageType } from "@/server/schema/chat";
 
 const MessageContext = createContext<{
-    editing: boolean;
     cancel: () => void;
 }>({
-    editing: false,
     cancel: () => {},
 });
+
+export type EditPayload = { content: string };
 
 type EditProps = {
     initialValue: string;
     isLoading: boolean;
     onEdit: (d: EditPayload) => void;
 };
-
-export type EditPayload = { content: string };
 
 export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
     const { cancel } = useContext(MessageContext);
@@ -131,23 +129,25 @@ export function Content({
     );
 }
 
-export function Root({
-    children,
-    isLoading,
-    onCopy,
-    onDelete,
-    isAuthor,
-    isEditing,
-    onEditChange,
-}: {
+type RootProps = {
     isEditing: boolean;
     onEditChange: (v: boolean) => void;
     onCopy: () => void;
     onDelete: () => void;
-    isLoading: boolean;
-    isAuthor: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
     children: ReactNode;
-}) {
+};
+
+export function Root({
+    children,
+    onCopy,
+    onDelete,
+    canDelete,
+    canEdit,
+    isEditing,
+    onEditChange,
+}: RootProps) {
     return (
         <ContextMenu.Root
             trigger={
@@ -159,7 +159,6 @@ export function Root({
                 >
                     <MessageContext.Provider
                         value={{
-                            editing: isEditing,
                             cancel: () => onEditChange(false),
                         }}
                     >
@@ -174,7 +173,7 @@ export function Root({
             >
                 Copy
             </ContextMenu.Item>
-            {isAuthor && (
+            {canEdit && (
                 <ContextMenu.CheckboxItem
                     icon={
                         isEditing ? (
@@ -184,18 +183,16 @@ export function Root({
                         )
                     }
                     value={isEditing}
-                    disabled={isLoading}
-                    onChange={onEditChange}
+                    onChange={() => onEditChange(!isEditing)}
                 >
                     {isEditing ? "Close Edit" : "Edit"}
                 </ContextMenu.CheckboxItem>
             )}
-            {isAuthor && (
+            {canDelete && (
                 <ContextMenu.Item
                     icon={<TrashIcon className="w-4 h-4" />}
                     shortcut="⌘+D"
                     color="danger"
-                    disabled={isLoading}
                     onClick={onDelete}
                 >
                     Delete
