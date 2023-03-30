@@ -27,7 +27,7 @@ export function ChatViewLayout({ children }: { children: ReactNode }) {
             value={{ scrollToBottom, viewRef: scrollableRootRef }}
         >
             <div
-                className="overflow-y-auto"
+                className="flex flex-col overflow-y-auto"
                 ref={scrollableRootRef}
                 onScroll={handleRootScroll}
             >

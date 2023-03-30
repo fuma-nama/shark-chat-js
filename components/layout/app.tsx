@@ -7,7 +7,9 @@ import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
 
 function DefaultBody(props: { children: ReactNode }) {
-    return <div className="overflow-y-auto">{props.children}</div>;
+    return (
+        <div className="overflow-y-auto flex flex-col">{props.children}</div>
+    );
 }
 
 export function AppLayout({
@@ -43,8 +45,8 @@ export function AppLayout({
             >
                 <Sidebar />
                 <Body>
-                    <div className="max-w-screen-2xl w-full mx-auto flex flex-col pt-2 p-4 min-h-full max-h-[none]">
-                        <Navbar breadcrumb={breadcrumb}>{items}</Navbar>
+                    <Navbar breadcrumb={breadcrumb}>{items}</Navbar>
+                    <div className="max-w-screen-2xl w-full mx-auto flex flex-col flex-1 pt-2 p-4">
                         {children}
                     </div>
                 </Body>
