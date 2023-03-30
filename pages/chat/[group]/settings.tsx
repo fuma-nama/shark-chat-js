@@ -21,7 +21,7 @@ const Settings: NextPageWithLayout = () => {
                 <>
                     <Info group={groupId} />
                     {isAdmin.value && <Invite group={groupId} />}
-                    {isAdmin.value && <Danger group={groupId} />}
+                    <Danger group={groupId} isAdmin={isAdmin.value} />
                 </>
             )}
         </div>
