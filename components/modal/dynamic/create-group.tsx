@@ -1,7 +1,7 @@
 import { input } from "@/components/system/input";
 import { createGroupSchema } from "@/server/schema/group";
 import { trpc } from "@/utils/trpc";
-import { useTrpcHandlers } from "@/utils/handlers/trpc";
+import { useMutationHandlers } from "@/utils/handlers/trpc";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -15,7 +15,7 @@ const schema = createGroupSchema.extend({
 });
 
 export default function Content({ onClose }: { onClose: () => void }) {
-    const handlers = useTrpcHandlers();
+    const handlers = useMutationHandlers();
     const { register, control, handleSubmit } = useForm<z.infer<typeof schema>>(
         {
             resolver: zodResolver(schema),

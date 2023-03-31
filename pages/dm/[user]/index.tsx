@@ -3,14 +3,15 @@ import { Avatar } from "@/components/system/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import type { NextPageWithLayout } from "../../_app";
 import { useEffect } from "react";
 import { Sendbar } from "@/components/chat/Sendbar";
-import { useDirectMessageHandlers } from "@/utils/handlers/ably";
+import { useDirectMessageHandlers } from "@/utils/handlers/realtime/chat";
 import { Spinner } from "@/components/system/spinner";
 import { DirectMessageItem } from "@/components/chat/DirectMessageItem";
 import { skeleton } from "@/components/system/skeleton";
 import { ChatViewLayout, useChatView } from "@/components/chat/ChatView";
+
+import type { NextPageWithLayout } from "../../_app";
 
 type Params = {
     user: string;

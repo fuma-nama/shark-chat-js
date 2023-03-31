@@ -4,18 +4,18 @@ import { Group } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably";
 import { Serialize } from "../types";
-import { useBaseHandlers } from "./base";
+import { useEventHandlers } from "./base";
 
-export function useTrpcHandlers() {
+export function useMutationHandlers() {
     const ably = assertConfiguration();
-    const base = useBaseHandlers();
+    const base = useEventHandlers();
     const { data } = useSession();
 
     //Don't await publish()
     //For faster speed
     return useMemo(
         () => ({
-            ...base,
+            utils: base.utils,
             createGroup: (group: Serialize<Group>) => {
                 base.createGroup(group);
                 channels.private.group_created.publish(

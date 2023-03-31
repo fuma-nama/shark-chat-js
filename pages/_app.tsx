@@ -9,7 +9,7 @@ import { configureAbly } from "@ably-labs/react-hooks";
 import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
 import { ToastProvider } from "@/components/system/toast";
-import { useAblyHandlers } from "@/utils/handlers/ably";
+import { useAblyHandlers } from "@/utils/handlers/realtime/global";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     useLayout?: (page: ReactElement) => ReactElement;

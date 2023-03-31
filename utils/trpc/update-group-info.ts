@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { upload } from "../media/upload";
-import { useTrpcHandlers } from "../handlers/trpc";
+import { useMutationHandlers } from "../handlers/trpc";
 import type { RouterInput } from "./index";
 
 type Input = Omit<RouterInput["group"]["update"], "icon_hash"> & {
@@ -8,7 +8,7 @@ type Input = Omit<RouterInput["group"]["update"], "icon_hash"> & {
 };
 
 export function useUpdateGroupInfoMutation() {
-    const handlers = useTrpcHandlers();
+    const handlers = useMutationHandlers();
     const client = handlers.utils.client;
 
     return useMutation(

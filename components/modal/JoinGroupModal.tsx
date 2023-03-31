@@ -1,5 +1,5 @@
 import { trpc } from "@/utils/trpc";
-import { useTrpcHandlers } from "@/utils/handlers/trpc";
+import { useMutationHandlers } from "@/utils/handlers/trpc";
 import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../system/button";
@@ -57,7 +57,7 @@ export function JoinGroupModal({ children }: { children: ReactNode }) {
 }
 
 function JoinGroupByCode({ onClose }: { onClose: () => void }) {
-    const handlers = useTrpcHandlers();
+    const handlers = useMutationHandlers();
     const { register, handleSubmit, formState, setError } = useForm<{
         code: string;
     }>({
@@ -113,7 +113,7 @@ const schema = z.object({
 });
 
 function JoinGroupByName({ onClose }: { onClose: () => void }) {
-    const handlers = useTrpcHandlers();
+    const handlers = useMutationHandlers();
     const { register, handleSubmit, formState, setError } = useForm<
         z.infer<typeof schema>
     >({

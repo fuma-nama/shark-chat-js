@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import clsx from "clsx";
 import React from "react";
 import { Sendbar } from "@/components/chat/Sendbar";
-import { useMessageHandlers } from "@/utils/handlers/ably";
+import { useMessageHandlers } from "@/utils/handlers/realtime/chat";
 import { Spinner } from "@/components/system/spinner";
 import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
