@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { NextRouter, useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
-import { useEffect } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import React from "react";
 import { Sendbar } from "@/components/chat/Sendbar";
@@ -25,14 +25,21 @@ export function getQuery(router: NextRouter) {
     };
 }
 
+export function useVariables(groupId: number) {
+    return useMemo(() => {
+        return {
+            groupId,
+            count: 30,
+            cursorType: "before",
+        } as const;
+    }, [groupId]);
+}
+
 const GroupChat: NextPageWithLayout = () => {
     const group = getQuery(useRouter()).groupId;
     const { status } = useSession();
-    const variables = {
-        groupId: group,
-        count: 30,
-        cursorType: "before",
-    } as const;
+    const variables = useVariables(group);
+    const lastRead = useLastRead(group);
 
     useMessageHandlers(variables);
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
@@ -66,21 +73,73 @@ const GroupChat: NextPageWithLayout = () => {
                 ) : (
                     <Welcome />
                 )}
-                {pages?.map((messages) =>
-                    [...messages]
-                        .reverse()
-                        .map((message) => (
-                            <GroupMessageItem
-                                key={message.id}
-                                message={message}
-                            />
-                        ))
-                )}
+                {pages
+                    ?.flatMap((messages) => [...messages].reverse())
+                    .map((message, i, arr) => {
+                        const prev_message = i > 0 ? arr[i - 1] : null;
+                        const newLine =
+                            lastRead != null &&
+                            lastRead < new Date(message.timestamp) &&
+                            (prev_message == null ||
+                                new Date(prev_message.timestamp) <= lastRead);
+
+                        return (
+                            <Fragment key={message.id}>
+                                {newLine && <UnreadSeparator />}
+                                <GroupMessageItem message={message} />
+                            </Fragment>
+                        );
+                    })}
             </div>
             <GroupSendbar />
         </>
     );
 };
+
+function UnreadSeparator() {
+    return (
+        <div
+            className="flex flex-row gap-2 items-center"
+            aria-label="separator"
+        >
+            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
+            <p className="text-red-500 dark:text-red-400 text-sm mx-auto">
+                New Message
+            </p>
+            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
+        </div>
+    );
+}
+
+function useLastRead(groupId: number) {
+    const { status } = useSession();
+    const utils = trpc.useContext();
+    function resetGroupUnread(groupId: number) {
+        utils.group.all.setData(undefined, (groups) =>
+            groups?.map((group) =>
+                group.id === groupId
+                    ? {
+                          ...group,
+                          unread_messages: 0,
+                      }
+                    : group
+            )
+        );
+    }
+
+    const checkoutQuery = trpc.chat.checkout.useQuery(
+        { groupId },
+        {
+            enabled: status === "authenticated",
+            refetchOnWindowFocus: false,
+            onSuccess: () => resetGroupUnread(groupId),
+        }
+    );
+
+    return checkoutQuery.data != null
+        ? new Date(checkoutQuery.data.last_read)
+        : null;
+}
 
 function GroupSendbar() {
     const { groupId } = getQuery(useRouter());
@@ -120,17 +179,15 @@ GroupChat.useLayout = (children) =>
         children,
         layout: ChatViewLayout,
         items: (
-            <>
-                <Link
-                    href={`/chat/${group}/settings`}
-                    className={button({
-                        color: "secondary",
-                        className: "gap-2",
-                    })}
-                >
-                    <GearIcon /> Settings
-                </Link>
-            </>
+            <Link
+                href={`/chat/${group}/settings`}
+                className={button({
+                    color: "secondary",
+                    className: "gap-2",
+                })}
+            >
+                <GearIcon /> Settings
+            </Link>
         ),
     }));
 

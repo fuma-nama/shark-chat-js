@@ -4,7 +4,11 @@ import { z } from "zod";
 import { procedure, protectedProcedure, router } from "../../trpc";
 import { checkIsOwnerOf } from "@/utils/trpc/permissions";
 import { inviteRouter } from "./invite";
-import { createGroupSchema, updateGroupSchema } from "../../schema/group";
+import {
+    createGroupSchema,
+    GroupWithNotifications,
+    updateGroupSchema,
+} from "../../schema/group";
 
 export const groupRouter = router({
     create: protectedProcedure
@@ -24,15 +28,9 @@ export const groupRouter = router({
             });
         }),
     all: protectedProcedure.query(async ({ ctx }) => {
-        return await prisma.group.findMany({
-            where: {
-                members: {
-                    some: {
-                        user_id: ctx.session.user.id,
-                    },
-                },
-            },
-        });
+        return await prisma.$transaction(async () =>
+            getGroupWithNotifications(ctx.session.user.id)
+        );
     }),
     info: procedure
         .input(
@@ -183,4 +181,35 @@ async function joinMember(groupId: number, userId: string) {
             message: "You had been joined the group",
         });
     }
+}
+
+async function getGroupWithNotifications(
+    userId: string
+): Promise<GroupWithNotifications[]> {
+    const joined = await prisma.member.findMany({
+        include: {
+            group: true,
+        },
+        where: {
+            user_id: userId,
+        },
+    });
+
+    return await Promise.all(
+        joined.map(async (member) => {
+            const count = await prisma.message.count({
+                where: {
+                    group_id: member.group_id,
+                    timestamp: {
+                        gt: member.last_read,
+                    },
+                },
+            });
+
+            return {
+                ...member.group,
+                unread_messages: count,
+            };
+        })
+    );
 }

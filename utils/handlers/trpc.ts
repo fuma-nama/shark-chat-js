@@ -11,8 +11,6 @@ export function useMutationHandlers() {
     const base = useEventHandlers();
     const { data } = useSession();
 
-    //Don't await publish()
-    //For faster speed
     return useMemo(
         () => ({
             utils: base.utils,

@@ -1,3 +1,4 @@
+import { Group } from "@prisma/client";
 import { z } from "zod";
 
 export const uniqueNameSchema = z
@@ -17,6 +18,10 @@ export const groupSchema = z.object({
     public: z.boolean(),
     unique_name: z.string(),
 });
+
+export type GroupWithNotifications = Group & {
+    unread_messages: number;
+};
 
 export const updateGroupSchema = z.object({
     groupId: z.number(),

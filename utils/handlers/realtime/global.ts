@@ -16,17 +16,13 @@ export function useAblyHandlers() {
         },
         useCallback(
             (message) => {
-                const self = ably.connection.id === message.connectionId;
+                if (ably.connection.id === message.connectionId) return;
 
                 switch (message.name) {
                     case "group_created": {
-                        if (self) return;
-
                         handlers.createGroup(message.data);
                     }
                     case "group_updated": {
-                        if (self) return;
-
                         handlers.updateGroup(message.data);
                     }
                 }

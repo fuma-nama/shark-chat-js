@@ -14,7 +14,7 @@ export async function checkIsMemberOf(group: number, user: Session) {
 
     if (member == null) {
         throw new TRPCError({
-            message: "You must be the owner of the group to do this action",
+            message: "You must join the group in order to receive messages",
             code: "BAD_REQUEST",
         });
     }
@@ -32,7 +32,7 @@ export async function checkIsOwnerOf(group: number, user: Session) {
 
     if (res == null) {
         throw new TRPCError({
-            message: "You must join the group in order to receive messages",
+            message: "You must be the owner of the group to do this action",
             code: "BAD_REQUEST",
         });
     }

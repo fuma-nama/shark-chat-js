@@ -2,43 +2,46 @@ import { InferChannelMessage, Channels, channels } from "@/utils/ably";
 import { RouterInput, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useCallback } from "react";
+import { useEventHandlers } from "../base";
 
 export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
-    const { status } = useSession();
-    const utils = trpc.useContext();
+    const { status, data } = useSession();
+    const handlers = useEventHandlers();
+    const utils = handlers.utils;
 
     function onEvent(message: InferChannelMessage<Channels["chat"]>) {
         if (message.name === "message_sent") {
-            return utils.chat.messages.setInfiniteData(variables, (prev) => {
-                if (prev == null) return prev;
+            if (message.data.author_id !== data?.user.id) {
+                utils.client.chat.read.mutate({
+                    groupId: message.data.group_id,
+                });
+            }
 
-                return {
-                    ...prev,
-                    pages: [...prev.pages, [message.data]],
-                };
-            });
+            utils.chat.checkout.setData(
+                { groupId: message.data.group_id },
+                { last_read: message.data.timestamp }
+            );
+            return handlers.addGroupMessage(variables, message.data);
         }
 
         if (message.name === "message_updated") {
             return utils.chat.messages.setInfiniteData(variables, (prev) => {
                 if (prev == null) return prev;
 
-                const pages = prev.pages.map((page) =>
-                    page.map((msg) => {
-                        if (msg.id === message.data.id) {
-                            return {
-                                ...msg,
-                                content: message.data.content,
-                            };
-                        }
-
-                        return msg;
-                    })
-                );
-
                 return {
                     ...prev,
-                    pages,
+                    pages: prev.pages.map((page) =>
+                        page.map((msg) => {
+                            if (msg.id === message.data.id) {
+                                return {
+                                    ...msg,
+                                    content: message.data.content,
+                                };
+                            }
+
+                            return msg;
+                        })
+                    ),
                 };
             });
         }
@@ -47,12 +50,11 @@ export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
             return utils.chat.messages.setInfiniteData(variables, (prev) => {
                 if (prev == null) return prev;
 
-                const pages = prev.pages.map((page) => {
-                    return page.filter((msg) => msg.id !== message.data.id);
-                });
                 return {
                     ...prev,
-                    pages,
+                    pages: prev.pages.map((page) => {
+                        return page.filter((msg) => msg.id !== message.data.id);
+                    }),
                 };
             });
         }
@@ -61,7 +63,7 @@ export function useMessageHandlers(variables: RouterInput["chat"]["messages"]) {
     return channels.chat.useChannel(
         [variables.groupId],
         { enabled: status === "authenticated" },
-        useCallback(onEvent, [utils.chat.messages, variables])
+        useCallback(onEvent, [data, utils, variables, handlers])
     );
 }
 

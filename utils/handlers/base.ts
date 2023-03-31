@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { trpc } from "@/utils/trpc";
-import { Group } from "@prisma/client";
-import { Serialize } from "../types";
-import { GroupWithNotifications } from "@/server/schema/group";
+import { type RouterInput, trpc } from "@/utils/trpc";
+import type { Group } from "@prisma/client";
+import type { Serialize } from "../types";
+import type { GroupWithNotifications } from "@/server/schema/group";
+import type { MessageType } from "@/server/schema/chat";
 
 export function useEventHandlers() {
     const utils = trpc.useContext();
@@ -44,6 +45,19 @@ export function useEventHandlers() {
                         return group;
                     })
                 );
+            },
+            addGroupMessage: (
+                variables: RouterInput["chat"]["messages"],
+                message: Serialize<MessageType>
+            ) => {
+                utils.chat.messages.setInfiniteData(variables, (prev) => {
+                    if (prev == null) return prev;
+
+                    return {
+                        ...prev,
+                        pages: [...prev.pages, [message]],
+                    };
+                });
             },
         }),
         [utils]

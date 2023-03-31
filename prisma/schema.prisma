@@ -96,6 +96,7 @@ model GroupInvite {
 model Member {
   group_id Int
   user_id  String
+  last_read DateTime @default(now())
 
   group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)

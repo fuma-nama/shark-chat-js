@@ -3,8 +3,8 @@ import {
     assertConfiguration,
     ChannelNameAndOptions,
 } from "@ably-labs/react-hooks";
-import { Types } from "ably";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
+import type { Types } from "ably";
 
 export type ChannelAndClient = [
     channel: Types.RealtimeChannelPromise,
@@ -39,11 +39,7 @@ export function useChannel(
     };
 
     const onUnmount = async () => {
-        if (options.events != null) {
-            channel.unsubscribe(options.events as any, listener);
-        } else {
-            channel.unsubscribe(listener);
-        }
+        channel.unsubscribe(listener);
 
         setTimeout(async () => {
             if (channel.listeners.length === 0) {

@@ -15,8 +15,8 @@ export function useIsGroupAdmin({
 }: {
     groupId: number;
 }): IsGroupAdminResult {
-    const query = trpc.group.info.useQuery({ groupId });
     const { status, data } = useSession();
+    const query = trpc.group.info.useQuery({ groupId });
 
     if (status === "loading" || query.isLoading) {
         return { loading: true };

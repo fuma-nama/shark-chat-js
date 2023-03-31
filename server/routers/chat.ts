@@ -36,6 +36,12 @@ export const chatRouter = router({
                 },
             });
 
+            await setLastRead(
+                input.groupId,
+                ctx.session.user.id,
+                message.timestamp
+            );
+
             await channels.chat.message_sent.publish(
                 ably,
                 [input.groupId],
@@ -54,7 +60,8 @@ export const chatRouter = router({
         )
         .query(async ({ input, ctx }) => {
             await checkIsMemberOf(input.groupId, ctx.session);
-            const messages = await prisma.message.findMany({
+
+            return await prisma.message.findMany({
                 include: {
                     author: {
                         select: {
@@ -79,8 +86,6 @@ export const chatRouter = router({
                 },
                 take: Math.min(input.count, 50),
             });
-
-            return messages;
         }),
     update: protectedProcedure
         .input(
@@ -167,4 +172,54 @@ export const chatRouter = router({
                 }
             );
         }),
+    read: protectedProcedure
+        .input(z.object({ groupId: z.number() }))
+        .mutation(async ({ ctx, input }) => {
+            return setLastRead(
+                input.groupId,
+                ctx.session.user.id,
+                new Date(Date.now())
+            );
+        }),
+    checkout: protectedProcedure
+        .input(
+            z.object({
+                groupId: z.number(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            const old = await prisma.member.findUnique({
+                select: {
+                    last_read: true,
+                },
+                where: {
+                    group_id_user_id: {
+                        group_id: input.groupId,
+                        user_id: ctx.session.user.id,
+                    },
+                },
+            });
+
+            await setLastRead(
+                input.groupId,
+                ctx.session.user.id,
+                new Date(Date.now())
+            );
+
+            return old;
+        }),
 });
+
+async function setLastRead(groupId: number, userId: string, value: Date) {
+    return await prisma.member.update({
+        where: {
+            group_id_user_id: {
+                user_id: userId,
+                group_id: groupId,
+            },
+        },
+        data: {
+            last_read: value,
+        },
+    });
+}

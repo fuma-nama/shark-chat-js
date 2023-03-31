@@ -8,12 +8,16 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
-import { Group } from "@prisma/client";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
 import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { GroupWithNotifications } from "@/server/schema/group";
+import { channels } from "@/utils/ably";
+import { useCallback } from "react";
+import { useEventHandlers } from "@/utils/handlers/base";
+import { useVariables } from "./chat/[group]";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -38,10 +42,26 @@ const Home: NextPageWithLayout = () => {
     );
 };
 
+function RecentChats() {
+    const { status } = useSession();
+    const query = trpc.dm.recentChats.useQuery(undefined, {
+        enabled: status === "authenticated",
+    });
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
+            {query.data?.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+            ))}
+        </div>
+    );
+}
+
 function Groups() {
     const { status } = useSession();
     const groups = trpc.group.all.useQuery(undefined, {
         enabled: status === "authenticated",
+        staleTime: Infinity,
     });
 
     return (
@@ -53,12 +73,14 @@ function Groups() {
     );
 }
 
-function GroupItem({ group }: { group: Group }) {
+function GroupItem({ group }: { group: GroupWithNotifications }) {
+    useNewMessageHandler(group.id);
+
     return (
         <Link
             href={`/chat/${group.id}`}
             className={clsx(
-                "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-col gap-4",
+                "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-col gap-4",
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
         >
@@ -74,22 +96,17 @@ function GroupItem({ group }: { group: Group }) {
             <p className="font-semibold text-lg overflow-hidden text-ellipsis max-w-full break-keep">
                 {group.name}
             </p>
+            {group.unread_messages > 0 && (
+                <p
+                    className={clsx(
+                        "absolute top-4 right-4 px-2 py-[2px] rounded-full bg-brand-500 text-white text-sm font-semibold",
+                        "dark:bg-brand-400"
+                    )}
+                >
+                    {group.unread_messages}
+                </p>
+            )}
         </Link>
-    );
-}
-
-function RecentChats() {
-    const { status } = useSession();
-    const query = trpc.dm.recentChats.useQuery(undefined, {
-        enabled: status === "authenticated",
-    });
-
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
-            {query.data?.map((chat) => (
-                <ChatItem key={chat.id} chat={chat} />
-            ))}
-        </div>
     );
 }
 
@@ -113,6 +130,23 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
                 </p>
             </div>
         </Link>
+    );
+}
+
+function useNewMessageHandler(groupId: number) {
+    const base = useEventHandlers();
+    const variables = useVariables(groupId);
+
+    return channels.chat.message_sent.useChannel(
+        [groupId],
+        {},
+        useCallback(
+            (message) => {
+                base.addGroupUnread(message.data.group_id);
+                base.addGroupMessage(variables, message.data);
+            },
+            [base, variables]
+        )
     );
 }
 
