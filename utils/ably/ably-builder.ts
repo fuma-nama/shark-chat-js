@@ -13,7 +13,7 @@ type EventMessage<T> = Omit<Types.Message, "data"> & {
     data: Serialize<T>;
 };
 
-export type ChannelMessage<
+type ChannelMessage<
     Events extends EventsRecord<never>,
     E extends keyof Events = keyof Events
 > = E extends keyof Events
@@ -22,8 +22,7 @@ export type ChannelMessage<
       }
     : never;
 
-export type AnyChannel<Args> = Channel<Args, Record<string, any>>;
-export type Channel<Args, Events extends EventsRecord<Args>> = {
+type Channel<Args, Events extends EventsRecord<Args>> = {
     channelName(args: Args): string;
     get(ably: Types.RealtimePromise, args: Args): Types.RealtimeChannelPromise;
     useChannel(
@@ -42,13 +41,10 @@ export type Channel<Args, Events extends EventsRecord<Args>> = {
     };
 } & Events;
 
-export type InferChannelMessage<C extends Channel<never, any>> =
-    C extends Channel<never, infer T> ? ChannelMessage<T> : never;
-
 type InferEventData<E> = E extends Event<never, infer T> ? T : never;
 type EventsRecord<Args> = Record<string, Event<Args, any>>;
 
-export type Event<Args, T> = {
+type Event<Args, T> = {
     parse(raw: Types.Message): T;
     publish(ably: Types.RealtimePromise, args: Args, data: T): Promise<void>;
     useChannel(
