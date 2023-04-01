@@ -5,7 +5,7 @@ import type { inferRouterInputs } from "@trpc/server";
 import type { AppRouter } from "../../server/routers/_app";
 
 export const trpc = createTRPCNext<AppRouter>({
-    config({ ctx }) {
+    config() {
         return {
             links: [
                 httpBatchLink({
@@ -14,10 +14,7 @@ export const trpc = createTRPCNext<AppRouter>({
             ],
         };
     },
-    /**
-     * @link https://trpc.io/docs/ssr
-     **/
-    ssr: true,
+    ssr: false,
 });
 
 export type RouterInput = inferRouterInputs<AppRouter>;
