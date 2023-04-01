@@ -3,12 +3,14 @@ import { assertConfiguration } from "@ably-labs/react-hooks";
 import { useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { useEventHandlers } from "../base";
+import { useMessageEventManager } from "./chat";
 
 export function useAblyHandlers() {
     const ably = assertConfiguration();
     const { data, status } = useSession();
     const handlers = useEventHandlers();
 
+    useMessageEventManager();
     channels.private.useChannel(
         [data?.user?.id ?? ""],
         {

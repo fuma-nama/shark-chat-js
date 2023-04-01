@@ -100,6 +100,7 @@ export const chatRouter = router({
                 where: {
                     id: input.messageId,
                     author_id: ctx.session.user.id,
+                    group_id: input.groupId,
                 },
                 data: {
                     content: input.content,
@@ -115,6 +116,7 @@ export const chatRouter = router({
             await channels.chat.message_updated.publish(ably, [input.groupId], {
                 id: input.messageId,
                 content: input.content,
+                group_id: input.groupId,
             });
         }),
     /**
@@ -169,6 +171,7 @@ export const chatRouter = router({
                 [message.group_id],
                 {
                     id: message.id,
+                    group_id: message.group_id,
                 }
             );
         }),

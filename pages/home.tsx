@@ -14,10 +14,6 @@ import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { GroupWithNotifications } from "@/server/schema/group";
-import { channels } from "@/utils/ably";
-import { useCallback } from "react";
-import { useEventHandlers } from "@/utils/handlers/base";
-import { useVariables } from "./chat/[group]";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -74,8 +70,6 @@ function Groups() {
 }
 
 function GroupItem({ group }: { group: GroupWithNotifications }) {
-    useNewMessageHandler(group.id);
-
     return (
         <Link
             href={`/chat/${group.id}`}
@@ -130,23 +124,6 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
                 </p>
             </div>
         </Link>
-    );
-}
-
-function useNewMessageHandler(groupId: number) {
-    const base = useEventHandlers();
-    const variables = useVariables(groupId);
-
-    return channels.chat.message_sent.useChannel(
-        [groupId],
-        {},
-        useCallback(
-            (message) => {
-                base.addGroupUnread(message.data.group_id);
-                base.addGroupMessage(variables, message.data);
-            },
-            [base, variables]
-        )
     );
 }
 

@@ -216,6 +216,8 @@ export const dmRouter = router({
                 {
                     id: input.messageId,
                     content: input.content,
+                    author_id: ctx.session.user.id,
+                    receiver_id: input.userId,
                 }
             );
         }),
@@ -246,6 +248,8 @@ export const dmRouter = router({
                 [input.userId, ctx.session.user.id],
                 {
                     id: input.messageId,
+                    author_id: ctx.session.user.id,
+                    receiver_id: input.userId,
                 }
             );
         }),

@@ -43,30 +43,27 @@ export const channels = a.channels({
         {
             message_sent: a.event(z.custom<DirectMessageType>()),
             message_updated: a.event(
-                z.object({
-                    id: z.number(),
-                    content: z.string(),
-                })
+                z.custom<
+                    Pick<
+                        DirectMessageType,
+                        "id" | "author_id" | "receiver_id" | "content"
+                    >
+                >()
             ),
             message_deleted: a.event(
-                z.object({
-                    id: z.number(),
-                })
+                z.custom<
+                    Pick<DirectMessageType, "id" | "author_id" | "receiver_id">
+                >()
             ),
         }
     ),
     chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
         message_sent: a.event(z.custom<MessageType>()),
         message_updated: a.event(
-            z.object({
-                id: z.number(),
-                content: z.string(),
-            })
+            z.custom<Pick<MessageType, "id" | "group_id" | "content">>()
         ),
         message_deleted: a.event(
-            z.object({
-                id: z.number(),
-            })
+            z.custom<Pick<MessageType, "id" | "group_id">>()
         ),
     }),
 });

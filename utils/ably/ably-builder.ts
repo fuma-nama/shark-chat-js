@@ -2,7 +2,8 @@ import { z, ZodType } from "zod";
 import { Types } from "ably";
 import { ChannelAndClient, useChannel } from "./hooks";
 import { Serialize } from "../types";
-import { useCallback } from "react";
+import { DependencyList, useCallback } from "react";
+import { AblyMessageCallback } from "@ably-labs/react-hooks";
 
 type ConnectParams = {
     enabled?: boolean;
@@ -30,6 +31,10 @@ export type Channel<Args, Events extends EventsRecord<Args>> = {
         params: ConnectParams,
         callback: (msg: ChannelMessage<Events>) => void
     ): ChannelAndClient;
+    useCallback(
+        callback: (msg: ChannelMessage<Events>) => void,
+        dependencies: DependencyList
+    ): AblyMessageCallback;
     _def: {
         data: (args: Args) => string[];
         name: string | null;
@@ -75,24 +80,25 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
                     channelName: this.channelName(args),
                     ...params,
                 },
-                useCallback(
-                    (raw) => {
-                        const event = events[raw.name];
-
-                        if (event == null) {
-                            console.error(`Unkown event: ${raw.name}`);
-                            return;
-                        }
-
-                        return callback({
-                            ...raw,
-                            name: raw.name,
-                            data: event.parse(raw),
-                        } as ChannelMessage<Events, keyof Events>);
-                    },
-                    [callback]
-                )
+                this.useCallback(callback, [callback])
             );
+        },
+        useCallback(callback, deps) {
+            return useCallback((raw) => {
+                const event = events[raw.name];
+
+                if (event == null) {
+                    console.error(`Unkown event: ${raw.name}`);
+                    return;
+                }
+
+                return callback({
+                    ...raw,
+                    name: raw.name,
+                    data: event.parse(raw),
+                } as ChannelMessage<Events, keyof Events>);
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+            }, deps);
         },
         _def: {
             data,

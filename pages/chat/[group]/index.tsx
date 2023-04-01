@@ -7,7 +7,6 @@ import { Fragment, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import React from "react";
 import { Sendbar } from "@/components/chat/Sendbar";
-import { useMessageHandlers } from "@/utils/handlers/realtime/chat";
 import { Spinner } from "@/components/system/spinner";
 import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
@@ -25,14 +24,16 @@ export function getQuery(router: NextRouter) {
     };
 }
 
+export function getVariables(groupId: number) {
+    return {
+        groupId,
+        count: 30,
+        cursorType: "before",
+    } as const;
+}
+
 export function useVariables(groupId: number) {
-    return useMemo(() => {
-        return {
-            groupId,
-            count: 30,
-            cursorType: "before",
-        } as const;
-    }, [groupId]);
+    return useMemo(() => getVariables(groupId), [groupId]);
 }
 
 const GroupChat: NextPageWithLayout = () => {
@@ -41,7 +42,6 @@ const GroupChat: NextPageWithLayout = () => {
     const variables = useVariables(group);
     const lastRead = useLastRead(group);
 
-    useMessageHandlers(variables);
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
         staleTime: Infinity,
