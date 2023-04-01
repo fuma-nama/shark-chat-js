@@ -18,10 +18,9 @@ export function Sendbar({
 }) {
     const [text, setText] = useState("");
 
-    const onSend = async () => {
-        await send({ content: text });
-
+    const onSend = () => {
         setText("");
+        send({ content: text });
     };
 
     return (

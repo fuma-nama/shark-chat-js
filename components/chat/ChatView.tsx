@@ -54,3 +54,18 @@ export function useChatView(props: UseInfiniteScrollHookArgs) {
         sentryRef,
     };
 }
+
+export function UnreadSeparator() {
+    return (
+        <div
+            className="flex flex-row gap-2 items-center"
+            aria-label="separator"
+        >
+            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
+            <p className="text-red-500 dark:text-red-400 text-sm mx-auto">
+                New Message
+            </p>
+            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
+        </div>
+    );
+}

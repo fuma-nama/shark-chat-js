@@ -1,23 +1,30 @@
-import { channels } from "@/utils/ably";
-import { RouterInput, trpc } from "@/utils/trpc";
+import { channels, useChannels } from "@/utils/ably";
+import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useEventHandlers } from "../base";
-import { getQuery, getVariables } from "@/pages/chat/[group]";
+import {
+    getQuery as getGroupQuery,
+    getVariables as getGroupVariables,
+} from "@/pages/chat/[group]";
 import { assertConfiguration } from "@ably-labs/react-hooks";
 import Router from "next/router";
+import {
+    Params as DMParams,
+    getVariables as getDMVariables,
+} from "@/pages/dm/[user]";
 
-export function useMessageEventManager() {
+export function MessageEventManager() {
     const { status, data } = useSession();
     const handlers = useEventHandlers();
     const utils = handlers.utils;
 
     const onEvent = channels.chat.useCallback(
         (message) => {
-            const variables = getVariables(message.data.group_id);
+            const variables = getGroupVariables(message.data.group_id);
             const active =
                 Router.asPath.startsWith("/chat/") &&
-                getQuery(Router).groupId === message.data.group_id;
+                getGroupQuery(Router).groupId === message.data.group_id;
 
             if (message.name === "message_sent") {
                 if (active) {
@@ -93,6 +100,7 @@ export function useMessageEventManager() {
     const ably = assertConfiguration();
     const groups = trpc.group.all.useQuery(undefined, {
         enabled: status === "authenticated",
+        staleTime: Infinity,
     });
 
     const channelList = useMemo(() => {
@@ -103,28 +111,45 @@ export function useMessageEventManager() {
         );
     }, [groups.data, ably]);
 
-    useEffect(() => {
-        for (const channel of channelList) {
-            channel.subscribe(onEvent);
-        }
+    useChannels(channelList, onEvent);
 
-        return () => {
-            for (const channel of channelList) {
-                channel.unsubscribe(onEvent);
-            }
-        };
-    }, [channelList, onEvent]);
+    return <></>;
 }
 
-export function useDirectMessageHandlers(
-    variables: RouterInput["dm"]["messages"]
-) {
+export function DirectMessageEventManager() {
     const { status, data } = useSession();
     const utils = trpc.useContext();
+    const handlers = useEventHandlers();
 
     const onEvent = channels.dm.useCallback(
         (message) => {
+            const user =
+                message.data.author_id === data!!.user.id
+                    ? message.data.receiver_id
+                    : message.data.author_id;
+            const variables = getDMVariables(user);
+            const active =
+                Router.asPath.startsWith("/dm/") &&
+                (Router.query as DMParams).user === user;
+
             if (message.name === "message_sent") {
+                if (active) {
+                    utils.dm.checkout.setData(
+                        { userId: user },
+                        { last_read: message.data.timestamp }
+                    );
+                }
+
+                if (active && message.data.author_id !== data!!.user.id) {
+                    utils.client.dm.read.mutate({
+                        userId: user,
+                    });
+                }
+
+                if (!active) {
+                    handlers.addDirectMessageUnread(user);
+                }
+
                 return utils.dm.messages.setInfiniteData(variables, (prev) => {
                     if (prev == null) return prev;
 
@@ -173,14 +198,26 @@ export function useDirectMessageHandlers(
                 });
             }
         },
-        [utils.dm.messages, variables]
+        [utils.dm.messages, handlers]
     );
 
-    channels.dm.useChannel(
-        [variables.userId, data?.user?.id ?? ""],
-        {
-            enabled: status === "authenticated",
-        },
-        onEvent
-    );
+    const ably = assertConfiguration();
+    const channelQuery = trpc.dm.channels.useQuery(undefined, {
+        enabled: status === "authenticated",
+        staleTime: Infinity,
+    });
+
+    const channelList = useMemo(() => {
+        if (channelQuery.data == null || data == null) return [];
+
+        return channelQuery.data.map((dm) =>
+            ably.channels.get(
+                channels.dm.channelName([dm.receiver_id, data.user.id])
+            )
+        );
+    }, [channelQuery.data, data, ably]);
+
+    useChannels(channelList, onEvent);
+
+    return <></>;
 }

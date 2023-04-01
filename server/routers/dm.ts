@@ -7,7 +7,48 @@ import { channels } from "@/utils/ably";
 import ably from "../ably";
 import { RecentChatType, contentSchema } from "../schema/chat";
 
+const userSelect = {
+    select: {
+        image: true,
+        name: true,
+        id: true,
+    },
+} as const;
+
 export const dmRouter = router({
+    checkout: protectedProcedure
+        .input(z.object({ userId: z.string() }))
+        .query(({ ctx, input }) => {
+            return prisma.$transaction(async () => {
+                const old = await prisma.directMessageChannel.findUnique({
+                    select: {
+                        last_read: true,
+                    },
+                    where: {
+                        author_id_receiver_id: {
+                            author_id: ctx.session.user.id,
+                            receiver_id: input.userId,
+                        },
+                    },
+                });
+
+                await setLastRead(
+                    ctx.session.user.id,
+                    input.userId,
+                    new Date(Date.now())
+                );
+                return old;
+            });
+        }),
+    read: protectedProcedure
+        .input(z.object({ userId: z.string() }))
+        .mutation(({ ctx, input }) => {
+            return setLastRead(
+                ctx.session.user.id,
+                input.userId,
+                new Date(Date.now())
+            );
+        }),
     info: protectedProcedure
         .input(
             z.object({
@@ -19,10 +60,7 @@ export const dmRouter = router({
                 where: {
                     id: input.userId,
                 },
-                select: {
-                    name: true,
-                    image: true,
-                },
+                select: userSelect.select,
             });
 
             if (target_user == null)
@@ -32,6 +70,63 @@ export const dmRouter = router({
                 });
             return target_user;
         }),
+    channels: protectedProcedure.query(({ ctx }) => {
+        return prisma.$transaction(async () => {
+            const channels = await prisma.directMessageChannel.findMany({
+                include: {
+                    receiver: userSelect,
+                },
+                where: {
+                    author_id: ctx.session.user.id,
+                },
+                orderBy: {
+                    last_read: "desc",
+                },
+            });
+
+            const result = channels.map(async (channel) => {
+                const conditions = [
+                    {
+                        author_id: channel.author_id,
+                        receiver_id: channel.receiver_id,
+                    },
+                    {
+                        author_id: channel.receiver_id,
+                        receiver_id: channel.author_id,
+                    },
+                ];
+
+                const unread_messages = await prisma.directMessage.count({
+                    where: {
+                        OR: conditions,
+                        timestamp: {
+                            gt: channel.last_read,
+                        },
+                    },
+                });
+
+                const last = await prisma.directMessage.findFirst({
+                    select: {
+                        content: true,
+                    },
+                    where: {
+                        OR: conditions,
+                    },
+                    orderBy: {
+                        timestamp: "desc",
+                    },
+                });
+
+                return {
+                    ...channel,
+                    unread_messages,
+                    last_message: last?.content ?? null,
+                };
+            });
+
+            return Promise.all<Promise<RecentChatType>>(result);
+        });
+    }),
     send: protectedProcedure
         .input(
             z.object({
@@ -48,16 +143,11 @@ export const dmRouter = router({
                     receiver_id: input.userId,
                 },
                 include: {
-                    author: {
-                        select: {
-                            name: true,
-                            id: true,
-                            image: true,
-                        },
-                    },
+                    author: userSelect,
                 },
             });
 
+            await setLastRead(userId, input.userId, message.timestamp);
             await channels.dm.message_sent.publish(
                 ably,
                 [input.userId, userId],
@@ -66,76 +156,6 @@ export const dmRouter = router({
 
             return message;
         }),
-    recentChats: protectedProcedure.query(async ({ ctx }) => {
-        const count = 10;
-        const select = {
-            id: true,
-            content: true,
-            timestamp: true,
-            receiver: true,
-            author: {
-                select: {
-                    image: true,
-                    name: true,
-                    id: true,
-                },
-            },
-        } as const;
-
-        const received_messages = await prisma.directMessage.findMany({
-            select,
-            distinct: "author_id",
-            orderBy: {
-                timestamp: "desc",
-            },
-            where: {
-                receiver_id: ctx.session.user.id,
-            },
-            take: count,
-        });
-
-        const sent_messages = await prisma.directMessage.findMany({
-            select,
-            distinct: "receiver_id",
-            orderBy: {
-                timestamp: "desc",
-            },
-            where: {
-                author_id: ctx.session.user.id,
-            },
-            take: count,
-        });
-
-        const all = [...received_messages, ...sent_messages];
-        const filterMap = new Map<string, RecentChatType>();
-
-        for (const chat of all) {
-            const user =
-                chat.receiver.id === ctx.session.user.id
-                    ? chat.author
-                    : chat.receiver;
-            const old = filterMap.get(user.id);
-
-            if (old != null && old.timestamp >= chat.timestamp) {
-                continue;
-            }
-
-            filterMap.set(user.id, {
-                content: chat.content,
-                id: chat.id,
-                timestamp: chat.timestamp,
-                user,
-            });
-        }
-
-        return Array.from(filterMap.values())
-            .sort((a, b) => {
-                if (a.timestamp === b.timestamp) return 0;
-
-                return a.timestamp < b.timestamp ? 1 : -1;
-            })
-            .slice(0, count);
-    }),
     messages: protectedProcedure
         .input(
             z.object({
@@ -147,15 +167,10 @@ export const dmRouter = router({
         )
         .query(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
-            const messages = await prisma.directMessage.findMany({
+
+            return await prisma.directMessage.findMany({
                 include: {
-                    author: {
-                        select: {
-                            name: true,
-                            id: true,
-                            image: true,
-                        },
-                    },
+                    author: userSelect,
                 },
                 orderBy: {
                     timestamp: "desc",
@@ -181,8 +196,6 @@ export const dmRouter = router({
                 },
                 take: Math.min(input.count, 50),
             });
-
-            return messages;
         }),
     update: protectedProcedure
         .input(
@@ -254,3 +267,22 @@ export const dmRouter = router({
             );
         }),
 });
+
+async function setLastRead(authorId: string, receiverId: string, value: Date) {
+    return await prisma.directMessageChannel.upsert({
+        select: { last_read: true },
+        create: {
+            author_id: authorId,
+            receiver_id: receiverId,
+        },
+        update: {
+            last_read: value,
+        },
+        where: {
+            author_id_receiver_id: {
+                author_id: authorId,
+                receiver_id: receiverId,
+            },
+        },
+    });
+}

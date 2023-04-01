@@ -51,6 +51,20 @@ export function useEventHandlers() {
                     })
                 );
             },
+            addDirectMessageUnread: (userId: string) => {
+                utils.dm.channels.setData(undefined, (channels) =>
+                    channels?.map((dm) => {
+                        if (dm.receiver_id === userId) {
+                            return {
+                                ...dm,
+                                unread_messages: dm.unread_messages + 1,
+                            };
+                        }
+
+                        return dm;
+                    })
+                );
+            },
             addGroupMessage: (
                 variables: RouterInput["chat"]["messages"],
                 message: Serialize<MessageType>

@@ -50,6 +50,8 @@ model User {
   messages Message[]
   sent_dms DirectMessage[] @relation(name: "sent_dms")
   received_dms DirectMessage[] @relation(name: "received_dms")
+  sent_dm_info DirectMessageChannel[] @relation(name: "sent_dm_info")
+  received_dm_info DirectMessageChannel[] @relation(name: "received_dm_info")
 }
 
 model VerificationToken {
@@ -83,6 +85,16 @@ model DirectMessage {
 
   author User @relation(name: "sent_dms", fields: [author_id], references: [id], onDelete: Cascade)
   receiver User @relation(name: "received_dms", fields: [receiver_id], references: [id], onDelete: Cascade)
+}
+
+model DirectMessageChannel {
+  author_id    String
+  receiver_id String
+  last_read DateTime @default(now())
+
+  author User @relation(name: "sent_dm_info", fields: [author_id], references: [id], onDelete: Cascade)
+  receiver User @relation(name: "received_dm_info", fields: [receiver_id], references: [id], onDelete: Cascade)
+  @@id([author_id, receiver_id])
 }
 
 model GroupInvite {

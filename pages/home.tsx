@@ -14,6 +14,7 @@ import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { GroupWithNotifications } from "@/server/schema/group";
+import { badge } from "@/components/system/badge";
 
 const Home: NextPageWithLayout = () => {
     return (
@@ -40,14 +41,14 @@ const Home: NextPageWithLayout = () => {
 
 function RecentChats() {
     const { status } = useSession();
-    const query = trpc.dm.recentChats.useQuery(undefined, {
+    const query = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
     });
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
             {query.data?.map((chat) => (
-                <ChatItem key={chat.id} chat={chat} />
+                <ChatItem key={chat.receiver_id} chat={chat} />
             ))}
         </div>
     );
@@ -91,28 +92,21 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
                 {group.name}
             </p>
             {group.unread_messages > 0 && (
-                <p
-                    className={clsx(
-                        "absolute top-4 right-4 px-2 py-[2px] rounded-full bg-brand-500 text-white text-sm font-semibold",
-                        "dark:bg-brand-400"
-                    )}
-                >
-                    {group.unread_messages}
-                </p>
+                <p className={badge()}>{group.unread_messages}</p>
             )}
         </Link>
     );
 }
 
 function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
-    const user = chat.user;
+    const user = chat.receiver;
     const url = `/dm/${user.id}`;
 
     return (
         <Link
             href={url}
             className={clsx(
-                "rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
+                "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
         >
@@ -120,9 +114,12 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
             <div className="flex-1 w-0">
                 <p className="font-semibold text-base">{user.name}</p>
                 <p className="text-accent-700 dark:text-accent-600 text-sm overflow-hidden text-ellipsis whitespace-nowrap">
-                    {chat.content}
+                    {chat.last_message}
                 </p>
             </div>
+            {chat.unread_messages > 0 && (
+                <p className={badge()}>{chat.unread_messages}</p>
+            )}
         </Link>
     );
 }

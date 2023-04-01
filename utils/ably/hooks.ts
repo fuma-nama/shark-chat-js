@@ -55,3 +55,20 @@ export function useChannel(
 
     return [channel, ably];
 }
+
+export function useChannels(
+    channelList: Types.RealtimeChannelPromise[],
+    onEvent: AblyMessageCallback
+) {
+    useEffect(() => {
+        for (const channel of channelList) {
+            channel.subscribe(onEvent);
+        }
+
+        return () => {
+            for (const channel of channelList) {
+                channel.unsubscribe(onEvent);
+            }
+        };
+    }, [channelList, onEvent]);
+}

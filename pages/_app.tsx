@@ -1,15 +1,19 @@
 import { trpc } from "@/utils/trpc";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider, useSession } from "next-auth/react";
-import type { AppProps } from "next/app";
 import { ReactElement, useEffect } from "react";
-import { NextPage } from "next";
 import { configureAbly } from "@ably-labs/react-hooks";
+import { ToastProvider } from "@/components/system/toast";
+import { PrivateEventManager } from "@/utils/handlers/realtime/private";
+import {
+    DirectMessageEventManager,
+    MessageEventManager,
+} from "@/utils/handlers/realtime/chat";
+import type { AppProps } from "next/app";
+import type { NextPage } from "next";
 
 import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
-import { ToastProvider } from "@/components/system/toast";
-import { useAblyHandlers } from "@/utils/handlers/realtime/global";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     useLayout?: (page: ReactElement) => ReactElement;
@@ -42,9 +46,13 @@ function Connect() {
         }
     }, [status]);
 
-    useAblyHandlers();
-
-    return <></>;
+    return (
+        <>
+            <PrivateEventManager />
+            <DirectMessageEventManager />
+            <MessageEventManager />
+        </>
+    );
 }
 
 function App({

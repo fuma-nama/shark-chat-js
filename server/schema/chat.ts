@@ -1,13 +1,17 @@
-import { DirectMessage, User, Message } from "@prisma/client";
+import {
+    DirectMessage,
+    User,
+    Message,
+    DirectMessageChannel,
+} from "@prisma/client";
 import { z } from "zod";
 
-type UserInfo = Pick<User, "id" | "name" | "image">;
+export type UserInfo = Pick<User, "id" | "name" | "image">;
 
-export type RecentChatType = Pick<
-    DirectMessageType,
-    "content" | "timestamp" | "id"
-> & {
-    user: UserInfo;
+export type RecentChatType = DirectMessageChannel & {
+    receiver: UserInfo;
+    last_message: string | null;
+    unread_messages: number;
 };
 
 export type MessageType = Message & {

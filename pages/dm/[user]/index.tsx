@@ -3,30 +3,37 @@ import { Avatar } from "@/components/system/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { Sendbar } from "@/components/chat/Sendbar";
-import { useDirectMessageHandlers } from "@/utils/handlers/realtime/chat";
 import { Spinner } from "@/components/system/spinner";
 import { DirectMessageItem } from "@/components/chat/DirectMessageItem";
 import { skeleton } from "@/components/system/skeleton";
-import { ChatViewLayout, useChatView } from "@/components/chat/ChatView";
+import {
+    ChatViewLayout,
+    UnreadSeparator,
+    useChatView,
+} from "@/components/chat/ChatView";
 
 import type { NextPageWithLayout } from "../../_app";
 
-type Params = {
+export type Params = {
     user: string;
 };
+
+export function getVariables(userId: string) {
+    return {
+        userId,
+        count: 30,
+        cursorType: "before",
+    } as const;
+}
 
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as Params;
     const { status } = useSession();
-    const variables = {
-        userId: user,
-        count: 30,
-        cursorType: "before",
-    } as const;
+    const variables = useMemo(() => getVariables(user), [user]);
 
-    useDirectMessageHandlers(variables);
+    const lastRead = useLastRead(user);
     const query = trpc.dm.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
         staleTime: Infinity,
@@ -59,22 +66,61 @@ const DMPage: NextPageWithLayout = () => {
                     <Welcome />
                 )}
                 <div className="flex flex-col gap-3">
-                    {pages?.map((messages) =>
-                        [...messages]
-                            .reverse()
-                            .map((message) => (
-                                <DirectMessageItem
-                                    key={message.id}
-                                    message={message}
-                                />
-                            ))
-                    )}
+                    {pages
+                        ?.flatMap((messages) => [...messages].reverse())
+                        .map((message, i, arr) => {
+                            const prev_message = i > 0 ? arr[i - 1] : null;
+                            const newLine =
+                                lastRead != null &&
+                                lastRead < new Date(message.timestamp) &&
+                                (prev_message == null ||
+                                    new Date(prev_message.timestamp) <=
+                                        lastRead);
+
+                            return (
+                                <Fragment key={message.id}>
+                                    {newLine && <UnreadSeparator />}
+                                    <DirectMessageItem message={message} />
+                                </Fragment>
+                            );
+                        })}
                 </div>
             </div>
             <DMSendbar />
         </>
     );
 };
+
+function useLastRead(userId: string) {
+    const { status } = useSession();
+    const utils = trpc.useContext();
+
+    function onSuccess() {
+        utils.dm.channels.setData(undefined, (channels) =>
+            channels?.map((dm) =>
+                dm.receiver_id === userId
+                    ? {
+                          ...dm,
+                          unread_messages: 0,
+                      }
+                    : dm
+            )
+        );
+    }
+
+    const checkoutQuery = trpc.dm.checkout.useQuery(
+        { userId },
+        {
+            enabled: status === "authenticated",
+            refetchOnWindowFocus: false,
+            onSuccess,
+        }
+    );
+
+    return checkoutQuery.data != null
+        ? new Date(checkoutQuery.data.last_read)
+        : null;
+}
 
 function DMSendbar() {
     const { user } = useRouter().query as Params;

@@ -12,7 +12,11 @@ import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
-import { ChatViewLayout, useChatView } from "@/components/chat/ChatView";
+import {
+    ChatViewLayout,
+    UnreadSeparator,
+    useChatView,
+} from "@/components/chat/ChatView";
 
 export function getQuery(router: NextRouter) {
     const query = router.query as {
@@ -32,14 +36,10 @@ export function getVariables(groupId: number) {
     } as const;
 }
 
-export function useVariables(groupId: number) {
-    return useMemo(() => getVariables(groupId), [groupId]);
-}
-
 const GroupChat: NextPageWithLayout = () => {
     const group = getQuery(useRouter()).groupId;
     const { status } = useSession();
-    const variables = useVariables(group);
+    const variables = useMemo(() => getVariables(group), [group]);
     const lastRead = useLastRead(group);
 
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
@@ -96,25 +96,11 @@ const GroupChat: NextPageWithLayout = () => {
     );
 };
 
-function UnreadSeparator() {
-    return (
-        <div
-            className="flex flex-row gap-2 items-center"
-            aria-label="separator"
-        >
-            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
-            <p className="text-red-500 dark:text-red-400 text-sm mx-auto">
-                New Message
-            </p>
-            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
-        </div>
-    );
-}
-
 function useLastRead(groupId: number) {
     const { status } = useSession();
     const utils = trpc.useContext();
-    function resetGroupUnread(groupId: number) {
+
+    function onSuccess() {
         utils.group.all.setData(undefined, (groups) =>
             groups?.map((group) =>
                 group.id === groupId
@@ -132,7 +118,7 @@ function useLastRead(groupId: number) {
         {
             enabled: status === "authenticated",
             refetchOnWindowFocus: false,
-            onSuccess: () => resetGroupUnread(groupId),
+            onSuccess,
         }
     );
 
