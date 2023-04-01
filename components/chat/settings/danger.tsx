@@ -1,6 +1,7 @@
 import { AlertDialog } from "@/components/system/alert-dialog";
 import { Button } from "@/components/system/button";
 import { text } from "@/components/system/text";
+import { useMutationHandlers } from "@/utils/handlers/trpc";
 import { showErrorToast } from "@/utils/stores/page";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
@@ -72,11 +73,11 @@ function LeaveGroupButton({ group }: { group: number }) {
 
 function DeleteGroupButton({ group }: { group: number }) {
     const [open, setOpen] = useState(false);
-    const router = useRouter();
+    const handlers = useMutationHandlers();
     const deleteMutation = trpc.group.delete.useMutation({
-        onSuccess() {
-            router.push("/home");
+        onSuccess(_, { groupId }) {
             setOpen(false);
+            return handlers.deleteGroup(groupId);
         },
     });
 

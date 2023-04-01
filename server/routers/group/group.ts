@@ -187,6 +187,9 @@ async function getGroupWithNotifications(
     userId: string
 ): Promise<GroupWithNotifications[]> {
     const joined = await prisma.member.findMany({
+        orderBy: {
+            group_id: "desc",
+        },
         include: {
             group: true,
         },

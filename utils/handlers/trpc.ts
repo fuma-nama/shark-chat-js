@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { channels } from "../ably";
 import { Serialize } from "../types";
 import { useEventHandlers } from "./base";
+import Router from "next/router";
+import { getQuery } from "@/pages/chat/[group]";
 
 export function useMutationHandlers() {
     const ably = assertConfiguration();
@@ -29,6 +31,19 @@ export function useMutationHandlers() {
                     [data!!.user.id],
                     group
                 );
+            },
+            deleteGroup: async (groupId: number) => {
+                if (
+                    Router.asPath.startsWith(`/chat/`) &&
+                    getQuery(Router).groupId === groupId
+                ) {
+                    await Router.push("/home");
+                }
+
+                base.deleteGroup(groupId);
+                channels.private.group_deleted.publish(ably, [data!!.user.id], {
+                    id: groupId,
+                });
             },
         }),
         [ably, base, data]

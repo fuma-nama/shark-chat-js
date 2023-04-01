@@ -40,12 +40,6 @@ export function useChannel(
 
     const onUnmount = async () => {
         channel.unsubscribe(listener);
-
-        setTimeout(async () => {
-            if (channel.listeners.length === 0) {
-                await channel.detach();
-            }
-        }, 2500);
     };
 
     useEffect(() => {

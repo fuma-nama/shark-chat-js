@@ -27,6 +27,9 @@ export function useAblyHandlers() {
                     case "group_updated": {
                         handlers.updateGroup(message.data);
                     }
+                    case "group_deleted": {
+                        handlers.deleteGroup(message.data.id);
+                    }
                 }
             },
             [ably.connection.id, handlers]

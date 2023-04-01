@@ -19,7 +19,7 @@ export function useEventHandlers() {
 
                 utils.group.info.setData({ groupId: group.id }, group);
                 utils.group.all.setData(undefined, (groups) =>
-                    groups != null ? [...groups, full_group] : undefined
+                    groups != null ? [full_group, ...groups] : undefined
                 );
             },
             updateGroup: (group: Serialize<Group>) => {
@@ -30,6 +30,11 @@ export function useEventHandlers() {
                             ? { ...group, unread_messages: g.unread_messages }
                             : g
                     )
+                );
+            },
+            deleteGroup: (groupId: number) => {
+                utils.group.all.setData(undefined, (groups) =>
+                    groups?.filter((g) => g.id !== groupId)
                 );
             },
             addGroupUnread: (groupId: number) => {

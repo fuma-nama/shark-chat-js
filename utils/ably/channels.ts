@@ -33,6 +33,7 @@ export const channels = a.channels({
     private: a.channel(([clientId]: [clientId: string]) => [clientId], {
         group_updated: a.event(groupSchema),
         group_created: a.event(groupSchema),
+        group_deleted: a.event(groupSchema.pick({ id: true })),
     }),
     dm: a.channel(
         (users: [user1: string, user2: string]) => {
