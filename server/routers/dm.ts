@@ -4,7 +4,6 @@ import { z } from "zod";
 import prisma from "../prisma";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/utils/ably";
-import ably from "../ably";
 import { RecentChatType, contentSchema } from "../schema/chat";
 
 const userSelect = {
@@ -149,7 +148,6 @@ export const dmRouter = router({
 
             await setLastRead(userId, input.userId, message.timestamp);
             await channels.dm.message_sent.publish(
-                ably,
                 [input.userId, userId],
                 message
             );
@@ -224,7 +222,6 @@ export const dmRouter = router({
                 });
 
             await channels.dm.message_updated.publish(
-                ably,
                 [input.userId, ctx.session.user.id],
                 {
                     id: input.messageId,
@@ -257,7 +254,6 @@ export const dmRouter = router({
                 });
 
             await channels.dm.message_deleted.publish(
-                ably,
                 [input.userId, ctx.session.user.id],
                 {
                     id: input.messageId,

@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { assertConfiguration } from "@ably-labs/react-hooks";
 import { Group } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably";
@@ -9,7 +8,6 @@ import Router from "next/router";
 import { getQuery } from "@/pages/chat/[group]";
 
 export function useMutationHandlers() {
-    const ably = assertConfiguration();
     const base = useEventHandlers();
     const { data } = useSession();
 
@@ -18,19 +16,11 @@ export function useMutationHandlers() {
             utils: base.utils,
             createGroup: (group: Serialize<Group>) => {
                 base.createGroup(group);
-                channels.private.group_created.publish(
-                    ably,
-                    [data!!.user.id],
-                    group
-                );
+                channels.private.group_created.publish([data!!.user.id], group);
             },
             updateGroup: (group: Serialize<Group>) => {
                 base.updateGroup(group);
-                channels.private.group_updated.publish(
-                    ably,
-                    [data!!.user.id],
-                    group
-                );
+                channels.private.group_updated.publish([data!!.user.id], group);
             },
             deleteGroup: async (groupId: number) => {
                 if (
@@ -41,11 +31,11 @@ export function useMutationHandlers() {
                 }
 
                 base.deleteGroup(groupId);
-                channels.private.group_deleted.publish(ably, [data!!.user.id], {
+                channels.private.group_deleted.publish([data!!.user.id], {
                     id: groupId,
                 });
             },
         }),
-        [ably, base, data]
+        [base, data]
     );
 }

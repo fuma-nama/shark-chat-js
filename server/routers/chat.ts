@@ -2,7 +2,6 @@ import { TRPCError } from "@trpc/server";
 import prisma from "@/server/prisma";
 import { channels } from "@/utils/ably";
 import { z } from "zod";
-import ably from "../ably";
 import { protectedProcedure, router } from "./../trpc";
 import { contentSchema } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
@@ -42,11 +41,7 @@ export const chatRouter = router({
                 message.timestamp
             );
 
-            await channels.chat.message_sent.publish(
-                ably,
-                [input.groupId],
-                message
-            );
+            await channels.chat.message_sent.publish([input.groupId], message);
             return message;
         }),
     messages: protectedProcedure
@@ -113,7 +108,7 @@ export const chatRouter = router({
                     message: "No permission or message doesn't exist",
                 });
 
-            await channels.chat.message_updated.publish(ably, [input.groupId], {
+            await channels.chat.message_updated.publish([input.groupId], {
                 id: input.messageId,
                 content: input.content,
                 group_id: input.groupId,
@@ -166,14 +161,10 @@ export const chatRouter = router({
                 },
             });
 
-            await channels.chat.message_deleted.publish(
-                ably,
-                [message.group_id],
-                {
-                    id: message.id,
-                    group_id: message.group_id,
-                }
-            );
+            await channels.chat.message_deleted.publish([message.group_id], {
+                id: message.id,
+                group_id: message.group_id,
+            });
         }),
     read: protectedProcedure
         .input(z.object({ groupId: z.number() }))

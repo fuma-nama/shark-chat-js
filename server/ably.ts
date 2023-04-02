@@ -1,3 +1,4 @@
+import { channels } from "@/utils/ably";
 import Ably, { Types } from "ably";
 
 function connect() {
@@ -26,4 +27,5 @@ if (process.env.NODE_ENV === "development") {
     ably = connect();
 }
 
+channels.config(ably);
 export default ably;

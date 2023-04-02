@@ -24,7 +24,7 @@ type ChannelMessage<
 
 type Channel<Args, Events extends EventsRecord<Args>> = {
     channelName(args: Args): string;
-    get(ably: Types.RealtimePromise, args: Args): Types.RealtimeChannelPromise;
+    get(args: Args): Types.RealtimeChannelPromise;
     useChannel(
         args: Args,
         params: ConnectParams,
@@ -37,7 +37,7 @@ type Channel<Args, Events extends EventsRecord<Args>> = {
     _def: {
         data: (args: Args) => string[];
         name: string | null;
-        init(name: string): void;
+        ably: Types.RealtimePromise | null;
     };
 } & Events;
 
@@ -46,7 +46,7 @@ type EventsRecord<Args> = Record<string, Event<Args, any>>;
 
 type Event<Args, T> = {
     parse(raw: Types.Message): T;
-    publish(ably: Types.RealtimePromise, args: Args, data: T): Promise<void>;
+    publish(args: Args, data: T): Promise<void>;
     useChannel(
         args: Args,
         params: ConnectParams,
@@ -67,7 +67,9 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
         channelName(args) {
             return [this._def.name, ...this._def.data(args)].join(":");
         },
-        get(ably, args) {
+        get(args) {
+            const ably = this._def.ably!!;
+
             return ably.channels.get(this.channelName(args));
         },
         useChannel(args, params, callback) {
@@ -99,9 +101,7 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
         _def: {
             data,
             name: null,
-            init(name) {
-                this.name = name;
-            },
+            ably: null,
         },
         ...events,
     };
@@ -118,8 +118,8 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
         parse(raw) {
             return schema.parse(raw.data);
         },
-        publish(ably, args, data) {
-            const channel = this._def.channel!!.get(ably, args);
+        publish(args, data) {
+            const channel = this._def.channel!!.get(args);
 
             return channel.publish(this._def.name!!, data);
         },
@@ -155,8 +155,8 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
     };
 }
 
-type ChannelsBuilder<C> = {
-    [K in keyof C]: C[K] extends Channel<any, any> ? C[K] : never;
+type ChannelsBuilder<C> = C & {
+    config(ably: Types.RealtimePromise): void;
 };
 
 function channels<
@@ -166,11 +166,17 @@ function channels<
             : never;
     }
 >(root: C): ChannelsBuilder<C> {
-    for (const [key, channel] of Object.entries(root as any)) {
-        (channel as Channel<unknown, EventsRecord<unknown>>)._def.init(key);
-    }
-
-    return root;
+    return {
+        ...root,
+        config: (ably) => {
+            for (const [key, channel] of Object.entries<
+                Channel<unknown, EventsRecord<unknown>>
+            >(root as any)) {
+                channel._def.name = key;
+                channel._def.ably = ably;
+            }
+        },
+    };
 }
 
 export const a = { channels, channel, event };

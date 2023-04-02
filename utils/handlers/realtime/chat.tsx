@@ -8,7 +8,6 @@ import {
     getQuery as getGroupQuery,
     getVariables as getGroupVariables,
 } from "@/pages/chat/[group]";
-import { assertConfiguration } from "@ably-labs/react-hooks";
 import Router from "next/router";
 import {
     Params as DMParams,
@@ -98,7 +97,6 @@ export function MessageEventManager() {
         [data, utils, handlers]
     );
 
-    const ably = assertConfiguration();
     const groups = trpc.group.all.useQuery(undefined, {
         enabled: status === "authenticated",
         staleTime: Infinity,
@@ -107,10 +105,8 @@ export function MessageEventManager() {
     const channelList = useMemo(() => {
         if (groups.data == null) return [];
 
-        return groups.data.map((group) =>
-            ably.channels.get(channels.chat.channelName([group.id]))
-        );
-    }, [groups.data, ably]);
+        return groups.data.map((group) => channels.chat.get([group.id]));
+    }, [groups.data]);
 
     useChannels(channelList, onEvent);
 
@@ -202,7 +198,6 @@ export function DirectMessageEventManager() {
         [utils.dm.messages, handlers]
     );
 
-    const ably = assertConfiguration();
     const channelQuery = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
         staleTime: Infinity,
@@ -212,11 +207,9 @@ export function DirectMessageEventManager() {
         if (channelQuery.data == null || data == null) return [];
 
         return channelQuery.data.map((dm) =>
-            ably.channels.get(
-                channels.dm.channelName([dm.receiver_id, data.user.id])
-            )
+            channels.dm.get([dm.receiver_id, data.user.id])
         );
-    }, [channelQuery.data, data, ably]);
+    }, [channelQuery.data, data]);
 
     useChannels(channelList, onEvent);
 
