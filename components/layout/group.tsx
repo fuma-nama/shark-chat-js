@@ -6,8 +6,11 @@ import { ComponentProps } from "react";
 import { Avatar } from "../system/avatar";
 import { AppLayout } from "./app";
 
-function GroupItem({ group }: { group: number }) {
-    const info = trpc.group.info.useQuery({ groupId: group });
+function GroupItem({ group, ready }: { group: number; ready: boolean }) {
+    const info = trpc.group.info.useQuery(
+        { groupId: group },
+        { enabled: ready }
+    );
 
     if (info.data == null) {
         return (
@@ -33,19 +36,18 @@ function GroupItem({ group }: { group: number }) {
 }
 
 export function useGroupLayout(
-    propsFn: (group: number) => ComponentProps<typeof AppLayout>
+    propsFn: (group: number | null) => ComponentProps<typeof AppLayout>
 ) {
-    const router = useRouter();
-    const group = getQuery(router).groupId;
-    const props = propsFn(group);
+    const { groupId, isReady } = getQuery(useRouter());
+    const props = propsFn(isReady ? groupId : null);
 
     return (
         <AppLayout
             {...props}
             breadcrumb={[
                 {
-                    text: <GroupItem group={group} />,
-                    href: `/chat/${group}`,
+                    text: <GroupItem group={groupId} ready={isReady} />,
+                    href: `/chat/${groupId}`,
                 },
                 ...(props.breadcrumb ?? []),
             ]}

@@ -5,7 +5,7 @@ import { IconButton } from "@/components/system/button";
 import clsx from "clsx";
 import React from "react";
 
-type Data = {
+export type SendData = {
     content: string;
 };
 
@@ -13,7 +13,7 @@ export function Sendbar({
     onSend: send,
     isLoading,
 }: {
-    onSend: (data: Data) => Promise<unknown>;
+    onSend: (data: SendData) => void;
     isLoading: boolean;
 }) {
     const [text, setText] = useState("");

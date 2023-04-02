@@ -1,12 +1,12 @@
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { NextRouter, useRouter } from "next/router";
+import Router, { NextRouter, useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import { Fragment, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import React from "react";
-import { Sendbar } from "@/components/chat/Sendbar";
+import { SendData, Sendbar } from "@/components/chat/Sendbar";
 import { Spinner } from "@/components/system/spinner";
 import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
@@ -24,6 +24,7 @@ export function getQuery(router: NextRouter) {
     };
 
     return {
+        isReady: router.isReady,
         groupId: Number(query.group),
     };
 }
@@ -128,17 +129,18 @@ function useLastRead(groupId: number) {
 }
 
 function GroupSendbar() {
-    const { groupId } = getQuery(useRouter());
     const sendMutation = trpc.chat.send.useMutation();
 
-    return (
-        <Sendbar
-            isLoading={sendMutation.isLoading}
-            onSend={({ content }) =>
-                sendMutation.mutateAsync({ message: content, groupId })
-            }
-        />
-    );
+    const onSend = ({ content }: SendData) => {
+        const { groupId } = getQuery(Router);
+
+        sendMutation.mutate({
+            message: content,
+            groupId,
+        });
+    };
+
+    return <Sendbar isLoading={sendMutation.isLoading} onSend={onSend} />;
 }
 
 function Welcome() {
