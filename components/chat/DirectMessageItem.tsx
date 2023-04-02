@@ -54,7 +54,7 @@ export function DirectMessageItem({
                         initialValue={message.content}
                     />
                 ) : (
-                    <p className="whitespace-pre">{message.content}</p>
+                    <p className="whitespace-pre-wrap">{message.content}</p>
                 )}
             </Item.Content>
         </Item.Root>
