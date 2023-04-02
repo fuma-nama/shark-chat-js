@@ -1,6 +1,7 @@
 import * as trpcNext from "@trpc/server/adapters/next";
 import { appRouter } from "@/server/routers/_app";
 import { createContext } from "@/server/context";
+import "@/server/ably";
 
 // @see https://trpc.io/docs/api-handler
 export default trpcNext.createNextApiHandler({
@@ -11,7 +12,7 @@ export default trpcNext.createNextApiHandler({
 export const config = {
     api: {
         bodyParser: {
-            sizeLimit: "10mb",
+            sizeLimit: "5mb",
         },
     },
 };
