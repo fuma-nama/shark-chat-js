@@ -17,7 +17,7 @@ type ChannelMessage<
     Events extends EventsRecord<never>,
     E extends keyof Events = keyof Events
 > = E extends keyof Events
-    ? Omit<EventMessage<Serialize<InferEventData<Events[E]>>>, "name"> & {
+    ? Omit<EventMessage<InferEventData<Events[E]>>, "name"> & {
           name: E;
       }
     : never;
@@ -55,15 +55,21 @@ type Event<Args, T> = {
     _def: {
         name: string | null;
         channel: Channel<Args, EventsRecord<Args>> | null;
-        init(name: string, channel: Channel<Args, any>): void;
     };
 };
 
-function channel<Args = void, Events extends EventsRecord<Args> = {}>(
+function channel<Args, Events extends EventsRecord<Args>>(
     data: (args: Args) => string[],
     events: Events
-): Channel<Args, Events extends Events ? Events : never> {
-    const channel: Channel<Args, Events> = {
+): Channel<
+    Args,
+    {
+        [K in keyof Events]: Events[K] extends Event<Args, infer T>
+            ? Event<Args, T>
+            : never;
+    }
+> {
+    const channel: Channel<Args, EventsRecord<Args>> = {
         channelName(args) {
             return [this._def.name, ...this._def.data(args)].join(":");
         },
@@ -94,7 +100,7 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
                     ...raw,
                     name: raw.name,
                     data: event.parse(raw),
-                } as ChannelMessage<Events, keyof Events>);
+                });
                 // eslint-disable-next-line react-hooks/exhaustive-deps
             }, deps);
         },
@@ -107,13 +113,14 @@ function channel<Args = void, Events extends EventsRecord<Args> = {}>(
     };
 
     for (const [key, event] of Object.entries(events)) {
-        event._def.init(key, channel);
+        event._def.name = key;
+        event._def.channel = channel;
     }
 
-    return channel;
+    return channel as any;
 }
 
-function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
+function event<T extends ZodType>(schema: T): Event<unknown, z.infer<T>> {
     return {
         parse(raw) {
             return schema.parse(raw.data);
@@ -147,10 +154,6 @@ function event<Args, T extends ZodType>(schema: T): Event<Args, z.infer<T>> {
         _def: {
             name: null,
             channel: null,
-            init(name, channel) {
-                this.name = name;
-                this.channel = channel;
-            },
         },
     };
 }
@@ -159,19 +162,13 @@ type ChannelsBuilder<C> = C & {
     config(ably: Types.RealtimePromise): void;
 };
 
-function channels<
-    C extends {
-        [K in keyof C]: C[K] extends Channel<never, infer _Events>
-            ? C[K]
-            : never;
-    }
->(root: C): ChannelsBuilder<C> {
+function channels<C extends Record<string, Channel<any, any>>>(
+    root: C
+): ChannelsBuilder<C> {
     return {
         ...root,
         config: (ably) => {
-            for (const [key, channel] of Object.entries<
-                Channel<unknown, EventsRecord<unknown>>
-            >(root as any)) {
+            for (const [key, channel] of Object.entries(root)) {
                 channel._def.name = key;
                 channel._def.ably = ably;
             }
