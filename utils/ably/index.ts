@@ -32,6 +32,7 @@ export const channels = a.channels({
         group_updated: a.event(groupSchema),
         group_created: a.event(groupSchema),
         group_deleted: a.event(groupSchema.pick({ id: true })),
+        message_sent: a.event(z.custom<DirectMessageType>()),
     }),
     dm: a.channel(
         (users: [user1: string, user2: string]) => {
@@ -40,7 +41,6 @@ export const channels = a.channels({
             return [`dm-${user1}-${user2}`];
         },
         {
-            message_sent: a.event(z.custom<DirectMessageType>()),
             message_updated: a.event(
                 z.custom<
                     Pick<

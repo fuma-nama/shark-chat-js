@@ -9,10 +9,7 @@ import {
     getVariables as getGroupVariables,
 } from "@/pages/chat/[group]";
 import Router from "next/router";
-import {
-    Params as DMParams,
-    getVariables as getDMVariables,
-} from "@/pages/dm/[user]";
+import { getVariables as getDMVariables } from "@/pages/dm/[user]";
 
 export function MessageEventManager() {
     const { status, data } = useSession();
@@ -125,37 +122,6 @@ export function DirectMessageEventManager() {
                     ? message.data.receiver_id
                     : message.data.author_id;
             const variables = getDMVariables(user);
-            const active =
-                Router.asPath.startsWith("/dm/") &&
-                (Router.query as DMParams).user === user;
-
-            if (message.name === "message_sent") {
-                if (active) {
-                    utils.dm.checkout.setData(
-                        { userId: user },
-                        { last_read: message.data.timestamp }
-                    );
-                }
-
-                if (active && message.data.author_id !== data!!.user.id) {
-                    utils.client.dm.read.mutate({
-                        userId: user,
-                    });
-                }
-
-                if (!active) {
-                    handlers.addDirectMessageUnread(user);
-                }
-
-                return utils.dm.messages.setInfiniteData(variables, (prev) => {
-                    if (prev == null) return prev;
-
-                    return {
-                        ...prev,
-                        pages: [...prev.pages, [message.data]],
-                    };
-                });
-            }
 
             if (message.name === "message_updated") {
                 return utils.dm.messages.setInfiniteData(variables, (prev) => {

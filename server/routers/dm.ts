@@ -135,6 +135,8 @@ export const dmRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
+            //init direct message channel for the receiver
+            await setLastRead(input.userId, userId);
             const message = await prisma.directMessage.create({
                 data: {
                     author_id: userId,
@@ -143,14 +145,16 @@ export const dmRouter = router({
                 },
                 include: {
                     author: userSelect,
+                    receiver: userSelect,
                 },
             });
 
             await setLastRead(userId, input.userId, message.timestamp);
-            await channels.dm.message_sent.publish(
-                [input.userId, userId],
+            await channels.private.message_sent.publish(
+                [input.userId],
                 message
             );
+            await channels.private.message_sent.publish([userId], message);
 
             return message;
         }),
@@ -264,12 +268,13 @@ export const dmRouter = router({
         }),
 });
 
-async function setLastRead(authorId: string, receiverId: string, value: Date) {
+async function setLastRead(authorId: string, receiverId: string, value?: Date) {
     return await prisma.directMessageChannel.upsert({
         select: { last_read: true },
         create: {
             author_id: authorId,
             receiver_id: receiverId,
+            last_read: value,
         },
         update: {
             last_read: value,
