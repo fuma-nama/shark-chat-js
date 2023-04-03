@@ -55,14 +55,10 @@ export function useEventHandlers() {
                 selfId: string,
                 message: Serialize<DirectMessageType>
             ) => {
-                const user =
-                    message.receiver.id !== selfId
-                        ? message.receiver
-                        : message.author;
-                const self =
+                const [user, self] =
                     message.receiver.id === selfId
-                        ? message.receiver
-                        : message.author;
+                        ? [message.author, message.receiver]
+                        : [message.receiver, message.author];
 
                 utils.dm.channels.setData(undefined, (channels) => {
                     if (channels == null) return channels;
@@ -89,7 +85,6 @@ export function useEventHandlers() {
                     timestamp.setTime(timestamp.getTime() - 1);
 
                     return [
-                        ...channels,
                         {
                             author_id: self.id,
                             receiver_id: user.id,
@@ -98,6 +93,7 @@ export function useEventHandlers() {
                             unread_messages: 1,
                             last_read: JSON.stringify(timestamp),
                         },
+                        ...channels,
                     ];
                 });
             },

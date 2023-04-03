@@ -1,5 +1,5 @@
 import { trpc } from "@/utils/trpc";
-import { initClient } from "@/utils/ably/client";
+import { AblyClientProvider } from "@/utils/ably/client";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 import { ReactElement } from "react";
@@ -29,11 +29,12 @@ function App({
 }: AppPropsWithLayout) {
     return (
         <SessionProvider session={session}>
+            <AblyClientProvider />
             <PrivateEventManager />
             <DirectMessageEventManager />
             <MessageEventManager />
-
             <ToastProvider />
+
             <ThemeProvider attribute="class" disableTransitionOnChange>
                 <Content Component={Component} pageProps={pageProps} />
             </ThemeProvider>
@@ -51,5 +52,4 @@ function Content({
     return layout;
 }
 
-initClient();
 export default trpc.withTRPC(App);
