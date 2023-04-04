@@ -49,7 +49,6 @@ export function AppLayout({
                     "dark:text-accent-50 dark:bg-dark-900"
                 )}
             >
-                <Sidebar />
                 <div
                     className="overflow-y-auto flex flex-col"
                     ref={rootRef}
