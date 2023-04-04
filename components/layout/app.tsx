@@ -51,7 +51,7 @@ export function AppLayout({
             >
                 <Sidebar />
                 <div
-                    className="overflow-y-auto flex flex-col overscroll-contain max-h-screen"
+                    className="overflow-y-auto flex flex-col max-h-screen"
                     ref={rootRef}
                     onScroll={handleRootScroll}
                 >
@@ -59,7 +59,7 @@ export function AppLayout({
                     <ViewContext.Provider
                         value={{ viewRef: rootRef, scrollToBottom }}
                     >
-                        <div className="max-w-screen-2xl w-full mx-auto h-fit flex flex-col flex-1 pt-2 p-4">
+                        <div className="max-w-screen-2xl w-full mx-auto flex flex-col flex-1 pt-2 p-4">
                             {children}
                         </div>
                         {footer}
