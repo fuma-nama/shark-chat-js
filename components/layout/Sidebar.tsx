@@ -45,7 +45,6 @@ export default function Sidebar() {
                     <p className="font-light text-white">Shark</p>
                 </div>
                 <Items />
-                <div className="mt-auto" />
                 <BottomCard />
             </aside>
         </>
@@ -134,7 +133,7 @@ function BottomCard() {
         <Link
             href="/settings"
             className={clsx(
-                "-mx-2 p-2 rounded-xl flex flex-row items-center group cursor-pointer",
+                "-mx-2 p-2 rounded-xl flex flex-row items-center group cursor-pointer mt-auto",
                 "hover:bg-brand-200/20 dark:hover:bg-brand-300/10 transition-colors"
             )}
         >
