@@ -157,7 +157,7 @@ function TypingUsers() {
     const { user } = useRouter().query as Params;
 
     channels.dm.typing.useChannel(
-        [user, data?.user.id ?? ""],
+        [user ?? "", data?.user.id ?? ""],
         {
             enabled: status === "authenticated",
         },
