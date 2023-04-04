@@ -12,11 +12,7 @@ import {
 import { Spinner } from "@/components/system/spinner";
 import { DirectMessageItem } from "@/components/chat/DirectMessageItem";
 import { skeleton } from "@/components/system/skeleton";
-import {
-    ChatViewLayout,
-    UnreadSeparator,
-    useChatView,
-} from "@/components/chat/ChatView";
+import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
 
 import type { NextPageWithLayout } from "../../_app";
 import { channels } from "@/utils/ably";
@@ -53,38 +49,34 @@ const DMPage: NextPageWithLayout = () => {
     }, [pages, scrollToBottom]);
 
     return (
-        <>
-            <div className="flex flex-col gap-3 mb-8">
-                {query.isLoading || query.hasPreviousPage ? (
-                    <div ref={sentryRef} className="flex flex-col m-auto">
-                        <Spinner size="large" />
-                    </div>
-                ) : (
-                    <Welcome />
-                )}
-                <div className="flex flex-col gap-3">
-                    {pages
-                        ?.flatMap((messages) => [...messages].reverse())
-                        .map((message, i, arr) => {
-                            const prev_message = i > 0 ? arr[i - 1] : null;
-                            const newLine =
-                                lastRead != null &&
-                                lastRead < new Date(message.timestamp) &&
-                                (prev_message == null ||
-                                    new Date(prev_message.timestamp) <=
-                                        lastRead);
-
-                            return (
-                                <Fragment key={message.id}>
-                                    {newLine && <UnreadSeparator />}
-                                    <DirectMessageItem message={message} />
-                                </Fragment>
-                            );
-                        })}
+        <div className="flex flex-col gap-3 mb-8">
+            {query.isLoading || query.hasPreviousPage ? (
+                <div ref={sentryRef} className="flex flex-col m-auto">
+                    <Spinner size="large" />
                 </div>
+            ) : (
+                <Welcome />
+            )}
+            <div className="flex flex-col gap-3">
+                {pages
+                    ?.flatMap((messages) => [...messages].reverse())
+                    .map((message, i, arr) => {
+                        const prev_message = i > 0 ? arr[i - 1] : null;
+                        const newLine =
+                            lastRead != null &&
+                            lastRead < new Date(message.timestamp) &&
+                            (prev_message == null ||
+                                new Date(prev_message.timestamp) <= lastRead);
+
+                        return (
+                            <Fragment key={message.id}>
+                                {newLine && <UnreadSeparator />}
+                                <DirectMessageItem message={message} />
+                            </Fragment>
+                        );
+                    })}
             </div>
-            <DMSendbar />
-        </>
+        </div>
     );
 };
 
@@ -119,7 +111,7 @@ function useLastRead(userId: string) {
         : null;
 }
 
-function DMSendbar() {
+function DirectMessageSendbar() {
     const sendMutation = trpc.dm.send.useMutation();
     const typeMutation = trpc.dm.type.useMutation();
 
@@ -223,7 +215,7 @@ DMPage.useLayout = (c) => {
 
     return (
         <AppLayout
-            layout={ChatViewLayout}
+            footer={<DirectMessageSendbar />}
             breadcrumb={[
                 {
                     text: <BreadcrumbItem />,

@@ -17,11 +17,7 @@ import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
-import {
-    ChatViewLayout,
-    UnreadSeparator,
-    useChatView,
-} from "@/components/chat/ChatView";
+import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
 import { channels } from "@/utils/ably";
 import { getGroupQuery, getMessageVariables } from "@/utils/variables";
 
@@ -53,35 +49,32 @@ const GroupChat: NextPageWithLayout = () => {
     }, [pages, scrollToBottom]);
 
     return (
-        <>
-            <div className="flex flex-col gap-3 mb-8">
-                {query.isLoading || query.hasPreviousPage ? (
-                    <div ref={sentryRef} className="flex flex-col m-auto">
-                        <Spinner size="large" />
-                    </div>
-                ) : (
-                    <Welcome />
-                )}
-                {pages
-                    ?.flatMap((messages) => [...messages].reverse())
-                    .map((message, i, arr) => {
-                        const prev_message = i > 0 ? arr[i - 1] : null;
-                        const newLine =
-                            lastRead != null &&
-                            lastRead < new Date(message.timestamp) &&
-                            (prev_message == null ||
-                                new Date(prev_message.timestamp) <= lastRead);
+        <div className="flex flex-col gap-3 mb-8">
+            {query.isLoading || query.hasPreviousPage ? (
+                <div ref={sentryRef} className="flex flex-col m-auto">
+                    <Spinner size="large" />
+                </div>
+            ) : (
+                <Welcome />
+            )}
+            {pages
+                ?.flatMap((messages) => [...messages].reverse())
+                .map((message, i, arr) => {
+                    const prev_message = i > 0 ? arr[i - 1] : null;
+                    const newLine =
+                        lastRead != null &&
+                        lastRead < new Date(message.timestamp) &&
+                        (prev_message == null ||
+                            new Date(prev_message.timestamp) <= lastRead);
 
-                        return (
-                            <Fragment key={message.id}>
-                                {newLine && <UnreadSeparator />}
-                                <GroupMessageItem message={message} />
-                            </Fragment>
-                        );
-                    })}
-            </div>
-            <GroupSendbar />
-        </>
+                    return (
+                        <Fragment key={message.id}>
+                            {newLine && <UnreadSeparator />}
+                            <GroupMessageItem message={message} />
+                        </Fragment>
+                    );
+                })}
+        </div>
     );
 };
 
@@ -182,7 +175,7 @@ function Welcome() {
 GroupChat.useLayout = (children) =>
     useGroupLayout((group) => ({
         children,
-        layout: ChatViewLayout,
+        footer: <GroupSendbar />,
         items: (
             <Link
                 href={`/chat/${group}/settings`}

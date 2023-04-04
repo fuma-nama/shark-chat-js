@@ -1,28 +1,34 @@
 import Sidebar from "@/components/layout/Sidebar";
 import clsx from "clsx";
 import Head from "next/head";
-import React, { FC } from "react";
+import React, { RefObject, createContext } from "react";
 import { ReactNode } from "react";
 import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
+import { useViewScrollController } from "@/utils/use-bottom-scroll";
 
-function DefaultBody(props: { children: ReactNode }) {
-    return (
-        <div className="overflow-y-auto flex flex-col">{props.children}</div>
-    );
-}
+export const ViewContext = createContext<
+    | {
+          viewRef: RefObject<HTMLDivElement>;
+          scrollToBottom: () => void;
+      }
+    | undefined
+>(undefined);
 
 export function AppLayout({
     items,
     children,
     breadcrumb,
-    layout: Body = DefaultBody,
+    footer,
 }: {
     breadcrumb?: BreadcrumbItem[];
     items?: ReactNode;
     children?: ReactNode;
-    layout?: FC<{ children: ReactNode }>;
+    footer?: ReactNode;
 }) {
+    const { handleRootScroll, rootRef, scrollToBottom } =
+        useViewScrollController();
+
     return (
         <>
             <Head>
@@ -44,12 +50,21 @@ export function AppLayout({
                 )}
             >
                 <Sidebar />
-                <Body>
+                <div
+                    className="overflow-y-auto flex flex-col"
+                    ref={rootRef}
+                    onScroll={handleRootScroll}
+                >
                     <Navbar breadcrumb={breadcrumb}>{items}</Navbar>
-                    <div className="max-w-screen-2xl w-full mx-auto flex flex-col flex-1 pt-2 p-4">
-                        {children}
-                    </div>
-                </Body>
+                    <ViewContext.Provider
+                        value={{ viewRef: rootRef, scrollToBottom }}
+                    >
+                        <div className="max-w-screen-2xl w-full mx-auto flex flex-col flex-1 pt-2 p-4">
+                            {children}
+                        </div>
+                        {footer}
+                    </ViewContext.Provider>
+                </div>
             </main>
         </>
     );
