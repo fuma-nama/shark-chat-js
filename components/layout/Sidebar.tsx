@@ -29,7 +29,7 @@ export default function Sidebar() {
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 overflow-y-auto max-h-screen",
+                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 overflow-y-auto max-h-full",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:min-h-screen max-md:z-50",
                     "max-md:transition-transform max-md:duration-500",
                     !isOpen && "max-md:-translate-x-full"
