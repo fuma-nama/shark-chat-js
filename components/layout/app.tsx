@@ -45,13 +45,13 @@ export function AppLayout({
             </Head>
             <main
                 className={clsx(
-                    "grid grid-cols-1 md:grid-cols-[20rem_auto] h-screen max-h-screen overflow-hidden text-accent-900 bg-light-100",
+                    "grid grid-cols-1 md:grid-cols-[20rem_auto] h-screen overflow-hidden text-accent-900 bg-light-100",
                     "dark:text-accent-50 dark:bg-dark-900"
                 )}
             >
                 <Sidebar />
                 <div
-                    className="overflow-y-auto flex flex-col overscroll-contain"
+                    className="overflow-y-auto flex flex-col overscroll-contain max-h-screen"
                     ref={rootRef}
                     onScroll={handleRootScroll}
                 >
