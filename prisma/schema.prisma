@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Account {
@@ -27,6 +28,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -35,6 +37,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -74,6 +78,8 @@ model Group {
   members Member[]
   messages Message[]
   invites GroupInvite[]
+
+  @@index([owner_id])
 }
 
 model DirectMessage {
@@ -85,6 +91,9 @@ model DirectMessage {
 
   author User @relation(name: "sent_dms", fields: [author_id], references: [id], onDelete: Cascade)
   receiver User @relation(name: "received_dms", fields: [receiver_id], references: [id], onDelete: Cascade)
+
+  @@index([receiver_id])
+  @@index([author_id])
 }
 
 model DirectMessageChannel {
@@ -95,6 +104,9 @@ model DirectMessageChannel {
   author User @relation(name: "sent_dm_info", fields: [author_id], references: [id], onDelete: Cascade)
   receiver User @relation(name: "received_dm_info", fields: [receiver_id], references: [id], onDelete: Cascade)
   @@id([author_id, receiver_id])
+
+  @@index([author_id])
+  @@index([receiver_id])
 }
 
 model GroupInvite {
@@ -103,6 +115,8 @@ model GroupInvite {
   once Boolean @default(false)
   
   group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id])
 }
 
 model Member {
@@ -114,6 +128,8 @@ model Member {
   user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@id([group_id, user_id])
+  @@index([group_id])
+  @@index([user_id])
 }
 
 model Message {
@@ -125,4 +141,7 @@ model Message {
 
   group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
   author User @relation(fields: [author_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id])
+  @@index([author_id])
 }
