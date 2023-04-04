@@ -3,7 +3,7 @@ import { Avatar } from "@/components/system/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import Router, { useRouter } from "next/router";
-import { Fragment, useEffect, useMemo } from "react";
+import { Fragment, useEffect } from "react";
 import {
     Sendbar,
     TypingStatus,
@@ -20,23 +20,15 @@ import {
 
 import type { NextPageWithLayout } from "../../_app";
 import { channels } from "@/utils/ably";
-
-export type Params = {
-    user: string;
-};
-
-export function getVariables(userId: string) {
-    return {
-        userId,
-        count: 30,
-        cursorType: "before",
-    } as const;
-}
+import {
+    DirectMessageQuery,
+    getDirectMessageVariables,
+} from "@/utils/variables";
 
 const DMPage: NextPageWithLayout = () => {
-    const { user } = useRouter().query as Params;
+    const { user } = useRouter().query as DirectMessageQuery;
     const { status } = useSession();
-    const variables = useMemo(() => getVariables(user), [user]);
+    const variables = getDirectMessageVariables(user);
 
     const lastRead = useLastRead(user);
     const query = trpc.dm.messages.useInfiniteQuery(variables, {
@@ -136,12 +128,12 @@ function DMSendbar() {
             isLoading={sendMutation.isLoading}
             onType={() =>
                 typeMutation.mutate({
-                    userId: (Router.query as Params).user,
+                    userId: (Router.query as DirectMessageQuery).user,
                 })
             }
             onSend={({ content }) =>
                 sendMutation.mutateAsync({
-                    userId: (Router.query as Params).user,
+                    userId: (Router.query as DirectMessageQuery).user,
                     message: content,
                 })
             }
@@ -154,7 +146,7 @@ function DMSendbar() {
 function TypingUsers() {
     const { typing, add } = useTypingStatus();
     const { status, data } = useSession();
-    const { user } = useRouter().query as Params;
+    const { user } = useRouter().query as DirectMessageQuery;
 
     channels.dm.typing.useChannel(
         [user ?? "", data?.user.id ?? ""],
@@ -172,7 +164,7 @@ function TypingUsers() {
 }
 
 function Welcome() {
-    const { user } = useRouter().query as Params;
+    const { user } = useRouter().query as DirectMessageQuery;
     const { status } = useSession();
     const query = trpc.dm.info.useQuery(
         { userId: user },
@@ -205,7 +197,7 @@ function Welcome() {
 }
 
 function BreadcrumbItem() {
-    const { user } = useRouter().query as Params;
+    const { user } = useRouter().query as DirectMessageQuery;
     const { status } = useSession();
     const query = trpc.dm.info.useQuery(
         { userId: user },

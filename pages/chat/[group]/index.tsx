@@ -1,9 +1,9 @@
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import Router, { NextRouter, useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
-import { Fragment, useEffect, useMemo } from "react";
+import { Fragment, useEffect } from "react";
 import clsx from "clsx";
 import React from "react";
 import {
@@ -23,30 +23,12 @@ import {
     useChatView,
 } from "@/components/chat/ChatView";
 import { channels } from "@/utils/ably";
-
-export function getQuery(router: NextRouter) {
-    const query = router.query as {
-        group: string;
-    };
-
-    return {
-        isReady: router.isReady,
-        groupId: Number(query.group),
-    };
-}
-
-export function getVariables(groupId: number) {
-    return {
-        groupId,
-        count: 30,
-        cursorType: "before",
-    } as const;
-}
+import { getGroupQuery, getMessageVariables } from "@/utils/variables";
 
 const GroupChat: NextPageWithLayout = () => {
-    const group = getQuery(useRouter()).groupId;
+    const group = getGroupQuery(useRouter()).groupId;
     const { status } = useSession();
-    const variables = useMemo(() => getVariables(group), [group]);
+    const variables = getMessageVariables(group);
     const lastRead = useLastRead(group);
 
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
@@ -139,7 +121,7 @@ function GroupSendbar() {
     const sendMutation = trpc.chat.send.useMutation();
 
     const onSend = ({ content }: SendData) => {
-        const { groupId } = getQuery(Router);
+        const { groupId } = getGroupQuery(Router);
 
         sendMutation.mutate({
             message: content,
@@ -152,7 +134,7 @@ function GroupSendbar() {
             isLoading={sendMutation.isLoading}
             onSend={onSend}
             onType={() =>
-                typeMutation.mutate({ groupId: getQuery(Router).groupId })
+                typeMutation.mutate({ groupId: getGroupQuery(Router).groupId })
             }
         >
             <TypingUsers />
@@ -162,7 +144,7 @@ function GroupSendbar() {
 
 function TypingUsers() {
     const { status, data: session } = useSession();
-    const { groupId } = getQuery(useRouter());
+    const { groupId } = getGroupQuery(useRouter());
     const { typing, add } = useTypingStatus();
 
     channels.chat.typing.useChannel(

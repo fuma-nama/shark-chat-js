@@ -4,9 +4,9 @@ import { useSession } from "next-auth/react";
 import { useEventHandlers } from "../base";
 import Router from "next/router";
 import {
-    Params as DMParams,
-    getVariables as getDMVariables,
-} from "@/pages/dm/[user]";
+    DirectMessageQuery as DMParams,
+    getDirectMessageVariables as getDMVariables,
+} from "@/utils/variables";
 import { DirectMessageWithReceiver } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import type { CreateReactUtilsProxy } from "@trpc/react-query/shared";

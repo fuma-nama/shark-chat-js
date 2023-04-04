@@ -5,7 +5,7 @@ import { channels } from "../ably";
 import { Serialize } from "../types";
 import { useEventHandlers } from "./base";
 import Router from "next/router";
-import { getQuery } from "@/pages/chat/[group]";
+import { getGroupQuery } from "../variables";
 
 export function useMutationHandlers() {
     const base = useEventHandlers();
@@ -25,7 +25,7 @@ export function useMutationHandlers() {
             deleteGroup: async (groupId: number) => {
                 if (
                     Router.asPath.startsWith(`/chat/`) &&
-                    getQuery(Router).groupId === groupId
+                    getGroupQuery(Router).groupId === groupId
                 ) {
                     await Router.push("/home");
                 }

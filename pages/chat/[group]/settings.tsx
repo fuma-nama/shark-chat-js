@@ -1,16 +1,16 @@
 import { useGroupLayout } from "@/components/layout/group";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useRouter } from "next/router";
-import { getQuery } from ".";
 import { Invite } from "@/components/chat/settings/invite";
 import { Danger } from "@/components/chat/settings/danger";
 import { Info } from "@/components/chat/settings/info";
 import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
 import { Spinner } from "@/components/system/spinner";
+import { getGroupQuery } from "@/utils/variables";
 
 const Settings: NextPageWithLayout = () => {
     const router = useRouter();
-    const { groupId } = getQuery(router);
+    const { groupId } = getGroupQuery(router);
     const isAdmin = useIsGroupAdmin({ groupId });
 
     return (

@@ -1,4 +1,4 @@
-import { getQuery } from "@/pages/chat/[group]";
+import { getGroupQuery } from "@/utils/variables";
 import { groupIcon } from "@/utils/media/format";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
@@ -38,7 +38,7 @@ function GroupItem({ group, ready }: { group: number; ready: boolean }) {
 export function useGroupLayout(
     propsFn: (group: number | null) => ComponentProps<typeof AppLayout>
 ) {
-    const { groupId, isReady } = getQuery(useRouter());
+    const { groupId, isReady } = getGroupQuery(useRouter());
     const props = propsFn(isReady ? groupId : null);
 
     return (

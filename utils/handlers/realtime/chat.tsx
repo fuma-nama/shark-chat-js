@@ -4,12 +4,12 @@ import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import { useEventHandlers } from "../base";
-import {
-    getQuery as getGroupQuery,
-    getVariables as getGroupVariables,
-} from "@/pages/chat/[group]";
 import Router from "next/router";
-import { getVariables as getDMVariables } from "@/pages/dm/[user]";
+import {
+    getDirectMessageVariables as getDMVariables,
+    getGroupQuery,
+    getMessageVariables,
+} from "@/utils/variables";
 
 export function MessageEventManager() {
     const { status, data } = useSession();
@@ -20,7 +20,7 @@ export function MessageEventManager() {
         (message) => {
             if (message.name === "typing") return;
 
-            const variables = getGroupVariables(message.data.group_id);
+            const variables = getMessageVariables(message.data.group_id);
             const active =
                 Router.asPath.startsWith("/chat/") &&
                 getGroupQuery(Router).groupId === message.data.group_id;
@@ -183,4 +183,7 @@ export function DirectMessageEventManager() {
     useChannels(channelList, onEvent);
 
     return <></>;
+}
+function getGroupVariables(group_id: number) {
+    throw new Error("Function not implemented.");
 }
