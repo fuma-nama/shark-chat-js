@@ -39,7 +39,7 @@ export function Sendbar({
     };
 
     return (
-        <div className="sticky px-4 pb-4 bottom-0 mt-auto bg-light-100 dark:bg-dark-900">
+        <div className="sticky px-4 pb-4 bottom-0 bg-light-100 dark:bg-dark-900">
             <div
                 className={clsx(
                     "flex flex-col gap-3 bg-light-50 shadow-xl shadow-brand-500/10 p-3 rounded-3xl max-w-[calc(1504px)] mx-auto",

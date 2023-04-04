@@ -45,7 +45,7 @@ export function AppLayout({
             </Head>
             <main
                 className={clsx(
-                    "grid grid-cols-1 md:grid-cols-[20rem_auto] h-screen text-accent-900 bg-light-100",
+                    "grid grid-cols-1 md:grid-cols-[20rem_auto] h-screen max-h-screen overflow-hidden text-accent-900 bg-light-100",
                     "dark:text-accent-50 dark:bg-dark-900"
                 )}
             >
