@@ -7,6 +7,10 @@ import {
     Params as DMParams,
     getVariables as getDMVariables,
 } from "@/pages/dm/[user]";
+import { DirectMessageWithReceiver } from "@/server/schema/chat";
+import { Serialize } from "@/utils/types";
+import type { CreateReactUtilsProxy } from "@trpc/react-query/shared";
+import type { AppRouter } from "@/server/routers/_app";
 
 export function PrivateEventManager() {
     const ably = assertConfiguration();
@@ -54,7 +58,7 @@ export function PrivateEventManager() {
                 }
 
                 if (!active) {
-                    handlers.onNewDirectMessage(data.user.id, message.data);
+                    onNewDirectMessage(utils, data.user.id, message.data);
                 }
 
                 return utils.dm.messages.setInfiniteData(variables, (prev) => {
@@ -79,4 +83,50 @@ export function PrivateEventManager() {
     );
 
     return <></>;
+}
+
+function onNewDirectMessage(
+    utils: CreateReactUtilsProxy<AppRouter, unknown>,
+    selfId: string,
+    message: Serialize<DirectMessageWithReceiver>
+) {
+    const [user, self] =
+        message.receiver.id === selfId
+            ? [message.author, message.receiver]
+            : [message.receiver, message.author];
+
+    utils.dm.channels.setData(undefined, (channels) => {
+        if (channels == null) return channels;
+
+        const exists = channels.some((c) => c.receiver_id === user.id);
+
+        if (exists) {
+            return channels.map((dm) => {
+                if (dm.receiver_id === user.id) {
+                    return {
+                        ...dm,
+                        last_message: message.content,
+                        unread_messages: dm.unread_messages + 1,
+                    };
+                }
+
+                return dm;
+            });
+        }
+
+        const timestamp = new Date(message.timestamp);
+        timestamp.setTime(timestamp.getTime() - 1);
+
+        return [
+            {
+                author_id: self.id,
+                receiver_id: user.id,
+                receiver: user,
+                last_message: message.content,
+                unread_messages: 1,
+                last_read: JSON.stringify(timestamp),
+            },
+            ...channels,
+        ];
+    });
 }
