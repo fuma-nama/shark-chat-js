@@ -6,7 +6,12 @@ import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import { Fragment, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import React from "react";
-import { SendData, Sendbar } from "@/components/chat/Sendbar";
+import {
+    SendData,
+    Sendbar,
+    TypingStatus,
+    useTypingStatus,
+} from "@/components/chat/Sendbar";
 import { Spinner } from "@/components/system/spinner";
 import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { button } from "@/components/system/button";
@@ -17,6 +22,7 @@ import {
     UnreadSeparator,
     useChatView,
 } from "@/components/chat/ChatView";
+import { channels } from "@/utils/ably";
 
 export function getQuery(router: NextRouter) {
     const query = router.query as {
@@ -129,6 +135,7 @@ function useLastRead(groupId: number) {
 }
 
 function GroupSendbar() {
+    const typeMutation = trpc.chat.type.useMutation();
     const sendMutation = trpc.chat.send.useMutation();
 
     const onSend = ({ content }: SendData) => {
@@ -140,7 +147,35 @@ function GroupSendbar() {
         });
     };
 
-    return <Sendbar isLoading={sendMutation.isLoading} onSend={onSend} />;
+    return (
+        <Sendbar
+            isLoading={sendMutation.isLoading}
+            onSend={onSend}
+            onType={() =>
+                typeMutation.mutate({ groupId: getQuery(Router).groupId })
+            }
+        >
+            <TypingUsers />
+        </Sendbar>
+    );
+}
+
+function TypingUsers() {
+    const { status, data: session } = useSession();
+    const { groupId } = getQuery(useRouter());
+    const { typing, add } = useTypingStatus();
+
+    channels.chat.typing.useChannel(
+        [groupId],
+        { enabled: status === "authenticated" },
+        (message) => {
+            if (message.data.user.id === session?.user.id) return;
+
+            add(message.data.user);
+        }
+    );
+
+    return <TypingStatus typing={typing} />;
 }
 
 function Welcome() {

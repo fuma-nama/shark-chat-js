@@ -2,9 +2,13 @@ import { AppLayout } from "@/components/layout/app";
 import { Avatar } from "@/components/system/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import { Fragment, useEffect, useMemo } from "react";
-import { Sendbar } from "@/components/chat/Sendbar";
+import {
+    Sendbar,
+    TypingStatus,
+    useTypingStatus,
+} from "@/components/chat/Sendbar";
 import { Spinner } from "@/components/system/spinner";
 import { DirectMessageItem } from "@/components/chat/DirectMessageItem";
 import { skeleton } from "@/components/system/skeleton";
@@ -15,6 +19,7 @@ import {
 } from "@/components/chat/ChatView";
 
 import type { NextPageWithLayout } from "../../_app";
+import { channels } from "@/utils/ably";
 
 export type Params = {
     user: string;
@@ -123,20 +128,47 @@ function useLastRead(userId: string) {
 }
 
 function DMSendbar() {
-    const { user } = useRouter().query as Params;
     const sendMutation = trpc.dm.send.useMutation();
+    const typeMutation = trpc.dm.type.useMutation();
 
     return (
         <Sendbar
             isLoading={sendMutation.isLoading}
+            onType={() =>
+                typeMutation.mutate({
+                    userId: (Router.query as Params).user,
+                })
+            }
             onSend={({ content }) =>
                 sendMutation.mutateAsync({
-                    userId: user,
+                    userId: (Router.query as Params).user,
                     message: content,
                 })
             }
-        />
+        >
+            <TypingUsers />
+        </Sendbar>
     );
+}
+
+function TypingUsers() {
+    const { typing, add } = useTypingStatus();
+    const { status, data } = useSession();
+    const { user } = useRouter().query as Params;
+
+    channels.dm.typing.useChannel(
+        [user, data?.user.id ?? ""],
+        {
+            enabled: status === "authenticated",
+        },
+        (message) => {
+            if (message.data.user.id === data?.user.id) return;
+
+            add(message.data.user);
+        }
+    );
+
+    return <TypingStatus typing={typing} />;
 }
 
 function Welcome() {

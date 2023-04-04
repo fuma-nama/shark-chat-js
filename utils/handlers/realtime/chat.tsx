@@ -18,6 +18,8 @@ export function MessageEventManager() {
 
     const onEvent = channels.chat.useCallback(
         (message) => {
+            if (message.name === "typing") return;
+
             const variables = getGroupVariables(message.data.group_id);
             const active =
                 Router.asPath.startsWith("/chat/") &&
@@ -113,10 +115,11 @@ export function MessageEventManager() {
 export function DirectMessageEventManager() {
     const { status, data } = useSession();
     const utils = trpc.useContext();
-    const handlers = useEventHandlers();
 
     const onEvent = channels.dm.useCallback(
         (message) => {
+            if (message.name === "typing") return;
+
             const user =
                 message.data.author_id === data!!.user.id
                     ? message.data.receiver_id
@@ -161,7 +164,7 @@ export function DirectMessageEventManager() {
                 });
             }
         },
-        [utils.dm.messages, handlers]
+        [utils.dm.messages]
     );
 
     const channelQuery = trpc.dm.channels.useQuery(undefined, {

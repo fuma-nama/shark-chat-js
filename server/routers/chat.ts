@@ -202,6 +202,30 @@ export const chatRouter = router({
 
             return old;
         }),
+    type: protectedProcedure
+        .input(
+            z.object({
+                groupId: z.number(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            await checkIsMemberOf(input.groupId, ctx.session);
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: ctx.session.user.id,
+                },
+            });
+
+            if (user == null)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "User not found",
+                });
+
+            await channels.chat.typing.publish([input.groupId], {
+                user,
+            });
+        }),
 });
 
 async function setLastRead(groupId: number, userId: string, value: Date) {

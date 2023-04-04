@@ -19,6 +19,10 @@ export type MessageType = Message & {
 };
 
 export type DirectMessageType = DirectMessage & {
+    author: UserInfo;
+};
+
+export type DirectMessageWithReceiver = DirectMessage & {
     receiver: UserInfo;
     author: UserInfo;
 };

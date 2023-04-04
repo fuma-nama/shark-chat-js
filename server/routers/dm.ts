@@ -266,6 +266,32 @@ export const dmRouter = router({
                 }
             );
         }),
+    type: protectedProcedure
+        .input(
+            z.object({
+                userId: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: ctx.session.user.id,
+                },
+            });
+
+            if (user == null)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found",
+                });
+
+            await channels.dm.typing.publish(
+                [ctx.session.user.id, input.userId],
+                {
+                    user,
+                }
+            );
+        }),
 });
 
 async function setLastRead(authorId: string, receiverId: string, value?: Date) {

@@ -1,5 +1,10 @@
 import { groupSchema } from "@/server/schema/group";
-import type { DirectMessageType, MessageType } from "@/server/schema/chat";
+import type {
+    DirectMessageType,
+    DirectMessageWithReceiver,
+    MessageType,
+    UserInfo,
+} from "@/server/schema/chat";
 import { z } from "zod";
 import { a } from "./ably-builder";
 
@@ -32,7 +37,7 @@ export const channels = a.channels({
         group_updated: a.event(groupSchema),
         group_created: a.event(groupSchema),
         group_deleted: a.event(groupSchema.pick({ id: true })),
-        message_sent: a.event(z.custom<DirectMessageType>()),
+        message_sent: a.event(z.custom<DirectMessageWithReceiver>()),
     }),
     dm: a.channel(
         (users: [user1: string, user2: string]) => {
@@ -41,6 +46,7 @@ export const channels = a.channels({
             return [`dm-${user1}-${user2}`];
         },
         {
+            typing: a.event(z.object({ user: z.custom<UserInfo>() })),
             message_updated: a.event(
                 z.custom<
                     Pick<
@@ -57,6 +63,7 @@ export const channels = a.channels({
         }
     ),
     chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
+        typing: a.event(z.object({ user: z.custom<UserInfo>() })),
         message_sent: a.event(z.custom<MessageType>()),
         message_updated: a.event(
             z.custom<Pick<MessageType, "id" | "group_id" | "content">>()
