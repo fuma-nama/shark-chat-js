@@ -15,31 +15,34 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ input, ctx }) => {
-            await checkIsMemberOf(input.groupId, ctx.session);
+            const message = await prisma.$transaction(async () => {
+                await checkIsMemberOf(input.groupId, ctx.session);
 
-            const userId = ctx.session.user.id;
-            const message = await prisma.message.create({
-                data: {
-                    author_id: userId,
-                    content: input.message,
-                    group_id: input.groupId,
-                },
-                include: {
-                    author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            image: true,
+                const message = await prisma.message.create({
+                    data: {
+                        author_id: ctx.session.user.id,
+                        content: input.message,
+                        group_id: input.groupId,
+                    },
+                    include: {
+                        author: {
+                            select: {
+                                id: true,
+                                name: true,
+                                image: true,
+                            },
                         },
                     },
-                },
-            });
+                });
 
-            await setLastRead(
-                input.groupId,
-                ctx.session.user.id,
-                message.timestamp
-            );
+                await setLastRead(
+                    input.groupId,
+                    ctx.session.user.id,
+                    message.timestamp
+                );
+
+                return message;
+            });
 
             await channels.chat.message_sent.publish([input.groupId], message);
             return message;
