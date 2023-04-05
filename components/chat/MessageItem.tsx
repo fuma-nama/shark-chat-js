@@ -210,7 +210,7 @@ export function Root({
 
 export function Text({ children }: { children: string }) {
     return (
-        <p className="break-all whitespace-pre-line">
+        <p className="[overflow-wrap:anywhere] [white-space:break-spaces]">
             <LinkItUrl className="text-brand-500 dark:text-purple-300">
                 {children}
             </LinkItUrl>
