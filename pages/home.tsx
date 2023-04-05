@@ -12,7 +12,6 @@ import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
 import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { GroupWithNotifications } from "@/server/schema/group";
 import { badge } from "@/components/system/badge";
 
@@ -27,10 +26,6 @@ const Home: NextPageWithLayout = () => {
                 <JoinGroupModal>
                     <Button>Join Group</Button>
                 </JoinGroupModal>
-                <Button className="text-accent-800 dark:text-accent-600 flex-1 justify-start">
-                    <MagnifyingGlassIcon className="mr-2" />
-                    Search...
-                </Button>
             </div>
             <RecentChats />
             <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
