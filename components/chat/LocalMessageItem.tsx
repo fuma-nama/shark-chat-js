@@ -16,6 +16,8 @@ export function LocalMessageItem({
     return (
         <div className="opacity-50">
             <MessageItem.Root
+                user={profile!!}
+                timestamp={timestamp}
                 canDelete
                 canEdit={false}
                 isEditing={false}
@@ -23,14 +25,10 @@ export function LocalMessageItem({
                 onCopy={() => {}}
                 onDelete={onDelete}
             >
-                <MessageItem.Content timestamp={timestamp} user={profile!!}>
-                    <p className="[word-wrap:break-word] [white-space:break-spaces]">
-                        {item.content}
-                    </p>
-                    {item.error != null && (
-                        <p className="text-red-400">{item.error}</p>
-                    )}
-                </MessageItem.Content>
+                <MessageItem.Text>{item.content}</MessageItem.Text>
+                {item.error != null && (
+                    <p className="text-red-400">{item.error}</p>
+                )}
             </MessageItem.Root>
         </div>
     );

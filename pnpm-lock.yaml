@@ -41,6 +41,7 @@ specifiers:
   react-dom: 18.2.0
   react-hook-form: ^7.43.5
   react-infinite-scroll-hook: ^4.0.4
+  react-linkify-it: ^1.0.7
   tailwind-variants: ^0.0.30
   tailwindcss: ^3.2.4
   tailwindcss-radix: ^2.7.0
@@ -81,6 +82,7 @@ dependencies:
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.43.5_react@18.2.0
   react-infinite-scroll-hook: 4.0.4_react@18.2.0
+  react-linkify-it: 1.0.7_react@18.2.0
   tailwind-variants: 0.0.30_tailwindcss@3.2.4
   zod: 3.20.2
   zustand: 4.3.2_react@18.2.0
@@ -3619,6 +3621,14 @@ packages:
   /react-is/16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
     dev: true
+
+  /react-linkify-it/1.0.7_react@18.2.0:
+    resolution: {integrity: sha512-B0Vy0KCAdpkT7Ql/bOpPuAP4l20f78Eaq1yD/q9J2RltPSwD900I0GzQPXaH6gnoWX/qmkBXL42Q3jTnWw8KCw==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /react-remove-scroll-bar/2.3.4_3stiutgnnbnfnf3uowm5cip22i:
     resolution: {integrity: sha512-63C4YQBUt0m6ALadE9XV56hV8BgJWDmmTPY758iIJjfQKt2nYwoUrPk0LXRXcB/yIj82T1/Ixfdpdk68LwIB0A==}

@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, forwardRef, ReactNode, useContext } from "react";
 import { Avatar } from "../system/avatar";
 import { Button } from "../system/button";
 import { textArea } from "../system/textarea";
@@ -13,8 +13,10 @@ import {
 import clsx from "clsx";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
+
 import type { Serialize } from "@/utils/types";
 import type { MessageType } from "@/server/schema/chat";
+import { LinkItUrl } from "react-linkify-it";
 
 const MessageContext = createContext<{
     cancel: () => void;
@@ -96,15 +98,13 @@ export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
     );
 }
 
-export function Content({
-    user,
-    timestamp,
-    children,
-}: {
+type ContentProps = {
     user: Serialize<MessageType["author"]>;
     timestamp: string | Date | number;
     children: ReactNode;
-}) {
+};
+
+function Content({ user, timestamp, children }: ContentProps) {
     const date = new Date(timestamp).toLocaleString(undefined, {
         dateStyle: "short",
         timeStyle: "short",
@@ -136,6 +136,9 @@ type RootProps = {
     onDelete: () => void;
     canEdit: boolean;
     canDelete: boolean;
+
+    user: Serialize<MessageType["author"]>;
+    timestamp: string | Date | number;
     children: ReactNode;
 };
 
@@ -147,7 +150,8 @@ export function Root({
     canEdit,
     isEditing,
     onEditChange,
-}: RootProps) {
+    ...rest
+}: RootProps & ContentProps) {
     return (
         <ContextMenu.Root
             trigger={
@@ -157,13 +161,15 @@ export function Root({
                         "dark:shadow-none dark:bg-dark-800"
                     )}
                 >
-                    <MessageContext.Provider
-                        value={{
-                            cancel: () => onEditChange(false),
-                        }}
-                    >
-                        {children}
-                    </MessageContext.Provider>
+                    <Content {...rest}>
+                        <MessageContext.Provider
+                            value={{
+                                cancel: () => onEditChange(false),
+                            }}
+                        >
+                            {children}
+                        </MessageContext.Provider>
+                    </Content>
                 </div>
             }
         >
@@ -199,5 +205,15 @@ export function Root({
                 </ContextMenu.Item>
             )}
         </ContextMenu.Root>
+    );
+}
+
+export function Text({ children }: { children: string }) {
+    return (
+        <p className="whitespace-pre">
+            <LinkItUrl className="text-brand-500 dark:text-purple-300">
+                {children}
+            </LinkItUrl>
+        </p>
     );
 }

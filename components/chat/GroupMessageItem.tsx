@@ -39,6 +39,8 @@ export function GroupMessageItem({
 
     return (
         <Item.Root
+            user={message.author}
+            timestamp={message.timestamp}
             isEditing={editing}
             canEdit={
                 status === "authenticated" && message.author_id == data.user.id
@@ -48,19 +50,15 @@ export function GroupMessageItem({
             onEditChange={setEditing}
             onDelete={onDelete}
         >
-            <Item.Content user={message.author} timestamp={message.timestamp}>
-                {editing ? (
-                    <Item.Edit
-                        onEdit={onEdit}
-                        isLoading={editMutation.isLoading}
-                        initialValue={message.content}
-                    />
-                ) : (
-                    <p className="whitespace-pre-wrap break-all">
-                        {message.content}
-                    </p>
-                )}
-            </Item.Content>
+            {editing ? (
+                <Item.Edit
+                    onEdit={onEdit}
+                    isLoading={editMutation.isLoading}
+                    initialValue={message.content}
+                />
+            ) : (
+                <Item.Text>{message.content}</Item.Text>
+            )}
         </Item.Root>
     );
 }
