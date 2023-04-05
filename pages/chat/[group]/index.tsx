@@ -22,7 +22,6 @@ import { channels } from "@/utils/ably";
 import { getGroupQuery, getMessageVariables } from "@/utils/variables";
 import { useGroupMessage } from "@/utils/stores/chat";
 import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
-import { addNonce, removeNonce } from "@/utils/handlers/realtime/shared";
 import { useEventHandlers } from "@/utils/handlers/base";
 
 const GroupChat: NextPageWithLayout = () => {
@@ -115,13 +114,9 @@ function GroupSendbar() {
     const [add, error] = useGroupMessage((s) => [s.addSending, s.errorSending]);
     const typeMutation = trpc.useContext().client.chat.type;
     const sendMutation = trpc.chat.send.useMutation({
-        onMutate({ nonce }) {
-            if (nonce != null) addNonce(nonce);
-        },
         onError({ message }, { groupId, nonce }) {
             if (nonce != null) {
                 error(groupId, nonce, message);
-                removeNonce(nonce);
             }
         },
     });
@@ -129,10 +124,9 @@ function GroupSendbar() {
     const onSend = ({ content }: SendData) => {
         const { groupId } = getGroupQuery(Router);
 
-        const item = add(groupId, content);
         sendMutation.mutate({
             message: content,
-            nonce: item.nonce,
+            nonce: add(groupId, content).nonce,
             groupId,
         });
     };

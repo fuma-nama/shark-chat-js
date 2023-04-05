@@ -23,7 +23,6 @@ import {
 } from "@/utils/variables";
 import { useDirectMessage } from "@/utils/stores/chat";
 import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
-import { addNonce, removeNonce } from "@/utils/handlers/realtime/shared";
 
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as DirectMessageQuery;
@@ -131,13 +130,9 @@ function DirectMessageSendbar() {
     ]);
     const typeMutation = trpc.useContext().client.dm.type;
     const sendMutation = trpc.dm.send.useMutation({
-        onMutate({ nonce }) {
-            if (nonce != null) addNonce(nonce);
-        },
         onError({ message }, { userId, nonce }) {
             if (nonce != null) {
                 error(userId, nonce, message);
-                removeNonce(nonce);
             }
         },
     });

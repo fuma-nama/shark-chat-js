@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { addNonce, removeNonce } from "../handlers/realtime/shared";
 
 /**
  * Message that being sent locally but not received from the server yet
@@ -27,6 +28,7 @@ function createMessageStore<K extends number | string>() {
                 nonce: Date.now(),
             };
 
+            addNonce(item.nonce);
             set((prev) => {
                 const next = {
                     ...prev.sending,
@@ -55,6 +57,7 @@ function createMessageStore<K extends number | string>() {
             });
         },
         removeSending(group, nonce) {
+            removeNonce(nonce);
             set((prev) => {
                 const filtered = prev.sending[group]?.filter(
                     (item) => item.nonce !== nonce
