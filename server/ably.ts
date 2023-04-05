@@ -4,6 +4,8 @@ import Ably, { Types } from "ably";
 function connect() {
     const ably = new Ably.Realtime.Promise({
         key: process.env.ABLY_API_KEY,
+        //make sure time is sync in development mode
+        queryTime: process.env.NODE_ENV === "development",
     });
 
     ably.connection.on("connected", () => console.log("Connected to Ably!"));
