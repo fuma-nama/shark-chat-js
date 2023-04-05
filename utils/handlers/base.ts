@@ -37,13 +37,13 @@ export function useEventHandlers() {
                     groups?.filter((g) => g.id !== groupId)
                 );
             },
-            addGroupUnread: (groupId: number) => {
+            setGroupUnread: (groupId: number, fn: (prev: number) => number) => {
                 utils.group.all.setData(undefined, (groups) =>
                     groups?.map((group) => {
                         if (group.id === groupId) {
                             return {
                                 ...group,
-                                unread_messages: group.unread_messages + 1,
+                                unread_messages: fn(group.unread_messages),
                             };
                         }
 

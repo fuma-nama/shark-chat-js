@@ -131,31 +131,38 @@ export const dmRouter = router({
             z.object({
                 userId: z.string(),
                 message: contentSchema,
+                nonce: z.number().optional(),
             })
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
-            //init direct message channel for the receiver
-            await setLastRead(input.userId, userId);
-            const message = await prisma.directMessage.create({
-                data: {
-                    author_id: userId,
-                    content: input.message,
-                    receiver_id: input.userId,
-                },
-                include: {
-                    author: userSelect,
-                    receiver: userSelect,
-                },
+            const message = await prisma.$transaction(async () => {
+                //init direct message channel for the receiver
+                await setLastRead(input.userId, userId);
+                const message = await prisma.directMessage.create({
+                    data: {
+                        author_id: userId,
+                        content: input.message,
+                        receiver_id: input.userId,
+                    },
+                    include: {
+                        author: userSelect,
+                        receiver: userSelect,
+                    },
+                });
+
+                await setLastRead(userId, input.userId, message.timestamp);
+                return { ...message, nonce: input.nonce };
             });
 
-            await setLastRead(userId, input.userId, message.timestamp);
-            await channels.private.message_sent.publish(
-                [input.userId],
-                message
-            );
-            await channels.private.message_sent.publish([userId], message);
+            if (input.userId !== userId) {
+                await channels.private.message_sent.publish(
+                    [input.userId],
+                    message
+                );
+            }
 
+            await channels.private.message_sent.publish([userId], message);
             return message;
         }),
     messages: protectedProcedure

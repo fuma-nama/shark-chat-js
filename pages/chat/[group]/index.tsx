@@ -20,12 +20,20 @@ import { useGroupLayout } from "@/components/layout/group";
 import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
 import { channels } from "@/utils/ably";
 import { getGroupQuery, getMessageVariables } from "@/utils/variables";
+import { useGroupMessage } from "@/utils/stores/chat";
+import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
+import { addNonce, removeNonce } from "@/utils/handlers/realtime/shared";
+import { useEventHandlers } from "@/utils/handlers/base";
 
 const GroupChat: NextPageWithLayout = () => {
     const group = getGroupQuery(useRouter()).groupId;
     const { status } = useSession();
     const variables = getMessageVariables(group);
     const lastRead = useLastRead(group);
+    const [sending, remove] = useGroupMessage((s) => [
+        s.sending[group],
+        s.removeSending,
+    ]);
 
     const query = trpc.chat.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
@@ -46,7 +54,7 @@ const GroupChat: NextPageWithLayout = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [pages, scrollToBottom]);
+    }, [pages, sending, scrollToBottom]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">
@@ -74,33 +82,27 @@ const GroupChat: NextPageWithLayout = () => {
                         </Fragment>
                     );
                 })}
+            {sending?.map((message) => (
+                <LocalMessageItem
+                    key={message.nonce}
+                    item={message}
+                    onDelete={() => remove(group, message.nonce)}
+                />
+            ))}
         </div>
     );
 };
 
 function useLastRead(groupId: number) {
     const { status } = useSession();
-    const utils = trpc.useContext();
-
-    function onSuccess() {
-        utils.group.all.setData(undefined, (groups) =>
-            groups?.map((group) =>
-                group.id === groupId
-                    ? {
-                          ...group,
-                          unread_messages: 0,
-                      }
-                    : group
-            )
-        );
-    }
+    const handlers = useEventHandlers();
 
     const checkoutQuery = trpc.chat.checkout.useQuery(
         { groupId },
         {
             enabled: status === "authenticated",
             refetchOnWindowFocus: false,
-            onSuccess,
+            onSuccess: () => handlers.setGroupUnread(groupId, () => 0),
         }
     );
 
@@ -110,14 +112,27 @@ function useLastRead(groupId: number) {
 }
 
 function GroupSendbar() {
-    const typeMutation = trpc.chat.type.useMutation();
-    const sendMutation = trpc.chat.send.useMutation();
+    const [add, error] = useGroupMessage((s) => [s.addSending, s.errorSending]);
+    const typeMutation = trpc.useContext().client.chat.type;
+    const sendMutation = trpc.chat.send.useMutation({
+        onMutate({ nonce }) {
+            if (nonce != null) addNonce(nonce);
+        },
+        onError({ message }, { groupId, nonce }) {
+            if (nonce != null) {
+                error(groupId, nonce, message);
+                removeNonce(nonce);
+            }
+        },
+    });
 
     const onSend = ({ content }: SendData) => {
         const { groupId } = getGroupQuery(Router);
 
+        const item = add(groupId, content);
         sendMutation.mutate({
             message: content,
+            nonce: item.nonce,
             groupId,
         });
     };

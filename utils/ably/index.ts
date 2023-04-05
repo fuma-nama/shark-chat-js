@@ -37,7 +37,9 @@ export const channels = a.channels({
         group_updated: a.event(groupSchema),
         group_created: a.event(groupSchema),
         group_deleted: a.event(groupSchema.pick({ id: true })),
-        message_sent: a.event(z.custom<DirectMessageWithReceiver>()),
+        message_sent: a.event(
+            z.custom<DirectMessageWithReceiver & { nonce?: number }>()
+        ),
     }),
     dm: a.channel(
         (users: [user1: string, user2: string]) => {
@@ -64,7 +66,7 @@ export const channels = a.channels({
     ),
     chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
         typing: a.event(z.object({ user: z.custom<UserInfo>() })),
-        message_sent: a.event(z.custom<MessageType>()),
+        message_sent: a.event(z.custom<MessageType & { nonce?: number }>()),
         message_updated: a.event(
             z.custom<Pick<MessageType, "id" | "group_id" | "content">>()
         ),

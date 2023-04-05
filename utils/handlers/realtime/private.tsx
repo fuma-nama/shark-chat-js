@@ -11,6 +11,8 @@ import { DirectMessageWithReceiver } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import type { CreateReactUtilsProxy } from "@trpc/react-query/shared";
 import type { AppRouter } from "@/server/routers/_app";
+import { useDirectMessage } from "@/utils/stores/chat";
+import { removeNonce } from "./shared";
 
 export function PrivateEventManager() {
     const ably = assertConfiguration();
@@ -57,10 +59,16 @@ export function PrivateEventManager() {
                     });
                 }
 
-                if (!active) {
-                    onNewDirectMessage(utils, data.user.id, message.data);
+                if (
+                    message.data.nonce != null &&
+                    removeNonce(message.data.nonce)
+                ) {
+                    useDirectMessage
+                        .getState()
+                        .removeSending(user, message.data.nonce);
                 }
 
+                updateChannel(utils, data.user.id, message.data);
                 return utils.dm.messages.setInfiniteData(variables, (prev) => {
                     if (prev == null) return prev;
 
@@ -85,7 +93,7 @@ export function PrivateEventManager() {
     return <></>;
 }
 
-function onNewDirectMessage(
+function updateChannel(
     utils: CreateReactUtilsProxy<AppRouter, unknown>,
     selfId: string,
     message: Serialize<DirectMessageWithReceiver>

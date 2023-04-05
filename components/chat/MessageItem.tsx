@@ -102,7 +102,7 @@ export function Content({
     children,
 }: {
     user: Serialize<MessageType["author"]>;
-    timestamp: string;
+    timestamp: string | Date | number;
     children: ReactNode;
 }) {
     const date = new Date(timestamp).toLocaleString(undefined, {

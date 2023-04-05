@@ -12,6 +12,7 @@ export const chatRouter = router({
             z.object({
                 groupId: z.number(),
                 message: contentSchema,
+                nonce: z.number().optional(),
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -41,7 +42,10 @@ export const chatRouter = router({
                     message.timestamp
                 );
 
-                return message;
+                return {
+                    ...message,
+                    nonce: input.nonce,
+                };
             });
 
             await channels.chat.message_sent.publish([input.groupId], message);

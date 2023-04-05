@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Router, { useRouter } from "next/router";
 import { Fragment, useEffect } from "react";
 import {
+    SendData,
     Sendbar,
     TypingStatus,
     useTypingStatus,
@@ -20,6 +21,9 @@ import {
     DirectMessageQuery,
     getDirectMessageVariables,
 } from "@/utils/variables";
+import { useDirectMessage } from "@/utils/stores/chat";
+import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
+import { addNonce, removeNonce } from "@/utils/handlers/realtime/shared";
 
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as DirectMessageQuery;
@@ -27,6 +31,10 @@ const DMPage: NextPageWithLayout = () => {
     const variables = getDirectMessageVariables(user);
 
     const lastRead = useLastRead(user);
+    const [sending, remove] = useDirectMessage((s) => [
+        s.sending[user],
+        s.removeSending,
+    ]);
     const query = trpc.dm.messages.useInfiniteQuery(variables, {
         enabled: status === "authenticated",
         staleTime: Infinity,
@@ -46,7 +54,7 @@ const DMPage: NextPageWithLayout = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [pages, scrollToBottom]);
+    }, [pages, sending, scrollToBottom]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">
@@ -75,6 +83,13 @@ const DMPage: NextPageWithLayout = () => {
                             </Fragment>
                         );
                     })}
+                {sending?.map((message) => (
+                    <LocalMessageItem
+                        key={message.nonce}
+                        item={message}
+                        onDelete={() => remove(user, message.nonce)}
+                    />
+                ))}
             </div>
         </div>
     );
@@ -84,25 +99,23 @@ function useLastRead(userId: string) {
     const { status } = useSession();
     const utils = trpc.useContext();
 
-    function onSuccess() {
-        utils.dm.channels.setData(undefined, (channels) =>
-            channels?.map((dm) =>
-                dm.receiver_id === userId
-                    ? {
-                          ...dm,
-                          unread_messages: 0,
-                      }
-                    : dm
-            )
-        );
-    }
-
     const checkoutQuery = trpc.dm.checkout.useQuery(
         { userId },
         {
             enabled: status === "authenticated",
             refetchOnWindowFocus: false,
-            onSuccess,
+            onSuccess() {
+                utils.dm.channels.setData(undefined, (channels) =>
+                    channels?.map((dm) =>
+                        dm.receiver_id === userId
+                            ? {
+                                  ...dm,
+                                  unread_messages: 0,
+                              }
+                            : dm
+                    )
+                );
+            },
         }
     );
 
@@ -112,21 +125,41 @@ function useLastRead(userId: string) {
 }
 
 function DirectMessageSendbar() {
-    const sendMutation = trpc.dm.send.useMutation();
-    const typeMutation = trpc.dm.type.useMutation();
+    const [add, error] = useDirectMessage((s) => [
+        s.addSending,
+        s.errorSending,
+    ]);
+    const typeMutation = trpc.useContext().client.dm.type;
+    const sendMutation = trpc.dm.send.useMutation({
+        onMutate({ nonce }) {
+            if (nonce != null) addNonce(nonce);
+        },
+        onError({ message }, { userId, nonce }) {
+            if (nonce != null) {
+                error(userId, nonce, message);
+                removeNonce(nonce);
+            }
+        },
+    });
+
+    const onSend = ({ content }: SendData) => {
+        const { user } = Router.query as DirectMessageQuery;
+
+        const item = add(user, content);
+        sendMutation.mutate({
+            userId: user,
+            message: content,
+            nonce: item.nonce,
+        });
+    };
 
     return (
         <Sendbar
             isLoading={sendMutation.isLoading}
+            onSend={onSend}
             onType={() =>
                 typeMutation.mutate({
                     userId: (Router.query as DirectMessageQuery).user,
-                })
-            }
-            onSend={({ content }) =>
-                sendMutation.mutateAsync({
-                    userId: (Router.query as DirectMessageQuery).user,
-                    message: content,
                 })
             }
         >

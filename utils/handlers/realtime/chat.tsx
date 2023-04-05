@@ -10,6 +10,8 @@ import {
     getGroupQuery,
     getMessageVariables,
 } from "@/utils/variables";
+import { useGroupMessage } from "@/utils/stores/chat";
+import { removeNonce } from "./shared";
 
 export function MessageEventManager() {
     const { status, data } = useSession();
@@ -17,36 +19,45 @@ export function MessageEventManager() {
     const utils = handlers.utils;
 
     const onEvent = channels.chat.useCallback(
-        (message) => {
-            if (message.name === "typing") return;
+        ({ name, data: message }) => {
+            if (name === "typing") return;
 
-            const variables = getMessageVariables(message.data.group_id);
+            const variables = getMessageVariables(message.group_id);
             const active =
                 Router.asPath.startsWith("/chat/") &&
-                getGroupQuery(Router).groupId === message.data.group_id;
+                getGroupQuery(Router).groupId === message.group_id;
 
-            if (message.name === "message_sent") {
+            if (name === "message_sent") {
                 if (active) {
                     utils.chat.checkout.setData(
-                        { groupId: message.data.group_id },
-                        { last_read: message.data.timestamp }
+                        { groupId: message.group_id },
+                        { last_read: message.timestamp }
                     );
                 }
 
-                if (active && message.data.author_id !== data?.user.id) {
+                if (active && message.author_id !== data?.user.id) {
                     utils.client.chat.read.mutate({
-                        groupId: message.data.group_id,
+                        groupId: message.group_id,
                     });
                 }
 
                 if (!active) {
-                    handlers.addGroupUnread(message.data.group_id);
+                    handlers.setGroupUnread(
+                        message.group_id,
+                        (prev) => prev + 1
+                    );
                 }
 
-                return handlers.addGroupMessage(variables, message.data);
+                if (message.nonce != null && removeNonce(message.nonce)) {
+                    useGroupMessage
+                        .getState()
+                        .removeSending(message.group_id, message.nonce);
+                }
+
+                return handlers.addGroupMessage(variables, message);
             }
 
-            if (message.name === "message_updated") {
+            if (name === "message_updated") {
                 return utils.chat.messages.setInfiniteData(
                     variables,
                     (prev) => {
@@ -54,10 +65,10 @@ export function MessageEventManager() {
 
                         const pages = prev.pages.map((page) =>
                             page.map((msg) => {
-                                if (msg.id === message.data.id) {
+                                if (msg.id === message.id) {
                                     return {
                                         ...msg,
-                                        content: message.data.content,
+                                        content: message.content,
                                     };
                                 }
 
@@ -73,16 +84,14 @@ export function MessageEventManager() {
                 );
             }
 
-            if (message.name === "message_deleted") {
+            if (name === "message_deleted") {
                 return utils.chat.messages.setInfiniteData(
                     variables,
                     (prev) => {
                         if (prev == null) return prev;
 
                         const pages = prev.pages.map((page) => {
-                            return page.filter(
-                                (msg) => msg.id !== message.data.id
-                            );
+                            return page.filter((msg) => msg.id !== message.id);
                         });
 
                         return {
@@ -183,7 +192,4 @@ export function DirectMessageEventManager() {
     useChannels(channelList, onEvent);
 
     return <></>;
-}
-function getGroupVariables(group_id: number) {
-    throw new Error("Function not implemented.");
 }
