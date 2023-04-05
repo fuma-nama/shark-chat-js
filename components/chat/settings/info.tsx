@@ -16,8 +16,19 @@ import { z } from "zod";
 import { updateGroupSchema } from "@/server/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 
-export function Info({ group, isAdmin }: { group: number; isAdmin: boolean }) {
-    const query = trpc.group.info.useQuery({ groupId: group });
+export default function Info({
+    group,
+    isAdmin,
+    isReady,
+}: {
+    group: number;
+    isAdmin: boolean;
+    isReady: boolean;
+}) {
+    const query = trpc.group.info.useQuery(
+        { groupId: group },
+        { enabled: isReady }
+    );
     const [edit, setEdit] = useState(false);
 
     if (query.data == null) {

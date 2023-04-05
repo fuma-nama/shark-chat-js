@@ -10,7 +10,7 @@ import { useSession } from "next-auth/react";
 import { Switch } from "@/components/system/switch";
 import { Spinner } from "@/components/system/spinner";
 
-export function Invite({ group }: { group: number }) {
+export default function Invite({ group }: { group: number }) {
     const { status } = useSession();
     const utils = trpc.useContext();
 
@@ -45,9 +45,6 @@ export function Invite({ group }: { group: number }) {
     const groupData = groupQuery.data;
     return (
         <div className="flex flex-col gap-3">
-            <h2 className={text({ size: "lg", type: "primary" })}>
-                Invite Members
-            </h2>
             <div className="flex flex-row gap-3 justify-between">
                 <label htmlFor="public">
                     <h3 className={text({ size: "md", type: "primary" })}>

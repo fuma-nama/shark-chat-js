@@ -7,45 +7,24 @@ import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-export function Danger({
-    group,
-    isAdmin,
-}: {
-    group: number;
-    isAdmin: boolean;
-}) {
+export default function Danger({ group }: { group: number }) {
     return (
         <div className="flex flex-col gap-3">
-            <h2 className={text({ size: "lg", type: "primary" })}>
-                Danger Zone
-            </h2>
-
-            <div>
+            <LeaveGroup group={group} />
+            <div className="mt-3">
                 <h3 className={text({ size: "md", type: "primary" })}>
-                    Leave Group
+                    Delete Group
                 </h3>
                 <p
                     className={text({ size: "sm", type: "secondary" })}
-                >{`You can still join the group after leaving it`}</p>
-                <LeaveGroupButton group={group} />
+                >{`This action is irreversible and can not be undone`}</p>
+                <DeleteGroupButton group={group} />
             </div>
-
-            {isAdmin && (
-                <div className="mt-3">
-                    <h3 className={text({ size: "md", type: "primary" })}>
-                        Delete Group
-                    </h3>
-                    <p
-                        className={text({ size: "sm", type: "secondary" })}
-                    >{`This action is irreversible and can not be undone`}</p>
-                    <DeleteGroupButton group={group} />
-                </div>
-            )}
         </div>
     );
 }
 
-function LeaveGroupButton({ group }: { group: number }) {
+export function LeaveGroup({ group }: { group: number }) {
     const router = useRouter();
     const mutation = trpc.group.leave.useMutation({
         onSuccess: () => {
@@ -60,14 +39,22 @@ function LeaveGroupButton({ group }: { group: number }) {
     });
 
     return (
-        <Button
-            color="danger"
-            isLoading={mutation.isLoading}
-            onClick={() => mutation.mutate({ groupId: group })}
-            className="mt-3"
-        >
-            Leave
-        </Button>
+        <div>
+            <h3 className={text({ size: "md", type: "primary" })}>
+                Leave Group
+            </h3>
+            <p
+                className={text({ size: "sm", type: "secondary" })}
+            >{`You can still join the group after leaving it`}</p>
+            <Button
+                color="danger"
+                isLoading={mutation.isLoading}
+                onClick={() => mutation.mutate({ groupId: group })}
+                className="mt-3"
+            >
+                Leave
+            </Button>
+        </div>
     );
 }
 

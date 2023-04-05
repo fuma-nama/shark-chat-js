@@ -64,32 +64,30 @@ const DMPage: NextPageWithLayout = () => {
             ) : (
                 <Welcome />
             )}
-            <div className="flex flex-col gap-3">
-                {pages
-                    ?.flatMap((messages) => [...messages].reverse())
-                    .map((message, i, arr) => {
-                        const prev_message = i > 0 ? arr[i - 1] : null;
-                        const newLine =
-                            lastRead != null &&
-                            lastRead < new Date(message.timestamp) &&
-                            (prev_message == null ||
-                                new Date(prev_message.timestamp) <= lastRead);
+            {pages
+                ?.flatMap((messages) => [...messages].reverse())
+                .map((message, i, arr) => {
+                    const prev_message = i > 0 ? arr[i - 1] : null;
+                    const newLine =
+                        lastRead != null &&
+                        lastRead < new Date(message.timestamp) &&
+                        (prev_message == null ||
+                            new Date(prev_message.timestamp) <= lastRead);
 
-                        return (
-                            <Fragment key={message.id}>
-                                {newLine && <UnreadSeparator />}
-                                <DirectMessageItem message={message} />
-                            </Fragment>
-                        );
-                    })}
-                {sending?.map((message) => (
-                    <LocalMessageItem
-                        key={message.nonce}
-                        item={message}
-                        onDelete={() => remove(user, message.nonce)}
-                    />
-                ))}
-            </div>
+                    return (
+                        <Fragment key={message.id}>
+                            {newLine && <UnreadSeparator />}
+                            <DirectMessageItem message={message} />
+                        </Fragment>
+                    );
+                })}
+            {sending?.map((message) => (
+                <LocalMessageItem
+                    key={message.nonce}
+                    item={message}
+                    onDelete={() => remove(user, message.nonce)}
+                />
+            ))}
         </div>
     );
 };

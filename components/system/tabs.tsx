@@ -1,4 +1,7 @@
+import * as Base from "@radix-ui/react-tabs";
+import { ReactNode } from "react";
 import { tv } from "tailwind-variants";
+
 export const tabs = tv({
     slots: {
         root: [],
@@ -11,3 +14,33 @@ export const tabs = tv({
         ],
     },
 });
+
+export function Tabs({
+    items,
+    children,
+    ...rest
+}: {
+    items: { text: ReactNode; value: string }[];
+    children: ReactNode;
+} & Base.TabsProps) {
+    const styles = tabs();
+
+    return (
+        <Base.Root className={styles.root()} {...rest}>
+            <Base.TabsList className={styles.list()}>
+                {items.map((item) => (
+                    <Base.TabsTrigger
+                        key={item.value}
+                        value={item.value}
+                        className={styles.item()}
+                    >
+                        {item.text}
+                    </Base.TabsTrigger>
+                ))}
+            </Base.TabsList>
+            {children}
+        </Base.Root>
+    );
+}
+
+export const TabsContent = Base.TabsContent;

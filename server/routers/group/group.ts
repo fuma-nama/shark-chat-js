@@ -9,6 +9,7 @@ import {
     GroupWithNotifications,
     updateGroupSchema,
 } from "../../schema/group";
+import { membersRouter } from "./members";
 
 export const groupRouter = router({
     create: protectedProcedure
@@ -162,6 +163,7 @@ export const groupRouter = router({
             });
         }),
     invite: inviteRouter,
+    member: membersRouter,
 });
 
 async function joinMember(groupId: number, userId: string) {

@@ -6,6 +6,7 @@ import Router from "next/router";
 import {
     DirectMessageQuery as DMParams,
     getDirectMessageVariables as getDMVariables,
+    getGroupQuery,
 } from "@/utils/variables";
 import { DirectMessageWithReceiver } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
@@ -33,6 +34,14 @@ export function PrivateEventManager() {
             }
 
             if (message.name === "group_deleted" && !isSelf) {
+                const active =
+                    Router.asPath.startsWith("/chat/") &&
+                    getGroupQuery(Router).groupId === message.data.id;
+
+                if (active) {
+                    Router.push("/home");
+                }
+
                 return handlers.deleteGroup(message.data.id);
             }
 
