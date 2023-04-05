@@ -34,6 +34,8 @@ export function Sendbar({
     const [text, setText] = useState("");
 
     const onSend = () => {
+        if (text.trim().length === 0) return;
+
         setText("");
         send({ content: text });
     };
