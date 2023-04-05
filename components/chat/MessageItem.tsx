@@ -210,7 +210,7 @@ export function Root({
 
 export function Text({ children }: { children: string }) {
     return (
-        <p className="whitespace-pre">
+        <p className="whitespace-pre break-words">
             <LinkItUrl className="text-brand-500 dark:text-purple-300">
                 {children}
             </LinkItUrl>
