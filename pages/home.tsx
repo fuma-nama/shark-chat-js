@@ -38,6 +38,7 @@ function RecentChats() {
     const { status } = useSession();
     const query = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
+        staleTime: Infinity,
     });
 
     return (

@@ -21,69 +21,69 @@ export function PrivateEventManager() {
     const handlers = useEventHandlers();
 
     const onEvent = channels.private.useCallback(
-        (message) => {
+        ({ data: message, name, connectionId }) => {
             const utils = handlers.utils;
-            const isSelf = ably.connection.id === message.connectionId;
+            const isSelf = ably.connection.id === connectionId;
 
-            if (message.name === "group_created" && !isSelf) {
-                return handlers.createGroup(message.data);
+            if (name === "group_created" && !isSelf) {
+                return handlers.createGroup(message);
             }
 
-            if (message.name === "group_updated" && !isSelf) {
-                return handlers.updateGroup(message.data);
+            if (name === "group_updated" && !isSelf) {
+                return handlers.updateGroup(message);
             }
 
-            if (message.name === "group_deleted" && !isSelf) {
+            if (name === "group_deleted" && !isSelf) {
                 const active =
                     Router.asPath.startsWith("/chat/") &&
-                    getGroupQuery(Router).groupId === message.data.id;
+                    getGroupQuery(Router).groupId === message.id;
 
                 if (active) {
                     Router.push("/home");
                 }
 
-                return handlers.deleteGroup(message.data.id);
+                return handlers.deleteGroup(message.id);
             }
 
-            if (message.name === "message_sent" && data != null) {
+            if (name === "message_sent" && data != null) {
                 const user =
-                    message.data.author_id === data.user.id
-                        ? message.data.receiver_id
-                        : message.data.author_id;
+                    message.author_id === data.user.id
+                        ? message.receiver_id
+                        : message.author_id;
+                const self = message.author_id === data!!.user.id;
                 const variables = getDMVariables(user);
                 const active =
                     Router.asPath.startsWith("/dm/") &&
                     (Router.query as DMParams).user === user;
 
-                if (active) {
+                if (active || self) {
                     utils.dm.checkout.setData(
                         { userId: user },
-                        { last_read: message.data.timestamp }
+                        { last_read: message.timestamp }
                     );
+                    updateChannel(utils, data.user.id, message, 0);
+                } else {
+                    updateChannel(utils, data.user.id, message, 1);
                 }
 
-                if (active && message.data.author_id !== data!!.user.id) {
+                if (active && !self) {
                     utils.client.dm.read.mutate({
                         userId: user,
                     });
                 }
 
-                if (
-                    message.data.nonce != null &&
-                    removeNonce(message.data.nonce)
-                ) {
+                if (message.nonce != null && removeNonce(message.nonce)) {
                     useDirectMessage
                         .getState()
-                        .removeSending(user, message.data.nonce);
+                        .removeSending(user, message.nonce);
                 }
 
-                updateChannel(utils, data.user.id, message.data);
                 return utils.dm.messages.setInfiniteData(variables, (prev) => {
                     if (prev == null) return prev;
 
                     return {
                         ...prev,
-                        pages: [...prev.pages, [message.data]],
+                        pages: [...prev.pages, [message]],
                     };
                 });
             }
@@ -105,7 +105,8 @@ export function PrivateEventManager() {
 function updateChannel(
     utils: CreateReactUtilsProxy<AppRouter, unknown>,
     selfId: string,
-    message: Serialize<DirectMessageWithReceiver>
+    message: Serialize<DirectMessageWithReceiver>,
+    count: number
 ) {
     const [user, self] =
         message.receiver.id === selfId
@@ -123,7 +124,7 @@ function updateChannel(
                     return {
                         ...dm,
                         last_message: message.content,
-                        unread_messages: dm.unread_messages + 1,
+                        unread_messages: dm.unread_messages + count,
                     };
                 }
 
@@ -140,7 +141,7 @@ function updateChannel(
                 receiver_id: user.id,
                 receiver: user,
                 last_message: message.content,
-                unread_messages: 1,
+                unread_messages: count,
                 last_read: JSON.stringify(timestamp),
             },
             ...channels,
