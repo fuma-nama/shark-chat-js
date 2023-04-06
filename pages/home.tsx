@@ -14,8 +14,25 @@ import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import { GroupWithNotifications } from "@/server/schema/group";
 import { badge } from "@/components/system/badge";
+import { Spinner } from "@/components/system/spinner";
+import { text } from "@/components/system/text";
 
 const Home: NextPageWithLayout = () => {
+    const { status } = useSession();
+    const dmQuery = trpc.dm.channels.useQuery(undefined, {
+        enabled: status === "authenticated",
+        staleTime: Infinity,
+    });
+    const groups = trpc.group.all.useQuery(undefined, {
+        enabled: status === "authenticated",
+        staleTime: Infinity,
+    });
+
+    const onRetry = () => {
+        dmQuery.refetch();
+        groups.refetch();
+    };
+
     return (
         <>
             <h1 className="text-4xl font-bold">Recent Chat</h1>
@@ -27,44 +44,38 @@ const Home: NextPageWithLayout = () => {
                     <Button>Join Group</Button>
                 </JoinGroupModal>
             </div>
-            <RecentChats />
-            <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
-            <Groups />
+
+            {dmQuery.isLoading || groups.isLoading ? (
+                <div className="m-auto">
+                    <Spinner size="large" />
+                </div>
+            ) : dmQuery.isError || groups.isError ? (
+                <div className="m-auto flex flex-col gap-3">
+                    <h2 className={text({ size: "lg", type: "primary" })}>
+                        Failed to fetch info
+                    </h2>
+                    <Button color="danger" size="medium" onClick={onRetry}>
+                        Retry
+                    </Button>
+                </div>
+            ) : (
+                <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
+                        {dmQuery.data.map((chat) => (
+                            <ChatItem key={chat.receiver_id} chat={chat} />
+                        ))}
+                    </div>
+                    <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
+                        {groups.data.map((group) => (
+                            <GroupItem key={group.id} group={group} />
+                        ))}
+                    </div>
+                </>
+            )}
         </>
     );
 };
-
-function RecentChats() {
-    const { status } = useSession();
-    const query = trpc.dm.channels.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
-    });
-
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
-            {query.data?.map((chat) => (
-                <ChatItem key={chat.receiver_id} chat={chat} />
-            ))}
-        </div>
-    );
-}
-
-function Groups() {
-    const { status } = useSession();
-    const groups = trpc.group.all.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
-    });
-
-    return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
-            {groups.data?.map((group) => (
-                <GroupItem key={group.id} group={group} />
-            ))}
-        </div>
-    );
-}
 
 function GroupItem({ group }: { group: GroupWithNotifications }) {
     return (

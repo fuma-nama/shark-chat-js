@@ -136,10 +136,6 @@ type RootProps = {
     onDelete: () => void;
     canEdit: boolean;
     canDelete: boolean;
-
-    user: Serialize<MessageType["author"]>;
-    timestamp: string | Date | number;
-    children: ReactNode;
 };
 
 export function Root({
