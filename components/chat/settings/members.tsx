@@ -22,14 +22,28 @@ export default function Members({
 
     return (
         <div className="flex flex-col gap-3">
-            {query.data?.map((member) => (
-                <MemberItem
-                    key={member.user_id}
-                    member={member}
-                    canKick={isAdmin && member.user_id !== data?.user.id}
-                />
-            ))}
+            {query.isLoading ? (
+                <Skeleton />
+            ) : (
+                query.data?.map((member) => (
+                    <MemberItem
+                        key={member.user_id}
+                        member={member}
+                        canKick={isAdmin && member.user_id !== data?.user.id}
+                    />
+                ))
+            )}
         </div>
+    );
+}
+
+function Skeleton() {
+    return (
+        <>
+            <div className="h-[44px] rounded-md bg-dark-800" />
+            <div className="h-[44px] rounded-md bg-dark-800" />
+            <div className="h-[44px] rounded-md bg-dark-800" />
+        </>
     );
 }
 
