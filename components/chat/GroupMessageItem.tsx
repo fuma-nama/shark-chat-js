@@ -1,6 +1,5 @@
 import { MessageType } from "@/server/schema/chat";
 import { trpc } from "@/utils/trpc";
-import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
 import { Serialize } from "@/utils/types";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -14,7 +13,17 @@ export function GroupMessageItem({
 }) {
     const { status, data } = useSession();
     const [editing, setEditing] = useState(false);
-    const isAdmin = useIsGroupAdmin({ groupId: message.group_id });
+    const query = trpc.group.info.useQuery(
+        { groupId: message.group_id },
+        { enabled: status === "authenticated", staleTime: Infinity }
+    );
+
+    const isAuthor =
+        status === "authenticated" && message.author_id === data.user.id;
+    const isAdmin =
+        query.status === "success" &&
+        status === "authenticated" &&
+        query.data.owner_id === data.user.id;
 
     const deleteMutation = trpc.chat.delete.useMutation();
     const editMutation = trpc.chat.update.useMutation({
@@ -42,10 +51,8 @@ export function GroupMessageItem({
             user={message.author}
             timestamp={message.timestamp}
             isEditing={editing}
-            canEdit={
-                status === "authenticated" && message.author_id == data.user.id
-            }
-            canDelete={!isAdmin.loading && isAdmin.value}
+            canEdit={isAuthor}
+            canDelete={isAdmin || isAuthor}
             onCopy={() => navigator.clipboard.writeText(message.content)}
             onEditChange={setEditing}
             onDelete={onDelete}
