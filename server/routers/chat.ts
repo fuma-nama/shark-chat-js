@@ -216,21 +216,26 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            await checkIsMemberOf(input.groupId, ctx.session);
-            const user = await prisma.user.findUnique({
+            const member = await prisma.member.findUnique({
+                select: {
+                    user: true,
+                },
                 where: {
-                    id: ctx.session.user.id,
+                    group_id_user_id: {
+                        group_id: input.groupId,
+                        user_id: ctx.session.user.id,
+                    },
                 },
             });
 
-            if (user == null)
+            if (member == null)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "User not found",
                 });
 
             await channels.chat.typing.publish([input.groupId], {
-                user,
+                user: member.user,
             });
         }),
 });

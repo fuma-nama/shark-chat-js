@@ -46,7 +46,7 @@ const DMPage: NextPageWithLayout = () => {
     const pages = query.data?.pages;
     const { scrollToBottom, sentryRef } = useChatView({
         hasNextPage: query.hasPreviousPage ?? true,
-        onLoadMore: () => query.fetchPreviousPage(),
+        onLoadMore: () => query.isSuccess && query.fetchPreviousPage(),
         disabled: query.isLoading,
         loading: query.isFetchingPreviousPage,
     });

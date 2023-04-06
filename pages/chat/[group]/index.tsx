@@ -14,7 +14,7 @@ import {
 } from "@/components/chat/Sendbar";
 import { Spinner } from "@/components/system/spinner";
 import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
-import { button } from "@/components/system/button";
+import { Button, button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
 import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
@@ -46,7 +46,7 @@ const GroupChat: NextPageWithLayout = () => {
     const pages = query.data?.pages;
     const { scrollToBottom, sentryRef } = useChatView({
         hasNextPage: query.hasPreviousPage ?? true,
-        onLoadMore: () => query.fetchPreviousPage(),
+        onLoadMore: () => query.isSuccess && query.fetchPreviousPage(),
         disabled: query.isLoading,
         loading: query.isFetchingPreviousPage,
     });
@@ -61,6 +61,13 @@ const GroupChat: NextPageWithLayout = () => {
                 <div ref={sentryRef} className="flex flex-col m-auto">
                     <Spinner size="large" />
                 </div>
+            ) : query.isError ? (
+                <>
+                    <p>{query.error.message}</p>
+                    <Button color="danger" onClick={() => query.refetch()}>
+                        Retry
+                    </Button>
+                </>
             ) : (
                 <Welcome />
             )}
