@@ -2,7 +2,6 @@ import { useGroupLayout } from "@/components/layout/group";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useRouter } from "next/router";
 import Info from "@/components/chat/settings/info";
-import { useIsGroupAdmin } from "@/utils/trpc/is-group-admin";
 import { Spinner } from "@/components/system/spinner";
 import { getGroupQuery } from "@/utils/variables";
 import { Tabs, TabsContent } from "@/components/system/tabs";
@@ -10,27 +9,32 @@ import dynamic from "next/dynamic";
 import { LeaveGroup } from "@/components/chat/settings/danger";
 import Members from "@/components/chat/settings/members";
 import { text } from "@/components/system/text";
+import { trpc } from "@/utils/trpc";
+import { useSession } from "next-auth/react";
 
 const Invite = dynamic(() => import("@/components/chat/settings/invite"));
 const Danger = dynamic(() => import("@/components/chat/settings/danger"));
 
 const Settings: NextPageWithLayout = () => {
-    const router = useRouter();
-    const { groupId, isReady } = getGroupQuery(router);
-    const isAdmin = useIsGroupAdmin({ groupId });
+    const { groupId } = getGroupQuery(useRouter());
+    const { status, data } = useSession();
+    const query = trpc.group.info.useQuery(
+        { groupId },
+        { enabled: status === "authenticated" }
+    );
+    const isAdmin =
+        query.status === "success" && query.data.owner_id === data!!.user.id;
 
     return (
-        <div className="flex flex-col gap-10 max-w-3xl">
-            {isAdmin.loading ? (
-                <Spinner size="large" />
+        <div className="flex flex-col gap-10 max-w-3xl min-h-full">
+            {query.isLoading || query.isError ? (
+                <div className="m-auto">
+                    <Spinner size="large" />
+                </div>
             ) : (
                 <>
-                    <Info
-                        group={groupId}
-                        isAdmin={isAdmin.value}
-                        isReady={isReady}
-                    />
-                    {isAdmin.value && (
+                    <Info group={query.data} isAdmin={isAdmin} />
+                    {isAdmin && (
                         <Tabs
                             defaultValue="invite"
                             items={[
@@ -40,7 +44,7 @@ const Settings: NextPageWithLayout = () => {
                             ]}
                         >
                             <TabsContent value="invite" className="mt-5">
-                                <Invite group={groupId} />
+                                <Invite group={query.data} />
                             </TabsContent>
                             <TabsContent value="member" className="mt-5">
                                 <Members group={groupId} isAdmin />
@@ -50,7 +54,7 @@ const Settings: NextPageWithLayout = () => {
                             </TabsContent>
                         </Tabs>
                     )}
-                    {!isAdmin.value && (
+                    {!isAdmin && (
                         <>
                             <div>
                                 <h2

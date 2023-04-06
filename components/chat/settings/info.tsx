@@ -4,7 +4,6 @@ import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { label, text } from "@/components/system/text";
 import { groupIcon } from "@/utils/media/format";
-import { trpc } from "@/utils/trpc";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
 import { Group } from "@prisma/client";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
@@ -19,31 +18,15 @@ import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 export default function Info({
     group,
     isAdmin,
-    isReady,
 }: {
-    group: number;
+    group: Group;
     isAdmin: boolean;
-    isReady: boolean;
 }) {
-    const query = trpc.group.info.useQuery(
-        { groupId: group },
-        { enabled: isReady }
-    );
     const [edit, setEdit] = useState(false);
 
-    if (query.data == null) {
-        return <></>;
-    }
-
     if (edit)
-        return (
-            <EditGroupPanel
-                group={query.data}
-                onCancel={() => setEdit(false)}
-            />
-        );
+        return <EditGroupPanel group={group} onCancel={() => setEdit(false)} />;
 
-    const info = query.data;
     return (
         <div className="flex flex-col">
             <div className="h-auto aspect-[3/1] xl:rounded-lg bg-brand-500 dark:bg-brand-400 -mx-4" />
@@ -53,11 +36,11 @@ export default function Info({
                         border="wide"
                         size="xlarge"
                         src={
-                            info.icon_hash != null
-                                ? groupIcon.url([group], info.icon_hash)
+                            group.icon_hash != null
+                                ? groupIcon.url([group.id], group.icon_hash)
                                 : null
                         }
-                        fallback={info.name}
+                        fallback={group.name}
                     />
                     {isAdmin && (
                         <div className="flex flex-row gap-3">
@@ -72,10 +55,10 @@ export default function Info({
                 </div>
 
                 <div>
-                    <h2 className="text-2xl font-bold">{info.name}</h2>
-                    {info.unique_name != null && (
+                    <h2 className="text-2xl font-bold">{group.name}</h2>
+                    {group.unique_name != null && (
                         <p className={text({ size: "sm", type: "secondary" })}>
-                            @{info.unique_name}
+                            @{group.unique_name}
                         </p>
                     )}
                 </div>

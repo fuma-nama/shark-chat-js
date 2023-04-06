@@ -33,18 +33,33 @@ export const groupRouter = router({
             getGroupWithNotifications(ctx.session.user.id)
         );
     }),
-    info: procedure
+    info: protectedProcedure
         .input(
             z.object({
                 groupId: z.number(),
             })
         )
-        .query(async ({ input }) => {
-            return await prisma.group.findUnique({
+        .query(async ({ input, ctx }) => {
+            const member = await prisma.member.findUnique({
+                select: {
+                    group: true,
+                },
                 where: {
-                    id: input.groupId,
+                    group_id_user_id: {
+                        group_id: input.groupId,
+                        user_id: ctx.session.user.id,
+                    },
                 },
             });
+
+            if (member == null) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "You aren't the member of this group yet",
+                });
+            }
+
+            return member.group;
         }),
     join: protectedProcedure
         .input(

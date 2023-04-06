@@ -3,21 +3,19 @@ import { Button, IconButton } from "@/components/system/button";
 import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
 import { useCopyText } from "@/utils/use-copy-text";
-import { GroupInvite } from "@prisma/client";
+import { Group, GroupInvite } from "@prisma/client";
 import { CheckIcon, CopyIcon, TrashIcon } from "@radix-ui/react-icons";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useSession } from "next-auth/react";
 import { Switch } from "@/components/system/switch";
-import { Spinner } from "@/components/system/spinner";
 
-export default function Invite({ group }: { group: number }) {
+export default function Invite({ group }: { group: Group }) {
     const { status } = useSession();
     const utils = trpc.useContext();
 
-    const groupQuery = trpc.group.info.useQuery({ groupId: group });
     const invitesQuery = trpc.group.invite.get.useQuery(
         {
-            groupId: group,
+            groupId: group.id,
         },
         { enabled: status === "authenticated" }
     );
@@ -36,13 +34,12 @@ export default function Invite({ group }: { group: number }) {
 
     const onSetPublic = (v: boolean) => {
         updateMutation.mutate({
-            groupId: group,
+            groupId: group.id,
             public: v,
         });
     };
 
     const invites = invitesQuery.data;
-    const groupData = groupQuery.data;
     return (
         <div className="flex flex-col gap-3">
             <div className="flex flex-row gap-3 justify-between">
@@ -54,16 +51,12 @@ export default function Invite({ group }: { group: number }) {
                         Anyone can join your server without an invite
                     </p>
                 </label>
-                {groupData == null ? (
-                    <Spinner size="small" />
-                ) : (
-                    <Switch
-                        id="public"
-                        checked={groupData.public}
-                        onCheckedChange={onSetPublic}
-                        disabled={updateMutation.isLoading}
-                    />
-                )}
+                <Switch
+                    id="public"
+                    checked={group.public}
+                    onCheckedChange={onSetPublic}
+                    disabled={updateMutation.isLoading}
+                />
             </div>
             <div className="mt-3">
                 <h3 className={text({ size: "md", type: "primary" })}>
@@ -81,7 +74,7 @@ export default function Invite({ group }: { group: number }) {
                         isLoading={createMutation.isLoading}
                         onClick={() =>
                             createMutation.mutate({
-                                groupId: group,
+                                groupId: group.id,
                                 once: false,
                             })
                         }

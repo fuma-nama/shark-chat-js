@@ -1,15 +1,24 @@
 import { getGroupQuery } from "@/utils/variables";
 import { groupIcon } from "@/utils/media/format";
 import { trpc } from "@/utils/trpc";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import { ComponentProps } from "react";
 import { Avatar } from "../system/avatar";
 import { AppLayout } from "./app";
+import { useSession } from "next-auth/react";
 
-function GroupItem({ group, ready }: { group: number; ready: boolean }) {
+function GroupItem({ group }: { group: number }) {
+    const { status } = useSession();
     const info = trpc.group.info.useQuery(
         { groupId: group },
-        { enabled: ready }
+        {
+            enabled: status === "authenticated",
+            onError(err) {
+                if (err.data?.code === "NOT_FOUND") {
+                    Router.push("/");
+                }
+            },
+        }
     );
 
     if (info.data == null) {
@@ -46,7 +55,7 @@ export function useGroupLayout(
             {...props}
             breadcrumb={[
                 {
-                    text: <GroupItem group={groupId} ready={isReady} />,
+                    text: <GroupItem group={groupId} />,
                     href: `/chat/${groupId}`,
                 },
                 ...(props.breadcrumb ?? []),
