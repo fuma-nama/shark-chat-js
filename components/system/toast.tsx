@@ -12,11 +12,15 @@ export const toast = tv({
             "dark:shadow-none",
             "radix-state-open:animate-zoom-in",
         ],
+        heading: text({ type: "primary", size: "lg" }),
+        body: text({ type: "secondary" }),
     },
     variants: {
         color: {
             red: {
-                root: "border-[1px] border-red-500",
+                root: "border-[1px] border-red-500 bg-red-500 dark:bg-red-500",
+                heading: "!text-white",
+                body: "!text-white",
             },
             normal: {
                 root: "dark:border-2 dark:border-dark-600",
@@ -71,10 +75,8 @@ export function Toast({
 
     return (
         <Base.Root {...rest} className={styles.root()}>
-            <Base.Title className={text({ type: "primary", size: "lg" })}>
-                {title}
-            </Base.Title>
-            <Base.Description className={text({ type: "secondary" })}>
+            <Base.Title className={styles.heading()}>{title}</Base.Title>
+            <Base.Description className={styles.body()}>
                 {description}
             </Base.Description>
             <Base.ToastClose

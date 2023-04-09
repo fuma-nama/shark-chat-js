@@ -5,7 +5,7 @@ export function BaseLayout({ children }: { children: ReactNode }) {
     return (
         <>
             <Head>
-                <title>Shark Chat | Login</title>
+                <title>Shark Chat</title>
                 <meta name="description" content="A Simple chat app" />
                 <meta
                     name="viewport"
