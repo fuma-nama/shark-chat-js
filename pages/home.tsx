@@ -16,6 +16,7 @@ import { GroupWithNotifications } from "@/server/schema/group";
 import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
 import { text } from "@/components/system/text";
+import { BoxModelIcon } from "@radix-ui/react-icons";
 
 const Home: NextPageWithLayout = () => {
     const { status } = useSession();
@@ -66,11 +67,15 @@ const Home: NextPageWithLayout = () => {
                         ))}
                     </div>
                     <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
-                        {groups.data.map((group) => (
-                            <GroupItem key={group.id} group={group} />
-                        ))}
-                    </div>
+                    {groups.data.length === 0 ? (
+                        <Placeholder />
+                    ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
+                            {groups.data.map((group) => (
+                                <GroupItem key={group.id} group={group} />
+                            ))}
+                        </div>
+                    )}
                 </>
             )}
         </>
@@ -128,6 +133,20 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
                 <p className={badge()}>{chat.unread_messages}</p>
             )}
         </Link>
+    );
+}
+
+function Placeholder() {
+    return (
+        <div className="flex flex-col items-center justify-center my-auto">
+            <BoxModelIcon className="w-20 h-20 text-brand-500 dark:text-brand-400 max-md:hidden" />
+            <p className={text({ size: "md", type: "primary" })}>
+                Nothing here
+            </p>
+            <p className={text({ size: "sm", type: "secondary" })}>
+                Try to find someone chat with you?
+            </p>
+        </div>
     );
 }
 
