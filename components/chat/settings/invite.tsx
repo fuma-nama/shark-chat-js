@@ -108,7 +108,11 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
             <Button
                 aria-label="copy"
                 isLoading={copy.isLoading}
-                onClick={() => copy.copy(invite.code)}
+                onClick={() =>
+                    copy.copy(
+                        `https://shark-chat.vercel.app/invite/${invite.code}`
+                    )
+                }
             >
                 {copy.isShow ? <CheckIcon /> : <CopyIcon />}
             </Button>

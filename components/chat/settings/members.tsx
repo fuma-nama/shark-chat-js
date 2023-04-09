@@ -40,9 +40,9 @@ export default function Members({
 function Skeleton() {
     return (
         <>
-            <div className="h-[44px] rounded-md bg-dark-800" />
-            <div className="h-[44px] rounded-md bg-dark-800" />
-            <div className="h-[44px] rounded-md bg-dark-800" />
+            <div className="h-[44px] rounded-md bg-light-200 dark:bg-dark-800" />
+            <div className="h-[44px] rounded-md bg-light-200 dark:bg-dark-800" />
+            <div className="h-[44px] rounded-md bg-light-200 dark:bg-dark-800" />
         </>
     );
 }
