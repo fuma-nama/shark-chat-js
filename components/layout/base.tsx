@@ -1,12 +1,22 @@
 import Head from "next/head";
 import { ReactNode } from "react";
 
-export function BaseLayout({ children }: { children: ReactNode }) {
+export function BaseLayout({
+    customMeta,
+    children,
+}: {
+    children: ReactNode;
+    customMeta?: boolean;
+}) {
     return (
         <>
             <Head>
-                <title>Shark Chat</title>
-                <meta name="description" content="A Simple chat app" />
+                {!customMeta && (
+                    <>
+                        <title>Shark Chat</title>
+                        <meta name="description" content="A Simple chat app" />
+                    </>
+                )}
                 <meta
                     name="viewport"
                     content="width=device-width, initial-scale=1"

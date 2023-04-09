@@ -10,6 +10,7 @@ import { Button } from "@/components/system/button";
 import { useMutationHandlers } from "@/utils/handlers/trpc";
 import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
+import Head from "next/head";
 
 type Props = {
     group: Group;
@@ -36,6 +37,13 @@ const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
 
     return (
         <div className="m-auto bg-light-100 dark:bg-dark-800 rounded-xl p-6 w-full max-w-md flex flex-col gap-3 items-center">
+            <Head>
+                <title>Invite to {group.name}</title>
+                <meta
+                    name="description"
+                    content={`Join @${group.unique_name} on Shark Chat`}
+                />
+            </Head>
             <Avatar
                 src={
                     group.icon_hash != null
@@ -68,7 +76,7 @@ const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
     );
 };
 
-InvitePage.useLayout = (c) => <BaseLayout>{c}</BaseLayout>;
+InvitePage.useLayout = (c) => <BaseLayout customMeta>{c}</BaseLayout>;
 
 export const getServerSideProps: GetServerSideProps<Props | {}> = async ({
     query,
@@ -118,4 +126,5 @@ export const getServerSideProps: GetServerSideProps<Props | {}> = async ({
         notFound: true,
     };
 };
+
 export default InvitePage;
