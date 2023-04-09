@@ -29,7 +29,7 @@ export type DialogProps = Pick<
     VariantProps<typeof dialog> & {
         title: string;
         description: string;
-        trigger: ReactNode;
+        trigger?: ReactNode;
         children: ReactNode;
     };
 
@@ -44,7 +44,11 @@ export function Dialog({
 
     return (
         <DialogPrimitive.Root {...props}>
-            <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
+            {trigger != null && (
+                <DialogPrimitive.Trigger asChild>
+                    {trigger}
+                </DialogPrimitive.Trigger>
+            )}
             <DialogPrimitive.Portal>
                 <DialogPrimitive.Overlay className={styles.overlay()}>
                     <DialogPrimitive.Content className={styles.content()}>

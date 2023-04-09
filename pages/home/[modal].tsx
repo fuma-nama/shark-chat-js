@@ -1,12 +1,11 @@
 import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { AppLayout } from "@/components/layout/app";
-import { CreateGroupModal } from "@/components/modal/CreateGroupModal";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "@/utils/media/format";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { NextPageWithLayout } from "./_app";
+import { NextPageWithLayout } from "../_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
@@ -17,8 +16,21 @@ import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
 import { text } from "@/components/system/text";
 import { BoxModelIcon } from "@radix-ui/react-icons";
+import Router from "next/router";
+import dynamic from "next/dynamic";
+import { GetStaticPaths, GetStaticProps } from "next";
 
-const Home: NextPageWithLayout = () => {
+const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
+const CreateGroupModal = dynamic(
+    () => import("@/components/modal/CreateGroupModal")
+);
+
+type Query = Pick<Props, "modal">;
+type Props = {
+    modal?: "create-group" | "new";
+};
+
+const Home: NextPageWithLayout<Props> = ({ modal }) => {
     const { status } = useSession();
     const dmQuery = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
@@ -36,11 +48,20 @@ const Home: NextPageWithLayout = () => {
 
     return (
         <>
+            {modal === "create-group" && (
+                <CreateGroupModal
+                    open
+                    setOpen={(open) => {
+                        Router.push(open ? "/home/create-group" : "/home");
+                    }}
+                />
+            )}
+            {modal === "new" && <BoardingModal />}
             <h1 className="text-4xl font-bold">Recent Chat</h1>
             <div className="flex flex-row gap-3 mt-3">
-                <CreateGroupModal>
+                <Link href="/home/create-group">
                     <Button color="primary">Create Group</Button>
-                </CreateGroupModal>
+                </Link>
                 <JoinGroupModal>
                     <Button>Join Group</Button>
                 </JoinGroupModal>
@@ -152,6 +173,12 @@ function Placeholder() {
 
 Home.useLayout = (children) => (
     <AppLayout
+        breadcrumb={[
+            {
+                href: "/home",
+                text: "Home",
+            },
+        ]}
         items={
             <div className="max-sm:hidden flex flex-row gap-3">
                 <ThemeSwitch />
@@ -161,5 +188,25 @@ Home.useLayout = (children) => (
         {children}
     </AppLayout>
 );
+
+export const getStaticPaths: GetStaticPaths<Query> = () => {
+    return {
+        paths: [
+            { params: { modal: "create-group" } },
+            { params: { modal: "new" } },
+        ],
+        fallback: false,
+    };
+};
+
+export const getStaticProps: GetStaticProps<Props, Query> = async ({
+    params,
+}) => {
+    return {
+        props: {
+            modal: params?.modal,
+        },
+    };
+};
 
 export default Home;
