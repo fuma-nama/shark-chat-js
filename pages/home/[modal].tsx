@@ -16,21 +16,16 @@ import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
 import { text } from "@/components/system/text";
 import { BoxModelIcon } from "@radix-ui/react-icons";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import dynamic from "next/dynamic";
-import { GetStaticPaths, GetStaticProps } from "next";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
     () => import("@/components/modal/CreateGroupModal")
 );
 
-type Query = Pick<Props, "modal">;
-type Props = {
-    modal?: "create-group" | "new";
-};
-
-const Home: NextPageWithLayout<Props> = ({ modal }) => {
+const Home: NextPageWithLayout = () => {
+    const query = useRouter().query as { modal?: string };
     const { status } = useSession();
     const dmQuery = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
@@ -48,7 +43,7 @@ const Home: NextPageWithLayout<Props> = ({ modal }) => {
 
     return (
         <>
-            {modal === "create-group" && (
+            {query.modal === "create-group" && (
                 <CreateGroupModal
                     open
                     setOpen={(open) => {
@@ -56,7 +51,7 @@ const Home: NextPageWithLayout<Props> = ({ modal }) => {
                     }}
                 />
             )}
-            {modal === "new" && <BoardingModal />}
+            {query.modal === "new" && <BoardingModal />}
             <h1 className="text-4xl font-bold">Recent Chat</h1>
             <div className="flex flex-row gap-3 mt-3">
                 <Link href="/home/create-group">
@@ -188,25 +183,5 @@ Home.useLayout = (children) => (
         {children}
     </AppLayout>
 );
-
-export const getStaticPaths: GetStaticPaths<Query> = () => {
-    return {
-        paths: [
-            { params: { modal: "create-group" } },
-            { params: { modal: "new" } },
-        ],
-        fallback: false,
-    };
-};
-
-export const getStaticProps: GetStaticProps<Props, Query> = async ({
-    params,
-}) => {
-    return {
-        props: {
-            modal: params?.modal,
-        },
-    };
-};
 
 export default Home;
