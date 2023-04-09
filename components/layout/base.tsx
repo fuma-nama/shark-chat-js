@@ -23,7 +23,7 @@ export function BaseLayout({
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className="flex flex-col min-h-screen text-accent-900 dark:text-accent-50 bg-gradient-to-br from-brand-400 to-brand-500 p-4">
+            <main className="flex flex-col min-h-full text-accent-900 dark:text-accent-50 bg-gradient-to-br from-brand-400 to-brand-500 p-4">
                 {children}
             </main>
         </>
