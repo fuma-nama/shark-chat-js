@@ -13,7 +13,7 @@ export function BaseLayout({ children }: { children: ReactNode }) {
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className="flex flex-col min-h-screen text-accent-900 dark:text-accent-50 bg-light-100 dark:bg-dark-900 p-4">
+            <main className="flex flex-col min-h-screen text-accent-900 dark:text-accent-50 bg-gradient-to-br from-brand-400 to-brand-500 p-4">
                 {children}
             </main>
         </>
