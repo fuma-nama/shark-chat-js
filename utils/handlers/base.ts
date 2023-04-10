@@ -4,6 +4,8 @@ import type { Group } from "@prisma/client";
 import type { Serialize } from "../types";
 import type { GroupWithNotifications } from "@/server/schema/group";
 import type { MessageType } from "@/server/schema/chat";
+import Router from "next/router";
+import { getGroupQuery } from "../variables";
 
 export function useEventHandlers() {
     const utils = trpc.useContext();
@@ -33,6 +35,14 @@ export function useEventHandlers() {
                 );
             },
             deleteGroup: (groupId: number) => {
+                const active =
+                    Router.asPath.startsWith("/chat/") &&
+                    getGroupQuery(Router).groupId === groupId;
+
+                if (active) {
+                    Router.push("/home");
+                }
+
                 utils.group.all.setData(undefined, (groups) =>
                     groups?.filter((g) => g.id !== groupId)
                 );

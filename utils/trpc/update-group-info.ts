@@ -11,28 +11,23 @@ export function useUpdateGroupInfoMutation() {
     const handlers = useMutationHandlers();
     const client = handlers.utils.client;
 
-    return useMutation(
-        async ({ icon, ...rest }: Input) => {
-            let icon_hash: number | undefined;
+    return useMutation(async ({ icon, ...rest }: Input) => {
+        let icon_hash: number | undefined;
 
-            if (icon != null) {
-                const uploaded = await upload(
-                    () =>
-                        client.upload.signGroupIcon.query({
-                            groupId: rest.groupId,
-                        }),
-                    icon
-                );
-                icon_hash = uploaded.version;
-            }
-
-            return client.group.update.mutate({
-                ...rest,
-                icon_hash,
-            });
-        },
-        {
-            onSuccess: (data) => handlers.updateGroup(data),
+        if (icon != null) {
+            const uploaded = await upload(
+                () =>
+                    client.upload.signGroupIcon.query({
+                        groupId: rest.groupId,
+                    }),
+                icon
+            );
+            icon_hash = uploaded.version;
         }
-    );
+
+        return client.group.update.mutate({
+            ...rest,
+            icon_hash,
+        });
+    });
 }

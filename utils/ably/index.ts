@@ -34,9 +34,8 @@ export const channels = a.channels({
      * Private channel for per user
      */
     private: a.channel(([clientId]: [clientId: string]) => [clientId], {
-        group_updated: a.event(groupSchema),
         group_created: a.event(groupSchema),
-        group_deleted: a.event(groupSchema.pick({ id: true })),
+        group_removed: a.event(groupSchema.pick({ id: true })),
         message_sent: a.event(
             z.custom<DirectMessageWithReceiver & { nonce?: number }>()
         ),
@@ -73,5 +72,7 @@ export const channels = a.channels({
         message_deleted: a.event(
             z.custom<Pick<MessageType, "id" | "group_id">>()
         ),
+        group_updated: a.event(groupSchema),
+        group_deleted: a.event(groupSchema.pick({ id: true })),
     }),
 });

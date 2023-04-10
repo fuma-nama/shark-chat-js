@@ -22,6 +22,14 @@ export function MessageEventManager() {
         ({ name, data: message }) => {
             if (name === "typing") return;
 
+            if (name === "group_deleted") {
+                return handlers.deleteGroup(message.id);
+            }
+
+            if (name === "group_updated") {
+                return handlers.updateGroup(message);
+            }
+
             const variables = getMessageVariables(message.group_id);
             const active =
                 Router.asPath.startsWith("/chat/") &&

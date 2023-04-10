@@ -55,7 +55,7 @@ export const membersRouter = router({
                 },
             });
 
-            await channels.private.group_deleted.publish([input.userId], {
+            await channels.private.group_removed.publish([input.userId], {
                 id: input.groupId,
             });
         }),

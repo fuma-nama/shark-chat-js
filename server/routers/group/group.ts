@@ -10,6 +10,7 @@ import {
     updateGroupSchema,
 } from "../../schema/group";
 import { membersRouter } from "./members";
+import { channels } from "@/utils/ably";
 
 export const groupRouter = router({
     create: protectedProcedure
@@ -121,7 +122,7 @@ export const groupRouter = router({
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
-            return await prisma.group.update({
+            const updated = await prisma.group.update({
                 where: {
                     id: input.groupId,
                 },
@@ -132,16 +133,24 @@ export const groupRouter = router({
                     public: input.public,
                 },
             });
+
+            await channels.chat.group_updated.publish([input.groupId], updated);
+
+            return updated;
         }),
     delete: protectedProcedure
         .input(z.object({ groupId: z.number() }))
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
-            return await prisma.group.delete({
+            await prisma.group.delete({
                 where: {
                     id: input.groupId,
                 },
+            });
+
+            await channels.chat.group_deleted.publish([input.groupId], {
+                id: input.groupId,
             });
         }),
     leave: protectedProcedure
