@@ -5,6 +5,7 @@ type State = {
     show: boolean;
     timer: NodeJS.Timeout | null;
 };
+
 export function useCopyText(timeout = 1000) {
     const [{ show, timer }, set] = useState<State>({
         show: false,
@@ -37,7 +38,6 @@ export function useCopyText(timeout = 1000) {
 
     return {
         copy: (s: string) => mutation.mutate(s),
-        isLoading: mutation.isLoading,
         isShow: show,
     };
 }

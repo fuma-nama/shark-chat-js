@@ -4,7 +4,12 @@ import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
 import { useCopyText } from "@/utils/use-copy-text";
 import { Group, GroupInvite } from "@prisma/client";
-import { CheckIcon, CopyIcon, TrashIcon } from "@radix-ui/react-icons";
+import {
+    CheckIcon,
+    CopyIcon,
+    Link1Icon,
+    TrashIcon,
+} from "@radix-ui/react-icons";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useSession } from "next-auth/react";
 import { Switch } from "@/components/system/switch";
@@ -48,7 +53,7 @@ export default function Invite({ group }: { group: Group }) {
                         Pubilc
                     </h3>
                     <p className={text({ size: "sm", type: "secondary" })}>
-                        Anyone can join your server without an invite
+                        Anyone can join your group with an invite url
                     </p>
                 </label>
                 <Switch
@@ -58,12 +63,15 @@ export default function Invite({ group }: { group: Group }) {
                     disabled={updateMutation.isLoading}
                 />
             </div>
+            {group.public && (
+                <PublicInviteItem unique_name={group.unique_name} />
+            )}
             <div className="mt-3">
                 <h3 className={text({ size: "md", type: "primary" })}>
                     Private
                 </h3>
                 <p className={text({ size: "sm", type: "secondary" })}>
-                    Only peoples with the invite can join The group
+                    Peoples with the invite code can join your group
                 </p>
                 {invites?.map((invite) => (
                     <PrivateInviteItem key={invite.code} invite={invite} />
@@ -87,8 +95,28 @@ export default function Invite({ group }: { group: Group }) {
     );
 }
 
+function PublicInviteItem({ unique_name }: { unique_name: string }) {
+    const copy = useCopyText();
+    const url = getInviteUrl(`@${unique_name}`);
+
+    return (
+        <div className="flex flex-row gap-3">
+            <input
+                readOnly
+                className={input({ className: "px-4" })}
+                value={url}
+            />
+            <Button aria-label="copy" onClick={() => copy.copy(url)}>
+                {copy.isShow ? <CheckIcon /> : <CopyIcon />}
+            </Button>
+        </div>
+    );
+}
+
 function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
     const copy = useCopyText();
+    const copyLink = useCopyText();
+
     const utils = trpc.useContext();
     const deleteMutation = trpc.group.invite.delete.useMutation({
         onSuccess: (_, { groupId, code }) => {
@@ -105,16 +133,14 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
                 className={input({ className: "px-4" })}
                 value={invite.code}
             />
-            <Button
-                aria-label="copy"
-                isLoading={copy.isLoading}
-                onClick={() =>
-                    copy.copy(
-                        `https://shark-chat.vercel.app/invite/${invite.code}`
-                    )
-                }
-            >
+            <Button aria-label="copy" onClick={() => copy.copy(invite.code)}>
                 {copy.isShow ? <CheckIcon /> : <CopyIcon />}
+            </Button>
+            <Button
+                aria-label="copy link"
+                onClick={() => copyLink.copy(getInviteUrl(invite.code))}
+            >
+                {copyLink.isShow ? <CheckIcon /> : <Link1Icon />}
             </Button>
             <IconButton
                 aria-label="delete"
@@ -132,4 +158,8 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
             </IconButton>
         </div>
     );
+}
+
+function getInviteUrl(code: string) {
+    return `https://shark-chat.vercel.app/invite/${code}`;
 }
