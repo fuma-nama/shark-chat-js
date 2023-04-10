@@ -94,14 +94,14 @@ function Content({ onClose }: { onClose: () => void }) {
                     />
                 </fieldset>
                 <fieldset>
-                    <label htmlFor="firstName" className={label()}>
+                    <label htmlFor="name" className={label()}>
                         Name
                         <span className="text-red-400 mx-1 text-base">*</span>
                     </label>
                     <input
                         id="name"
                         placeholder="My Group"
-                        autoComplete="given-name"
+                        autoComplete="off"
                         className={input()}
                         aria-required
                         {...register("name")}
