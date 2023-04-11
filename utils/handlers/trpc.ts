@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Group } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { channels } from "../ably";
+import { channels } from "../ably/client";
 import { Serialize } from "../types";
 import { useEventHandlers } from "./base";
 

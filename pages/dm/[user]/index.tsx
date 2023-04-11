@@ -16,7 +16,7 @@ import { skeleton } from "@/components/system/skeleton";
 import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
 
 import type { NextPageWithLayout } from "../../_app";
-import { channels } from "@/utils/ably";
+import { channels } from "@/utils/ably/client";
 import {
     DirectMessageQuery,
     getDirectMessageVariables,

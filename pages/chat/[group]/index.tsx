@@ -18,7 +18,7 @@ import { Button, button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
 import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
-import { channels } from "@/utils/ably";
+import { channels } from "@/utils/ably/client";
 import { getGroupQuery, getMessageVariables } from "@/utils/variables";
 import { useGroupMessage } from "@/utils/stores/chat";
 import { LocalMessageItem } from "@/components/chat/LocalMessageItem";

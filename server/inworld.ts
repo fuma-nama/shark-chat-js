@@ -5,7 +5,7 @@ import {
     status,
 } from "@inworld/nodejs-sdk";
 import prisma from "./prisma";
-import { channels } from "@/utils/ably";
+import { channels } from "@/server/ably";
 import { User } from "@prisma/client";
 
 const client = new InworldClient().setApiKey({

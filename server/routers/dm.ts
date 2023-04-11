@@ -3,7 +3,7 @@ import { router } from "../trpc";
 import { z } from "zod";
 import prisma from "../prisma";
 import { TRPCError } from "@trpc/server";
-import { channels } from "@/utils/ably";
+import { channels } from "@/server/ably";
 import { RecentChatType, contentSchema } from "../schema/chat";
 
 const userSelect = {

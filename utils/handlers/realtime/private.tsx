@@ -1,4 +1,4 @@
-import { channels } from "@/utils/ably";
+import { channels } from "@/utils/ably/client";
 import { assertConfiguration } from "@ably-labs/react-hooks";
 import { useSession } from "next-auth/react";
 import { useEventHandlers } from "../base";

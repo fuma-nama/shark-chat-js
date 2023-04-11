@@ -1,23 +1,20 @@
-import { channels } from "@/utils/ably";
+import { schema } from "@/utils/ably/schema";
+import { rest } from "@/utils/ably/builder/rest";
 import Ably, { Types } from "ably";
 
 function connect() {
-    const ably = new Ably.Realtime.Promise({
+    return new Ably.Rest.Promise({
         key: process.env.ABLY_API_KEY,
         //make sure time is sync in development mode
         queryTime: process.env.NODE_ENV === "development",
     });
-
-    ably.connection.on("connected", () => console.log("Connected to Ably!"));
-
-    return ably;
 }
 
 declare global {
-    var dev_ably: Types.RealtimePromise;
+    var dev_ably: Types.RestPromise;
 }
 
-let ably: Types.RealtimePromise;
+let ably: Types.RestPromise;
 
 if (process.env.NODE_ENV === "development") {
     if (global.dev_ably == null) {
@@ -29,5 +26,6 @@ if (process.env.NODE_ENV === "development") {
     ably = connect();
 }
 
-channels.config(ably);
+export const channels = rest(ably, schema);
+
 export default ably;

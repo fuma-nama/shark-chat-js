@@ -1,7 +1,8 @@
+import { realtime } from "./builder/realtime";
 import { configureAbly } from "@ably-labs/react-hooks";
-import { channels } from ".";
 import { useSession } from "next-auth/react";
 import { getBaseUrl } from "../get-base-url";
+import { schema } from "./schema";
 
 const ably = configureAbly({
     authUrl: `${getBaseUrl()}/api/ably/auth`,
@@ -10,8 +11,6 @@ const ably = configureAbly({
 
 ably.connection.on("connected", () => console.log("Ably Client connected"));
 ably.connection.on("closed", () => console.log("Ably Client disconnected"));
-
-channels.config(ably);
 
 export function AblyClientProvider() {
     const { status } = useSession();
@@ -28,3 +27,5 @@ export function AblyClientProvider() {
 
     return <></>;
 }
+
+export const channels = realtime(ably, schema);

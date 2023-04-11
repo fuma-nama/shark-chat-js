@@ -1,6 +1,6 @@
 import prisma from "@/server/prisma";
 import { protectedProcedure, router } from "@/server/trpc";
-import { channels } from "@/utils/ably";
+import { channels } from "@/server/ably";
 import { checkIsMemberOf, checkIsOwnerOf } from "@/utils/trpc/permissions";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";

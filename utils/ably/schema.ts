@@ -6,7 +6,7 @@ import type {
     UserInfo,
 } from "@/server/schema/chat";
 import { z } from "zod";
-import { a } from "./ably-builder";
+import { a } from "./builder";
 
 function dmKey(user1: string, user2: string): [user1: string, user2: string] {
     function getHash(s: string): number {
@@ -29,7 +29,7 @@ function dmKey(user1: string, user2: string): [user1: string, user2: string] {
     }
 }
 
-export const channels = a.channels({
+export const schema = {
     /**
      * Private channel for per user
      */
@@ -75,4 +75,4 @@ export const channels = a.channels({
         group_updated: a.event(groupSchema),
         group_deleted: a.event(groupSchema.pick({ id: true })),
     }),
-});
+};

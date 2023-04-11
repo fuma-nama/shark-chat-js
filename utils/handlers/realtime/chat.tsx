@@ -1,4 +1,4 @@
-import { channels } from "@/utils/ably";
+import { channels } from "@/utils/ably/client";
 import { useChannels } from "@/utils/ably/hooks";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";

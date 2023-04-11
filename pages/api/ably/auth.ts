@@ -1,8 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import type { NextApiRequest, NextApiResponse } from "next";
-import ably from "@/server/ably";
+import ably, { channels } from "@/server/ably";
 import { authOptions } from "../auth/[...nextauth]";
-import { channels } from "@/utils/ably";
 
 export default async function handler(
     req: NextApiRequest,

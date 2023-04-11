@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import prisma from "@/server/prisma";
-import { channels } from "@/utils/ably";
+import { channels } from "@/server/ably";
 import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
 import { contentSchema } from "../schema/chat";

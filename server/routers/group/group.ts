@@ -10,7 +10,7 @@ import {
     updateGroupSchema,
 } from "../../schema/group";
 import { membersRouter } from "./members";
-import { channels } from "@/utils/ably";
+import { channels } from "@/server/ably";
 
 export const groupRouter = router({
     create: protectedProcedure
