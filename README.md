@@ -12,6 +12,7 @@ A Simple Chat app built with Trpc, Tailwind CSS, Ably, Cloudinary, Next 13
 -   Embed Links in Messages
 -   Upload profile images
 -   Show notification when new Message received
+-   Built-in AI Chatbot (Powered by Inworld)
 -   Light & Dark Mode
 -   100% Typescript
 
