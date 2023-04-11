@@ -47,7 +47,10 @@ export async function createInteraction(message: Message) {
             }
 
             if (packet.isText() && packet.text.final) {
-                channels.chat.typing.publish([group_id], { user: bot });
+                if (lines.length === 0) {
+                    channels.chat.typing.publish([group_id], { user: bot });
+                }
+
                 lines.push(packet.text.text.trim());
                 return;
             }
