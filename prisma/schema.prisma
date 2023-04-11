@@ -35,7 +35,7 @@ model AISession {
   group_id Int @id
   session_id String
 
-  group Group @relation(fields: [group_id], references: [id])
+  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
   @@index([group_id])
 }
 
