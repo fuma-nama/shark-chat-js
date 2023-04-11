@@ -35,7 +35,6 @@ export async function createInteraction(message: Message) {
                 emotions: false,
                 interruptions: false,
             },
-            connection: { disconnectTimeout: 5 * 1000 },
         })
         .setScene(process.env.INWORLD_SCENE!)
         .setUser({ fullName: user_name })
