@@ -40,15 +40,15 @@ export async function createInteraction(message: Message) {
         .setUser({ fullName: user_name })
         .setOnError(handleError(message))
         .setOnDisconnect(() => console.error("Disconnected"))
-        .setOnMessage(async (packet) => {
+        .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                console.log(lines.join("\n"));
-                await sendMessage(bot, group_id, lines.join("\n"));
+                sendMessage(bot, group_id, lines.join("\n"));
                 connection.close();
                 return;
             }
 
             if (packet.isText() && packet.text.final) {
+                channels.chat.typing.publish([group_id], { user: bot });
                 lines.push(packet.text.text.trim());
                 return;
             }
@@ -56,10 +56,7 @@ export async function createInteraction(message: Message) {
 
     const connection = client.build();
 
-    await Promise.all([
-        channels.chat.typing.publish([group_id], { user: bot }),
-        connection.sendText(content),
-    ]);
+    await connection.sendText(content);
 }
 
 function handleError(message: Message) {
