@@ -140,6 +140,7 @@ export function TypingStatus({ typing }: { typing: TypingData[] }) {
                 <Avatar
                     key={data.user.id}
                     src={data.user.image}
+                    fallback={data.user.name}
                     size="small"
                     border="wide"
                 />
