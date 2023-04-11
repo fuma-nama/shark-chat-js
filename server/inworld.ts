@@ -42,9 +42,8 @@ export async function createInteraction(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                sendMessage(bot, group_id, lines.join("\n"));
                 connection.close();
-                return;
+                return sendMessage(bot, group_id, lines.join("\n"));
             }
 
             if (packet.isText() && packet.text.final) {
