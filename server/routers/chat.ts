@@ -5,6 +5,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
 import { contentSchema } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
+import { createInteraction } from "../inworld";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -41,6 +42,14 @@ export const chatRouter = router({
                     ctx.session.user.id,
                     message.timestamp
                 );
+
+                if (input.message.startsWith("@Shark")) {
+                    createInteraction({
+                        group_id: message.group_id,
+                        content: message.content.replaceAll("@Shark", ""),
+                        user_name: message.author.name,
+                    });
+                }
 
                 return {
                     ...message,

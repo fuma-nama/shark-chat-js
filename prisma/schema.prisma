@@ -31,6 +31,14 @@ model Account {
   @@index([userId])
 }
 
+model AISession {
+  group_id Int @id
+  session_id String
+
+  group Group @relation(fields: [group_id], references: [id])
+  @@index([group_id])
+}
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -56,6 +64,7 @@ model User {
   received_dms DirectMessage[] @relation(name: "received_dms")
   sent_dm_info DirectMessageChannel[] @relation(name: "sent_dm_info")
   received_dm_info DirectMessageChannel[] @relation(name: "received_dm_info")
+  is_ai Boolean @default(false)
 }
 
 model VerificationToken {
@@ -78,6 +87,7 @@ model Group {
   members Member[]
   messages Message[]
   invites GroupInvite[]
+  ai_session AISession?
 
   @@index([owner_id])
 }
