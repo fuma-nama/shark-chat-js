@@ -39,6 +39,7 @@ export async function createInteraction(message: Message) {
         .setScene(process.env.INWORLD_SCENE!)
         .setUser({ fullName: user_name })
         .setOnError(handleError(message))
+        .setOnDisconnect(() => console.error("Disconnected"))
         .setOnMessage(async (packet) => {
             if (packet.isInteractionEnd()) {
                 console.log(lines.join("\n"));
