@@ -1,10 +1,10 @@
 import { configureAbly } from "@ably-labs/react-hooks";
 import { channels } from ".";
 import { useSession } from "next-auth/react";
+import { getBaseUrl } from "../get-base-url";
 
-const prefix = process.env.API_ROOT || "";
 const ably = configureAbly({
-    authUrl: `${prefix}/api/ably/auth`,
+    authUrl: `${getBaseUrl()}/api/ably/auth`,
     autoConnect: false,
 });
 
