@@ -40,10 +40,11 @@ export async function createInteraction(message: Message) {
         .setScene(process.env.INWORLD_SCENE!)
         .setUser({ fullName: user_name })
         .setOnError(handleError(message))
-        .setOnMessage((packet) => {
+        .setOnMessage(async (packet) => {
             if (packet.isInteractionEnd()) {
+                await sendMessage(bot, group_id, lines.join("\n"));
                 connection.close();
-                return sendMessage(bot, group_id, lines.join("\n"));
+                return;
             }
 
             if (packet.isText() && packet.text.final) {
