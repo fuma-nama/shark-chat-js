@@ -42,6 +42,7 @@ export async function createInteraction(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage(async (packet) => {
             if (packet.isInteractionEnd()) {
+                console.log(lines.join("\n"));
                 await sendMessage(bot, group_id, lines.join("\n"));
                 connection.close();
                 return;
