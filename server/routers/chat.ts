@@ -52,7 +52,7 @@ export const chatRouter = router({
             await channels.chat.message_sent.publish([input.groupId], message);
 
             if (input.message.startsWith("@Shark")) {
-                createInteraction({
+                await createInteraction({
                     group_id: message.group_id,
                     content: message.content.replaceAll("@Shark", ""),
                     user_name: message.author.name,

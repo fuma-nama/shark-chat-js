@@ -54,8 +54,10 @@ export async function createInteraction(message: Message) {
 
     const connection = client.build();
 
-    await channels.chat.typing.publish([group_id], { user: bot });
-    await connection.sendText(content);
+    await Promise.all([
+        channels.chat.typing.publish([group_id], { user: bot }),
+        connection.sendText(content),
+    ]);
 }
 
 function handleError(message: Message) {
@@ -65,7 +67,7 @@ function handleError(message: Message) {
             case status.CANCELLED:
                 break;
             case status.FAILED_PRECONDITION:
-                await prisma.aISession.delete({
+                await prisma.botSession.delete({
                     where: {
                         group_id: message.group_id,
                     },
@@ -125,7 +127,7 @@ async function createBotAccount() {
 async function generateSessionToken(group_id: number) {
     const token = await client.generateSessionToken();
 
-    const { session_id } = await prisma.aISession.upsert({
+    const { session_id } = await prisma.botSession.upsert({
         where: {
             group_id,
         },

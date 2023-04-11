@@ -31,7 +31,7 @@ model Account {
   @@index([userId])
 }
 
-model AISession {
+model BotSession {
   group_id Int @id
   session_id String
 
@@ -87,7 +87,7 @@ model Group {
   members Member[]
   messages Message[]
   invites GroupInvite[]
-  ai_session AISession?
+  ai_session BotSession?
 
   @@index([owner_id])
 }
