@@ -74,7 +74,7 @@ export function Sendbar({
                         placeholder="Type message"
                         autoComplete="off"
                         onKeyDown={(e) => {
-                            if (e.shiftKey && e.key === "Enter") {
+                            if (e.key === "Enter" && !e.shiftKey) {
                                 onSend();
                                 e.preventDefault();
                             }

@@ -61,7 +61,7 @@ export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
                                 "resize-none min-h-[80px] h-auto max-h-[50vh]",
                         })}
                         onKeyDown={(e) => {
-                            if (e.shiftKey && e.key === "Enter") {
+                            if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
                                 return onSave();
                             }
@@ -79,7 +79,7 @@ export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
                 htmlFor="edit-message"
                 className="text-xs text-accent-800 dark:text-accent-600"
             >
-                Press ⇧ enter to save • escape to exit
+                Press enter to save • escape to exit
             </label>
 
             <div className="flex flex-row gap-3 mt-3">
