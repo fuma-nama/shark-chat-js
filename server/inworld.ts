@@ -1,6 +1,5 @@
 import {
     InworldClient,
-    InworldPacket,
     ServiceError,
     SessionToken,
     status,
@@ -9,7 +8,10 @@ import prisma from "./prisma";
 import { channels } from "@/utils/ably";
 import { User } from "@prisma/client";
 
-const scene = process.env.INWORLD_SCENE!;
+const client = new InworldClient().setApiKey({
+    key: process.env.INWORLD_KEY!,
+    secret: process.env.INWORLD_SECRET!,
+});
 
 type Message = {
     group_id: number;
@@ -33,10 +35,10 @@ export async function createInteraction(message: Message) {
             },
             connection: { disconnectTimeout: 5 * 1000 },
         })
-        .setScene(scene)
+        .setScene(process.env.INWORLD_SCENE!)
         .setUser({ fullName: user_name })
         .setOnError(handleError(message))
-        .setOnMessage(async (packet: InworldPacket) => {
+        .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
                 sendMessage(bot, group_id, lines.join("\n"));
                 connection.close();
@@ -97,8 +99,14 @@ async function sendMessage(bot: User, group_id: number, content: string) {
     await channels.chat.message_sent.publish([group_id], message);
 }
 
-function createBotAccount() {
-    return prisma.user.upsert({
+declare global {
+    var bot_account: User;
+}
+
+async function createBotAccount() {
+    if (global.bot_account != null) return global.bot_account;
+
+    global.bot_account = await prisma.user.upsert({
         create: {
             id: "shark",
             name: "Shark AI",
@@ -109,13 +117,10 @@ function createBotAccount() {
         },
         update: {},
     });
+    return global.bot_account;
 }
 
 async function generateSessionToken(group_id: number) {
-    const client = new InworldClient().setApiKey({
-        key: process.env.INWORLD_KEY!,
-        secret: process.env.INWORLD_SECRET!,
-    });
     const token = await client.generateSessionToken();
 
     const { session_id } = await prisma.aISession.upsert({
