@@ -43,14 +43,6 @@ export const chatRouter = router({
                     message.timestamp
                 );
 
-                if (input.message.startsWith("@Shark")) {
-                    createInteraction({
-                        group_id: message.group_id,
-                        content: message.content.replaceAll("@Shark", ""),
-                        user_name: message.author.name,
-                    });
-                }
-
                 return {
                     ...message,
                     nonce: input.nonce,
@@ -58,6 +50,15 @@ export const chatRouter = router({
             });
 
             await channels.chat.message_sent.publish([input.groupId], message);
+
+            if (input.message.startsWith("@Shark")) {
+                createInteraction({
+                    group_id: message.group_id,
+                    content: message.content.replaceAll("@Shark", ""),
+                    user_name: message.author.name,
+                });
+            }
+
             return message;
         }),
     messages: protectedProcedure

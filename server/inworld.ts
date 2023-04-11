@@ -19,11 +19,13 @@ type Message = {
     user_name: string;
 };
 
+//preload bot account
+createBotAccount();
+
 export async function createInteraction(message: Message) {
     const { group_id, content, user_name } = message;
     const lines: string[] = [];
     const bot = await createBotAccount();
-    channels.chat.typing.publish([group_id], { user: bot });
 
     const client = new InworldClient()
         .setGenerateSessionToken(() => generateSessionToken(group_id))
@@ -53,6 +55,7 @@ export async function createInteraction(message: Message) {
 
     const connection = client.build();
 
+    await channels.chat.typing.publish([group_id], { user: bot });
     await connection.sendText(content);
 }
 
