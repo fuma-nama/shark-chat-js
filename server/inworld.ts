@@ -39,7 +39,6 @@ export async function createInteraction(message: Message) {
         .setScene(process.env.INWORLD_SCENE!)
         .setUser({ fullName: user_name })
         .setOnError(handleError(message))
-        .setOnDisconnect(() => console.error("Disconnected"))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
                 sendMessage(bot, group_id, lines.join("\n"));
@@ -60,19 +59,20 @@ export async function createInteraction(message: Message) {
 }
 
 function handleError(message: Message) {
-    return async (err: ServiceError) => {
+    return (err: ServiceError) => {
         switch (err.code) {
             case status.ABORTED:
             case status.CANCELLED:
                 break;
             case status.FAILED_PRECONDITION:
-                await prisma.botSession.delete({
-                    where: {
-                        group_id: message.group_id,
-                    },
-                });
+                prisma.botSession
+                    .delete({
+                        where: {
+                            group_id: message.group_id,
+                        },
+                    })
+                    .then(() => createInteraction(message));
 
-                await createInteraction(message);
                 break;
             default:
                 console.error(`Error: ${err.message}`);
