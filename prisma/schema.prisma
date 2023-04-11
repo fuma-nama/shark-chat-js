@@ -83,7 +83,7 @@ model Group {
   owner_id  String
   public Boolean @default(false)
 
-  owner   User     @relation(fields: [owner_id], references: [id])
+  owner   User     @relation(fields: [owner_id], references: [id], onDelete: Cascade)
   members Member[]
   messages Message[]
   invites GroupInvite[]
