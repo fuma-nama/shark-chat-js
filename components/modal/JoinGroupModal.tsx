@@ -48,7 +48,7 @@ export function JoinGroupModal({ children }: { children: ReactNode }) {
                 <Tabs.Content value="code" className="focus:shadow-none">
                     <JoinGroupByCode onClose={() => setOpen(false)} />
                 </Tabs.Content>
-                <Tabs.Content value="unique_name">
+                <Tabs.Content value="unique_name" className="focus:shadow-none">
                     <JoinGroupByName onClose={() => setOpen(false)} />
                 </Tabs.Content>
             </Tabs.Root>

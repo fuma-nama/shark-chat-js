@@ -74,45 +74,43 @@ function Content({ onClose }: { onClose: () => void }) {
     });
 
     return (
-        <>
-            <form className="mt-8 space-y-2" onSubmit={onSubmit}>
-                <fieldset>
-                    <label htmlFor="icon" className="sr-only">
-                        Icon
-                    </label>
-                    <Controller
-                        control={control}
-                        name="icon"
-                        render={({ field: { value, onChange, ...field } }) => (
-                            <ImagePicker
-                                input={{ id: "icon", ...field }}
-                                value={value ?? null}
-                                onChange={onChange}
-                                previewClassName="mx-auto w-[120px] aspect-square flex flex-col gap-3 items-center"
-                            />
-                        )}
-                    />
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="name" className={label()}>
-                        Name
-                        <span className="text-red-400 mx-1 text-base">*</span>
-                    </label>
-                    <input
-                        id="name"
-                        placeholder="My Group"
-                        autoComplete="off"
-                        className={input()}
-                        aria-required
-                        {...register("name")}
-                    />
-                </fieldset>
-                <div className="mt-4 flex justify-end">
-                    <Button type="submit" color="primary" isLoading={isLoading}>
-                        Save
-                    </Button>
-                </div>
-            </form>
-        </>
+        <form className="mt-8 space-y-2" onSubmit={onSubmit}>
+            <fieldset>
+                <label htmlFor="icon" className="sr-only">
+                    Icon
+                </label>
+                <Controller
+                    control={control}
+                    name="icon"
+                    render={({ field: { value, onChange, ...field } }) => (
+                        <ImagePicker
+                            input={{ id: "icon", ...field }}
+                            value={value ?? null}
+                            onChange={onChange}
+                            previewClassName="mx-auto w-[120px] aspect-square flex flex-col gap-3 items-center"
+                        />
+                    )}
+                />
+            </fieldset>
+            <fieldset>
+                <label htmlFor="name" className={label()}>
+                    Name
+                    <span className="text-red-400 mx-1 text-base">*</span>
+                </label>
+                <input
+                    id="name"
+                    placeholder="My Group"
+                    autoComplete="off"
+                    className={input()}
+                    aria-required
+                    {...register("name")}
+                />
+            </fieldset>
+            <div className="mt-4 flex justify-end">
+                <Button type="submit" color="primary" isLoading={isLoading}>
+                    Save
+                </Button>
+            </div>
+        </form>
     );
 }
