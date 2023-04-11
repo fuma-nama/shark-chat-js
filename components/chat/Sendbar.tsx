@@ -142,7 +142,6 @@ export function TypingStatus({ typing }: { typing: TypingData[] }) {
                     src={data.user.image}
                     fallback={data.user.name}
                     size="small"
-                    border="wide"
                 />
             ))}
             <p className={text({ size: "sm", type: "primary" })}>
