@@ -48,7 +48,7 @@ export async function createInteraction(message: Message) {
             }
 
             if (packet.isText() && packet.text.final) {
-                lines.push(packet.text.text);
+                lines.push(packet.text.text.trim());
                 return;
             }
         });
