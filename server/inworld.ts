@@ -37,11 +37,10 @@ export async function onReceiveMessage(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                sendMessage(group_id, lines.join("\n")).catch((e) =>
+                connection.close();
+                return sendMessage(group_id, lines.join("\n")).catch((e) =>
                     sendErrorMessage(group_id, e?.toString())
                 );
-                connection.close();
-                return;
             }
 
             if (packet.isText() && packet.text.final) {
