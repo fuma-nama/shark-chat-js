@@ -49,6 +49,8 @@ export const chatRouter = router({
                 };
             });
 
+            await channels.chat.message_sent.publish([input.groupId], message);
+
             if (input.message.startsWith("@Shark")) {
                 await onReceiveMessage({
                     group_id: message.group_id,
@@ -57,7 +59,6 @@ export const chatRouter = router({
                 });
             }
 
-            await channels.chat.message_sent.publish([input.groupId], message);
             return message;
         }),
     messages: protectedProcedure

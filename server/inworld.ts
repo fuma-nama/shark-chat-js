@@ -22,9 +22,6 @@ export async function onReceiveMessage(message: Message) {
     const lines: string[] = [];
     const bot = await createBotAccount();
 
-    const timer = setInterval(() => {
-        channels.chat.typing.publish([group_id], { user: bot });
-    }, 2000);
     const connection = new InworldClient()
         .setGenerateSessionToken(generateSessionToken(group_id))
         .setConfiguration({
@@ -41,8 +38,9 @@ export async function onReceiveMessage(message: Message) {
             if (packet.isInteractionEnd()) {
                 sendMessage(group_id, lines.join("\n"))
                     .catch((e) => sendErrorMessage(group_id, e?.toString()))
-                    .finally(() => clearInterval(timer));
-                connection.close();
+                    .finally(() => {
+                        connection.close();
+                    });
                 return;
             }
 
@@ -53,6 +51,7 @@ export async function onReceiveMessage(message: Message) {
         })
         .build();
 
+    channels.chat.typing.publish([group_id], { user: bot });
     await connection.sendText(content);
 }
 
@@ -92,12 +91,14 @@ function sendErrorMessage(group_id: number, message?: string) {
 
 async function sendMessage(group_id: number, content: string) {
     const bot = await createBotAccount();
-    const message = await prisma.message.create({
-        data: {
-            author_id: bot.id,
-            content,
-            group_id,
-        },
+    const message = await prisma.$transaction(() => {
+        return prisma.message.create({
+            data: {
+                author_id: bot.id,
+                content,
+                group_id,
+            },
+        });
     });
 
     await channels.chat.message_sent.publish([group_id], {
