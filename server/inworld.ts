@@ -62,12 +62,8 @@ function handleError(message: Message) {
             case status.CANCELLED:
                 break;
             case status.FAILED_PRECONDITION:
-                prisma.botSession
-                    .delete({
-                        where: {
-                            group_id: message.group_id,
-                        },
-                    })
+                redis
+                    .del(getKey(message.group_id))
                     .then(() => onReceiveMessage(message))
                     .catch((e) =>
                         sendErrorMessage(message.group_id, e?.toString())
