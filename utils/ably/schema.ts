@@ -7,21 +7,9 @@ import type {
 } from "@/server/schema/chat";
 import { z } from "zod";
 import { a } from "./builder";
+import { getHash } from "../get-hash";
 
 function dmKey(user1: string, user2: string): [user1: string, user2: string] {
-    function getHash(s: string): number {
-        let hash = 0,
-            i,
-            chr;
-        if (s.length === 0) return hash;
-        for (i = 0; i < s.length; i++) {
-            chr = s.charCodeAt(i);
-            hash = (hash << 5) - hash + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return hash;
-    }
-
     if (getHash(user1) > getHash(user2)) {
         return [user1, user2];
     } else {

@@ -5,34 +5,27 @@ import prisma from "../prisma";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/server/ably";
 import { RecentChatType, contentSchema, userSelect } from "../schema/chat";
+import { getDMLastRead, setDMLastRead } from "../utils/last-read";
+import { getLastMessage, setLastMessage } from "../utils/dm-last-message";
 
 export const dmRouter = router({
     checkout: protectedProcedure
         .input(z.object({ userId: z.string() }))
         .query(async ({ ctx, input }) => {
-            const old = await prisma.directMessageChannel.findUnique({
-                select: {
-                    last_read: true,
-                },
-                where: {
-                    author_id_receiver_id: {
-                        author_id: ctx.session.user.id,
-                        receiver_id: input.userId,
-                    },
-                },
-            });
+            const old = await getDMLastRead(ctx.session.user.id, input.userId);
 
-            await setLastRead(
+            await setDMLastRead(
                 ctx.session.user.id,
                 input.userId,
                 new Date(Date.now())
             );
-            return old;
+
+            return { last_read: old };
         }),
     read: protectedProcedure
         .input(z.object({ userId: z.string() }))
-        .mutation(({ ctx, input }) => {
-            return setLastRead(
+        .mutation(async ({ ctx, input }) => {
+            await setDMLastRead(
                 ctx.session.user.id,
                 input.userId,
                 new Date(Date.now())
@@ -68,48 +61,38 @@ export const dmRouter = router({
                 where: {
                     author_id: ctx.session.user.id,
                 },
-                orderBy: {
-                    last_read: "desc",
-                },
             });
 
             const result = channels.map(async (channel) => {
-                const conditions = [
-                    {
-                        author_id: channel.author_id,
-                        receiver_id: channel.receiver_id,
-                    },
-                    {
-                        author_id: channel.receiver_id,
-                        receiver_id: channel.author_id,
-                    },
-                ];
-
                 const unread_messages = await prisma.directMessage.count({
                     where: {
-                        OR: conditions,
+                        OR: [
+                            {
+                                author_id: channel.author_id,
+                                receiver_id: channel.receiver_id,
+                            },
+                            {
+                                author_id: channel.receiver_id,
+                                receiver_id: channel.author_id,
+                            },
+                        ],
                         timestamp: {
-                            gt: channel.last_read,
+                            gt:
+                                (await getDMLastRead(
+                                    ctx.session.user.id,
+                                    channel.receiver_id
+                                )) ?? undefined,
                         },
-                    },
-                });
-
-                const last = await prisma.directMessage.findFirst({
-                    select: {
-                        content: true,
-                    },
-                    where: {
-                        OR: conditions,
-                    },
-                    orderBy: {
-                        timestamp: "desc",
                     },
                 });
 
                 return {
                     ...channel,
                     unread_messages,
-                    last_message: last?.content ?? null,
+                    last_message: await getLastMessage(
+                        ctx.session.user.id,
+                        channel.receiver_id
+                    ),
                 };
             });
 
@@ -126,8 +109,9 @@ export const dmRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
+
             const message = await prisma.$transaction(async () => {
-                await initDM(input.userId, userId);
+                await initChannel(input.userId, userId);
                 const message = await prisma.directMessage.create({
                     data: {
                         author_id: userId,
@@ -140,9 +124,11 @@ export const dmRouter = router({
                     },
                 });
 
-                await setLastRead(userId, input.userId, message.timestamp);
                 return { ...message, nonce: input.nonce };
             });
+
+            await setLastMessage(userId, input.userId, input.message);
+            await setDMLastRead(userId, input.userId, message.timestamp);
 
             if (input.userId !== userId) {
                 await channels.private.message_sent.publish(
@@ -287,42 +273,21 @@ export const dmRouter = router({
         }),
 });
 
-async function initDM(authorId: string, receiverId: string) {
-    const count = await prisma.directMessageChannel.count({
-        where: {
-            author_id: authorId,
-            receiver_id: receiverId,
-        },
-    });
-
-    if (count === 0) {
+async function initChannel(user1: string, user2: string) {
+    try {
         await prisma.directMessageChannel.createMany({
-            data: {
-                author_id: authorId,
-                receiver_id: receiverId,
-            },
+            data: [
+                {
+                    author_id: user1,
+                    receiver_id: user2,
+                },
+                {
+                    author_id: user2,
+                    receiver_id: user1,
+                },
+            ],
         });
-    }
-}
-
-async function setLastRead(authorId: string, receiverId: string, value: Date) {
-    const res = await prisma.directMessageChannel.updateMany({
-        data: {
-            last_read: value,
-        },
-        where: {
-            author_id: authorId,
-            receiver_id: receiverId,
-        },
-    });
-
-    if (res.count === 0) {
-        await prisma.directMessageChannel.createMany({
-            data: {
-                author_id: authorId,
-                receiver_id: receiverId,
-                last_read: value,
-            },
-        });
+    } catch (e) {
+        //ignore duplicated keys
     }
 }

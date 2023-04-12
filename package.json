@@ -30,6 +30,7 @@
         "@trpc/next": "^10.10.0",
         "@trpc/react-query": "^10.10.0",
         "@trpc/server": "^10.10.0",
+        "@upstash/redis": "^1.20.2",
         "ably": "^1.2.35",
         "cloudinary": "^1.33.0",
         "clsx": "^1.2.1",

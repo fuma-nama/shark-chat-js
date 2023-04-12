@@ -7,6 +7,7 @@ import {
 import prisma from "./prisma";
 import { channels } from "@/server/ably";
 import { User } from "@prisma/client";
+import redis from "./redis";
 
 type Message = {
     group_id: number;
@@ -36,11 +37,10 @@ export async function onReceiveMessage(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                sendMessage(group_id, lines.join("\n"))
-                    .catch((e) => sendErrorMessage(group_id, e?.toString()))
-                    .finally(() => {
-                        connection.close();
-                    });
+                sendMessage(group_id, lines.join("\n")).catch((e) =>
+                    sendErrorMessage(group_id, e?.toString())
+                );
+                connection.close();
                 return;
             }
 
@@ -123,6 +123,7 @@ async function createBotAccount() {
         },
         update: {},
     });
+
     return global.bot_account;
 }
 
@@ -134,30 +135,21 @@ function generateSessionToken(group_id: number) {
 
     return async () => {
         const token = await client.generateSessionToken();
+        const session_id = await redis.get<string>(getKey(group_id));
 
-        const res = await prisma.botSession.findUnique({
-            select: {
-                session_id: true,
-            },
-            where: {
-                group_id,
-            },
-        });
-
-        if (res == null) {
-            await prisma.botSession.createMany({
-                data: {
-                    group_id,
-                    session_id: token.getSessionId(),
-                },
-            });
+        if (session_id == null) {
+            await redis.set(getKey(group_id), token.getSessionId());
         }
 
         return new SessionToken({
             expirationTime: token.getExpirationTime(),
             token: token.getToken(),
             type: token.getType(),
-            sessionId: res?.session_id ?? token.getSessionId(),
+            sessionId: session_id ?? token.getSessionId(),
         });
     };
+}
+
+function getKey(group_id: number) {
+    return `ai_session_group_${group_id}`;
 }

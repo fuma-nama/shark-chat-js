@@ -112,7 +112,7 @@ function useLastRead(groupId: number) {
         }
     );
 
-    return checkoutQuery.data != null
+    return checkoutQuery.data?.last_read != null
         ? new Date(checkoutQuery.data.last_read)
         : null;
 }

@@ -6,6 +6,7 @@ import { protectedProcedure, router } from "./../trpc";
 import { contentSchema, userSelect } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
 import { onReceiveMessage } from "../inworld";
+import { getLastRead, setLastRead } from "../utils/last-read";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -174,7 +175,7 @@ export const chatRouter = router({
     read: protectedProcedure
         .input(z.object({ groupId: z.number() }))
         .mutation(async ({ ctx, input }) => {
-            return setLastRead(
+            await setLastRead(
                 input.groupId,
                 ctx.session.user.id,
                 new Date(Date.now())
@@ -187,17 +188,7 @@ export const chatRouter = router({
             })
         )
         .query(async ({ ctx, input }) => {
-            const old = await prisma.member.findUnique({
-                select: {
-                    last_read: true,
-                },
-                where: {
-                    group_id_user_id: {
-                        group_id: input.groupId,
-                        user_id: ctx.session.user.id,
-                    },
-                },
-            });
+            const old = await getLastRead(input.groupId, ctx.session.user.id);
 
             await setLastRead(
                 input.groupId,
@@ -205,7 +196,7 @@ export const chatRouter = router({
                 new Date(Date.now())
             );
 
-            return old;
+            return { last_read: old };
         }),
     type: protectedProcedure
         .input(
@@ -232,15 +223,3 @@ export const chatRouter = router({
             });
         }),
 });
-
-async function setLastRead(groupId: number, userId: string, value: Date) {
-    await prisma.member.updateMany({
-        where: {
-            user_id: userId,
-            group_id: groupId,
-        },
-        data: {
-            last_read: value,
-        },
-    });
-}

@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import prisma from "@/server/prisma";
 import { z } from "zod";
-import { procedure, protectedProcedure, router } from "../../trpc";
+import { protectedProcedure, router } from "../../trpc";
 import { checkIsOwnerOf } from "@/utils/trpc/permissions";
 import { inviteRouter } from "./invite";
 import {
@@ -11,19 +11,19 @@ import {
 } from "../../schema/group";
 import { membersRouter } from "./members";
 import { channels } from "@/server/ably";
+import { getLastRead } from "@/server/utils/last-read";
 
 export const groupRouter = router({
     create: protectedProcedure
         .input(createGroupSchema)
         .mutation(async ({ ctx, input }) => {
-            const userId = ctx.session.user.id;
             return await prisma.group.create({
                 data: {
                     name: input.name,
-                    owner_id: userId,
+                    owner_id: ctx.session.user.id,
                     members: {
                         create: {
-                            user_id: userId,
+                            user_id: ctx.session.user.id,
                         },
                     },
                 },
@@ -210,8 +210,6 @@ async function getGroupWithNotifications(
         },
         select: {
             group: true,
-            last_read: true,
-            group_id: true,
         },
         where: {
             user_id: userId,
@@ -222,9 +220,11 @@ async function getGroupWithNotifications(
         joined.map(async (member) => {
             const count = await prisma.message.count({
                 where: {
-                    group_id: member.group_id,
+                    group_id: member.group.id,
                     timestamp: {
-                        gt: member.last_read,
+                        gt:
+                            (await getLastRead(member.group.id, userId)) ??
+                            undefined,
                     },
                 },
             });
