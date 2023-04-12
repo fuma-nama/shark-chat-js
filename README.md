@@ -1,6 +1,6 @@
 # Shark Chat
 
-A Simple Chat app built with Trpc, Tailwind CSS, Ably, Cloudinary, Next 13
+A Simple Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Next 13
 
 ## Features
 
