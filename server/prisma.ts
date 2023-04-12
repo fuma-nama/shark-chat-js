@@ -7,7 +7,9 @@ declare global {
 
 if (process.env.NODE_ENV === "development") {
     if (global.dev_prisma == null) {
-        global.dev_prisma = new PrismaClient();
+        global.dev_prisma = new PrismaClient({
+            log: ["query", "info", "warn", "error"],
+        });
     }
 
     prisma = global.dev_prisma;
