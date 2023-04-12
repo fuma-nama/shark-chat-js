@@ -46,7 +46,9 @@ function GroupItem() {
     );
 }
 
-export function useGroupLayout(props: ComponentProps<typeof AppLayout>) {
+export function useGroupLayout(
+    props: Partial<ComponentProps<typeof AppLayout>>
+) {
     return (
         <AppLayout
             {...props}
