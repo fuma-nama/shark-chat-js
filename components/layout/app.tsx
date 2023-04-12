@@ -21,7 +21,7 @@ export function AppLayout({
     breadcrumb,
     footer,
 }: {
-    breadcrumb?: BreadcrumbItem[];
+    breadcrumb: BreadcrumbItem[];
     items?: ReactNode;
     children?: ReactNode;
     footer?: ReactNode;

@@ -120,6 +120,10 @@ function UpdateProfile({
     );
 }
 
-Settings.useLayout = (children) => <AppLayout>{children}</AppLayout>;
+Settings.useLayout = (children) => (
+    <AppLayout breadcrumb={[{ href: "/settings", text: "Settings" }]}>
+        {children}
+    </AppLayout>
+);
 
 export default Settings;

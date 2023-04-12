@@ -189,12 +189,15 @@ function Welcome() {
 }
 
 GroupChat.useLayout = (children) =>
-    useGroupLayout((group) => ({
+    useGroupLayout({
         children,
         footer: <GroupSendbar />,
         items: (
             <Link
-                href={`/chat/${group}/settings`}
+                href={{
+                    pathname: "/chat/[group]/settings",
+                    query: useRouter().query,
+                }}
                 className={button({
                     color: "secondary",
                     className: "gap-2",
@@ -203,6 +206,6 @@ GroupChat.useLayout = (children) =>
                 <GearIcon /> Settings
             </Link>
         ),
-    }));
+    });
 
 export default GroupChat;

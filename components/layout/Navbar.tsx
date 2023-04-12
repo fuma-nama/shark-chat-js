@@ -1,31 +1,16 @@
 import { usePageStore } from "@/utils/stores/page";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/router";
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { BreadcrumbItem, Breadcrumbs } from "./Breadcrumbs";
 
 export function Navbar({
     children,
     breadcrumb,
 }: {
-    breadcrumb?: BreadcrumbItem[];
+    breadcrumb: BreadcrumbItem[];
     children?: ReactNode;
 }) {
-    const router = useRouter();
-    const breadcrumbItems = useMemo(() => {
-        if (breadcrumb != null) return breadcrumb;
-
-        const nodes = router.route.split("/").filter((v) => v.length > 0);
-
-        return nodes.map((subpath, idx) => {
-            const href = "/" + nodes.slice(0, idx + 1).join("/");
-
-            return {
-                href,
-                text: subpath.slice(0, 1).toUpperCase() + subpath.slice(1),
-            };
-        });
-    }, [breadcrumb, router.route]);
     const [setSidebarOpen] = usePageStore((v) => [v.setSidebarOpen]);
 
     //backdrop filter will break the `fixed` position in children elements
@@ -38,7 +23,7 @@ export function Navbar({
                 >
                     <HamburgerMenuIcon className="w-6 h-6" />
                 </button>
-                <Breadcrumbs items={breadcrumbItems} />
+                <Breadcrumbs items={breadcrumb} />
                 <div className="ml-auto" />
                 <div className="flex flex-row gap-2 items-center">
                     {children}

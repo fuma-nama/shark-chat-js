@@ -8,11 +8,6 @@ import prisma from "./prisma";
 import { channels } from "@/server/ably";
 import { User } from "@prisma/client";
 
-const client = new InworldClient().setApiKey({
-    key: process.env.INWORLD_KEY!,
-    secret: process.env.INWORLD_SECRET!,
-});
-
 type Message = {
     group_id: number;
     content: string;
@@ -22,13 +17,13 @@ type Message = {
 //preload bot account
 createBotAccount();
 
-export async function createInteraction(message: Message) {
+export async function onReceiveMessage(message: Message) {
     const { group_id, content, user_name } = message;
     const lines: string[] = [];
     const bot = await createBotAccount();
 
-    const client = new InworldClient()
-        .setGenerateSessionToken(() => generateSessionToken(group_id))
+    const connection = new InworldClient()
+        .setGenerateSessionToken(generateSessionToken(group_id))
         .setConfiguration({
             capabilities: {
                 audio: false,
@@ -47,16 +42,13 @@ export async function createInteraction(message: Message) {
             }
 
             if (packet.isText() && packet.text.final) {
-                if (lines.length === 0) {
-                    channels.chat.typing.publish([group_id], { user: bot });
-                }
-
                 lines.push(packet.text.text.trim());
                 return;
             }
-        });
+        })
+        .build();
 
-    const connection = client.build();
+    channels.chat.typing.publish([group_id], { user: bot });
 
     await connection.sendText(content);
 }
@@ -74,12 +66,12 @@ function handleError(message: Message) {
                             group_id: message.group_id,
                         },
                     })
-                    .then(() => createInteraction(message));
-
+                    .then(() => {
+                        onReceiveMessage(message);
+                    });
                 break;
             default:
-                console.error(`Error: ${err.message}`);
-                break;
+                throw err;
         }
     };
 }
@@ -126,24 +118,31 @@ async function createBotAccount() {
     return global.bot_account;
 }
 
-async function generateSessionToken(group_id: number) {
-    const token = await client.generateSessionToken();
-
-    const { session_id } = await prisma.botSession.upsert({
-        where: {
-            group_id,
-        },
-        create: {
-            group_id,
-            session_id: token.getSessionId(),
-        },
-        update: {},
+function generateSessionToken(group_id: number) {
+    const client = new InworldClient().setApiKey({
+        key: process.env.INWORLD_KEY!,
+        secret: process.env.INWORLD_SECRET!,
     });
 
-    return new SessionToken({
-        expirationTime: token.getExpirationTime(),
-        token: token.getToken(),
-        type: token.getType(),
-        sessionId: session_id,
-    });
+    return async () => {
+        const token = await client.generateSessionToken();
+
+        const { session_id } = await prisma.botSession.upsert({
+            where: {
+                group_id,
+            },
+            create: {
+                group_id,
+                session_id: token.getSessionId(),
+            },
+            update: {},
+        });
+
+        return new SessionToken({
+            expirationTime: token.getExpirationTime(),
+            token: token.getToken(),
+            type: token.getType(),
+            sessionId: session_id,
+        });
+    };
 }

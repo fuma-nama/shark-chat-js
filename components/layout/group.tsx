@@ -7,12 +7,14 @@ import { Avatar } from "../system/avatar";
 import { AppLayout } from "./app";
 import { useSession } from "next-auth/react";
 
-function GroupItem({ group }: { group: number }) {
+function GroupItem() {
     const { status } = useSession();
+    const { groupId, isReady } = getGroupQuery(useRouter());
+
     const info = trpc.group.info.useQuery(
-        { groupId: group },
+        { groupId },
         {
-            enabled: status === "authenticated",
+            enabled: status === "authenticated" && isReady,
             onError(err) {
                 if (err.data?.code === "NOT_FOUND") {
                     Router.push("/");
@@ -44,19 +46,14 @@ function GroupItem({ group }: { group: number }) {
     );
 }
 
-export function useGroupLayout(
-    propsFn: (group: number | null) => ComponentProps<typeof AppLayout>
-) {
-    const { groupId, isReady } = getGroupQuery(useRouter());
-    const props = propsFn(isReady ? groupId : null);
-
+export function useGroupLayout(props: ComponentProps<typeof AppLayout>) {
     return (
         <AppLayout
             {...props}
             breadcrumb={[
                 {
-                    text: <GroupItem group={groupId} />,
-                    href: `/chat/${groupId}`,
+                    text: <GroupItem />,
+                    href: `/chat/[group]`,
                 },
                 ...(props.breadcrumb ?? []),
             ]}

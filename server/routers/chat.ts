@@ -5,7 +5,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
 import { contentSchema } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
-import { createInteraction } from "../inworld";
+import { onReceiveMessage } from "../inworld";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -49,16 +49,15 @@ export const chatRouter = router({
                 };
             });
 
-            await channels.chat.message_sent.publish([input.groupId], message);
-
             if (input.message.startsWith("@Shark")) {
-                await createInteraction({
+                await onReceiveMessage({
                     group_id: message.group_id,
                     content: message.content.replaceAll("@Shark", ""),
                     user_name: message.author.name,
                 });
             }
 
+            await channels.chat.message_sent.publish([input.groupId], message);
             return message;
         }),
     messages: protectedProcedure
