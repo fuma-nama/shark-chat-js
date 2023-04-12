@@ -188,7 +188,7 @@ async function joinMember(groupId: number, userId: string) {
             },
         });
 
-        return await prisma.group.findUnique({
+        return await prisma.group.findUniqueOrThrow({
             where: {
                 id: groupId,
             },
