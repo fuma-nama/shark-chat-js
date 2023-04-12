@@ -40,7 +40,7 @@ export async function onReceiveMessage(message: Message) {
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
                 sendMessage(group_id, lines.join("\n"))
-                    .catch(() => sendErrorMessage(group_id))
+                    .catch((e) => sendErrorMessage(group_id, e?.toString()))
                     .finally(() => clearInterval(timer));
                 connection.close();
                 return;
@@ -70,7 +70,9 @@ function handleError(message: Message) {
                         },
                     })
                     .then(() => onReceiveMessage(message))
-                    .catch(() => sendErrorMessage(message.group_id));
+                    .catch((e) =>
+                        sendErrorMessage(message.group_id, e?.toString())
+                    );
                 break;
             default:
                 sendErrorMessage(message.group_id, err.message);
@@ -96,18 +98,12 @@ async function sendMessage(group_id: number, content: string) {
             content,
             group_id,
         },
-        include: {
-            author: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                },
-            },
-        },
     });
 
-    await channels.chat.message_sent.publish([group_id], message);
+    await channels.chat.message_sent.publish([group_id], {
+        ...message,
+        author: bot,
+    });
 }
 
 declare global {
