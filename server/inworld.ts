@@ -39,10 +39,9 @@ export async function onReceiveMessage(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                sendMessage(group_id, lines.join("\n")).catch(() =>
-                    sendErrorMessage(group_id)
-                );
-                clearInterval(timer);
+                sendMessage(group_id, lines.join("\n"))
+                    .catch(() => sendErrorMessage(group_id))
+                    .finally(() => clearInterval(timer));
                 connection.close();
                 return;
             }
