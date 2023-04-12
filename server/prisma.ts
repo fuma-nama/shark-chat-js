@@ -12,9 +12,7 @@ if (process.env.NODE_ENV === "development") {
 
     prisma = global.dev_prisma;
 } else {
-    prisma = new PrismaClient({
-        log: ["query", "info", "warn", "error"],
-    });
+    prisma = new PrismaClient();
 }
 
 export default prisma;

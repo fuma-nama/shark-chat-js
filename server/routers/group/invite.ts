@@ -23,7 +23,7 @@ export const inviteRouter = router({
             });
         }),
     create: protectedProcedure
-        .input(z.object({ groupId: z.number(), once: z.boolean() }))
+        .input(z.object({ groupId: z.number() }))
         .mutation(async ({ input, ctx }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
@@ -38,7 +38,7 @@ export const inviteRouter = router({
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
-            return await prisma.groupInvite.deleteMany({
+            await prisma.groupInvite.deleteMany({
                 where: {
                     code: input.code,
                     group_id: input.groupId,

@@ -91,14 +91,12 @@ function sendErrorMessage(group_id: number, message?: string) {
 
 async function sendMessage(group_id: number, content: string) {
     const bot = await createBotAccount();
-    const message = await prisma.$transaction(() => {
-        return prisma.message.create({
-            data: {
-                author_id: bot.id,
-                content,
-                group_id,
-            },
-        });
+    const message = await prisma.message.create({
+        data: {
+            author_id: bot.id,
+            content,
+            group_id,
+        },
     });
 
     await channels.chat.message_sent.publish([group_id], {
@@ -137,22 +135,29 @@ function generateSessionToken(group_id: number) {
     return async () => {
         const token = await client.generateSessionToken();
 
-        const { session_id } = await prisma.botSession.upsert({
+        const res = await prisma.botSession.findUnique({
+            select: {
+                session_id: true,
+            },
             where: {
                 group_id,
             },
-            create: {
-                group_id,
-                session_id: token.getSessionId(),
-            },
-            update: {},
         });
+
+        if (res == null) {
+            await prisma.botSession.createMany({
+                data: {
+                    group_id,
+                    session_id: token.getSessionId(),
+                },
+            });
+        }
 
         return new SessionToken({
             expirationTime: token.getExpirationTime(),
             token: token.getToken(),
             type: token.getType(),
-            sessionId: session_id,
+            sessionId: res?.session_id ?? token.getSessionId(),
         });
     };
 }

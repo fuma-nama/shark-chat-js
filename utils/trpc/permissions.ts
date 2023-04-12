@@ -23,14 +23,16 @@ export async function checkIsMemberOf(group: number, user: Session) {
 }
 
 export async function checkIsOwnerOf(group: number, user: Session) {
-    const res = await prisma.group.findFirst({
+    const res = await prisma.group.findUnique({
+        select: {
+            owner_id: true,
+        },
         where: {
             id: group,
-            owner_id: user.user.id,
         },
     });
 
-    if (res == null) {
+    if (res == null || res.owner_id !== user.user.id) {
         throw new TRPCError({
             message: "You must be the owner of the group to do this action",
             code: "BAD_REQUEST",

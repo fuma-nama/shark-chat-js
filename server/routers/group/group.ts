@@ -79,17 +79,8 @@ export const groupRouter = router({
                     code: "NOT_FOUND",
                     message: "Invite not found",
                 });
-            if (invite.once) {
-                await prisma.groupInvite.delete({
-                    where: { code: invite.code },
-                });
-            }
 
-            const result = await joinMember(
-                invite.group_id,
-                ctx.session.user.id
-            );
-            return result.group;
+            return await joinMember(invite.group_id, ctx.session.user.id);
         }),
     joinByUniqueName: protectedProcedure
         .input(
@@ -108,14 +99,14 @@ export const groupRouter = router({
                     code: "NOT_FOUND",
                     message: "Group not found",
                 });
+
             if (!group.public)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "The group isn't a public group",
                 });
 
-            const result = await joinMember(group.id, ctx.session.user.id);
-            return result.group;
+            return await joinMember(group.id, ctx.session.user.id);
         }),
     update: protectedProcedure
         .input(updateGroupSchema)
@@ -143,7 +134,7 @@ export const groupRouter = router({
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
-            await prisma.group.delete({
+            await prisma.group.deleteMany({
                 where: {
                     id: input.groupId,
                 },
@@ -177,12 +168,10 @@ export const groupRouter = router({
                         "The group owner cannot leave the group, please transfer your permissions before leaving it",
                 });
 
-            return prisma.member.delete({
+            await prisma.member.deleteMany({
                 where: {
-                    group_id_user_id: {
-                        group_id: input.groupId,
-                        user_id: ctx.session.user.id,
-                    },
+                    group_id: input.groupId,
+                    user_id: ctx.session.user.id,
                 },
             });
         }),
@@ -192,13 +181,16 @@ export const groupRouter = router({
 
 async function joinMember(groupId: number, userId: string) {
     try {
-        return await prisma.member.create({
+        await prisma.member.createMany({
             data: {
                 group_id: groupId,
                 user_id: userId,
             },
-            select: {
-                group: true,
+        });
+
+        return await prisma.group.findUnique({
+            where: {
+                id: groupId,
             },
         });
     } catch (e) {
@@ -216,8 +208,10 @@ async function getGroupWithNotifications(
         orderBy: {
             group_id: "desc",
         },
-        include: {
+        select: {
             group: true,
+            last_read: true,
+            group_id: true,
         },
         where: {
             user_id: userId,

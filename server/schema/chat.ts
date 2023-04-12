@@ -28,3 +28,11 @@ export type DirectMessageWithReceiver = DirectMessage & {
 };
 
 export const contentSchema = z.string().min(1).max(2000).trim();
+
+export const userSelect = {
+    select: {
+        image: true,
+        name: true,
+        id: true,
+    },
+} as const;

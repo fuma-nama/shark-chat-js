@@ -4,40 +4,30 @@ import { z } from "zod";
 import prisma from "../prisma";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/server/ably";
-import { RecentChatType, contentSchema } from "../schema/chat";
-
-const userSelect = {
-    select: {
-        image: true,
-        name: true,
-        id: true,
-    },
-} as const;
+import { RecentChatType, contentSchema, userSelect } from "../schema/chat";
 
 export const dmRouter = router({
     checkout: protectedProcedure
         .input(z.object({ userId: z.string() }))
-        .query(({ ctx, input }) => {
-            return prisma.$transaction(async () => {
-                const old = await prisma.directMessageChannel.findUnique({
-                    select: {
-                        last_read: true,
+        .query(async ({ ctx, input }) => {
+            const old = await prisma.directMessageChannel.findUnique({
+                select: {
+                    last_read: true,
+                },
+                where: {
+                    author_id_receiver_id: {
+                        author_id: ctx.session.user.id,
+                        receiver_id: input.userId,
                     },
-                    where: {
-                        author_id_receiver_id: {
-                            author_id: ctx.session.user.id,
-                            receiver_id: input.userId,
-                        },
-                    },
-                });
-
-                await setLastRead(
-                    ctx.session.user.id,
-                    input.userId,
-                    new Date(Date.now())
-                );
-                return old;
+                },
             });
+
+            await setLastRead(
+                ctx.session.user.id,
+                input.userId,
+                new Date(Date.now())
+            );
+            return old;
         }),
     read: protectedProcedure
         .input(z.object({ userId: z.string() }))
@@ -137,8 +127,7 @@ export const dmRouter = router({
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
             const message = await prisma.$transaction(async () => {
-                //init direct message channel for the receiver
-                await setLastRead(input.userId, userId);
+                await initDM(input.userId, userId);
                 const message = await prisma.directMessage.create({
                     data: {
                         author_id: userId,
@@ -163,7 +152,6 @@ export const dmRouter = router({
             }
 
             await channels.private.message_sent.publish([userId], message);
-            return message;
         }),
     messages: protectedProcedure
         .input(
@@ -175,8 +163,6 @@ export const dmRouter = router({
             })
         )
         .query(async ({ input, ctx }) => {
-            const userId = ctx.session.user.id;
-
             return await prisma.directMessage.findMany({
                 include: {
                     author: userSelect,
@@ -188,10 +174,10 @@ export const dmRouter = router({
                     OR: [
                         {
                             receiver_id: input.userId,
-                            author_id: userId,
+                            author_id: ctx.session.user.id,
                         },
                         {
-                            receiver_id: userId,
+                            receiver_id: ctx.session.user.id,
                             author_id: input.userId,
                         },
                     ],
@@ -301,22 +287,42 @@ export const dmRouter = router({
         }),
 });
 
-async function setLastRead(authorId: string, receiverId: string, value?: Date) {
-    return await prisma.directMessageChannel.upsert({
-        select: { last_read: true },
-        create: {
+async function initDM(authorId: string, receiverId: string) {
+    const count = await prisma.directMessageChannel.count({
+        where: {
             author_id: authorId,
             receiver_id: receiverId,
-            last_read: value,
         },
-        update: {
-            last_read: value,
-        },
-        where: {
-            author_id_receiver_id: {
+    });
+
+    if (count === 0) {
+        await prisma.directMessageChannel.createMany({
+            data: {
                 author_id: authorId,
                 receiver_id: receiverId,
             },
+        });
+    }
+}
+
+async function setLastRead(authorId: string, receiverId: string, value: Date) {
+    const res = await prisma.directMessageChannel.updateMany({
+        data: {
+            last_read: value,
+        },
+        where: {
+            author_id: authorId,
+            receiver_id: receiverId,
         },
     });
+
+    if (res.count === 0) {
+        await prisma.directMessageChannel.createMany({
+            data: {
+                author_id: authorId,
+                receiver_id: receiverId,
+                last_read: value,
+            },
+        });
+    }
 }

@@ -122,7 +122,6 @@ model DirectMessageChannel {
 model GroupInvite {
   group_id Int
   code String @default(uuid()) @id
-  once Boolean @default(false)
   
   group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
 

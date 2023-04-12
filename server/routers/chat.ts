@@ -3,7 +3,7 @@ import prisma from "@/server/prisma";
 import { channels } from "@/server/ably";
 import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
-import { contentSchema } from "../schema/chat";
+import { contentSchema, userSelect } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
 import { onReceiveMessage } from "../inworld";
 
@@ -27,13 +27,7 @@ export const chatRouter = router({
                         group_id: input.groupId,
                     },
                     include: {
-                        author: {
-                            select: {
-                                id: true,
-                                name: true,
-                                image: true,
-                            },
-                        },
+                        author: userSelect,
                     },
                 });
 
@@ -75,13 +69,7 @@ export const chatRouter = router({
 
             return await prisma.message.findMany({
                 include: {
-                    author: {
-                        select: {
-                            name: true,
-                            id: true,
-                            image: true,
-                        },
-                    },
+                    author: userSelect,
                 },
                 orderBy: {
                     timestamp: "desc",
@@ -226,37 +214,30 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const member = await prisma.member.findUnique({
-                select: {
-                    user: true,
-                },
+            const user = await prisma.user.findUnique({
+                select: userSelect.select,
                 where: {
-                    group_id_user_id: {
-                        group_id: input.groupId,
-                        user_id: ctx.session.user.id,
-                    },
+                    id: ctx.session.user.id,
                 },
             });
 
-            if (member == null)
+            if (user == null)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "User not found",
                 });
 
             await channels.chat.typing.publish([input.groupId], {
-                user: member.user,
+                user,
             });
         }),
 });
 
 async function setLastRead(groupId: number, userId: string, value: Date) {
-    return await prisma.member.update({
+    await prisma.member.updateMany({
         where: {
-            group_id_user_id: {
-                user_id: userId,
-                group_id: groupId,
-            },
+            user_id: userId,
+            group_id: groupId,
         },
         data: {
             last_read: value,

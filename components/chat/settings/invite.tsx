@@ -83,7 +83,6 @@ export default function Invite({ group }: { group: Group }) {
                         onClick={() =>
                             createMutation.mutate({
                                 groupId: group.id,
-                                once: false,
                             })
                         }
                     >
