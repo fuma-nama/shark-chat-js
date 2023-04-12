@@ -22,6 +22,9 @@ export async function onReceiveMessage(message: Message) {
     const lines: string[] = [];
     const bot = await createBotAccount();
 
+    const timer = setInterval(() => {
+        channels.chat.typing.publish([group_id], { user: bot });
+    }, 2000);
     const connection = new InworldClient()
         .setGenerateSessionToken(generateSessionToken(group_id))
         .setConfiguration({
@@ -36,7 +39,10 @@ export async function onReceiveMessage(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                sendMessage(bot, group_id, lines.join("\n"));
+                sendMessage(group_id, lines.join("\n")).catch(() =>
+                    sendErrorMessage(group_id)
+                );
+                clearInterval(timer);
                 connection.close();
                 return;
             }
@@ -47,8 +53,6 @@ export async function onReceiveMessage(message: Message) {
             }
         })
         .build();
-
-    channels.chat.typing.publish([group_id], { user: bot });
 
     await connection.sendText(content);
 }
@@ -66,17 +70,27 @@ function handleError(message: Message) {
                             group_id: message.group_id,
                         },
                     })
-                    .then(() => {
-                        onReceiveMessage(message);
-                    });
+                    .then(() => onReceiveMessage(message))
+                    .catch(() => sendErrorMessage(message.group_id));
                 break;
             default:
-                throw err;
+                sendErrorMessage(message.group_id, err.message);
+                break;
         }
     };
 }
 
-async function sendMessage(bot: User, group_id: number, content: string) {
+function sendErrorMessage(group_id: number, message?: string) {
+    return sendMessage(
+        group_id,
+        message != null
+            ? `Oops! something went wrong: ${message}`
+            : `Oops! something went wrong`
+    );
+}
+
+async function sendMessage(group_id: number, content: string) {
+    const bot = await createBotAccount();
     const message = await prisma.message.create({
         data: {
             author_id: bot.id,
