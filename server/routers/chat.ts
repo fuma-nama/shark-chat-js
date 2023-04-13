@@ -1,12 +1,14 @@
 import { TRPCError } from "@trpc/server";
-import prisma from "@/server/prisma";
 import { channels } from "@/server/ably";
 import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
-import { contentSchema, userSelect } from "../schema/chat";
+import { contentSchema } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
 import { onReceiveMessage } from "../inworld";
 import { getLastRead, setLastRead } from "../utils/last-read";
+import db from "../db/client";
+import { groups, messages, users } from "../db/schema";
+import { and, desc, eq, gt, lt } from "drizzle-orm";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -18,28 +20,34 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ input, ctx }) => {
-            const message = await prisma.$transaction(async () => {
+            const message = await db.transaction(async () => {
                 await checkIsMemberOf(input.groupId, ctx.session);
-
-                const message = await prisma.message.create({
-                    data: {
-                        author_id: ctx.session.user.id,
-                        content: input.message,
-                        group_id: input.groupId,
-                    },
-                    include: {
-                        author: userSelect,
-                    },
+                const insertResult = await db.insert(messages).values({
+                    author_id: ctx.session.user.id,
+                    content: input.message,
+                    group_id: input.groupId,
                 });
+
+                const message = await db
+                    .select()
+                    .from(messages)
+                    .where(eq(messages.id, Number(insertResult.insertId)))
+                    .innerJoin(users, eq(users.id, messages.author_id))
+                    .then((res) => res[0]);
 
                 await setLastRead(
                     input.groupId,
                     ctx.session.user.id,
-                    message.timestamp
+                    message.Message.timestamp
                 );
 
                 return {
-                    ...message,
+                    ...message.Message,
+                    author: {
+                        name: message.User.name,
+                        image: message.User.image,
+                        id: message.User.id,
+                    },
                     nonce: input.nonce,
                 };
             });
@@ -67,26 +75,32 @@ export const chatRouter = router({
         )
         .query(async ({ input, ctx }) => {
             await checkIsMemberOf(input.groupId, ctx.session);
+            const count = Math.min(input.count, 50);
 
-            return await prisma.message.findMany({
-                include: {
-                    author: userSelect,
-                },
-                orderBy: {
-                    timestamp: "desc",
-                },
-                where: {
-                    group_id: input.groupId,
-                    timestamp:
-                        input.cursor != null
-                            ? {
-                                  [input.cursorType === "after" ? "gt" : "lt"]:
-                                      input.cursor,
-                              }
+            return await db
+                .select({
+                    ...(messages as typeof messages._.columns),
+                    author: {
+                        name: users.name,
+                        id: users.id,
+                        image: users.image,
+                    },
+                })
+                .from(messages)
+                .where(
+                    and(
+                        eq(messages.group_id, input.groupId),
+                        input.cursor != null && input.cursorType === "after"
+                            ? gt(messages.timestamp, new Date(input.cursor))
                             : undefined,
-                },
-                take: Math.min(input.count, 50),
-            });
+                        input.cursor != null && input.cursorType === "before"
+                            ? lt(messages.timestamp, new Date(input.cursor))
+                            : undefined
+                    )
+                )
+                .leftJoin(users, eq(users.id, messages.author_id))
+                .orderBy(desc(messages.timestamp))
+                .limit(count);
         }),
     update: protectedProcedure
         .input(
@@ -97,18 +111,20 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const result = await prisma.message.updateMany({
-                where: {
-                    id: input.messageId,
-                    author_id: ctx.session.user.id,
-                    group_id: input.groupId,
-                },
-                data: {
+            const rows = await db
+                .update(messages)
+                .set({
                     content: input.content,
-                },
-            });
+                })
+                .where(
+                    and(
+                        eq(messages.id, input.messageId),
+                        eq(messages.author_id, ctx.session.user.id),
+                        eq(messages.group_id, input.groupId)
+                    )
+                );
 
-            if (result.count === 0)
+            if (rows.rowsAffected === 0)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "No permission or message doesn't exist",
@@ -120,10 +136,6 @@ export const chatRouter = router({
                 group_id: input.groupId,
             });
         }),
-    /**
-     * Group owner can delete anyone's messages
-     * Author can only delete their messages
-     */
     delete: protectedProcedure
         .input(
             z.object({
@@ -131,18 +143,14 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const message = await prisma.message.findUnique({
-                include: {
-                    group: {
-                        select: {
-                            owner_id: true,
-                        },
-                    },
-                },
-                where: {
-                    id: input.messageId,
-                },
-            });
+            const message = await db
+                .select({
+                    author_id: messages.author_id,
+                    group_id: messages.group_id,
+                })
+                .from(messages)
+                .where(eq(messages.id, input.messageId))
+                .then((res) => res[0]);
 
             if (message == null)
                 throw new TRPCError({
@@ -150,9 +158,15 @@ export const chatRouter = router({
                     message: "Message not found",
                 });
 
+            const group = await db
+                .select({ owner: groups.owner_id })
+                .from(groups)
+                .where(eq(groups.id, message.group_id))
+                .then((res) => res[0]);
+
             const allowed =
                 message.author_id === ctx.session.user.id ||
-                message.group.owner_id === ctx.session.user.id;
+                (group != null && group.owner === ctx.session.user.id);
 
             if (!allowed) {
                 throw new TRPCError({
@@ -161,14 +175,9 @@ export const chatRouter = router({
                 });
             }
 
-            await prisma.message.delete({
-                where: {
-                    id: input.messageId,
-                },
-            });
-
+            await db.delete(messages).where(eq(messages.id, input.messageId));
             await channels.chat.message_deleted.publish([message.group_id], {
-                id: message.id,
+                id: input.messageId,
                 group_id: message.group_id,
             });
         }),
@@ -205,12 +214,15 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const user = await prisma.user.findUnique({
-                select: userSelect.select,
-                where: {
-                    id: ctx.session.user.id,
-                },
-            });
+            const user = await db
+                .select({
+                    name: users.name,
+                    id: users.id,
+                    image: users.image,
+                })
+                .from(users)
+                .where(eq(users.id, ctx.session.user.id))
+                .then((res) => res[0]);
 
             if (user == null)
                 throw new TRPCError({

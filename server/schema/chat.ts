@@ -15,11 +15,11 @@ export type RecentChatType = DirectMessageChannel & {
 };
 
 export type MessageType = Message & {
-    author: UserInfo;
+    author: UserInfo | null;
 };
 
 export type DirectMessageType = DirectMessage & {
-    author: UserInfo;
+    author: UserInfo | null;
 };
 
 export type DirectMessageWithReceiver = DirectMessage & {
@@ -36,3 +36,9 @@ export const userSelect = {
         id: true,
     },
 } as const;
+
+export const deletedUser: UserInfo = {
+    id: "",
+    name: "Deleted User",
+    image: null,
+};

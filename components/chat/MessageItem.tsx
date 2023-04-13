@@ -1,4 +1,4 @@
-import { createContext, forwardRef, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { Avatar } from "../system/avatar";
 import { Button } from "../system/button";
 import { textArea } from "../system/textarea";
@@ -15,7 +15,7 @@ import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 
 import type { Serialize } from "@/utils/types";
-import type { MessageType } from "@/server/schema/chat";
+import { deletedUser, MessageType } from "@/server/schema/chat";
 import { LinkItUrl } from "react-linkify-it";
 
 const MessageContext = createContext<{
@@ -105,6 +105,7 @@ type ContentProps = {
 };
 
 function Content({ user, timestamp, children }: ContentProps) {
+    const author = user ?? deletedUser;
     const date = new Date(timestamp).toLocaleString(undefined, {
         dateStyle: "short",
         timeStyle: "short",
@@ -113,11 +114,11 @@ function Content({ user, timestamp, children }: ContentProps) {
 
     return (
         <>
-            <Avatar src={user.image} fallback={user.name} />
+            <Avatar src={author.image} fallback={author.name} />
             <div className="flex-1 flex flex-col">
                 <div className="flex flex-row items-center">
-                    <Link href={`/dm/${user.id}`} className="font-semibold">
-                        {user.name}
+                    <Link href={`/dm/${author.id}`} className="font-semibold">
+                        {author.name}
                     </Link>
                     <p className="text-xs sm:text-xs text-accent-800 dark:text-accent-600 ml-auto sm:ml-2">
                         {date}

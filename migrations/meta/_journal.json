@@ -1,0 +1,12 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1681389588893,
+      "tag": "0000_fantastic_makkari"
+    }
+  ]
+}

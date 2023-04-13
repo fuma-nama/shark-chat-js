@@ -12,6 +12,8 @@ import {
 import { membersRouter } from "./members";
 import { channels } from "@/server/ably";
 import { getLastRead } from "@/server/utils/last-read";
+import db from "@/server/db/client";
+import { members } from "@/server/db/schema";
 
 export const groupRouter = router({
     create: protectedProcedure

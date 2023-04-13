@@ -1,12 +1,15 @@
 import { protectedProcedure } from "./../trpc";
 import { router } from "../trpc";
 import { z } from "zod";
-import prisma from "../prisma";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/server/ably";
 import { RecentChatType, contentSchema, userSelect } from "../schema/chat";
 import { getDMLastRead, setDMLastRead } from "../utils/last-read";
 import { getLastMessage, setLastMessage } from "../utils/dm-last-message";
+import db from "../db/client";
+import { directMessageChannels, directMessages, users } from "../db/schema";
+import { and, desc, eq, gt, lt, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/mysql-core";
 
 export const dmRouter = router({
     checkout: protectedProcedure
@@ -38,12 +41,15 @@ export const dmRouter = router({
             })
         )
         .query(async ({ input }) => {
-            const target_user = await prisma.user.findUnique({
-                where: {
-                    id: input.userId,
-                },
-                select: userSelect.select,
-            });
+            const target_user = await db
+                .select({
+                    name: users.name,
+                    id: users.id,
+                    image: users.image,
+                })
+                .from(users)
+                .where(eq(users.id, input.userId))
+                .then((res) => res[0]);
 
             if (target_user == null)
                 throw new TRPCError({
@@ -53,51 +59,84 @@ export const dmRouter = router({
             return target_user;
         }),
     channels: protectedProcedure.query(({ ctx }) => {
-        return prisma.$transaction(async () => {
-            const channels = await prisma.directMessageChannel.findMany({
-                include: {
-                    receiver: userSelect,
-                },
-                where: {
-                    author_id: ctx.session.user.id,
-                },
-            });
+        return db.transaction(
+            async () => {
+                const channels = await db
+                    .select({
+                        receiver: users,
+                    })
+                    .from(directMessageChannels)
+                    .where(
+                        eq(directMessageChannels.author_id, ctx.session.user.id)
+                    )
+                    .innerJoin(
+                        users,
+                        eq(directMessageChannels.receiver_id, users.id)
+                    );
 
-            const result = channels.map(async (channel) => {
-                const unread_messages = await prisma.directMessage.count({
-                    where: {
-                        OR: [
-                            {
-                                author_id: channel.author_id,
-                                receiver_id: channel.receiver_id,
-                            },
-                            {
-                                author_id: channel.receiver_id,
-                                receiver_id: channel.author_id,
-                            },
-                        ],
-                        timestamp: {
-                            gt:
-                                (await getDMLastRead(
-                                    ctx.session.user.id,
-                                    channel.receiver_id
-                                )) ?? undefined,
-                        },
-                    },
+                const result = channels.map(async (channel) => {
+                    const last_read = await getDMLastRead(
+                        ctx.session.user.id,
+                        channel.receiver.id
+                    );
+
+                    const unread_messages = await db
+                        .select({
+                            count: sql<string>`count(*)`,
+                        })
+                        .from(directMessages)
+                        .where(
+                            and(
+                                or(
+                                    and(
+                                        eq(
+                                            directMessages.receiver_id,
+                                            channel.receiver.id
+                                        ),
+                                        eq(
+                                            directMessages.author_id,
+                                            ctx.session.user.id
+                                        )
+                                    ),
+                                    and(
+                                        eq(
+                                            directMessages.receiver_id,
+                                            ctx.session.user.id
+                                        ),
+                                        eq(
+                                            directMessages.author_id,
+                                            channel.receiver.id
+                                        )
+                                    )
+                                ),
+                                last_read != null
+                                    ? gt(
+                                          directMessages.timestamp,
+                                          new Date(last_read)
+                                      )
+                                    : undefined
+                            )
+                        );
+
+                    return {
+                        author_id: ctx.session.user.id,
+                        receiver_id: channel.receiver.id,
+                        receiver: channel.receiver,
+                        unread_messages: Number(unread_messages[0].count),
+                        last_message: await getLastMessage(
+                            ctx.session.user.id,
+                            channel.receiver.id
+                        ),
+                    };
                 });
 
-                return {
-                    ...channel,
-                    unread_messages,
-                    last_message: await getLastMessage(
-                        ctx.session.user.id,
-                        channel.receiver_id
-                    ),
-                };
-            });
-
-            return Promise.all<Promise<RecentChatType>>(result);
-        });
+                return Promise.all<Promise<RecentChatType>>(result);
+            },
+            {
+                accessMode: "read only",
+                isolationLevel: "read committed",
+            }
+        );
     }),
     send: protectedProcedure
         .input(
@@ -109,23 +148,34 @@ export const dmRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
-
-            const message = await prisma.$transaction(async () => {
-                await initChannel(input.userId, userId);
-                const message = await prisma.directMessage.create({
-                    data: {
-                        author_id: userId,
-                        content: input.message,
-                        receiver_id: input.userId,
-                    },
-                    include: {
-                        author: userSelect,
-                        receiver: userSelect,
-                    },
-                });
-
-                return { ...message, nonce: input.nonce };
+            await initChannel(input.userId, userId);
+            const { insertId } = await db.insert(directMessages).values({
+                author_id: userId,
+                content: input.message,
+                receiver_id: input.userId,
             });
+
+            const receiver = alias(users, "receiver");
+            const author = alias(users, "author");
+            const messageResult = await db
+                .select({
+                    ...(directMessages as typeof directMessages._.columns),
+                    receiver,
+                    author,
+                })
+                .from(directMessages)
+                .where(eq(directMessages.id, Number(insertId)))
+                .innerJoin(author, eq(directMessages.author_id, author.id))
+                .innerJoin(
+                    receiver,
+                    eq(directMessages.receiver_id, receiver.id)
+                )
+                .then((res) => res[0]);
+
+            if (messageResult == null)
+                throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+            const message = { ...messageResult, nonce: input.nonce };
 
             await setLastMessage(userId, input.userId, input.message);
             await setDMLastRead(userId, input.userId, message.timestamp);
@@ -149,34 +199,53 @@ export const dmRouter = router({
             })
         )
         .query(async ({ input, ctx }) => {
-            return await prisma.directMessage.findMany({
-                include: {
-                    author: userSelect,
-                },
-                orderBy: {
-                    timestamp: "desc",
-                },
-                where: {
-                    OR: [
-                        {
-                            receiver_id: input.userId,
-                            author_id: ctx.session.user.id,
-                        },
-                        {
-                            receiver_id: ctx.session.user.id,
-                            author_id: input.userId,
-                        },
-                    ],
-                    timestamp:
-                        input.cursor != null
-                            ? {
-                                  [input.cursorType === "after" ? "gt" : "lt"]:
-                                      input.cursor,
-                              }
+            const count = Math.min(input.count, 50);
+
+            return await db
+                .select({
+                    ...(directMessages as typeof directMessages._.columns),
+                    author: {
+                        name: users.name,
+                        image: users.image,
+                        id: users.id,
+                    },
+                })
+                .from(directMessages)
+                .leftJoin(users, eq(directMessages.author_id, users.id))
+                .where(
+                    and(
+                        or(
+                            and(
+                                eq(directMessages.receiver_id, input.userId),
+                                eq(
+                                    directMessages.author_id,
+                                    ctx.session.user.id
+                                )
+                            ),
+                            and(
+                                eq(
+                                    directMessages.receiver_id,
+                                    ctx.session.user.id
+                                ),
+                                eq(directMessages.author_id, input.userId)
+                            )
+                        ),
+                        input.cursor != null && input.cursorType === "after"
+                            ? gt(
+                                  directMessages.timestamp,
+                                  new Date(input.cursor)
+                              )
                             : undefined,
-                },
-                take: Math.min(input.count, 50),
-            });
+                        input.cursor != null && input.cursorType === "before"
+                            ? lt(
+                                  directMessages.timestamp,
+                                  new Date(input.cursor)
+                              )
+                            : undefined
+                    )
+                )
+                .orderBy(desc(directMessages.timestamp))
+                .limit(count);
         }),
     update: protectedProcedure
         .input(
@@ -187,18 +256,20 @@ export const dmRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const result = await prisma.directMessage.updateMany({
-                where: {
-                    id: input.messageId,
-                    author_id: ctx.session.user.id,
-                    receiver_id: input.userId,
-                },
-                data: {
+            const result = await db
+                .update(directMessages)
+                .set({
                     content: input.content,
-                },
-            });
+                })
+                .where(
+                    and(
+                        eq(directMessages.id, input.messageId),
+                        eq(directMessages.author_id, ctx.session.user.id),
+                        eq(directMessages.receiver_id, input.userId)
+                    )
+                );
 
-            if (result.count === 0)
+            if (result.rowsAffected === 0)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "No permission or message doesn't exist",
@@ -222,15 +293,17 @@ export const dmRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const result = await prisma.directMessage.deleteMany({
-                where: {
-                    id: input.messageId,
-                    author_id: ctx.session.user.id,
-                    receiver_id: input.userId,
-                },
-            });
+            const result = await db
+                .delete(directMessages)
+                .where(
+                    and(
+                        eq(directMessages.id, input.messageId),
+                        eq(directMessages.author_id, ctx.session.user.id),
+                        eq(directMessages.receiver_id, input.userId)
+                    )
+                );
 
-            if (result.count === 0)
+            if (result.rowsAffected === 0)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
                     message: "No permission or message doesn't exist",
@@ -252,13 +325,16 @@ export const dmRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const user = await prisma.user.findUnique({
-                where: {
-                    id: ctx.session.user.id,
-                },
-            });
+            const rows = await db
+                .select({
+                    image: users.image,
+                    name: users.name,
+                    id: users.id,
+                })
+                .from(users)
+                .where(eq(users.id, ctx.session.user.id));
 
-            if (user == null)
+            if (rows.length === 0)
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: "User not found",
@@ -267,7 +343,7 @@ export const dmRouter = router({
             await channels.dm.typing.publish(
                 [ctx.session.user.id, input.userId],
                 {
-                    user,
+                    user: rows[0],
                 }
             );
         }),
@@ -275,8 +351,10 @@ export const dmRouter = router({
 
 async function initChannel(user1: string, user2: string) {
     try {
-        await prisma.directMessageChannel.createMany({
-            data: [
+        await db
+            .insert(directMessageChannels)
+            .ignore()
+            .values([
                 {
                     author_id: user1,
                     receiver_id: user2,
@@ -285,8 +363,7 @@ async function initChannel(user1: string, user2: string) {
                     author_id: user2,
                     receiver_id: user1,
                 },
-            ],
-        });
+            ]);
     } catch (e) {
         //ignore duplicated keys
     }

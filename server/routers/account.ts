@@ -1,15 +1,17 @@
 import { TRPCError } from "@trpc/server";
-import prisma from "@/server/prisma";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc";
+import db from "../db/client";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export const accountRouter = router({
     get: protectedProcedure.query(async ({ ctx }) => {
-        const profile = await prisma.user.findUnique({
-            where: {
-                id: ctx.session.user.id,
-            },
-        });
+        const profile = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, ctx.session.user.id))
+            .then((res) => res?.[0]);
 
         if (profile == null) {
             throw new TRPCError({
@@ -29,15 +31,18 @@ export const accountRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
-
-            return await prisma.user.update({
-                where: {
-                    id: userId,
-                },
-                data: {
+            await db
+                .update(users)
+                .set({
                     name: input.name ?? undefined,
                     image: input.avatar_url ?? undefined,
-                },
-            });
+                })
+                .where(eq(users.id, userId));
+
+            return await db
+                .select()
+                .from(users)
+                .where(eq(users.id, userId))
+                .then((res) => res?.[0]);
         }),
 });

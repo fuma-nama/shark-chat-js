@@ -3,7 +3,6 @@ import { NextPageWithLayout } from "../_app";
 import { text } from "@/components/system/text";
 import { GetServerSideProps } from "next";
 import { Group } from "@prisma/client";
-import prisma from "@/server/prisma";
 import { Avatar } from "@/components/system/avatar";
 import { groupIcon } from "@/utils/media/format";
 import { Button } from "@/components/system/button";
@@ -11,6 +10,9 @@ import { useMutationHandlers } from "@/utils/handlers/trpc";
 import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
 import Head from "next/head";
+import db from "@/server/db/client";
+import { groupInvites, groups } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 type Props = {
     group: Group;
@@ -85,12 +87,11 @@ export const getServerSideProps: GetServerSideProps<Props | {}> = async ({
 
     if (code.startsWith("@")) {
         const name = code.slice(1);
-
-        const group = await prisma.group.findUnique({
-            where: {
-                unique_name: name,
-            },
-        });
+        const groupResult = await db
+            .select()
+            .from(groups)
+            .where(eq(groups.unique_name, name));
+        const group = groupResult[0];
 
         if (group != null && group.public) {
             return {
@@ -102,19 +103,16 @@ export const getServerSideProps: GetServerSideProps<Props | {}> = async ({
             };
         }
     } else {
-        const invite = await prisma.groupInvite.findUnique({
-            where: {
-                code,
-            },
-            include: {
-                group: true,
-            },
-        });
+        const inviteResult = await db
+            .select({ group: groups })
+            .from(groupInvites)
+            .where(eq(groupInvites.code, code))
+            .leftJoin(groups, eq(groups.id, groupInvites.group_id));
 
-        if (invite != null) {
+        if (inviteResult[0] != null) {
             return {
                 props: {
-                    group: invite.group,
+                    group: inviteResult[0].group,
                     query: code,
                     type: "code",
                 },

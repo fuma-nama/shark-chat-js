@@ -4,10 +4,12 @@ import {
     SessionToken,
     status,
 } from "@inworld/nodejs-sdk";
-import prisma from "./prisma";
 import { channels } from "@/server/ably";
 import { User } from "@prisma/client";
 import redis from "./redis";
+import db from "./db/client";
+import { messages, users } from "./db/schema";
+import { eq } from "drizzle-orm";
 
 type Message = {
     group_id: number;
@@ -87,16 +89,19 @@ function sendErrorMessage(group_id: number, message?: string) {
 
 async function sendMessage(group_id: number, content: string) {
     const bot = await createBotAccount();
-    const message = await prisma.message.create({
-        data: {
-            author_id: bot.id,
-            content,
-            group_id,
-        },
+    const insertResult = await db.insert(messages).values({
+        author_id: bot.id,
+        content,
+        group_id,
     });
 
+    const message = await db
+        .select()
+        .from(messages)
+        .where(eq(messages.id, Number(insertResult.insertId)));
+
     await channels.chat.message_sent.publish([group_id], {
-        ...message,
+        ...message[0],
         author: bot,
     });
 }
@@ -107,19 +112,17 @@ declare global {
 
 async function createBotAccount() {
     if (global.bot_account != null) return global.bot_account;
-
-    global.bot_account = await prisma.user.upsert({
-        create: {
-            id: "shark",
-            name: "Shark AI",
-            is_ai: true,
-        },
-        where: {
-            id: "shark",
-        },
-        update: {},
+    await db.insert(users).ignore().values({
+        id: "shark",
+        name: "Shark AI",
+        is_ai: true,
     });
+    const selectResult = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, "shark"));
 
+    global.bot_account = selectResult[0];
     return global.bot_account;
 }
 
