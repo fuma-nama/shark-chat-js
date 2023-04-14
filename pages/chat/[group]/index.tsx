@@ -38,7 +38,7 @@ const GroupChat: NextPageWithLayout = () => {
         enabled: status === "authenticated",
         staleTime: Infinity,
         getPreviousPageParam: (messages) =>
-            messages.length != 0
+            messages.length >= variables.count
                 ? messages[messages.length - 1].timestamp
                 : null,
     });
