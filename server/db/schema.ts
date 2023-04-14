@@ -1,3 +1,4 @@
+import { InferModel } from "drizzle-orm";
 import {
     int,
     mysqlTable,
@@ -160,19 +161,10 @@ export const users = mysqlTable(
     })
 );
 
-export const verificationTokens = mysqlTable(
-    `VerificationToken`,
-    {
-        identifier: varchar(`identifier`, { length: 191 }).notNull(),
-        token: varchar(`token`, { length: 191 }).notNull(),
-        expires: datetime(`expires`, { fsp: 3 }).notNull(),
-    },
-    (table) => ({
-        VerificationToken_token_key: uniqueIndex(
-            "VerificationToken_token_key"
-        ).on(table.token),
-        VerificationToken_identifier_token_key: uniqueIndex(
-            `VerificationToken_identifier_token_key`
-        ).on(table.identifier, table.token),
-    })
-);
+export type Group = InferModel<typeof groups>;
+export type User = InferModel<typeof users>;
+export type Message = InferModel<typeof messages>;
+export type DirectMessage = InferModel<typeof directMessages>;
+export type DirectMessageChannel = InferModel<typeof directMessageChannels>;
+export type GroupInvite = InferModel<typeof groupInvites>;
+export type Member = InferModel<typeof members>;

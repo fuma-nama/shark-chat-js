@@ -3,13 +3,14 @@ import { router } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/server/ably";
-import { RecentChatType, contentSchema, userSelect } from "../schema/chat";
-import { getDMLastRead, setDMLastRead } from "../utils/last-read";
-import { getLastMessage, setLastMessage } from "../utils/dm-last-message";
+import { RecentChatType, contentSchema } from "../schema/chat";
+import { getDMLastRead, setDMLastRead } from "../redis/last-read";
+import { getLastMessage, setLastMessage } from "../redis/dm-last-message";
 import db from "../db/client";
 import { directMessageChannels, directMessages, users } from "../db/schema";
 import { and, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
+import { update, userSelect } from "../db/utils";
 
 export const dmRouter = router({
     checkout: protectedProcedure
@@ -42,11 +43,7 @@ export const dmRouter = router({
         )
         .query(async ({ input }) => {
             const target_user = await db
-                .select({
-                    name: users.name,
-                    id: users.id,
-                    image: users.image,
-                })
+                .select(userSelect)
                 .from(users)
                 .where(eq(users.id, input.userId))
                 .then((res) => res[0]);
@@ -63,7 +60,7 @@ export const dmRouter = router({
             async () => {
                 const channels = await db
                     .select({
-                        receiver: users,
+                        receiver: userSelect,
                     })
                     .from(directMessageChannels)
                     .where(
@@ -110,10 +107,7 @@ export const dmRouter = router({
                                     )
                                 ),
                                 last_read != null
-                                    ? gt(
-                                          directMessages.timestamp,
-                                          new Date(last_read)
-                                      )
+                                    ? gt(directMessages.timestamp, last_read)
                                     : undefined
                             )
                         );
@@ -160,8 +154,16 @@ export const dmRouter = router({
             const messageResult = await db
                 .select({
                     ...(directMessages as typeof directMessages._.columns),
-                    receiver,
-                    author,
+                    receiver: {
+                        name: receiver.name,
+                        id: receiver.id,
+                        image: receiver.image,
+                    },
+                    author: {
+                        name: author.name,
+                        id: author.id,
+                        image: author.image,
+                    },
                 })
                 .from(directMessages)
                 .where(eq(directMessages.id, Number(insertId)))
@@ -204,11 +206,7 @@ export const dmRouter = router({
             return await db
                 .select({
                     ...(directMessages as typeof directMessages._.columns),
-                    author: {
-                        name: users.name,
-                        image: users.image,
-                        id: users.id,
-                    },
+                    author: userSelect,
                 })
                 .from(directMessages)
                 .leftJoin(users, eq(directMessages.author_id, users.id))
@@ -256,18 +254,15 @@ export const dmRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const result = await db
-                .update(directMessages)
-                .set({
-                    content: input.content,
-                })
-                .where(
-                    and(
-                        eq(directMessages.id, input.messageId),
-                        eq(directMessages.author_id, ctx.session.user.id),
-                        eq(directMessages.receiver_id, input.userId)
-                    )
-                );
+            const result = await update(directMessages, {
+                content: input.content,
+            }).where(
+                and(
+                    eq(directMessages.id, input.messageId),
+                    eq(directMessages.author_id, ctx.session.user.id),
+                    eq(directMessages.receiver_id, input.userId)
+                )
+            );
 
             if (result.rowsAffected === 0)
                 throw new TRPCError({
@@ -326,11 +321,7 @@ export const dmRouter = router({
         )
         .mutation(async ({ ctx, input }) => {
             const rows = await db
-                .select({
-                    image: users.image,
-                    name: users.name,
-                    id: users.id,
-                })
+                .select(userSelect)
                 .from(users)
                 .where(eq(users.id, ctx.session.user.id));
 

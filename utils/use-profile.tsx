@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { User } from "@/server/db/schema";
 import { useSession } from "next-auth/react";
 import { trpc } from "./trpc";
 import { Serialize } from "./types";

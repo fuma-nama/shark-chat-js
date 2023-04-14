@@ -5,10 +5,11 @@ import { protectedProcedure, router } from "./../trpc";
 import { contentSchema } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
 import { onReceiveMessage } from "../inworld";
-import { getLastRead, setLastRead } from "../utils/last-read";
+import { getLastRead, setLastRead } from "../redis/last-read";
 import db from "../db/client";
 import { groups, messages, users } from "../db/schema";
 import { and, desc, eq, gt, lt } from "drizzle-orm";
+import { update, userSelect } from "../db/utils";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -29,7 +30,10 @@ export const chatRouter = router({
                 });
 
                 const message = await db
-                    .select()
+                    .select({
+                        ...(messages as typeof messages._.columns),
+                        author: userSelect,
+                    })
                     .from(messages)
                     .where(eq(messages.id, Number(insertResult.insertId)))
                     .innerJoin(users, eq(users.id, messages.author_id))
@@ -38,16 +42,11 @@ export const chatRouter = router({
                 await setLastRead(
                     input.groupId,
                     ctx.session.user.id,
-                    message.Message.timestamp
+                    message.timestamp
                 );
 
                 return {
-                    ...message.Message,
-                    author: {
-                        name: message.User.name,
-                        image: message.User.image,
-                        id: message.User.id,
-                    },
+                    ...message,
                     nonce: input.nonce,
                 };
             });
@@ -80,11 +79,7 @@ export const chatRouter = router({
             return await db
                 .select({
                     ...(messages as typeof messages._.columns),
-                    author: {
-                        name: users.name,
-                        id: users.id,
-                        image: users.image,
-                    },
+                    author: userSelect,
                 })
                 .from(messages)
                 .where(
@@ -111,18 +106,15 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const rows = await db
-                .update(messages)
-                .set({
-                    content: input.content,
-                })
-                .where(
-                    and(
-                        eq(messages.id, input.messageId),
-                        eq(messages.author_id, ctx.session.user.id),
-                        eq(messages.group_id, input.groupId)
-                    )
-                );
+            const rows = await update(messages, {
+                content: input.content,
+            }).where(
+                and(
+                    eq(messages.id, input.messageId),
+                    eq(messages.author_id, ctx.session.user.id),
+                    eq(messages.group_id, input.groupId)
+                )
+            );
 
             if (rows.rowsAffected === 0)
                 throw new TRPCError({
@@ -215,11 +207,7 @@ export const chatRouter = router({
         )
         .mutation(async ({ ctx, input }) => {
             const user = await db
-                .select({
-                    name: users.name,
-                    id: users.id,
-                    image: users.image,
-                })
+                .select(userSelect)
                 .from(users)
                 .where(eq(users.id, ctx.session.user.id))
                 .then((res) => res[0]);

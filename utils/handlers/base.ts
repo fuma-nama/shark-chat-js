@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { type RouterInput, trpc } from "@/utils/trpc";
-import type { Group } from "@prisma/client";
+import type { Group } from "@/server/db/schema";
 import type { Serialize } from "../types";
 import type { GroupWithNotifications } from "@/server/schema/group";
 import type { MessageType } from "@/server/schema/chat";

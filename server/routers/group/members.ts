@@ -1,9 +1,11 @@
-import prisma from "@/server/prisma";
 import { protectedProcedure, router } from "@/server/trpc";
 import { channels } from "@/server/ably";
 import { checkIsMemberOf, checkIsOwnerOf } from "@/utils/trpc/permissions";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import db from "@/server/db/client";
+import { members, users } from "@/server/db/schema";
+import { and, eq } from "drizzle-orm";
 
 export const membersRouter = router({
     get: protectedProcedure
@@ -15,20 +17,18 @@ export const membersRouter = router({
         .query(async ({ ctx, input }) => {
             await checkIsMemberOf(input.groupId, ctx.session);
 
-            return prisma.member.findMany({
-                include: {
+            return await db
+                .select({
+                    ...(members as typeof members._.columns),
                     user: {
-                        select: {
-                            image: true,
-                            name: true,
-                            id: true,
-                        },
+                        name: users.name,
+                        id: users.id,
+                        image: users.image,
                     },
-                },
-                where: {
-                    group_id: input.groupId,
-                },
-            });
+                })
+                .from(members)
+                .where(eq(members.group_id, input.groupId))
+                .innerJoin(users, eq(users.id, members.user_id));
         }),
     kick: protectedProcedure
         .input(
@@ -46,14 +46,14 @@ export const membersRouter = router({
                 });
             }
 
-            await prisma.member.delete({
-                where: {
-                    group_id_user_id: {
-                        group_id: input.groupId,
-                        user_id: input.userId,
-                    },
-                },
-            });
+            await db
+                .delete(members)
+                .where(
+                    and(
+                        eq(members.group_id, input.groupId),
+                        eq(members.user_id, input.userId)
+                    )
+                );
 
             await channels.private.group_removed.publish([input.userId], {
                 id: input.groupId,

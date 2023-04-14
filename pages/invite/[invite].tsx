@@ -2,7 +2,7 @@ import { BaseLayout } from "@/components/layout/base";
 import { NextPageWithLayout } from "../_app";
 import { text } from "@/components/system/text";
 import { GetServerSideProps } from "next";
-import { Group } from "@prisma/client";
+import { Group } from "@/server/db/schema";
 import { Avatar } from "@/components/system/avatar";
 import { groupIcon } from "@/utils/media/format";
 import { Button } from "@/components/system/button";

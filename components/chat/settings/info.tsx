@@ -5,7 +5,7 @@ import { Button } from "@/components/system/button";
 import { label, text } from "@/components/system/text";
 import { groupIcon } from "@/utils/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
-import { Group } from "@prisma/client";
+import { Group } from "@/server/db/schema";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useState } from "react";
 
@@ -87,7 +87,6 @@ function EditGroupPanel({
             defaultValues: {
                 unique_name: group.unique_name,
                 name: group.name,
-                public: group.public,
                 icon: undefined,
             },
         }

@@ -1,4 +1,4 @@
-import { Group } from "@prisma/client";
+import { Group } from "@/server/db/schema";
 import { z } from "zod";
 
 export const uniqueNameSchema = z

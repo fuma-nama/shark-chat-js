@@ -1,5 +1,4 @@
-import prisma from "@/server/prisma";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { authAdapter } from "@/server/nextauth-adapter";
 import NextAuth, { DefaultSession, type AuthOptions } from "next-auth";
 import { DefaultJWT } from "next-auth/jwt";
 import GithubProvider from "next-auth/providers/github";
@@ -22,7 +21,7 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: AuthOptions = {
-    adapter: PrismaAdapter(prisma),
+    adapter: authAdapter,
     providers: [
         GithubProvider({
             clientId: process.env.GITHUB_ID as string,

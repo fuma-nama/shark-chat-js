@@ -1,6 +1,8 @@
 # Shark Chat
 
-A Simple Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Next 13
+A Simple Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Drizzle ORM, Next 13
+
+![preview](./document/screen_shot.png)
 
 ## Features
 
@@ -16,8 +18,4 @@ A Simple Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Next 1
 -   Light & Dark Mode
 -   100% Typescript
 
-## Preview
-
-Url: https://shark-chat.vercel.app
-
-![preview](./document/screen_shot.png)
+**Play with it:** https://shark-chat.vercel.app

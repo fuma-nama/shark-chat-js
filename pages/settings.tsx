@@ -8,7 +8,7 @@ import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
-import { User } from "@prisma/client";
+import { User } from "@/server/db/schema";
 import { Serialize } from "@/utils/types";
 import { useUpdateProfileMutation } from "@/utils/trpc/update-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";

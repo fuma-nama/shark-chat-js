@@ -1,5 +1,4 @@
 import { TRPCError } from "@trpc/server";
-import prisma from "@/server/prisma";
 import { z } from "zod";
 import { protectedProcedure, router } from "../../trpc";
 import { checkIsOwnerOf } from "@/utils/trpc/permissions";
@@ -11,31 +10,42 @@ import {
 } from "../../schema/group";
 import { membersRouter } from "./members";
 import { channels } from "@/server/ably";
-import { getLastRead } from "@/server/utils/last-read";
+import { getLastRead } from "@/server/redis/last-read";
 import db from "@/server/db/client";
-import { members } from "@/server/db/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { groupInvites, groups, members, messages } from "@/server/db/schema";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { requireOne, update } from "@/server/db/utils";
 
 export const groupRouter = router({
     create: protectedProcedure
         .input(createGroupSchema)
-        .mutation(async ({ ctx, input }) => {
-            return await prisma.group.create({
-                data: {
-                    name: input.name,
-                    owner_id: ctx.session.user.id,
-                    members: {
-                        create: {
-                            user_id: ctx.session.user.id,
-                        },
-                    },
-                },
+        .mutation(({ ctx, input }) => {
+            return db.transaction(async () => {
+                const group_id = await db
+                    .insert(groups)
+                    .values({
+                        name: input.name,
+                        owner_id: ctx.session.user.id,
+                        unique_name: createId(),
+                    })
+                    .then((res) => Number(res.insertId));
+
+                await db.insert(members).values({
+                    user_id: ctx.session.user.id,
+                    group_id: group_id,
+                });
+
+                return await db
+                    .select()
+                    .from(groups)
+                    .where(eq(groups.id, group_id))
+                    .then((res) => requireOne(res));
             });
         }),
-    all: protectedProcedure.query(async ({ ctx }) => {
-        return await prisma.$transaction(async () =>
-            getGroupWithNotifications(ctx.session.user.id)
-        );
-    }),
+    all: protectedProcedure.query(({ ctx }) =>
+        getGroupsWithNotifications(ctx.session.user.id)
+    ),
     info: protectedProcedure
         .input(
             z.object({
@@ -43,17 +53,17 @@ export const groupRouter = router({
             })
         )
         .query(async ({ input, ctx }) => {
-            const member = await prisma.member.findUnique({
-                select: {
-                    group: true,
-                },
-                where: {
-                    group_id_user_id: {
-                        group_id: input.groupId,
-                        user_id: ctx.session.user.id,
-                    },
-                },
-            });
+            const member = await db
+                .select({ group: groups })
+                .from(members)
+                .where(
+                    and(
+                        eq(members.group_id, input.groupId),
+                        eq(members.user_id, ctx.session.user.id)
+                    )
+                )
+                .innerJoin(groups, eq(members.group_id, groups.id))
+                .then((res) => res[0]);
 
             if (member == null) {
                 throw new TRPCError({
@@ -71,18 +81,18 @@ export const groupRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const invite = await prisma.groupInvite.findUnique({
-                where: {
-                    code: input.code,
-                },
-            });
-            if (invite == null)
+            const invites = await db
+                .select()
+                .from(groupInvites)
+                .where(eq(groupInvites.code, input.code));
+
+            if (invites.length === 0)
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: "Invite not found",
                 });
 
-            return await joinMember(invite.group_id, ctx.session.user.id);
+            return await joinMember(invites[0].group_id, ctx.session.user.id);
         }),
     joinByUniqueName: protectedProcedure
         .input(
@@ -91,11 +101,12 @@ export const groupRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const group = await prisma.group.findUnique({
-                where: {
-                    unique_name: input.uniqueName,
-                },
-            });
+            const group = await db
+                .select()
+                .from(groups)
+                .where(eq(groups.unique_name, input.uniqueName))
+                .then((res) => res[0]);
+
             if (group == null)
                 throw new TRPCError({
                     code: "NOT_FOUND",
@@ -114,21 +125,20 @@ export const groupRouter = router({
         .input(updateGroupSchema)
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
+            await update(groups, {
+                name: input.name,
+                icon_hash: input.icon_hash,
+                unique_name: input.unique_name,
+                public: input.public,
+            }).where(eq(groups.id, input.groupId));
 
-            const updated = await prisma.group.update({
-                where: {
-                    id: input.groupId,
-                },
-                data: {
-                    name: input.name,
-                    icon_hash: input.icon_hash,
-                    unique_name: input.unique_name,
-                    public: input.public,
-                },
-            });
+            const updated = await db
+                .select()
+                .from(groups)
+                .where(eq(groups.id, input.groupId))
+                .then((res) => requireOne(res));
 
             await channels.chat.group_updated.publish([input.groupId], updated);
-
             return updated;
         }),
     delete: protectedProcedure
@@ -136,10 +146,20 @@ export const groupRouter = router({
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
 
-            await prisma.group.deleteMany({
-                where: {
-                    id: input.groupId,
-                },
+            db.transaction(async () => {
+                await db.delete(groups).where(eq(groups.id, input.groupId));
+
+                await db
+                    .delete(messages)
+                    .where(eq(messages.group_id, input.groupId));
+
+                await db
+                    .delete(members)
+                    .where(eq(members.group_id, input.groupId));
+
+                await db
+                    .delete(groupInvites)
+                    .where(eq(groupInvites.group_id, input.groupId));
             });
 
             await channels.chat.group_deleted.publish([input.groupId], {
@@ -153,11 +173,12 @@ export const groupRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const group = await prisma.group.findUnique({
-                where: {
-                    id: input.groupId,
-                },
-            });
+            const group = await db
+                .select()
+                .from(groups)
+                .where(eq(groups.id, input.groupId))
+                .then((res) => res[0]);
+
             if (group == null)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
@@ -170,12 +191,14 @@ export const groupRouter = router({
                         "The group owner cannot leave the group, please transfer your permissions before leaving it",
                 });
 
-            await prisma.member.deleteMany({
-                where: {
-                    group_id: input.groupId,
-                    user_id: ctx.session.user.id,
-                },
-            });
+            await db
+                .delete(members)
+                .where(
+                    and(
+                        eq(members.group_id, input.groupId),
+                        eq(members.user_id, ctx.session.user.id)
+                    )
+                );
         }),
     invite: inviteRouter,
     member: membersRouter,
@@ -183,18 +206,16 @@ export const groupRouter = router({
 
 async function joinMember(groupId: number, userId: string) {
     try {
-        await prisma.member.createMany({
-            data: {
-                group_id: groupId,
-                user_id: userId,
-            },
+        await db.insert(members).values({
+            group_id: groupId,
+            user_id: userId,
         });
 
-        return await prisma.group.findUniqueOrThrow({
-            where: {
-                id: groupId,
-            },
-        });
+        return await db
+            .select()
+            .from(groups)
+            .where(eq(groups.id, groupId))
+            .then((res) => requireOne(res));
     } catch (e) {
         throw new TRPCError({
             code: "FORBIDDEN",
@@ -203,38 +224,48 @@ async function joinMember(groupId: number, userId: string) {
     }
 }
 
-async function getGroupWithNotifications(
+const getGroupsWithNotifications = (
     userId: string
-): Promise<GroupWithNotifications[]> {
-    const joined = await prisma.member.findMany({
-        orderBy: {
-            group_id: "desc",
-        },
-        select: {
-            group: true,
-        },
-        where: {
-            user_id: userId,
-        },
-    });
+): Promise<GroupWithNotifications[]> =>
+    db.transaction(
+        async () => {
+            const result = await db
+                .select({
+                    group: groups,
+                })
+                .from(members)
+                .innerJoin(groups, eq(groups.id, members.group_id))
+                .where(eq(members.user_id, userId))
+                .orderBy(desc(members.group_id));
 
-    return await Promise.all(
-        joined.map(async (member) => {
-            const count = await prisma.message.count({
-                where: {
-                    group_id: member.group.id,
-                    timestamp: {
-                        gt:
-                            (await getLastRead(member.group.id, userId)) ??
-                            undefined,
-                    },
-                },
-            });
+            return await Promise.all(
+                result.map(async ({ group }) => {
+                    const last_read = await getLastRead(group.id, userId);
 
-            return {
-                ...member.group,
-                unread_messages: count,
-            };
-        })
+                    const result = await db
+                        .select({
+                            count: sql<string>`count(*)`,
+                        })
+                        .from(messages)
+                        .where(
+                            and(
+                                eq(messages.group_id, group.id),
+                                last_read != null
+                                    ? gt(messages.timestamp, last_read)
+                                    : undefined
+                            )
+                        )
+                        .then((res) => requireOne(res));
+
+                    return {
+                        ...group,
+                        unread_messages: Number(result.count),
+                    };
+                })
+            );
+        },
+        {
+            isolationLevel: "read committed",
+            accessMode: "read only",
+        }
     );
-}

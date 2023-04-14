@@ -4,7 +4,7 @@ import { text } from "@/components/system/text";
 import { UserInfo } from "@/server/schema/chat";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "@/utils/types";
-import { Member } from "@prisma/client";
+import { Member } from "@/server/db/schema";
 import { useSession } from "next-auth/react";
 
 export default function Members({

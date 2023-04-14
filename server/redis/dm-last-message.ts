@@ -1,5 +1,5 @@
 import { getHash } from "@/utils/get-hash";
-import redis from "../redis";
+import redis from "./client";
 
 function getKey(user1: string, user2: string) {
     if (getHash(user1) > getHash(user2)) {
