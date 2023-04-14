@@ -1,4 +1,4 @@
-import { InferModel } from "drizzle-orm";
+import { InferModel, sql } from "drizzle-orm";
 import {
     int,
     mysqlTable,
@@ -7,11 +7,12 @@ import {
     primaryKey,
     uniqueIndex,
     index,
-    timestamp,
     serial,
-    datetime,
     boolean,
 } from "drizzle-orm/mysql-core";
+import { datetimeUtc as datetime } from "./datetimeUTC";
+
+const current_timestamp = (fsp: number) => sql<Date>`current_timestamp(${fsp})`;
 
 export const accounts = mysqlTable(
     "Account",
@@ -46,7 +47,9 @@ export const directMessages = mysqlTable(
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
         receiver_id: varchar("receiver_id", { length: 191 }).notNull(),
         content: varchar("content", { length: 2000 }).notNull(),
-        timestamp: timestamp("timestamp", { fsp: 3 }).notNull().defaultNow(),
+        timestamp: datetime("timestamp", { fsp: 3 })
+            .notNull()
+            .default(current_timestamp(3)),
     },
     (table) => ({
         DirectMessage_receiver_id_idx: index(
@@ -120,7 +123,9 @@ export const messages = mysqlTable(
         group_id: int(`group_id`).notNull(),
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
         content: varchar(`content`, { length: 2000 }).notNull(),
-        timestamp: timestamp(`timestamp`, { fsp: 3 }).notNull().defaultNow(),
+        timestamp: datetime(`timestamp`, { fsp: 3 })
+            .notNull()
+            .default(current_timestamp(3)),
     },
     (table) => ({
         Message_group_id_idx: index("Message_group_id_idx").on(table.group_id),
