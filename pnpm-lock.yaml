@@ -52,6 +52,9 @@ dependencies:
   '@tanstack/react-query':
     specifier: ^4.24.4
     version: 4.24.4(react-dom@18.2.0)(react@18.2.0)
+  '@trpc-limiter/core':
+    specifier: ^0.0.8
+    version: 0.0.8(@trpc/client@10.10.0)(@trpc/server@10.10.0)
   '@trpc/client':
     specifier: ^10.10.0
     version: 10.10.0(@trpc/server@10.10.0)
@@ -67,6 +70,9 @@ dependencies:
   '@types/uuid':
     specifier: ^9.0.1
     version: 9.0.1
+  '@upstash/ratelimit':
+    specifier: ^0.4.1
+    version: 0.4.1(@upstash/redis@1.20.2)
   '@upstash/redis':
     specifier: ^1.20.2
     version: 1.20.2
@@ -1521,6 +1527,17 @@ packages:
     dev: false
     optional: true
 
+  /@trpc-limiter/core@0.0.8(@trpc/client@10.10.0)(@trpc/server@10.10.0):
+    resolution: {integrity: sha512-ptwRvjmCHIUow4mVh6O5JpDMVcDLMn+k1tpaB55ZLO/2YGFo705gN1KMM4tBWZNzp07hMyGZS7PXzn0MUxbxSQ==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@trpc/client': ^10.0.0-proxy-beta.21
+      '@trpc/server': ^10.0.0-proxy-beta.21
+    dependencies:
+      '@trpc/client': 10.10.0(@trpc/server@10.10.0)
+      '@trpc/server': 10.10.0
+    dev: false
+
   /@trpc/client@10.10.0(@trpc/server@10.10.0):
     resolution: {integrity: sha512-HRVGkOsR4FIYpyQILP84HLbj6pRnLKgxy4AIelTf9d9TxD60M5bNhbR2Uz3hqNSb9a2ppaRJBLv7twlV9b4qHQ==}
     peerDependencies:
@@ -1690,6 +1707,26 @@ packages:
       '@typescript-eslint/types': 5.50.0
       eslint-visitor-keys: 3.3.0
     dev: true
+
+  /@upstash/core-analytics@0.0.6:
+    resolution: {integrity: sha512-cpPSR0XJAJs4Ddz9nq3tINlPS5aLfWVCqhhtHnXt4p7qr5+/Znlt1Es736poB/9rnl1hAHrOsOvVj46NEXcVqA==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@upstash/redis': 1.20.2
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@upstash/ratelimit@0.4.1(@upstash/redis@1.20.2):
+    resolution: {integrity: sha512-NdL4E8jOrqSIOuDFVx5TLdh0/2tefgnrzBeqx+soy1cjGnx8sKdCZpOi4xhG5rm6F9ch89ZzIcBm6iRhx+tLgA==}
+    peerDependencies:
+      '@upstash/redis': ^1.20.1
+    dependencies:
+      '@upstash/core-analytics': 0.0.6
+      '@upstash/redis': 1.20.2
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /@upstash/redis@1.20.2:
     resolution: {integrity: sha512-9QS/SypDxeeh672H7dEEmuYOX5TtPYnaDLlhxWJEPd8LzcEQ6hohwDJuojpqGkvvvrK58mlWOkN1GrMxbXPTeQ==}

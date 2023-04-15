@@ -8,6 +8,7 @@ import { authOptions } from "@/pages/api/auth/[...nextauth]";
  */
 export async function createContext(opts: CreateNextContextOptions) {
     return {
+        req: opts.req,
         session: await getServerSession(opts.req, opts.res, authOptions),
     };
 }
