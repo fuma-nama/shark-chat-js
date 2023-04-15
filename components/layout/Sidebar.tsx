@@ -48,7 +48,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 overflow-x-hidden overflow-y-auto h-full",
+                    "relative flex flex-col p-4 pb-0 gap-1 bg-light-50 dark:bg-dark-800 overflow-x-hidden overflow-y-auto h-full",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
                     "max-md:transition-transform max-md:duration-300",
                     !isOpen && "max-md:-translate-x-full"
@@ -60,7 +60,7 @@ export default function Sidebar({ children }: { children: ReactNode }) {
                 >
                     <Cross1Icon className="w-5 h-5" />
                 </button>
-                <div className="flex flex-col items-center justify-center aspect-[5/2] bg-gradient-to-br from-brand-400 to-brand-500 rounded-xl text-5xl mb-4">
+                <div className="flex flex-col items-center justify-center aspect-[5/2] bg-gradient-to-br from-brand-400 to-brand-500 rounded-xl text-5xl mb-4 flex-shrink-0">
                     <p className="font-light text-white">Shark</p>
                 </div>
                 <Items />
@@ -119,26 +119,28 @@ function BottomCard() {
     if (status !== "authenticated") return <></>;
 
     return (
-        <Link
-            href="/settings"
-            className={clsx(
-                "-mx-2 p-2 rounded-xl flex flex-row items-center group cursor-pointer mt-auto",
-                "hover:bg-brand-200/20 dark:hover:bg-brand-300/10 transition-colors"
-            )}
-        >
-            <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
-                <Avatar
-                    src={profile.image ?? undefined}
-                    fallback={profile.name ?? undefined}
-                />
-            </div>
-            <div className="flex-1 overflow-hidden flex flex-col">
-                <p className="font-semibold">{profile.name}</p>
-                <p className="text-accent-800 dark:text-accent-600 text-sm text-ellipsis inline-block w-full break-keep overflow-hidden">
-                    {profile.email}
-                </p>
-            </div>
-            <ChevronRightIcon className="w-6 h-6 group-hover:translate-x-1 transition-transform my-auto text-accent-800" />
-        </Link>
+        <div className="sticky bottom-0 bg-light-50 dark:bg-dark-800 mt-auto -mx-2 py-2">
+            <Link
+                href="/settings"
+                className={clsx(
+                    "p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors",
+                    "hover:bg-brand-200/20 dark:hover:bg-brand-300/10"
+                )}
+            >
+                <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
+                    <Avatar
+                        src={profile.image ?? undefined}
+                        fallback={profile.name ?? undefined}
+                    />
+                </div>
+                <div className="flex-1 overflow-hidden flex flex-col">
+                    <p className="font-semibold">{profile.name}</p>
+                    <p className="text-accent-800 dark:text-accent-600 text-sm text-ellipsis inline-block w-full break-keep overflow-hidden">
+                        {profile.email}
+                    </p>
+                </div>
+                <ChevronRightIcon className="w-6 h-6 group-hover:translate-x-1 transition-transform my-auto text-accent-800" />
+            </Link>
+        </div>
     );
 }
