@@ -10,7 +10,8 @@ export async function checkIsMemberOf(group: number, user: Session) {
         .from(members)
         .where(
             and(eq(members.group_id, group), eq(members.user_id, user.user.id))
-        );
+        )
+        .limit(1);
 
     if (rows.length === 0) {
         throw new TRPCError({
@@ -24,7 +25,8 @@ export async function checkIsOwnerOf(group: number, user: Session) {
     const rows = await db
         .select()
         .from(groups)
-        .where(and(eq(groups.owner_id, user.user.id), eq(groups.id, group)));
+        .where(and(eq(groups.owner_id, user.user.id), eq(groups.id, group)))
+        .limit(1);
 
     if (rows.length === 0) {
         throw new TRPCError({
