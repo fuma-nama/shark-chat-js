@@ -4,6 +4,7 @@ import { createTRPCNext } from "@trpc/next";
 import type { inferRouterInputs } from "@trpc/server";
 import type { AppRouter } from "../../server/routers/_app";
 import { showErrorToast } from "../stores/page";
+import type { CreateReactUtilsProxy } from "@trpc/react-query/shared";
 
 export const trpc = createTRPCNext<AppRouter>({
     config() {
@@ -37,3 +38,4 @@ export const trpc = createTRPCNext<AppRouter>({
 });
 
 export type RouterInput = inferRouterInputs<AppRouter>;
+export type RouterUtils = CreateReactUtilsProxy<AppRouter, unknown>;

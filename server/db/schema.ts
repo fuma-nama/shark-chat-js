@@ -92,9 +92,7 @@ export const groups = mysqlTable(
         Group_unique_name_key: uniqueIndex(`Group_unique_name_key`).on(
             table.unique_name
         ),
-        Group_owner_id_idx: uniqueIndex(`Group_owner_id_idx`).on(
-            table.owner_id
-        ),
+        Group_owner_id_idx: index(`Group_owner_id_idx`).on(table.owner_id),
     })
 );
 

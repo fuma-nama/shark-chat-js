@@ -2,8 +2,7 @@ import React, { ReactNode } from "react";
 import { Dialog } from "../system/dialog";
 import { createGroupSchema } from "@/server/schema/group";
 import { useMutationHandlers } from "@/utils/handlers/trpc";
-import { trpc } from "@/utils/trpc";
-import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
+import { updateGroupInfo } from "@/utils/trpc/update-group-info";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -11,6 +10,7 @@ import { ImagePicker } from "../input/ImagePicker";
 import { Button } from "../system/button";
 import { input } from "../system/input";
 import { label } from "../system/text";
+import { useMutation } from "@tanstack/react-query";
 
 export default function CreateGroupModal({
     children,
@@ -39,7 +39,6 @@ const schema = createGroupSchema.extend({
 });
 
 function Content({ onClose }: { onClose: () => void }) {
-    const handlers = useMutationHandlers();
     const { register, control, handleSubmit } = useForm<z.infer<typeof schema>>(
         {
             resolver: zodResolver(schema),
@@ -50,28 +49,8 @@ function Content({ onClose }: { onClose: () => void }) {
         }
     );
 
-    const updateMutation = useUpdateGroupInfoMutation();
-    const create = trpc.group.create.useMutation();
-
-    const isLoading = updateMutation.isLoading || create.isLoading;
-    const onSubmit = handleSubmit(({ name, icon }) => {
-        return create.mutate(
-            {
-                name,
-            },
-            {
-                async onSuccess(data) {
-                    const result = await updateMutation.mutateAsync({
-                        groupId: data.id,
-                        icon,
-                    });
-
-                    handlers.createGroup(result);
-                    onClose();
-                },
-            }
-        );
-    });
+    const mutation = useCreateMutation(onClose);
+    const onSubmit = handleSubmit((input) => mutation.mutate(input));
 
     return (
         <form className="mt-8 space-y-2" onSubmit={onSubmit}>
@@ -107,10 +86,40 @@ function Content({ onClose }: { onClose: () => void }) {
                 />
             </fieldset>
             <div className="mt-4 flex justify-end">
-                <Button type="submit" color="primary" isLoading={isLoading}>
+                <Button
+                    type="submit"
+                    color="primary"
+                    isLoading={mutation.isLoading}
+                >
                     Save
                 </Button>
             </div>
         </form>
+    );
+}
+
+function useCreateMutation(onClose: () => void) {
+    const handlers = useMutationHandlers();
+    const utils = handlers.utils;
+
+    return useMutation(
+        async ({ name, icon }: z.infer<typeof schema>) => {
+            const data = await utils.client.group.create.mutate({ name });
+
+            if (icon != null) {
+                return await updateGroupInfo(utils, {
+                    groupId: data.id,
+                    icon,
+                });
+            }
+
+            return data;
+        },
+        {
+            onSuccess(data) {
+                onClose();
+                handlers.createGroup(data);
+            },
+        }
     );
 }
