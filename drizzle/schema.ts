@@ -10,9 +10,7 @@ import {
     serial,
     boolean,
 } from "drizzle-orm/mysql-core";
-import { datetimeUtc as datetime } from "./datetimeUTC";
-
-const current_timestamp = (fsp: number) => sql<Date>`current_timestamp(${fsp})`;
+import { datetimeUtc as datetime } from "../server/db/datetimeUTC";
 
 export const accounts = mysqlTable(
     "Account",
@@ -49,7 +47,7 @@ export const directMessages = mysqlTable(
         content: varchar("content", { length: 2000 }).notNull(),
         timestamp: datetime("timestamp", { fsp: 3 })
             .notNull()
-            .default(current_timestamp(3)),
+            .default(sql`CURRENT_TIMESTAMP(3)`),
     },
     (table) => ({
         DirectMessage_receiver_id_idx: index(
@@ -123,7 +121,7 @@ export const messages = mysqlTable(
         content: varchar(`content`, { length: 2000 }).notNull(),
         timestamp: datetime(`timestamp`, { fsp: 3 })
             .notNull()
-            .default(current_timestamp(3)),
+            .default(sql`CURRENT_TIMESTAMP(3)`),
     },
     (table) => ({
         Message_group_id_idx: index("Message_group_id_idx").on(table.group_id),

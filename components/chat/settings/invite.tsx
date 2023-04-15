@@ -3,7 +3,7 @@ import { Button, IconButton } from "@/components/system/button";
 import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
 import { useCopyText } from "@/utils/use-copy-text";
-import { Group, GroupInvite } from "@/server/db/schema";
+import { Group, GroupInvite } from "@/drizzle/schema";
 import {
     CheckIcon,
     CopyIcon,

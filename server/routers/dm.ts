@@ -7,7 +7,7 @@ import { RecentChatType, contentSchema } from "../schema/chat";
 import { getDMLastRead, setDMLastRead } from "../redis/last-read";
 import { getLastMessage, setLastMessage } from "../redis/dm-last-message";
 import db from "../db/client";
-import { directMessageChannels, directMessages, users } from "../db/schema";
+import { directMessageChannels, directMessages, users } from "@/drizzle/schema";
 import { and, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { update, userSelect } from "../db/utils";

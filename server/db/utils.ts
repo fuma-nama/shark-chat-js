@@ -5,7 +5,7 @@ import type {
 } from "drizzle-orm/mysql-core";
 import { v4 as uuid } from "uuid";
 import db from "./client";
-import { users } from "./schema";
+import { users } from "@/drizzle/schema";
 import { SQL } from "drizzle-orm";
 
 export function oneOrNull<T>(items: T[]): T | null {

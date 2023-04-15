@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "f013f980-d4ab-4e1d-b709-389b7428ca2a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "bee427fd-a547-411a-8eb2-b5ac3259487a",
+  "prevId": "d0fe075c-1e43-4e16-99ad-8dd1295a94f8",
   "tables": {
     "Account": {
       "name": "Account",
@@ -190,11 +190,11 @@
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "timestamp(3)",
+          "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "(now())"
+          "default": "CURRENT_TIMESTAMP(3)"
         }
       },
       "indexes": {
@@ -298,7 +298,7 @@
           "columns": [
             "owner_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -382,11 +382,11 @@
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "timestamp(3)",
+          "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "(now())"
+          "default": "CURRENT_TIMESTAMP(3)"
         }
       },
       "indexes": {
@@ -512,51 +512,6 @@
           "name": "User_email_key",
           "columns": [
             "email"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {}
-    },
-    "VerificationToken": {
-      "name": "VerificationToken",
-      "columns": {
-        "identifier": {
-          "name": "identifier",
-          "type": "varchar(191)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "token": {
-          "name": "token",
-          "type": "varchar(191)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires": {
-          "name": "expires",
-          "type": "datetime(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "VerificationToken_token_key": {
-          "name": "VerificationToken_token_key",
-          "columns": [
-            "token"
-          ],
-          "isUnique": true
-        },
-        "VerificationToken_identifier_token_key": {
-          "name": "VerificationToken_identifier_token_key",
-          "columns": [
-            "identifier",
-            "token"
           ],
           "isUnique": true
         }

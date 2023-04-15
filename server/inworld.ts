@@ -5,10 +5,10 @@ import {
     status,
 } from "@inworld/nodejs-sdk";
 import { channels } from "@/server/ably";
-import { User } from "@/server/db/schema";
+import { User } from "@/drizzle/schema";
 import redis from "./redis/client";
 import db from "./db/client";
-import { messages, users } from "./db/schema";
+import { messages, users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 type Message = {

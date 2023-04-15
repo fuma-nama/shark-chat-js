@@ -7,7 +7,7 @@ import { checkIsMemberOf } from "@/utils/trpc/permissions";
 import { onReceiveMessage } from "../inworld";
 import { getLastRead, setLastRead } from "../redis/last-read";
 import db from "../db/client";
-import { groups, messages, users } from "../db/schema";
+import { groups, messages, users } from "../../drizzle/schema";
 import { and, desc, eq, gt, lt } from "drizzle-orm";
 import { update, userSelect } from "../db/utils";
 

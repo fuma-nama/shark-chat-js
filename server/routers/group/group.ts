@@ -13,7 +13,7 @@ import { channels } from "@/server/ably";
 import { getLastRead } from "@/server/redis/last-read";
 import db from "@/server/db/client";
 import { createId } from "@paralleldrive/cuid2";
-import { groupInvites, groups, members, messages } from "@/server/db/schema";
+import { groupInvites, groups, members, messages } from "@/drizzle/schema";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { requireOne, updateOptional } from "@/server/db/utils";
 

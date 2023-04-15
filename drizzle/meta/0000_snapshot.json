@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "fb5cc7ff-a434-4648-b85e-628095f32981",
-  "prevId": "1642df39-426c-4890-9ccc-0dc4695ac8d6",
+  "id": "d0fe075c-1e43-4e16-99ad-8dd1295a94f8",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "Account": {
       "name": "Account",
@@ -190,7 +190,7 @@
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "timestamp(3)",
+          "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -298,7 +298,7 @@
           "columns": [
             "owner_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -382,7 +382,7 @@
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "timestamp(3)",
+          "type": "datetime(3)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,

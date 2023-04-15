@@ -1,4 +1,4 @@
-import { Group } from "@/server/db/schema";
+import { Group } from "@/drizzle/schema";
 import { z } from "zod";
 
 export const uniqueNameSchema = z

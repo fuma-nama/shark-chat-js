@@ -1,7 +1,7 @@
 import { protectedProcedure, router } from "@/server/trpc";
 import { z } from "zod";
 import { checkIsOwnerOf } from "@/utils/trpc/permissions";
-import { groupInvites } from "@/server/db/schema";
+import { groupInvites } from "@/drizzle/schema";
 import db from "@/server/db/client";
 import { and, eq } from "drizzle-orm";
 import { generateInviteCode, requireOne } from "@/server/db/utils";

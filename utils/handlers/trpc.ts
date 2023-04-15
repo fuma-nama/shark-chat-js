@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Group } from "@/server/db/schema";
+import { Group } from "@/drizzle/schema";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably/client";
 import { Serialize } from "../types";

@@ -5,10 +5,9 @@ import { Button } from "@/components/system/button";
 import { label, text } from "@/components/system/text";
 import { groupIcon } from "@/utils/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
-import { Group } from "@/server/db/schema";
+import { Group } from "@/drizzle/schema";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useState } from "react";
-
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";

@@ -1,5 +1,5 @@
 import db from "@/server/db/client";
-import { groups, members } from "@/server/db/schema";
+import { groups, members } from "@/drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { Session } from "next-auth";

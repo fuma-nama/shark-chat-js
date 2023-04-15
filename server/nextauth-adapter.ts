@@ -1,7 +1,7 @@
-import { sessions } from "./db/schema";
+import { sessions } from "../drizzle/schema";
 import { Adapter, AdapterUser, VerificationToken } from "next-auth/adapters";
 import db from "./db/client";
-import { accounts, members, users } from "./db/schema";
+import { accounts, members, users } from "../drizzle/schema";
 import { and, eq } from "drizzle-orm";
 import { oneOrNull, requireOne, update } from "./db/utils";
 import { createId } from "@paralleldrive/cuid2";

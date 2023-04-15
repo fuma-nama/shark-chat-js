@@ -4,7 +4,7 @@ import { checkIsMemberOf, checkIsOwnerOf } from "@/utils/trpc/permissions";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import db from "@/server/db/client";
-import { members, users } from "@/server/db/schema";
+import { members, users } from "@/drizzle/schema";
 import { and, eq } from "drizzle-orm";
 
 export const membersRouter = router({

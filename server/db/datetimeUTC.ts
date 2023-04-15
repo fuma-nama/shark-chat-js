@@ -7,7 +7,6 @@ import {
     AnyMySqlTable,
     MySqlColumn,
     MySqlDateTimeBuilderHKT,
-    MySqlDateTimeBuilderInitial,
     MySqlDateTimeHKT,
     MySqlDatetimeConfig,
 } from "drizzle-orm/mysql-core";
@@ -55,6 +54,14 @@ class MySqlDateTime<T extends ColumnBaseConfig> extends MySqlColumn<
         return new Date(value + " UTC");
     }
 }
+
+type MySqlDateTimeBuilderInitial<TName extends string> = MySqlDateTimeBuilder<{
+    name: TName;
+    data: Date;
+    driverParam: string | number;
+    notNull: false;
+    hasDefault: false;
+}>;
 
 export function datetimeUtc<TName extends string>(
     name: TName,

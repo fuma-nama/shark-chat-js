@@ -3,7 +3,7 @@ import {
     User,
     Message,
     DirectMessageChannel,
-} from "@/server/db/schema";
+} from "@/drizzle/schema";
 import { z } from "zod";
 
 export type UserInfo = Pick<User, "id" | "name" | "image">;

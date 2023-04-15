@@ -2,7 +2,7 @@ import { BaseLayout } from "@/components/layout/base";
 import { NextPageWithLayout } from "../_app";
 import { text } from "@/components/system/text";
 import { GetServerSideProps } from "next";
-import { Group } from "@/server/db/schema";
+import { Group, groupInvites, groups } from "@/drizzle/schema";
 import { Avatar } from "@/components/system/avatar";
 import { groupIcon } from "@/utils/media/format";
 import { Button } from "@/components/system/button";
@@ -11,7 +11,6 @@ import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
 import Head from "next/head";
 import db from "@/server/db/client";
-import { groupInvites, groups } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 type Props = {
