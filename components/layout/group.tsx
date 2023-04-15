@@ -6,6 +6,10 @@ import { ComponentProps } from "react";
 import { Avatar } from "../system/avatar";
 import { AppLayout } from "./app";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { text } from "../system/text";
+import { badge } from "../system/badge";
+import { siderbarItem } from "./Sidebar";
 
 function GroupItem() {
     const { status } = useSession();
@@ -33,11 +37,7 @@ function GroupItem() {
         <div className="flex flex-row gap-2 items-center">
             <Avatar
                 size="small"
-                src={
-                    info.data.icon_hash != null
-                        ? groupIcon.url([info.data.id], info.data.icon_hash)
-                        : null
-                }
+                src={groupIcon.url([info.data.id], info.data.icon_hash)}
                 alt="icon"
                 fallback={info.data.name}
             />
@@ -52,6 +52,7 @@ export function useGroupLayout(
     return (
         <AppLayout
             {...props}
+            sidebar={<Sidebar />}
             breadcrumb={[
                 {
                     text: <GroupItem />,
@@ -62,5 +63,42 @@ export function useGroupLayout(
         >
             {props.children}
         </AppLayout>
+    );
+}
+
+function Sidebar() {
+    const router = useRouter();
+    const { status } = useSession();
+    const query = trpc.group.all.useQuery(undefined, {
+        staleTime: Infinity,
+        enabled: status === "authenticated",
+    });
+
+    return (
+        <div className="flex flex-col mt-3">
+            <p className={text({ type: "primary", size: "md" })}>Chats</p>
+            {query.data?.map((item) => {
+                const url = `/chat/${item.id}`;
+                const active = router.asPath.startsWith(url);
+                const styles = siderbarItem({ active });
+
+                return (
+                    <Link key={item.id} href={url} className={styles.root()}>
+                        <Avatar
+                            rounded="sm"
+                            size="2sm"
+                            fallback={item.name}
+                            src={groupIcon.url([item.id], item.icon_hash)}
+                        />
+                        <p className={styles.text()}>{item.name}</p>
+                        {item.unread_messages !== 0 && (
+                            <div className={badge({ className: "ml-auto" })}>
+                                {item.unread_messages}
+                            </div>
+                        )}
+                    </Link>
+                );
+            })}
+        </div>
     );
 }

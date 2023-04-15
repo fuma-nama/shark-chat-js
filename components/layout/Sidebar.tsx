@@ -11,8 +11,27 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { Avatar } from "../system/avatar";
+import { tv } from "tailwind-variants";
 
-export default function Sidebar() {
+export const siderbarItem = tv({
+    slots: {
+        root: "rounded-xl -mx-2 p-2 flex flex-row gap-2 items-center",
+        text: "text-base",
+    },
+    variants: {
+        active: {
+            true: {
+                root: "bg-brand-200/20 dark:bg-brand-300/10",
+                text: "text-brand-500 dark:text-white font-semibold",
+            },
+            false: {
+                text: "text-accent-900 dark:text-accent-100",
+            },
+        },
+    },
+});
+
+export default function Sidebar({ children }: { children: ReactNode }) {
     const [isOpen, setOpen] = usePageStore((v) => [
         v.isSidebarOpen,
         v.setSidebarOpen,
@@ -29,7 +48,7 @@ export default function Sidebar() {
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 overflow-y-auto h-full",
+                    "relative flex flex-col p-4 gap-1 bg-light-50 dark:bg-dark-800 overflow-x-hidden overflow-y-auto h-full",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
                     "max-md:transition-transform max-md:duration-300",
                     !isOpen && "max-md:-translate-x-full"
@@ -45,83 +64,53 @@ export default function Sidebar() {
                     <p className="font-light text-white">Shark</p>
                 </div>
                 <Items />
+                {children}
                 <BottomCard />
             </aside>
         </>
     );
 }
 
+const items = [
+    {
+        name: "Home",
+        route: "/home",
+        icon: <HomeIcon className="w-5 h-5" />,
+    },
+    {
+        name: "Settings",
+        route: "/settings",
+        icon: <GearIcon className="w-5 h-5" />,
+    },
+];
+
 function Items() {
-    const items = [
-        {
-            name: "Home",
-            route: "/home",
-            icon: <HomeIcon className="w-5 h-5" />,
-        },
-        {
-            name: "Settings",
-            route: "/settings",
-            icon: <GearIcon className="w-5 h-5" />,
-        },
-    ];
-    const current = useRouter().route;
+    const router = useRouter();
 
     return (
         <>
-            {items.map(({ name, route, icon }) => (
-                <Item
-                    key={route}
-                    active={current === route}
-                    icon={icon}
-                    route={route}
-                >
-                    {name}
-                </Item>
-            ))}
-        </>
-    );
-}
+            {items.map(({ name, route, icon }) => {
+                const active = route === router.route;
+                const styles = siderbarItem({ active });
 
-function Item({
-    active,
-    children,
-    icon,
-    route,
-}: {
-    active: boolean;
-    route: string;
-    icon: ReactNode;
-    children: string;
-}) {
-    return (
-        <Link
-            href={route}
-            className={clsx(
-                "rounded-xl -mx-2 p-2 flex flex-row gap-2 items-center",
-                active && "bg-brand-200/20 dark:bg-brand-300/10"
-            )}
-        >
-            <div
-                className={clsx(
-                    "rounded-xl p-1.5",
-                    active &&
-                        "bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
-                    !active &&
-                        "text-brand-400 bg-brand-100/40 dark:text-brand-100 dark:bg-brand-400/30"
-                )}
-            >
-                {icon}
-            </div>
-            <p
-                className={clsx(
-                    "text-base",
-                    active && "text-brand-500 dark:text-white font-semibold",
-                    !active && "text-accent-900 dark:text-accent-100"
-                )}
-            >
-                {children}
-            </p>
-        </Link>
+                return (
+                    <Link key={route} href={route} className={styles.root()}>
+                        <div
+                            className={clsx(
+                                "rounded-xl p-1.5",
+                                active &&
+                                    "bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
+                                !active &&
+                                    "text-brand-400 bg-brand-100/40 dark:text-brand-100 dark:bg-brand-400/30"
+                            )}
+                        >
+                            {icon}
+                        </div>
+                        <p className={styles.text()}>{name}</p>
+                    </Link>
+                );
+            })}
+        </>
     );
 }
 

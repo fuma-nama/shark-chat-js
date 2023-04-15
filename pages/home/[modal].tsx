@@ -108,11 +108,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
             )}
         >
             <Avatar
-                src={
-                    group.icon_hash != null
-                        ? groupIcon.url([group.id], group.icon_hash)
-                        : null
-                }
+                src={groupIcon.url([group.id], group.icon_hash)}
                 alt="icon"
                 fallback={group.name}
             />
@@ -120,7 +116,9 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
                 {group.name}
             </p>
             {group.unread_messages > 0 && (
-                <p className={badge()}>{group.unread_messages}</p>
+                <p className={badge({ className: "absolute top-4 right-4" })}>
+                    {group.unread_messages}
+                </p>
             )}
         </Link>
     );
@@ -146,7 +144,9 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
                 </p>
             </div>
             {chat.unread_messages > 0 && (
-                <p className={badge()}>{chat.unread_messages}</p>
+                <p className={badge({ className: "absolute top-4 right-4" })}>
+                    {chat.unread_messages}
+                </p>
             )}
         </Link>
     );

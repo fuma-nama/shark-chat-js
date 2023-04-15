@@ -20,11 +20,13 @@ export function AppLayout({
     children,
     breadcrumb,
     footer,
+    sidebar,
 }: {
     breadcrumb: BreadcrumbItem[];
     items?: ReactNode;
     children?: ReactNode;
     footer?: ReactNode;
+    sidebar?: ReactNode;
 }) {
     const { handleRootScroll, rootRef, scrollToBottom } =
         useViewScrollController();
@@ -46,7 +48,7 @@ export function AppLayout({
                     "dark:text-accent-50 dark:bg-dark-900"
                 )}
             >
-                <Sidebar />
+                <Sidebar>{sidebar}</Sidebar>
                 <div
                     className="overflow-y-auto flex flex-col max-h-full"
                     ref={rootRef}
