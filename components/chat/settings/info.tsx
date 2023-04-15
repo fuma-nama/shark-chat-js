@@ -35,11 +35,7 @@ export default function Info({
                     <Avatar
                         border="wide"
                         size="xlarge"
-                        src={
-                            group.icon_hash != null
-                                ? groupIcon.url([group.id], group.icon_hash)
-                                : null
-                        }
+                        src={groupIcon.url([group.id], group.icon_hash)}
                         fallback={group.name}
                     />
                     {isAdmin && (
@@ -92,11 +88,6 @@ function EditGroupPanel({
         }
     );
 
-    const default_icon =
-        group.icon_hash != null
-            ? groupIcon.url([group.id], group.icon_hash)
-            : null;
-
     const onSave = handleSubmit((values) => {
         mutation.mutate(
             { groupId: group.id, ...values },
@@ -114,7 +105,9 @@ function EditGroupPanel({
                 render={({ field: { value, onChange, ...field } }) => (
                     <ImagePicker
                         input={{ id: "icon", ...field }}
-                        value={value ?? default_icon}
+                        value={
+                            value ?? groupIcon.url([group.id], group.icon_hash)
+                        }
                         onChange={onChange}
                         previewClassName="w-[150px] h-[150px] max-w-full"
                     />

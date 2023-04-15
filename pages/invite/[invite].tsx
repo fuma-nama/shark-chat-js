@@ -47,11 +47,7 @@ const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
                 />
             </Head>
             <Avatar
-                src={
-                    group.icon_hash != null
-                        ? groupIcon.url([group.id], group.icon_hash)
-                        : null
-                }
+                src={groupIcon.url([group.id], group.icon_hash)}
                 size="medium"
                 fallback={group.name}
             />
