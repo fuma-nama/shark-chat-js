@@ -77,6 +77,14 @@ function Sidebar() {
     return (
         <div className="flex flex-col mt-3">
             <p className={text({ type: "primary", size: "md" })}>Chats</p>
+            {query.status === "loading" && (
+                <>
+                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 mb-2 h-[40px]" />
+                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 mb-2 h-[40px]" />
+                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 mb-2 h-[40px]" />
+                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 mb-2 h-[40px]" />
+                </>
+            )}
             {query.data?.map((item) => {
                 const url = `/chat/${item.id}`;
                 const active = router.asPath.startsWith(url);
