@@ -9,7 +9,11 @@ import {
     contentSchema,
     uploadAttachmentSchema,
 } from "../schema/chat";
-import { getDMLastRead, setDMLastRead } from "../redis/last-read";
+import {
+    getDMLastRead,
+    getDMLastReads,
+    setDMLastRead,
+} from "../redis/last-read";
 import { getLastMessage, setLastMessage } from "../redis/dm-last-message";
 import db from "../db/client";
 import {
@@ -66,27 +70,23 @@ export const dmRouter = router({
                 });
             return target_user;
         }),
-    channels: protectedProcedure.query(({ ctx }) => {
-        return db.transaction(
-            async () => {
-                const channels = await db
-                    .select({
-                        receiver: userSelect,
-                    })
-                    .from(directMessageChannels)
-                    .where(
-                        eq(directMessageChannels.author_id, ctx.session.user.id)
-                    )
-                    .innerJoin(
-                        users,
-                        eq(directMessageChannels.receiver_id, users.id)
-                    );
+    channels: protectedProcedure.query(async ({ ctx }) => {
+        const channels = await db
+            .select({
+                receiver: userSelect,
+            })
+            .from(directMessageChannels)
+            .where(eq(directMessageChannels.author_id, ctx.session.user.id))
+            .innerJoin(users, eq(directMessageChannels.receiver_id, users.id));
 
-                const result = channels.map(async (channel) => {
-                    const last_read = await getDMLastRead(
-                        ctx.session.user.id,
-                        channel.receiver.id
-                    );
+        const lastReads = await getDMLastReads(
+            channels.map((c) => [ctx.session.user.id, c.receiver.id])
+        );
+
+        return await db.transaction(
+            async () => {
+                const result = channels.map(async (channel, i) => {
+                    const last_read = lastReads[i];
 
                     const unread_messages = await db
                         .select({
@@ -167,7 +167,7 @@ export const dmRouter = router({
 
                 const receiver = alias(users, "receiver");
                 const author = alias(users, "author");
-                return await db
+                const message = await db
                     .select({
                         ...(directMessages as typeof directMessages._.columns),
                         receiver: {
@@ -188,15 +188,17 @@ export const dmRouter = router({
                         receiver,
                         eq(directMessages.receiver_id, receiver.id)
                     )
-                    .then(async (res) => ({
-                        attachments: await insertAttachments(
-                            message_id,
-                            input.attachments,
-                            true
-                        ),
-                        nonce: input.nonce,
-                        ...requireOne(res),
-                    }));
+                    .then(requireOne);
+
+                return {
+                    ...message,
+                    attachments: await insertAttachments(
+                        message_id,
+                        input.attachments,
+                        true
+                    ),
+                    nonce: input.nonce,
+                };
             });
 
             await setLastMessage(userId, input.userId, input.content);
@@ -231,6 +233,10 @@ export const dmRouter = router({
                 })
                 .from(directMessages)
                 .leftJoin(users, eq(directMessages.author_id, users.id))
+                .leftJoin(
+                    attachments,
+                    eq(attachments.direct_message_id, directMessages.id)
+                )
                 .where(
                     and(
                         or(
@@ -262,10 +268,6 @@ export const dmRouter = router({
                               )
                             : undefined
                     )
-                )
-                .leftJoin(
-                    attachments,
-                    eq(attachments.direct_message_id, directMessages.id)
                 )
                 .orderBy(desc(directMessages.timestamp))
                 .limit(count)

@@ -10,7 +10,7 @@ import {
 } from "../../schema/group";
 import { membersRouter } from "./members";
 import { channels } from "@/server/ably";
-import { getLastRead } from "@/server/redis/last-read";
+import { getLastReads } from "@/server/redis/last-read";
 import db from "@/server/db/client";
 import { createId } from "@paralleldrive/cuid2";
 import { groupInvites, groups, members, messages } from "@/drizzle/schema";
@@ -228,48 +228,52 @@ async function joinMember(groupId: number, userId: string) {
     }
 }
 
-const getGroupsWithNotifications = (
+async function getGroupsWithNotifications(
     userId: string
-): Promise<GroupWithNotifications[]> =>
-    db.transaction(
+): Promise<GroupWithNotifications[]> {
+    const result = await db
+        .select({
+            group: groups,
+        })
+        .from(members)
+        .innerJoin(groups, eq(groups.id, members.group_id))
+        .where(eq(members.user_id, userId))
+        .orderBy(desc(members.group_id));
+
+    const last_reads = await getLastReads(
+        result.map((row) => [row.group.id, userId])
+    );
+
+    return await db.transaction(
         async () => {
-            const result = await db
-                .select({
-                    group: groups,
-                })
-                .from(members)
-                .innerJoin(groups, eq(groups.id, members.group_id))
-                .where(eq(members.user_id, userId))
-                .orderBy(desc(members.group_id));
-
-            return await Promise.all(
-                result.map(async ({ group }) => {
-                    const last_read = await getLastRead(group.id, userId);
-
-                    const result = await db
-                        .select({
-                            count: sql<string>`count(*)`,
-                        })
-                        .from(messages)
-                        .where(
-                            and(
-                                eq(messages.group_id, group.id),
-                                last_read != null
-                                    ? gt(messages.timestamp, last_read)
-                                    : undefined
-                            )
+            const groups = result.map(async ({ group }, i) => {
+                const last_read = last_reads[i];
+                const result = await db
+                    .select({
+                        count: sql<string>`count(*)`,
+                    })
+                    .from(messages)
+                    .where(
+                        and(
+                            eq(messages.group_id, group.id),
+                            last_read != null
+                                ? gt(messages.timestamp, last_read)
+                                : undefined
                         )
-                        .then((res) => requireOne(res));
+                    )
+                    .then((res) => requireOne(res));
 
-                    return {
-                        ...group,
-                        unread_messages: Number(result.count),
-                    };
-                })
-            );
+                return {
+                    ...group,
+                    unread_messages: Number(result.count),
+                };
+            });
+
+            return await Promise.all(groups);
         },
         {
             isolationLevel: "read committed",
             accessMode: "read only",
         }
     );
+}
