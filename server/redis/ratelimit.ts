@@ -4,14 +4,18 @@ import redis from "./client";
 import { NextApiRequest } from "next";
 
 export const createTRPCUpstashLimiter = defineTRPCLimiter({
-    store: (opts) =>
-        new Ratelimit({
+    store: (opts) => {
+        if (process.env.NODE_ENV === "development") return null;
+
+        return new Ratelimit({
             redis,
             limiter: Ratelimit.slidingWindow(opts.max, `${opts.windowMs} ms`),
-        }),
+        });
+    },
     async isBlocked(store, fingerprint) {
-        const { success, pending, ...rest } = await store.limit(fingerprint);
-        await pending;
+        if (store == null) return null;
+        const { success, ...rest } = await store.limit(fingerprint);
+
         return success ? null : rest;
     },
 });
