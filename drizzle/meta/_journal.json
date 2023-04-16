@@ -15,6 +15,34 @@
       "when": 1681564843813,
       "tag": "0001_chilly_nekra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1681625091687,
+      "tag": "0002_square_silver_surfer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1681626825468,
+      "tag": "0003_simple_onslaught",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1681634929725,
+      "tag": "0004_tense_wonder_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1681649357972,
+      "tag": "0005_shocking_swarm",
+      "breakpoints": true
     }
   ]
 }

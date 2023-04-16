@@ -1,44 +1,53 @@
-import { PaperPlaneIcon } from "@radix-ui/react-icons";
+import { FilePlusIcon, PaperPlaneIcon, TrashIcon } from "@radix-ui/react-icons";
 import { textArea } from "@/components/system/textarea";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { IconButton } from "@/components/system/button";
+import { IconButton, iconButton } from "@/components/system/button";
 import clsx from "clsx";
 import React from "react";
-import { UserInfo } from "@/server/schema/chat";
+import { UserInfo, contentSchema } from "@/server/schema/chat";
 import { Avatar } from "../system/avatar";
 import { text } from "../system/text";
+import { Control, useController, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-export type SendData = {
-    content: string;
-};
+const schema = z
+    .object({
+        content: contentSchema,
+        attachments: z.array(z.custom<File>()),
+    })
+    .refine(
+        ({ content, attachments }) =>
+            content.trim().length !== 0 || attachments.length !== 0,
+        {
+            path: ["content"],
+            message: "Message is empty",
+        }
+    );
 
-function canSend(lastType: Date, intervalSeconds: number) {
-    const min = new Date(lastType);
-    min.setSeconds(min.getSeconds() + intervalSeconds);
-
-    return new Date(Date.now()) > min;
-}
+export type SendData = z.infer<typeof schema>;
 
 export function Sendbar({
     onSend: send,
-    isLoading,
     onType,
     children,
 }: {
     onSend: (data: SendData) => void;
     onType: () => void;
-    isLoading: boolean;
     children?: ReactNode;
 }) {
-    const lastType = useRef<Date>();
-    const [text, setText] = useState("");
+    const { control, handleSubmit, reset, formState } = useForm<SendData>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            content: "",
+            attachments: [],
+        },
+    });
 
-    const onSend = () => {
-        if (text.trim().length === 0) return;
-
-        setText("");
-        send({ content: text });
-    };
+    const onSend = handleSubmit(async (data) => {
+        send(data);
+        reset({ content: "", attachments: [] });
+    });
 
     return (
         <div className="sticky px-4 pb-4 bottom-0 bg-light-100 dark:bg-dark-900">
@@ -50,38 +59,25 @@ export function Sendbar({
                 )}
             >
                 {children}
+                <AttachmentPicker control={control} />
                 <div className="flex flex-row gap-3">
-                    <textarea
-                        id="text"
-                        value={text}
-                        onChange={(e) => {
-                            setText(e.target.value);
-
-                            if (
-                                lastType.current == null ||
-                                canSend(lastType.current, 2)
-                            ) {
-                                onType();
-                                lastType.current = new Date(Date.now());
-                            }
-                        }}
-                        rows={Math.min(20, text.split("\n").length)}
-                        wrap="virtual"
-                        className={textArea({
-                            color: "primary",
-                            className: "resize-none h-auto max-h-[50vh]",
+                    <label
+                        htmlFor="attachment"
+                        className={iconButton({
+                            className:
+                                "aspect-square h-[41.6px] cursor-pointer",
+                            color: "secondary",
                         })}
-                        placeholder="Type message"
-                        autoComplete="off"
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                onSend();
-                                e.preventDefault();
-                            }
-                        }}
+                    >
+                        <FilePlusIcon />
+                    </label>
+                    <TextArea
+                        control={control}
+                        onSend={onSend}
+                        onType={onType}
                     />
                     <IconButton
-                        disabled={isLoading || text.trim().length === 0}
+                        disabled={!formState.isValid}
                         className="aspect-square h-[41.6px]"
                         onClick={onSend}
                     >
@@ -93,10 +89,107 @@ export function Sendbar({
     );
 }
 
+function AttachmentPicker({ control }: { control: Control<SendData> }) {
+    const {
+        field: { value, ...field },
+    } = useController({ control, name: "attachments" });
+
+    return (
+        <>
+            <input
+                {...field}
+                id="attachment"
+                type="file"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                    const files = e.target.files;
+                    if (files == null || files.length === 0) return;
+
+                    field.onChange(Array.from(files));
+                }}
+            />
+            {value.map((file, i) => (
+                <div
+                    key={i}
+                    className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center"
+                >
+                    <p className={text({ size: "md", type: "primary" })}>
+                        {file.name}
+                    </p>
+                    <IconButton
+                        color="danger"
+                        onClick={() => {
+                            const filtered = value.filter(
+                                (attachment) => attachment !== file
+                            );
+
+                            field.onChange(filtered);
+                        }}
+                    >
+                        <TrashIcon />
+                    </IconButton>
+                </div>
+            ))}
+        </>
+    );
+}
+
+function TextArea({
+    control,
+    onSend,
+    onType,
+}: {
+    control: Control<SendData>;
+    onSend: () => void;
+    onType: () => void;
+}) {
+    const { field } = useController({ control, name: "content" });
+    const lastType = useRef<Date>();
+
+    return (
+        <textarea
+            id="text"
+            {...field}
+            onChange={(e) => {
+                field.onChange(e);
+
+                if (canSendSignal(lastType.current, 2)) {
+                    onType();
+                    lastType.current = new Date(Date.now());
+                }
+            }}
+            rows={Math.min(20, field.value.split("\n").length)}
+            wrap="virtual"
+            className={textArea({
+                color: "primary",
+                className: "resize-none h-auto max-h-[50vh]",
+            })}
+            placeholder="Type message"
+            autoComplete="off"
+            onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    onSend();
+                    e.preventDefault();
+                }
+            }}
+        />
+    );
+}
+
 type TypingData = {
     user: UserInfo;
     timestamp: Date;
 };
+
+function canSendSignal(lastType: Date | undefined, intervalSeconds: number) {
+    if (lastType == null) return true;
+
+    const min = new Date(lastType);
+    min.setSeconds(min.getSeconds() + intervalSeconds);
+
+    return new Date(Date.now()) > min;
+}
 
 export function useTypingStatus() {
     const [typing, setTyping] = useState<TypingData[]>([]);

@@ -3,6 +3,7 @@ import {
     User,
     Message,
     DirectMessageChannel,
+    Attachment,
 } from "@/drizzle/schema";
 import { z } from "zod";
 
@@ -16,18 +17,37 @@ export type RecentChatType = DirectMessageChannel & {
 
 export type MessageType = Message & {
     author: UserInfo | null;
+    attachments: AttachmentType[];
 };
 
 export type DirectMessageType = DirectMessage & {
     author: UserInfo | null;
+    attachments: AttachmentType[];
 };
 
 export type DirectMessageWithReceiver = DirectMessage & {
     receiver: UserInfo;
     author: UserInfo;
+    attachments: AttachmentType[];
 };
 
-export const contentSchema = z.string().min(1).max(2000).trim();
+export type UploadAttachment = z.infer<typeof uploadAttachmentSchema>;
+
+export type AttachmentType = Omit<
+    Attachment,
+    "message_id" | "direct_message_id"
+>;
+
+export const uploadAttachmentSchema = z.object({
+    name: z.string(),
+    url: z.string(),
+    type: z.enum(["image", "video", "raw"]),
+    bytes: z.number(),
+    width: z.number().optional(),
+    height: z.number().optional(),
+});
+
+export const contentSchema = z.string().max(2000).trim();
 
 export const deletedUser: UserInfo = {
     id: "",

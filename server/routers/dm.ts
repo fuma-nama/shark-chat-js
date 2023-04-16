@@ -3,14 +3,25 @@ import { router } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/server/ably";
-import { RecentChatType, contentSchema } from "../schema/chat";
+import {
+    DirectMessageType,
+    RecentChatType,
+    contentSchema,
+    uploadAttachmentSchema,
+} from "../schema/chat";
 import { getDMLastRead, setDMLastRead } from "../redis/last-read";
 import { getLastMessage, setLastMessage } from "../redis/dm-last-message";
 import db from "../db/client";
-import { directMessageChannels, directMessages, users } from "@/drizzle/schema";
+import {
+    attachments,
+    directMessageChannels,
+    directMessages,
+    users,
+} from "@/drizzle/schema";
 import { and, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
-import { update, userSelect } from "../db/utils";
+import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
+import { combineOneToManyMessages, insertAttachments } from "./chat";
 
 export const dmRouter = router({
     checkout: protectedProcedure
@@ -136,50 +147,59 @@ export const dmRouter = router({
         .input(
             z.object({
                 userId: z.string(),
-                message: contentSchema,
+                content: contentSchema,
                 nonce: z.number().optional(),
+                attachments: z.array(uploadAttachmentSchema),
             })
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
             await initChannel(input.userId, userId);
-            const { insertId } = await db.insert(directMessages).values({
-                author_id: userId,
-                content: input.message,
-                receiver_id: input.userId,
+            const message = await db.transaction(async () => {
+                const message_id = await db
+                    .insert(directMessages)
+                    .values({
+                        author_id: userId,
+                        content: input.content,
+                        receiver_id: input.userId,
+                    })
+                    .then((res) => Number(res.insertId));
+
+                const receiver = alias(users, "receiver");
+                const author = alias(users, "author");
+                return await db
+                    .select({
+                        ...(directMessages as typeof directMessages._.columns),
+                        receiver: {
+                            name: receiver.name,
+                            id: receiver.id,
+                            image: receiver.image,
+                        },
+                        author: {
+                            name: author.name,
+                            id: author.id,
+                            image: author.image,
+                        },
+                    })
+                    .from(directMessages)
+                    .where(eq(directMessages.id, message_id))
+                    .innerJoin(author, eq(directMessages.author_id, author.id))
+                    .innerJoin(
+                        receiver,
+                        eq(directMessages.receiver_id, receiver.id)
+                    )
+                    .then(async (res) => ({
+                        attachments: await insertAttachments(
+                            message_id,
+                            input.attachments,
+                            true
+                        ),
+                        nonce: input.nonce,
+                        ...requireOne(res),
+                    }));
             });
 
-            const receiver = alias(users, "receiver");
-            const author = alias(users, "author");
-            const messageResult = await db
-                .select({
-                    ...(directMessages as typeof directMessages._.columns),
-                    receiver: {
-                        name: receiver.name,
-                        id: receiver.id,
-                        image: receiver.image,
-                    },
-                    author: {
-                        name: author.name,
-                        id: author.id,
-                        image: author.image,
-                    },
-                })
-                .from(directMessages)
-                .where(eq(directMessages.id, Number(insertId)))
-                .innerJoin(author, eq(directMessages.author_id, author.id))
-                .innerJoin(
-                    receiver,
-                    eq(directMessages.receiver_id, receiver.id)
-                )
-                .then((res) => res[0]);
-
-            if (messageResult == null)
-                throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-
-            const message = { ...messageResult, nonce: input.nonce };
-
-            await setLastMessage(userId, input.userId, input.message);
+            await setLastMessage(userId, input.userId, input.content);
             await setDMLastRead(userId, input.userId, message.timestamp);
 
             if (input.userId !== userId) {
@@ -207,6 +227,7 @@ export const dmRouter = router({
                 .select({
                     ...(directMessages as typeof directMessages._.columns),
                     author: userSelect,
+                    attachment: attachmentSelect,
                 })
                 .from(directMessages)
                 .leftJoin(users, eq(directMessages.author_id, users.id))
@@ -242,8 +263,15 @@ export const dmRouter = router({
                             : undefined
                     )
                 )
+                .leftJoin(
+                    attachments,
+                    eq(attachments.direct_message_id, directMessages.id)
+                )
                 .orderBy(desc(directMessages.timestamp))
-                .limit(count);
+                .limit(count)
+                .then((res) =>
+                    combineOneToManyMessages<DirectMessageType>(res)
+                );
         }),
     update: protectedProcedure
         .input(

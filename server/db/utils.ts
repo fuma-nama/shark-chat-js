@@ -5,7 +5,7 @@ import type {
 } from "drizzle-orm/mysql-core";
 import { v4 as uuid } from "uuid";
 import db from "./client";
-import { users } from "@/drizzle/schema";
+import { attachments, users } from "@/drizzle/schema";
 import { SQL } from "drizzle-orm";
 
 export function oneOrNull<T>(items: T[]): T | null {
@@ -69,4 +69,14 @@ export const userSelect = {
     name: users.name,
     id: users.id,
     image: users.image,
+} as const;
+
+export const attachmentSelect = {
+    id: attachments.id,
+    bytes: attachments.bytes,
+    width: attachments.width,
+    height: attachments.height,
+    url: attachments.url,
+    name: attachments.name,
+    type: attachments.type,
 } as const;

@@ -23,6 +23,8 @@ import {
 } from "@/utils/variables";
 import { useDirectMessage } from "@/utils/stores/chat";
 import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
+import { useMutation } from "@tanstack/react-query";
+import { uploadAttachment } from "@/utils/media/upload-attachment";
 
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as DirectMessageQuery;
@@ -121,34 +123,46 @@ function useLastRead(userId: string) {
         : null;
 }
 
+type SendMutationInput = SendData & { userId: string; nonce: number };
 function DirectMessageSendbar() {
+    const utils = trpc.useContext();
     const [add, error] = useDirectMessage((s) => [
         s.addSending,
         s.errorSending,
     ]);
-    const typeMutation = trpc.useContext().client.dm.type;
-    const sendMutation = trpc.dm.send.useMutation({
-        onError({ message }, { userId, nonce }) {
-            if (nonce != null) {
-                error(userId, nonce, message);
-            }
-        },
-    });
+    const typeMutation = utils.client.dm.type;
+    const sendMutation = useMutation(
+        async (data: SendMutationInput) => {
+            const uploads = data.attachments.map((file) =>
+                uploadAttachment(utils, file)
+            );
 
-    const onSend = ({ content }: SendData) => {
+            utils.client.dm.send.mutate({
+                ...data,
+                attachments: await Promise.all(uploads),
+            });
+        },
+        {
+            onError({ message }, { userId, nonce }) {
+                if (nonce != null) {
+                    error(userId, nonce, message);
+                }
+            },
+        }
+    );
+
+    const onSend = (data: SendData) => {
         const { user } = Router.query as DirectMessageQuery;
 
-        const item = add(user, content);
         sendMutation.mutate({
+            ...data,
             userId: user,
-            message: content,
-            nonce: item.nonce,
+            nonce: add(user, data).nonce,
         });
     };
 
     return (
         <Sendbar
-            isLoading={sendMutation.isLoading}
             onSend={onSend}
             onType={() =>
                 typeMutation.mutate({

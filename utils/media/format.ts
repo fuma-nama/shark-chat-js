@@ -8,6 +8,13 @@ export const userAvatar = media<[userId: string]>({
     publicId: ([userId]) => `avatars/${userId}`,
 });
 
+export const attachment = media<
+    [userId: string, attachmentId: string, filename: string]
+>({
+    publicId: ([userId, attachmentId, filename]) =>
+        `attachments/${userId}/${attachmentId}/${filename}`,
+});
+
 function media<Args extends any[]>({
     publicId,
 }: {

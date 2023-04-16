@@ -23,6 +23,9 @@ import { getGroupQuery, getMessageVariables } from "@/utils/variables";
 import { useGroupMessage } from "@/utils/stores/chat";
 import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
 import { useEventHandlers } from "@/utils/handlers/base";
+import { uploadAttachment } from "@/utils/media/upload-attachment";
+import { useMutation } from "@tanstack/react-query";
+import { TRPCClientError } from "@trpc/client";
 
 const GroupChat: NextPageWithLayout = () => {
     const group = getGroupQuery(useRouter()).groupId;
@@ -117,30 +120,52 @@ function useLastRead(groupId: number) {
         : null;
 }
 
+type SendMutationInput = SendData & { groupId: number; nonce: number };
 function GroupSendbar() {
-    const [add, error] = useGroupMessage((s) => [s.addSending, s.errorSending]);
+    const utils = trpc.useContext();
+    const [add, addError] = useGroupMessage((s) => [
+        s.addSending,
+        s.errorSending,
+    ]);
     const typeMutation = trpc.useContext().client.chat.type;
-    const sendMutation = trpc.chat.send.useMutation({
-        onError({ message }, { groupId, nonce }) {
-            if (nonce != null) {
-                error(groupId, nonce, message);
-            }
-        },
-    });
+    const sendMutation = useMutation(
+        async ({ attachments, ...data }: SendMutationInput) => {
+            const uploads = attachments.map((file) =>
+                uploadAttachment(utils, file)
+            );
 
-    const onSend = ({ content }: SendData) => {
+            await utils.client.chat.send.mutate({
+                ...data,
+                attachments: await Promise.all(uploads),
+            });
+        },
+        {
+            onError(error, { nonce, groupId }) {
+                if (nonce == null) return;
+
+                addError(
+                    groupId,
+                    nonce,
+                    error instanceof TRPCClientError
+                        ? error.message
+                        : "Something went wrong"
+                );
+            },
+        }
+    );
+
+    const onSend = (data: SendData) => {
         const { groupId } = getGroupQuery(Router);
 
         sendMutation.mutate({
-            message: content,
-            nonce: add(groupId, content).nonce,
+            ...data,
             groupId,
+            nonce: add(groupId, data).nonce,
         });
     };
 
     return (
         <Sendbar
-            isLoading={sendMutation.isLoading}
             onSend={onSend}
             onType={() =>
                 typeMutation.mutate({ groupId: getGroupQuery(Router).groupId })

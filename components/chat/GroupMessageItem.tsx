@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 import * as Item from "./MessageItem";
+import { AttachmentItem } from "./AttachmentItem";
 
 export function GroupMessageItem({
     message,
@@ -66,6 +67,14 @@ export function GroupMessageItem({
             ) : (
                 <Item.Text>{message.content}</Item.Text>
             )}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
+                {message.attachments.map((attachment) => (
+                    <AttachmentItem
+                        key={attachment.id}
+                        attachment={attachment}
+                    />
+                ))}
+            </div>
         </Item.Root>
     );
 }

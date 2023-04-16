@@ -68,7 +68,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button";
 
-const iconButton = tv({
+export const iconButton = tv({
     base: [
         "inline-flex flex-row items-center justify-center p-3",
         "disabled:cursor-not-allowed",
@@ -78,6 +78,11 @@ const iconButton = tv({
             primary: [
                 "rounded-full bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
                 "disabled:bg-brand-400/50 disabled:bg-none disabled:text-accent-50 dark:disabled:text-accent-500",
+            ],
+            secondary: [
+                "rounded-full bg-white hover:bg-light-100 text-accent-900",
+                "dark:text-accent-50 dark:hover:bg-brand-300/10 dark:bg-dark-700",
+                "disabled:opacity-50",
             ],
             danger: [
                 "rounded-md bg-red-500 hover:bg-red-400 dark:bg-red-500 text-gray-50 dark:hover:bg-red-600",

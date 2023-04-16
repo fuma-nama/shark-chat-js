@@ -1,20 +1,21 @@
 import { create } from "zustand";
 import { addNonce, removeNonce } from "../handlers/realtime/shared";
+import { SendData } from "@/components/chat/Sendbar";
 
 /**
  * Message that being sent locally but not received from the server yet
  */
 export type MessagePlaceholder = {
-    content: string;
-    nonce: number;
+    data: SendData;
     error?: string;
+    nonce: number;
 };
 
 export type ChatStore<K extends number | string> = {
     sending: {
         [key in K]: MessagePlaceholder[];
     };
-    addSending: (key: K, content: string) => MessagePlaceholder;
+    addSending: (key: K, data: SendData) => MessagePlaceholder;
     errorSending: (key: K, nonce: number, message: string) => void;
     removeSending: (key: K, nonce: number) => void;
 };
@@ -22,9 +23,9 @@ export type ChatStore<K extends number | string> = {
 function createMessageStore<K extends number | string>() {
     return create<ChatStore<K>>((set) => ({
         sending: {} as any,
-        addSending: (group, content) => {
+        addSending: (group, data) => {
             const item: MessagePlaceholder = {
-                content,
+                data,
                 nonce: Date.now(),
             };
 

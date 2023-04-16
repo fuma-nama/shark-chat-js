@@ -9,6 +9,7 @@ import {
     index,
     serial,
     boolean,
+    mysqlEnum,
 } from "drizzle-orm/mysql-core";
 import { datetimeUtc as datetime } from "../server/db/datetimeUTC";
 
@@ -162,6 +163,28 @@ export const users = mysqlTable(
     })
 );
 
+export const attachments = mysqlTable(
+    "Attachment",
+    {
+        id: varchar(`id`, { length: 32 }).notNull().primaryKey(),
+        name: varchar(`name`, { length: 255 }).notNull(),
+        url: varchar(`url`, { length: 255 }).notNull(),
+        message_id: int("message_id"),
+        direct_message_id: int("direct_message_id"),
+
+        type: mysqlEnum("type", ["image", "video", "raw"]).notNull(),
+        bytes: int("bytes").notNull(),
+        width: int("width"),
+        height: int("height"),
+    },
+    (table) => ({
+        Message_id_idx: index(`Message_id_idx`).on(table.message_id),
+        Direct_message_id_idx: index(`Direct_message_id_idx`).on(
+            table.direct_message_id
+        ),
+    })
+);
+
 export type Group = InferModel<typeof groups>;
 export type User = InferModel<typeof users>;
 export type Message = InferModel<typeof messages>;
@@ -169,3 +192,4 @@ export type DirectMessage = InferModel<typeof directMessages>;
 export type DirectMessageChannel = InferModel<typeof directMessageChannels>;
 export type GroupInvite = InferModel<typeof groupInvites>;
 export type Member = InferModel<typeof members>;
+export type Attachment = InferModel<typeof attachments>;

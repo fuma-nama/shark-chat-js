@@ -1,12 +1,12 @@
-import { userAvatar, groupIcon } from "@/utils/media/format";
+import { userAvatar, groupIcon, attachment } from "@/utils/media/format";
 import { getTimestamp } from "@/utils/media/timestamp";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
 import { z } from "zod";
 import { checkIsOwnerOf } from "@/utils/trpc/permissions";
+import { createId } from "@paralleldrive/cuid2";
 
-export type SignOptions = {
-    resource_type?: "image";
+type SignOptions = {
     transformation?: string;
     public_id?: string;
 };
@@ -36,6 +36,19 @@ export const uploadRouter = router({
             return sign({
                 public_id: groupIcon.id(groupId),
                 transformation: "w_300,h_300",
+            });
+        }),
+    signAttachment: protectedProcedure
+        .input(z.object({ filename: z.string() }))
+        .query(async ({ input, ctx }) => {
+            const id = createId();
+
+            return sign({
+                public_id: attachment.id(
+                    ctx.session.user.id,
+                    id,
+                    input.filename
+                ),
             });
         }),
 });
