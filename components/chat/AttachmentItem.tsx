@@ -21,13 +21,21 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
 
         if (attachment.url.startsWith(cloudinary_prefix))
             return (
-                <CldImage
-                    alt={attachment.name}
-                    src={attachment.url.slice(cloudinary_prefix.length)}
-                    width={attachment.width ?? 100}
-                    height={attachment.height ?? 100}
-                    className="rounded-xl"
-                />
+                <div
+                    className="relative max-h-[500px] w-auto"
+                    style={{
+                        aspectRatio:
+                            (attachment.width ?? 100) /
+                            (attachment.height ?? 100),
+                    }}
+                >
+                    <CldImage
+                        alt={attachment.name}
+                        src={attachment.url.slice(cloudinary_prefix.length)}
+                        fill
+                        className="rounded-xl"
+                    />
+                </div>
             );
     }
 
