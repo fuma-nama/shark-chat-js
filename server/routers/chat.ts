@@ -274,9 +274,8 @@ export function insertAttachments(
         };
 
         await db.insert(attachments).values({
-            direct_message_id: null,
-            message_id: null,
-            [direct ? "message_id" : "direct_message_id"]: message_id ?? null,
+            direct_message_id: direct ? message_id : null,
+            message_id: !direct ? message_id : null,
             ...values,
         });
 
