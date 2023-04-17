@@ -13,6 +13,9 @@ const spinner = tv({
             small: {
                 status: "w-4 h-4 border-2",
             },
+            medium: {
+                status: "w-7 h-7 border-2",
+            },
             large: {
                 status: "w-10 h-10 border-[3px]",
             },
@@ -23,8 +26,11 @@ const spinner = tv({
     },
 });
 
-export function Spinner({ size }: VariantProps<typeof spinner>) {
-    const { container, status } = spinner({ size });
+export function Spinner({
+    size,
+    className,
+}: VariantProps<typeof spinner> & { className?: string }) {
+    const { container, status } = spinner({ size, className });
 
     return (
         <div className={container()}>

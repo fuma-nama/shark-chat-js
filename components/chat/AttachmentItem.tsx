@@ -2,6 +2,8 @@ import { CldImage } from "next-cloudinary";
 import Link from "next/link";
 import { text } from "../system/text";
 import { AttachmentType } from "@/server/schema/chat";
+import { useState } from "react";
+import { Spinner } from "../system/spinner";
 
 export function UploadingAttachmentItem({ file }: { file: File }) {
     return (
@@ -23,31 +25,7 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
         attachment.height != null &&
         attachment.url.startsWith(cloudinary_prefix)
     ) {
-        const maxW = Math.min(500, attachment.width);
-        const maxH = Math.min(400, attachment.height);
-        const url = decodeURIComponent(attachment.url).slice(
-            cloudinary_prefix.length
-        );
-
-        return (
-            <div>
-                <div
-                    className="relative w-auto mt-3"
-                    style={{
-                        aspectRatio: attachment.width / attachment.height,
-                        maxWidth: `${maxW}px`,
-                        maxHeight: `${maxH}px`,
-                    }}
-                >
-                    <CldImage
-                        alt={attachment.name}
-                        src={url}
-                        fill
-                        className="rounded-xl"
-                    />
-                </div>
-            </div>
-        );
+        return <AttachmentImage attachment={attachment} />;
     }
 
     return (
@@ -62,6 +40,40 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
             <p className={text({ type: "secondary", size: "sm" })}>
                 {attachment.bytes} Bytes
             </p>
+        </div>
+    );
+}
+
+function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
+    const [state, setState] = useState<"loading" | "loaded">("loading");
+    const maxW = Math.min(500, attachment.width!!);
+    const maxH = Math.min(400, attachment.height!!);
+    const url = decodeURIComponent(attachment.url).slice(
+        cloudinary_prefix.length
+    );
+
+    return (
+        <div>
+            <div
+                className="relative w-auto mt-3 rounded-xl overflow-hidden"
+                style={{
+                    aspectRatio: attachment.width!! / attachment.height!!,
+                    maxWidth: `${maxW}px`,
+                    maxHeight: `${maxH}px`,
+                }}
+            >
+                <CldImage
+                    alt={attachment.name}
+                    src={url}
+                    fill
+                    onLoadingComplete={() => setState("loaded")}
+                />
+                {state === "loading" && (
+                    <div className="flex flex-col justify-center items-center absolute inset-0 bg-light-100 dark:bg-dark-700">
+                        <Spinner size="medium" />
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
