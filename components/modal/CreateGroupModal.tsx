@@ -13,13 +13,11 @@ import { label } from "../system/text";
 import { useMutation } from "@tanstack/react-query";
 
 export default function CreateGroupModal({
-    children,
     open,
     setOpen,
 }: {
     open: boolean;
     setOpen: (open: boolean) => void;
-    children?: ReactNode;
 }) {
     return (
         <Dialog
@@ -27,7 +25,6 @@ export default function CreateGroupModal({
             description="Give your chat group a beautiful name and icon"
             open={open}
             onOpenChange={setOpen}
-            trigger={children}
         >
             <Content onClose={() => setOpen(false)} />
         </Dialog>

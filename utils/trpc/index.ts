@@ -20,7 +20,6 @@ export const trpc = createTRPCNext<AppRouter>({
                                 showErrorToast({
                                     title: "Unknown Error",
                                     description: error.message,
-                                    variant: "red",
                                 });
                             }
                         },
