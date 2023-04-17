@@ -67,14 +67,9 @@ export function GroupMessageItem({
             ) : (
                 <Item.Text>{message.content}</Item.Text>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
-                {message.attachments.map((attachment) => (
-                    <AttachmentItem
-                        key={attachment.id}
-                        attachment={attachment}
-                    />
-                ))}
-            </div>
+            {message.attachment != null && (
+                <AttachmentItem attachment={message.attachment} />
+            )}
         </Item.Root>
     );
 }

@@ -27,11 +27,9 @@ export function LocalMessageItem({
                 onDelete={onDelete}
             >
                 <MessageItem.Text>{item.data.content}</MessageItem.Text>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">
-                    {item.data.attachments.map((file, i) => (
-                        <UploadingAttachmentItem key={i} file={file} />
-                    ))}
-                </div>
+                {item.data.attachment != null && (
+                    <UploadingAttachmentItem file={item.data.attachment} />
+                )}
                 {item.error != null && (
                     <p className="text-red-400">{item.error}</p>
                 )}

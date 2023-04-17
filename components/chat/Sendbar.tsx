@@ -14,11 +14,11 @@ import { z } from "zod";
 const schema = z
     .object({
         content: contentSchema,
-        attachments: z.array(z.custom<File>()),
+        attachment: z.custom<File>().nullable(),
     })
     .refine(
-        ({ content, attachments }) =>
-            content.trim().length !== 0 || attachments.length !== 0,
+        ({ content, attachment }) =>
+            content.trim().length !== 0 || attachment != null,
         {
             path: ["content"],
             message: "Message is empty",
@@ -40,13 +40,13 @@ export function Sendbar({
         resolver: zodResolver(schema),
         defaultValues: {
             content: "",
-            attachments: [],
+            attachment: null,
         },
     });
 
     const onSend = handleSubmit(async (data) => {
         send(data);
-        reset({ content: "", attachments: [] });
+        reset({ content: "", attachment: null });
     });
 
     return (
@@ -92,7 +92,7 @@ export function Sendbar({
 function AttachmentPicker({ control }: { control: Control<SendData> }) {
     const {
         field: { value, ...field },
-    } = useController({ control, name: "attachments" });
+    } = useController({ control, name: "attachment" });
 
     return (
         <>
@@ -106,31 +106,24 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
                     const files = e.target.files;
                     if (files == null || files.length === 0) return;
 
-                    field.onChange(Array.from(files));
+                    field.onChange(files[0]);
                 }}
             />
-            {value.map((file, i) => (
-                <div
-                    key={i}
-                    className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center"
-                >
+            {value != null && (
+                <div className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center">
                     <p className={text({ size: "md", type: "primary" })}>
-                        {file.name}
+                        {value.name}
                     </p>
                     <IconButton
                         color="danger"
                         onClick={() => {
-                            const filtered = value.filter(
-                                (attachment) => attachment !== file
-                            );
-
-                            field.onChange(filtered);
+                            field.onChange(null);
                         }}
                     >
                         <TrashIcon />
                     </IconButton>
                 </div>
-            ))}
+            )}
         </>
     );
 }

@@ -4,7 +4,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { channels } from "@/server/ably";
 import {
-    DirectMessageType,
     RecentChatType,
     contentSchema,
     uploadAttachmentSchema,
@@ -25,7 +24,7 @@ import {
 import { and, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
-import { combineOneToManyMessages, insertAttachments } from "./chat";
+import { insertAttachment } from "./chat";
 
 export const dmRouter = router({
     checkout: protectedProcedure
@@ -149,19 +148,21 @@ export const dmRouter = router({
                 userId: z.string(),
                 content: contentSchema,
                 nonce: z.number().optional(),
-                attachments: z.array(uploadAttachmentSchema),
+                attachment: uploadAttachmentSchema.optional(),
             })
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
             await initChannel(input.userId, userId);
             const message = await db.transaction(async () => {
+                const attachment = await insertAttachment(input.attachment);
                 const message_id = await db
                     .insert(directMessages)
                     .values({
                         author_id: userId,
                         content: input.content,
                         receiver_id: input.userId,
+                        attachment_id: attachment?.id ?? null,
                     })
                     .then((res) => Number(res.insertId));
 
@@ -192,11 +193,7 @@ export const dmRouter = router({
 
                 return {
                     ...message,
-                    attachments: await insertAttachments(
-                        message_id,
-                        input.attachments,
-                        true
-                    ),
+                    attachment,
                     nonce: input.nonce,
                 };
             });
@@ -235,7 +232,7 @@ export const dmRouter = router({
                 .leftJoin(users, eq(directMessages.author_id, users.id))
                 .leftJoin(
                     attachments,
-                    eq(attachments.direct_message_id, directMessages.id)
+                    eq(attachments.id, directMessages.attachment_id)
                 )
                 .where(
                     and(
@@ -270,10 +267,7 @@ export const dmRouter = router({
                     )
                 )
                 .orderBy(desc(directMessages.timestamp))
-                .limit(count)
-                .then((res) =>
-                    combineOneToManyMessages<DirectMessageType>(res)
-                );
+                .limit(count);
         }),
     update: protectedProcedure
         .input(

@@ -133,13 +133,14 @@ function DirectMessageSendbar() {
     const typeMutation = utils.client.dm.type;
     const sendMutation = useMutation(
         async (data: SendMutationInput) => {
-            const uploads = data.attachments.map((file) =>
-                uploadAttachment(utils, file)
-            );
+            const attachment =
+                data.attachment != null
+                    ? await uploadAttachment(utils, data.attachment)
+                    : undefined;
 
             utils.client.dm.send.mutate({
                 ...data,
-                attachments: await Promise.all(uploads),
+                attachment,
             });
         },
         {

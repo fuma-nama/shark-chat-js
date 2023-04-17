@@ -1,2 +1,0 @@
-ALTER TABLE `Message` CHANGE `timestamp` `timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3);--> statement-breakpoint
-ALTER TABLE `DirectMessage` CHANGE `timestamp` `timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3);

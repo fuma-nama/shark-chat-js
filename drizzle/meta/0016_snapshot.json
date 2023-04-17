@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "b519d0d8-f666-4156-b403-40e4e9241b27",
-  "prevId": "d0f796dd-1f7c-40a2-89c0-ffcd6d776654",
+  "id": "7b62a3e0-babe-40d5-a799-1a6f819c3959",
+  "prevId": "09da20d5-7e56-45e8-85e4-13687e020339",
   "tables": {
     "Account": {
       "name": "Account",
@@ -136,20 +136,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "message_id": {
-          "name": "message_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "direct_message_id": {
-          "name": "direct_message_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "type": {
           "name": "type",
           "type": "enum('image','video','raw')",
@@ -179,22 +165,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "Message_id_idx": {
-          "name": "Message_id_idx",
-          "columns": [
-            "message_id"
-          ],
-          "isUnique": false
-        },
-        "Direct_message_id_idx": {
-          "name": "Direct_message_id_idx",
-          "columns": [
-            "direct_message_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {}
     },
@@ -248,7 +219,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
@@ -281,6 +252,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "attachment_id": {
+          "name": "attachment_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -329,7 +307,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
@@ -440,7 +418,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
@@ -473,6 +451,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP(3)"
+        },
+        "attachment_id": {
+          "name": "attachment_id",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {

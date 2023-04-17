@@ -4,8 +4,6 @@ import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
 import {
     AttachmentType,
-    DirectMessageType,
-    MessageType,
     UploadAttachment,
     contentSchema,
     uploadAttachmentSchema,
@@ -14,8 +12,14 @@ import { checkIsMemberOf } from "@/utils/trpc/permissions";
 import { onReceiveMessage } from "../inworld";
 import { getLastRead, setLastRead } from "../redis/last-read";
 import db from "../db/client";
-import { attachments, groups, messages, users } from "../../drizzle/schema";
-import { and, desc, eq, gt, lt } from "drizzle-orm";
+import {
+    Attachment,
+    attachments,
+    groups,
+    messages,
+    users,
+} from "../../drizzle/schema";
+import { and, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
 import { createId } from "@paralleldrive/cuid2";
 
@@ -26,24 +30,27 @@ export const chatRouter = router({
                 .object({
                     groupId: z.number(),
                     content: contentSchema,
-                    attachments: z.array(uploadAttachmentSchema),
+                    attachment: uploadAttachmentSchema.optional(),
                     nonce: z.number().optional(),
                 })
                 .refine(
-                    ({ content, attachments }) =>
-                        content.length !== 0 || attachments.length !== 0,
+                    ({ content, attachment }) =>
+                        content.length !== 0 || attachment != null,
                     "Message is empty"
                 )
         )
         .mutation(async ({ input, ctx }) => {
             const message = await db.transaction(async () => {
                 await checkIsMemberOf(input.groupId, ctx.session);
+                const attachment = await insertAttachment(input.attachment);
+
                 const message_id = await db
                     .insert(messages)
                     .values({
                         author_id: ctx.session.user.id,
                         content: input.content,
                         group_id: input.groupId,
+                        attachment_id: attachment?.id ?? null,
                     })
                     .then((res) => Number(res.insertId));
 
@@ -59,11 +66,7 @@ export const chatRouter = router({
 
                 return {
                     ...message,
-                    attachments: await insertAttachments(
-                        message_id,
-                        input.attachments,
-                        false
-                    ),
+                    attachment,
                     nonce: input.nonce,
                 };
             });
@@ -118,10 +121,12 @@ export const chatRouter = router({
                     )
                 )
                 .leftJoin(users, eq(users.id, messages.author_id))
-                .leftJoin(attachments, eq(attachments.message_id, messages.id))
+                .leftJoin(
+                    attachments,
+                    eq(attachments.id, messages.attachment_id)
+                )
                 .orderBy(desc(messages.timestamp))
-                .limit(count)
-                .then((rows) => combineOneToManyMessages<MessageType>(rows));
+                .limit(count);
         }),
     update: protectedProcedure
         .input(
@@ -260,55 +265,27 @@ async function checkDeleteMessage(messageId: number, user: string) {
     });
 }
 
-export function insertAttachments(
-    message_id: number,
-    uploads: UploadAttachment[],
-    direct: boolean
-): Promise<AttachmentType[]> {
-    const mapped_attachments = uploads.map(async (attachment) => {
-        const values: AttachmentType = {
-            ...attachment,
-            id: createId(),
-            width: attachment.width ?? null,
-            height: attachment.height ?? null,
-        };
+export function insertAttachment(
+    attachment: UploadAttachment
+): Promise<AttachmentType>;
 
-        await db.insert(attachments).values({
-            direct_message_id: direct ? message_id : null,
-            message_id: !direct ? message_id : null,
-            ...values,
-        });
+export function insertAttachment(
+    attachment: UploadAttachment | null | undefined
+): Promise<AttachmentType | null>;
 
-        return values;
-    });
+export async function insertAttachment(
+    attachment: UploadAttachment | null | undefined
+): Promise<AttachmentType | null> {
+    if (attachment == null) return null;
 
-    return Promise.all(mapped_attachments);
-}
+    const values: Attachment = {
+        ...attachment,
+        id: createId(),
+        width: attachment.width ?? null,
+        height: attachment.height ?? null,
+    };
 
-export function combineOneToManyMessages<
-    T extends MessageType | DirectMessageType
->(
-    rows: (Omit<T, "attachments"> & {
-        attachment: AttachmentType | null;
-    })[]
-): T[] {
-    const arr: T[] = [];
-    for (const message of rows) {
-        const { attachment, ...row } = message;
+    await db.insert(attachments).values({ ...values });
 
-        if (arr.length !== 0 && arr[arr.length - 1].id === row.id) {
-            const prev_attachments = arr[arr.length - 1].attachments;
-
-            if (attachment != null) {
-                prev_attachments.push(attachment);
-            }
-        } else {
-            arr.push({
-                ...(row as unknown as T),
-                attachments: attachment != null ? [attachment] : [],
-            });
-        }
-    }
-
-    return arr;
+    return values;
 }

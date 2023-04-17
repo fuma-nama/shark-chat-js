@@ -129,14 +129,13 @@ function GroupSendbar() {
     ]);
     const typeMutation = trpc.useContext().client.chat.type;
     const sendMutation = useMutation(
-        async ({ attachments, ...data }: SendMutationInput) => {
-            const uploads = attachments.map((file) =>
-                uploadAttachment(utils, file)
-            );
-
+        async ({ attachment, ...data }: SendMutationInput) => {
             await utils.client.chat.send.mutate({
                 ...data,
-                attachments: await Promise.all(uploads),
+                attachment:
+                    attachment != null
+                        ? await uploadAttachment(utils, attachment)
+                        : undefined,
             });
         },
         {

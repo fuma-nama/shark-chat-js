@@ -42,13 +42,14 @@ export const accounts = mysqlTable(
 export const directMessages = mysqlTable(
     "DirectMessage",
     {
-        id: serial(`id`).autoincrement().notNull().primaryKey(),
+        id: int(`id`).autoincrement().notNull().primaryKey(),
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
         receiver_id: varchar("receiver_id", { length: 191 }).notNull(),
         content: varchar("content", { length: 2000 }).notNull(),
         timestamp: datetime("timestamp", { fsp: 3 })
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
+        attachment_id: varchar(`attachment_id`, { length: 32 }),
     },
     (table) => ({
         DirectMessage_receiver_id_idx: index(
@@ -80,7 +81,7 @@ export const directMessageChannels = mysqlTable(
 export const groups = mysqlTable(
     "Group",
     {
-        id: serial(`id`).notNull().autoincrement().primaryKey(),
+        id: int(`id`).notNull().autoincrement().primaryKey(),
         name: varchar(`name`, { length: 256 }).notNull(),
         unique_name: varchar(`unique_name`, { length: 32 }).notNull(),
         icon_hash: int(`icon_hash`),
@@ -116,13 +117,14 @@ export const members = mysqlTable(
 export const messages = mysqlTable(
     "Message",
     {
-        id: serial(`id`).autoincrement().notNull().primaryKey(),
+        id: int(`id`).autoincrement().notNull().primaryKey(),
         group_id: int(`group_id`).notNull(),
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
         content: varchar(`content`, { length: 2000 }).notNull(),
         timestamp: datetime(`timestamp`, { fsp: 3 })
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
+        attachment_id: varchar(`attachment_id`, { length: 32 }),
     },
     (table) => ({
         Message_group_id_idx: index("Message_group_id_idx").on(table.group_id),
@@ -163,27 +165,16 @@ export const users = mysqlTable(
     })
 );
 
-export const attachments = mysqlTable(
-    "Attachment",
-    {
-        id: varchar(`id`, { length: 32 }).notNull().primaryKey(),
-        name: varchar(`name`, { length: 255 }).notNull(),
-        url: varchar(`url`, { length: 255 }).notNull(),
-        message_id: int("message_id"),
-        direct_message_id: int("direct_message_id"),
+export const attachments = mysqlTable("Attachment", {
+    id: varchar(`id`, { length: 32 }).notNull().primaryKey(),
+    name: varchar(`name`, { length: 255 }).notNull(),
+    url: varchar(`url`, { length: 255 }).notNull(),
 
-        type: mysqlEnum("type", ["image", "video", "raw"]).notNull(),
-        bytes: int("bytes").notNull(),
-        width: int("width"),
-        height: int("height"),
-    },
-    (table) => ({
-        Message_id_idx: index(`Message_id_idx`).on(table.message_id),
-        Direct_message_id_idx: index(`Direct_message_id_idx`).on(
-            table.direct_message_id
-        ),
-    })
-);
+    type: mysqlEnum("type", ["image", "video", "raw"]).notNull(),
+    bytes: int("bytes").notNull(),
+    width: int("width"),
+    height: int("height"),
+});
 
 export type Group = InferModel<typeof groups>;
 export type User = InferModel<typeof users>;

@@ -1,1 +1,0 @@
-ALTER TABLE `Attachment` ADD `name` varchar(255) NOT NULL;

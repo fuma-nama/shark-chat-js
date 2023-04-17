@@ -17,26 +17,23 @@ export type RecentChatType = DirectMessageChannel & {
 
 export type MessageType = Message & {
     author: UserInfo | null;
-    attachments: AttachmentType[];
+    attachment: AttachmentType | null;
 };
 
 export type DirectMessageType = DirectMessage & {
     author: UserInfo | null;
-    attachments: AttachmentType[];
+    attachment: AttachmentType | null;
 };
 
 export type DirectMessageWithReceiver = DirectMessage & {
     receiver: UserInfo;
     author: UserInfo;
-    attachments: AttachmentType[];
+    attachment: AttachmentType | null;
 };
 
 export type UploadAttachment = z.infer<typeof uploadAttachmentSchema>;
 
-export type AttachmentType = Omit<
-    Attachment,
-    "message_id" | "direct_message_id"
->;
+export type AttachmentType = Attachment;
 
 export const uploadAttachmentSchema = z.object({
     name: z.string(),
