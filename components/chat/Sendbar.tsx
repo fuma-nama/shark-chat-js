@@ -100,7 +100,6 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
                 {...field}
                 id="attachment"
                 type="file"
-                multiple
                 className="hidden"
                 onChange={(e) => {
                     const files = e.target.files;
@@ -116,9 +115,7 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
                     </p>
                     <IconButton
                         color="danger"
-                        onClick={() => {
-                            field.onChange(null);
-                        }}
+                        onClick={() => field.onChange(null)}
                     >
                         <TrashIcon />
                     </IconButton>
