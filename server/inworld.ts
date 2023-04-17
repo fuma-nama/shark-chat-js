@@ -101,7 +101,7 @@ async function sendMessage(group_id: number, content: string) {
 
     await channels.chat.message_sent.publish([group_id], {
         ...message[0],
-        attachments: [],
+        attachment: null,
         author: bot,
     });
 }
