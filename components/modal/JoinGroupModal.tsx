@@ -1,6 +1,5 @@
 import { trpc } from "@/utils/trpc";
 import { useMutationHandlers } from "@/utils/handlers/trpc";
-import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "../system/button";
 import { Dialog } from "../system/dialog";
@@ -13,15 +12,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { uniqueNameSchema } from "@/server/schema/group";
 import { z } from "zod";
 
-export function JoinGroupModal({ children }: { children: ReactNode }) {
-    const [open, setOpen] = useState(false);
+export default function JoinGroupModal({
+    open,
+    setOpen,
+}: {
+    open: boolean;
+    setOpen: (v: boolean) => void;
+}) {
     const tabStyles = tabs();
 
     return (
         <Dialog
             title="Join Group"
             description="Chat with other peoples in the group"
-            trigger={children}
             open={open}
             onOpenChange={setOpen}
         >

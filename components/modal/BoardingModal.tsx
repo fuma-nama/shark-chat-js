@@ -4,9 +4,12 @@ import { useMounted } from "@/utils/use-mounted";
 import { useState } from "react";
 import { Button } from "../system/button";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 
-export default function BoardingModal() {
+export default function BoardingModal({
+    onCreateGroup,
+}: {
+    onCreateGroup: () => void;
+}) {
     const [open, setOpen] = useState(true);
     const { status, data } = useSession();
     const mounted = useMounted();
@@ -29,13 +32,13 @@ export default function BoardingModal() {
                 </p>
             </div>
             <div className="flex flex-row gap-3 mt-4">
-                <Link href="/home/create-group">
-                    <Button color="primary">Create Group</Button>
-                </Link>
+                <Button color="primary" onClick={onCreateGroup}>
+                    Create Group
+                </Button>
 
-                <Link href="/home">
-                    <Button color="secondary">Explore</Button>
-                </Link>
+                <Button color="secondary" onClick={() => setOpen(false)}>
+                    Explore
+                </Button>
             </div>
         </Dialog>
     );

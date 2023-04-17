@@ -1,26 +1,29 @@
 import { create } from "zustand";
 
-export type PageStore = {
-    isSidebarOpen: boolean;
-    setSidebarOpen: (v: boolean) => void;
-    messages: ToastMessage[];
-    addError: (error: ToastError) => void;
-    removeMessage: (id: number) => void;
-};
-
-export type ToastError = Omit<ToastMessage, "id">;
-export type ToastMessage = {
+type ModalType = "create-group" | "join-group" | "boarding";
+type ToastError = { title: string; description: string };
+type ToastMessage = {
     id: number;
     title: string;
     description: string;
     variant?: "red" | "normal";
 };
 
+type PageStore = {
+    isSidebarOpen: boolean;
+    setSidebarOpen: (v: boolean) => void;
+    messages: ToastMessage[];
+    addError: (error: ToastError) => void;
+    removeMessage: (id: number) => void;
+    modal?: ModalType;
+    setModal: (type: ModalType | undefined) => void;
+};
+
 export const usePageStore = create<PageStore>((set) => ({
     isSidebarOpen: false,
     setSidebarOpen: (v: boolean) => set({ isSidebarOpen: v }),
     messages: [],
-    addError: (error) => {
+    addError(error) {
         const message: ToastMessage = {
             ...error,
             id: Date.now(),
@@ -31,11 +34,12 @@ export const usePageStore = create<PageStore>((set) => ({
             messages: [...prev.messages, message],
         }));
     },
-    removeMessage: (id) => {
+    removeMessage(id) {
         set((c) => ({
             messages: c.messages.filter((v) => v.id !== id),
         }));
     },
+    setModal: (type) => set({ modal: type }),
 }));
 
 export function showErrorToast(error: ToastError) {

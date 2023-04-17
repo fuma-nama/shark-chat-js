@@ -8,7 +8,6 @@ import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "../_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { JoinGroupModal } from "@/components/modal/JoinGroupModal";
 import { RecentChatType } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
 import { GroupWithNotifications } from "@/server/schema/group";
@@ -18,15 +17,53 @@ import { text } from "@/components/system/text";
 import { BoxModelIcon } from "@radix-ui/react-icons";
 import Router, { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+import { usePageStore } from "@/utils/stores/page";
+import { useEffect } from "react";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
     () => import("@/components/modal/CreateGroupModal")
 );
+const JoinGroupModal = dynamic(
+    () => import("@/components/modal/JoinGroupModal")
+);
+
+function Modals() {
+    const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
+    const query = useRouter().query as { modal?: string };
+
+    useEffect(() => {
+        if (query.modal === "new") {
+            Router.replace("/home").then(() => {
+                setModal("boarding");
+            });
+        }
+    }, [query.modal, setModal]);
+
+    return (
+        <>
+            {modal === "create-group" && (
+                <CreateGroupModal
+                    open
+                    setOpen={(open) => !open && setModal(undefined)}
+                />
+            )}
+            {modal === "join-group" && (
+                <JoinGroupModal
+                    open
+                    setOpen={(open) => !open && setModal(undefined)}
+                />
+            )}
+            {modal === "boarding" && (
+                <BoardingModal onCreateGroup={() => setModal("create-group")} />
+            )}
+        </>
+    );
+}
 
 const Home: NextPageWithLayout = () => {
-    const query = useRouter().query as { modal?: string };
     const { status } = useSession();
+    const setModal = usePageStore((s) => s.setModal);
     const dmQuery = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
         staleTime: Infinity,
@@ -43,23 +80,18 @@ const Home: NextPageWithLayout = () => {
 
     return (
         <>
-            {query.modal === "create-group" && (
-                <CreateGroupModal
-                    open
-                    setOpen={(open) => {
-                        Router.push(open ? "/home/create-group" : "/home");
-                    }}
-                />
-            )}
-            {query.modal === "new" && <BoardingModal />}
+            <Modals />
             <h1 className="text-4xl font-bold">Recent Chat</h1>
             <div className="flex flex-row gap-3 mt-3">
-                <Link href="/home/create-group">
-                    <Button color="primary">Create Group</Button>
-                </Link>
-                <JoinGroupModal>
-                    <Button>Join Group</Button>
-                </JoinGroupModal>
+                <Button
+                    color="primary"
+                    onClick={() => setModal("create-group")}
+                >
+                    Create Group
+                </Button>
+                <Button onClick={() => setModal("join-group")}>
+                    Join Group
+                </Button>
             </div>
 
             {dmQuery.isLoading || groups.isLoading ? (
