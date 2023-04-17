@@ -51,7 +51,7 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
     }
 
     return (
-        <div className="p-3 rounded-lg bg-light-100 dark:bg-dark-700 flex flex-col mt-3">
+        <div className="p-3 rounded-lg bg-light-100 dark:bg-dark-700 mt-3">
             <Link
                 target="_blank"
                 href={attachment.url}
