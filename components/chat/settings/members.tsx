@@ -6,6 +6,7 @@ import { trpc } from "@/utils/trpc";
 import { Serialize } from "@/utils/types";
 import { Member } from "@/drizzle/schema";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function Members({
     group,
@@ -71,9 +72,12 @@ function MemberItem({
                 src={member.user.image}
                 fallback={member.user.name}
             />
-            <p className={text({ size: "md", type: "primary" })}>
+            <Link
+                href={`/dm/${member.user_id}`}
+                className={text({ size: "md", type: "primary" })}
+            >
                 {member.user.name}
-            </p>
+            </Link>
             {canKick && (
                 <Button
                     color="danger"
