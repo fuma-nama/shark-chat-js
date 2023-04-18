@@ -32,6 +32,16 @@ export function PrivateEventManager() {
                 return handlers.deleteGroup(message.id);
             }
 
+            if (name === "close_dm") {
+                utils.dm.channels.setData(undefined, (prev) => {
+                    if (prev == null) return prev;
+
+                    return prev.filter(
+                        (dm) => dm.receiver_id !== message.userId
+                    );
+                });
+            }
+
             if (name === "message_sent" && data != null) {
                 const user =
                     message.author_id === data.user.id

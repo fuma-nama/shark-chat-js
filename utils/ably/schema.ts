@@ -27,6 +27,11 @@ export const schema = {
         message_sent: a.event(
             z.custom<DirectMessageWithReceiver & { nonce?: number }>()
         ),
+        close_dm: a.event(
+            z.object({
+                userId: z.string(),
+            })
+        ),
     }),
     dm: a.channel(
         (users: [user1: string, user2: string]) => {

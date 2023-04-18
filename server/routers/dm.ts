@@ -153,8 +153,9 @@ export const dmRouter = router({
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
-            await initChannel(input.userId, userId);
+
             const message = await db.transaction(async () => {
+                await initChannel(input.userId, userId);
                 const attachment = await insertAttachment(input.attachment);
                 const message_id = await db
                     .insert(directMessages)
@@ -361,6 +362,23 @@ export const dmRouter = router({
                     user: rows[0],
                 }
             );
+        }),
+    close: protectedProcedure
+        .input(z.object({ userId: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const res = await db
+                .delete(directMessageChannels)
+                .where(
+                    and(
+                        eq(directMessageChannels.receiver_id, input.userId),
+                        eq(directMessageChannels.author_id, ctx.session.user.id)
+                    )
+                );
+
+            if (res.rowsAffected === 0) return;
+            await channels.private.close_dm.publish([ctx.session.user.id], {
+                userId: input.userId,
+            });
         }),
 });
 
