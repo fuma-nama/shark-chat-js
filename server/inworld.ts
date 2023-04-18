@@ -39,10 +39,11 @@ export async function onReceiveMessage(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                connection.close();
-                return sendMessage(group_id, lines.join("\n")).catch((e) =>
+                sendMessage(group_id, lines.join("\n")).catch((e) =>
                     sendErrorMessage(group_id, e?.toString())
                 );
+                connection.close();
+                return;
             }
 
             if (packet.isText() && packet.text.final) {
@@ -69,6 +70,16 @@ function handleError(message: Message) {
                     .catch((e) =>
                         sendErrorMessage(message.group_id, e?.toString())
                     );
+                break;
+            case status.UNAVAILABLE:
+                sendErrorMessage(
+                    message.group_id,
+                    [
+                        err.message,
+                        `details: ${err.details}`,
+                        `stack: ${err.stack}`,
+                    ].join("\n")
+                );
                 break;
             default:
                 sendErrorMessage(message.group_id, err.message);
