@@ -44,23 +44,18 @@ export const menuItem = tv({
     },
 });
 
-export type RootProps = {
-    trigger: ReactNode;
-    children: ReactNode;
-};
+export const Root = ContextMenu.Root;
+export const Trigger = ContextMenu.Trigger;
 
-export function Root({ trigger, children }: RootProps) {
+export function Content({ children }: { children: ReactNode }) {
     const styles = contextMenu({});
 
     return (
-        <ContextMenu.Root>
-            <ContextMenu.Trigger asChild>{trigger}</ContextMenu.Trigger>
-            <ContextMenu.Portal>
-                <ContextMenu.Content className={styles.content()}>
-                    {children}
-                </ContextMenu.Content>
-            </ContextMenu.Portal>
-        </ContextMenu.Root>
+        <ContextMenu.Portal>
+            <ContextMenu.Content className={styles.content()}>
+                {children}
+            </ContextMenu.Content>
+        </ContextMenu.Portal>
     );
 }
 

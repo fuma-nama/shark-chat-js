@@ -169,8 +169,8 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
     };
 
     return (
-        <ContextMenu.Root
-            trigger={
+        <ContextMenu.Root>
+            <ContextMenu.Trigger asChild>
                 <Link
                     href={url}
                     className={clsx(
@@ -180,8 +180,17 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
                 >
                     <Avatar src={user.image} fallback={user.name} />
                     <div className="flex-1 w-0">
-                        <p className="font-semibold text-base">{user.name}</p>
-                        <p className="text-accent-700 dark:text-accent-600 text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+                        <p className={text({ type: "primary", size: "md" })}>
+                            {user.name}
+                        </p>
+                        <p
+                            className={text({
+                                type: "secondary",
+                                size: "sm",
+                                className:
+                                    "overflow-hidden text-ellipsis whitespace-nowrap",
+                            })}
+                        >
                             {chat.last_message}
                         </p>
                     </div>
@@ -195,15 +204,16 @@ function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
                         </p>
                     )}
                 </Link>
-            }
-        >
-            <ContextMenu.Item
-                color="danger"
-                icon={<Cross1Icon className="w-4 h-4" />}
-                onClick={onClose}
-            >
-                Close
-            </ContextMenu.Item>
+            </ContextMenu.Trigger>
+            <ContextMenu.Content>
+                <ContextMenu.Item
+                    color="danger"
+                    icon={<Cross1Icon className="w-4 h-4" />}
+                    onClick={onClose}
+                >
+                    Close
+                </ContextMenu.Item>
+            </ContextMenu.Content>
         </ContextMenu.Root>
     );
 }
