@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { ReactNode, useMemo } from "react";
 import { Avatar } from "../system/avatar";
 import { Button } from "../system/button";
 import { textArea } from "../system/textarea";
@@ -16,13 +16,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import type { Serialize } from "@/utils/types";
 import { deletedUser, MessageType } from "@/server/schema/chat";
-import { LinkItUrl } from "react-linkify-it";
-
-const MessageContext = createContext<{
-    cancel: () => void;
-}>({
-    cancel: () => {},
-});
+import { linkIt, urlRegex } from "react-linkify-it";
 
 export type EditPayload = { content: string };
 
@@ -30,10 +24,10 @@ type EditProps = {
     initialValue: string;
     isLoading: boolean;
     onEdit: (d: EditPayload) => void;
+    onCancel: () => void;
 };
 
-export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
-    const { cancel } = useContext(MessageContext);
+export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
     const { control, handleSubmit } = useForm<EditPayload>({
         defaultValues: {
             content: initialValue,
@@ -68,7 +62,7 @@ export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
 
                             if (e.key === "Escape") {
                                 e.preventDefault();
-                                return cancel();
+                                return onCancel();
                             }
                         }}
                         {...field}
@@ -88,7 +82,7 @@ export function Edit({ initialValue, isLoading, onEdit }: EditProps) {
                 </Button>
                 <Button
                     color="secondary"
-                    onClick={cancel}
+                    onClick={onCancel}
                     className="dark:bg-dark-700"
                 >
                     Cancel
@@ -150,67 +144,68 @@ export function Root({
     ...rest
 }: RootProps & ContentProps) {
     return (
-        <ContextMenu.Root
-            trigger={
-                <div
-                    className={clsx(
-                        "p-3 rounded-xl bg-light-50 flex flex-row gap-2 shadow-md shadow-brand-500/10",
-                        "dark:shadow-none dark:bg-dark-800"
-                    )}
-                >
-                    <Content {...rest}>
-                        <MessageContext.Provider
-                            value={{
-                                cancel: () => onEditChange(false),
-                            }}
-                        >
-                            {children}
-                        </MessageContext.Provider>
-                    </Content>
-                </div>
-            }
-        >
-            <ContextMenu.Item
-                icon={<CopyIcon className="w-4 h-4" />}
-                onClick={onCopy}
+        <ContextMenu.Root>
+            <ContextMenu.Trigger
+                className={clsx(
+                    "p-3 rounded-xl bg-light-50 flex flex-row gap-2 shadow-md shadow-brand-500/10",
+                    "dark:shadow-none dark:bg-dark-800"
+                )}
             >
-                Copy
-            </ContextMenu.Item>
-            {canEdit && (
-                <ContextMenu.CheckboxItem
-                    icon={
-                        isEditing ? (
-                            <Cross1Icon className="w-4 h-4" />
-                        ) : (
-                            <Pencil1Icon className="w-4 h-4" />
-                        )
-                    }
-                    value={isEditing}
-                    onChange={() => onEditChange(!isEditing)}
-                >
-                    {isEditing ? "Close Edit" : "Edit"}
-                </ContextMenu.CheckboxItem>
-            )}
-            {canDelete && (
+                <Content {...rest}>{children}</Content>
+            </ContextMenu.Trigger>
+            <ContextMenu.Content>
                 <ContextMenu.Item
-                    icon={<TrashIcon className="w-4 h-4" />}
-                    shortcut="⌘+D"
-                    color="danger"
-                    onClick={onDelete}
+                    icon={<CopyIcon className="w-4 h-4" />}
+                    onClick={onCopy}
                 >
-                    Delete
+                    Copy
                 </ContextMenu.Item>
-            )}
+                {canEdit && (
+                    <ContextMenu.CheckboxItem
+                        icon={
+                            isEditing ? (
+                                <Cross1Icon className="w-4 h-4" />
+                            ) : (
+                                <Pencil1Icon className="w-4 h-4" />
+                            )
+                        }
+                        value={isEditing}
+                        onChange={() => onEditChange(!isEditing)}
+                    >
+                        {isEditing ? "Close Edit" : "Edit"}
+                    </ContextMenu.CheckboxItem>
+                )}
+                {canDelete && (
+                    <ContextMenu.Item
+                        icon={<TrashIcon className="w-4 h-4" />}
+                        shortcut="⌘+D"
+                        color="danger"
+                        onClick={onDelete}
+                    >
+                        Delete
+                    </ContextMenu.Item>
+                )}
+            </ContextMenu.Content>
         </ContextMenu.Root>
     );
 }
 
 export function Text({ children }: { children: string }) {
+    const nodes = useMemo(() => {
+        return linkIt(
+            children,
+            (url) => (
+                <a href={url} target="_blank" rel="noreferrer">
+                    {url}
+                </a>
+            ),
+            urlRegex
+        );
+    }, [children]);
+
     return (
         <p className="[overflow-wrap:anywhere] [white-space:break-spaces]">
-            <LinkItUrl className="text-brand-500 dark:text-purple-300">
-                {children}
-            </LinkItUrl>
+            {nodes}
         </p>
     );
 }

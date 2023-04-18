@@ -54,6 +54,7 @@ export function DirectMessageItem({
                     onEdit={onEdit}
                     isLoading={editMutation.isLoading}
                     initialValue={message.content}
+                    onCancel={() => setEditing(false)}
                 />
             ) : (
                 <Item.Text>{message.content}</Item.Text>
