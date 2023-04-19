@@ -5,7 +5,7 @@ import { tv, VariantProps } from "tailwind-variants";
 export const contextMenu = tv({
     slots: {
         content: [
-            "bg-white shadow-xl shadow-brand-500/10 rounded-2xl p-2",
+            "bg-white shadow-xl shadow-brand-500/10 rounded-2xl p-2 z-[100]",
             "dark:bg-dark-900 dark:shadow-black/20",
         ],
     },
