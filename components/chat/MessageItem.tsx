@@ -195,7 +195,12 @@ export function Text({ children }: { children: string }) {
         return linkIt(
             children,
             (url) => (
-                <a href={url} target="_blank" rel="noreferrer">
+                <a
+                    href={url} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="text-brand-500 dark:text-brand-300"
+                >
                     {url}
                 </a>
             ),
