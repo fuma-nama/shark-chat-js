@@ -1,7 +1,7 @@
 import { groupSchema } from "@/server/schema/group";
 import type {
     DirectMessageType,
-    DirectMessageWithReceiver,
+    DirectMessageEvent,
     MessageType,
     UserInfo,
 } from "@/server/schema/chat";
@@ -24,9 +24,7 @@ export const schema = {
     private: a.channel(([clientId]: [clientId: string]) => [clientId], {
         group_created: a.event(groupSchema),
         group_removed: a.event(groupSchema.pick({ id: true })),
-        message_sent: a.event(
-            z.custom<DirectMessageWithReceiver & { nonce?: number }>()
-        ),
+        message_sent: a.event(z.custom<DirectMessageEvent>()),
         close_dm: a.event(
             z.object({
                 userId: z.string(),

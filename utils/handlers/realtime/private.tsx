@@ -7,12 +7,11 @@ import {
     DirectMessageQuery as DMParams,
     getDirectMessageVariables as getDMVariables,
 } from "@/utils/variables";
-import { DirectMessageWithReceiver } from "@/server/schema/chat";
+import { DirectMessageEvent } from "@/server/schema/chat";
 import { Serialize } from "@/utils/types";
-import type { CreateReactUtilsProxy } from "@trpc/react-query/shared";
-import type { AppRouter } from "@/server/routers/_app";
 import { useDirectMessage } from "@/utils/stores/chat";
 import { removeNonce } from "./shared";
+import type { RouterUtils } from "@/utils/trpc";
 
 export function PrivateEventManager() {
     const ably = assertConfiguration();
@@ -58,9 +57,9 @@ export function PrivateEventManager() {
                         { userId: user },
                         { last_read: message.timestamp }
                     );
-                    updateChannel(utils, data.user.id, message, 0);
+                    addChannelUnread(utils, data.user.id, message, 0);
                 } else {
-                    updateChannel(utils, data.user.id, message, 1);
+                    addChannelUnread(utils, data.user.id, message, 1);
                 }
 
                 if (active && !self) {
@@ -99,10 +98,10 @@ export function PrivateEventManager() {
     return <></>;
 }
 
-function updateChannel(
-    utils: CreateReactUtilsProxy<AppRouter, unknown>,
+function addChannelUnread(
+    utils: RouterUtils,
     selfId: string,
-    message: Serialize<DirectMessageWithReceiver>,
+    message: Serialize<DirectMessageEvent>,
     count: number
 ) {
     const [user, self] =

@@ -25,10 +25,11 @@ export type DirectMessageType = DirectMessage & {
     attachment: AttachmentType | null;
 };
 
-export type DirectMessageWithReceiver = DirectMessage & {
+export type DirectMessageEvent = DirectMessage & {
     receiver: UserInfo;
     author: UserInfo;
     attachment: AttachmentType | null;
+    nonce?: number;
 };
 
 export type UploadAttachment = z.infer<typeof uploadAttachmentSchema>;
