@@ -147,8 +147,8 @@ export function Root({
         <ContextMenu.Root>
             <ContextMenu.Trigger
                 className={clsx(
-                    "p-3 rounded-xl bg-light-50 flex flex-row gap-2 shadow-md shadow-brand-500/10",
-                    "dark:shadow-none dark:bg-dark-800"
+                    "p-3 rounded-xl bg-light-50 flex flex-row gap-2",
+                    "dark:bg-dark-800"
                 )}
             >
                 <Content {...rest}>{children}</Content>
@@ -196,10 +196,10 @@ export function Text({ children }: { children: string }) {
             children,
             (url) => (
                 <a
-                    href={url} 
-                    target="_blank" 
+                    href={url}
+                    target="_blank"
                     rel="noreferrer"
-                    className="text-brand-500 dark:text-brand-300"
+                    className="text-brand-500 dark:text-brand-200"
                 >
                     {url}
                 </a>
