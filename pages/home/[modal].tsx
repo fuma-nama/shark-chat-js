@@ -14,12 +14,12 @@ import { GroupWithNotifications } from "@/server/schema/group";
 import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
 import { text } from "@/components/system/text";
-import { BoxModelIcon, Cross1Icon } from "@radix-ui/react-icons";
+import { BoxModelIcon } from "@radix-ui/react-icons";
 import Router, { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { usePageStore } from "@/utils/stores/page";
 import { useEffect } from "react";
-import * as ContextMenu from "@/components/system/context-menu";
+import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
@@ -160,61 +160,43 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
 function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
     const user = chat.receiver;
     const url = `/dm/${user.id}`;
-    const deleteMutation = trpc.dm.close.useMutation();
-
-    const onClose = () => {
-        deleteMutation.mutate({
-            userId: chat.receiver_id,
-        });
-    };
 
     return (
-        <ContextMenu.Root>
-            <ContextMenu.Trigger asChild>
-                <Link
-                    href={url}
-                    className={clsx(
-                        "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
-                        "shadow-2xl dark:shadow-none shadow-brand-500/10"
-                    )}
-                >
-                    <Avatar src={user.image} fallback={user.name} />
-                    <div className="flex-1 w-0">
-                        <p className={text({ type: "primary", size: "md" })}>
-                            {user.name}
-                        </p>
-                        <p
-                            className={text({
-                                type: "secondary",
-                                size: "sm",
-                                className:
-                                    "overflow-hidden text-ellipsis whitespace-nowrap",
-                            })}
-                        >
-                            {chat.last_message}
-                        </p>
-                    </div>
-                    {chat.unread_messages > 0 && (
-                        <p
-                            className={badge({
-                                className: "absolute top-4 right-4",
-                            })}
-                        >
-                            {chat.unread_messages}
-                        </p>
-                    )}
-                </Link>
-            </ContextMenu.Trigger>
-            <ContextMenu.Content>
-                <ContextMenu.Item
-                    color="danger"
-                    icon={<Cross1Icon className="w-4 h-4" />}
-                    onClick={onClose}
-                >
-                    Close
-                </ContextMenu.Item>
-            </ContextMenu.Content>
-        </ContextMenu.Root>
+        <DirectMessageContextMenu userId={chat.receiver_id}>
+            <Link
+                href={url}
+                className={clsx(
+                    "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
+                    "shadow-2xl dark:shadow-none shadow-brand-500/10"
+                )}
+            >
+                <Avatar src={user.image} fallback={user.name} />
+                <div className="flex-1 w-0">
+                    <p className={text({ type: "primary", size: "md" })}>
+                        {user.name}
+                    </p>
+                    <p
+                        className={text({
+                            type: "secondary",
+                            size: "sm",
+                            className:
+                                "overflow-hidden text-ellipsis whitespace-nowrap",
+                        })}
+                    >
+                        {chat.last_message}
+                    </p>
+                </div>
+                {chat.unread_messages > 0 && (
+                    <p
+                        className={badge({
+                            className: "absolute top-4 right-4",
+                        })}
+                    >
+                        {chat.unread_messages}
+                    </p>
+                )}
+            </Link>
+        </DirectMessageContextMenu>
     );
 }
 

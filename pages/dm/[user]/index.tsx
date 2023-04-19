@@ -1,4 +1,3 @@
-import { AppLayout } from "@/components/layout/app";
 import { Avatar } from "@/components/system/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
@@ -25,6 +24,7 @@ import { useDirectMessage } from "@/utils/stores/chat";
 import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
 import { useMutation } from "@tanstack/react-query";
 import { uploadAttachment } from "@/utils/media/upload-attachment";
+import { useDirectMessageLayout } from "@/components/layout/dm";
 
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as DirectMessageQuery;
@@ -229,44 +229,10 @@ function Welcome() {
     );
 }
 
-function BreadcrumbItem() {
-    const { user } = useRouter().query as DirectMessageQuery;
-    const { status } = useSession();
-    const query = trpc.dm.info.useQuery(
-        { userId: user },
-        { enabled: status === "authenticated" }
-    );
-
-    return query.data == null ? (
-        <div className={skeleton()} />
-    ) : (
-        <div className="flex flex-row gap-2 items-center">
-            <Avatar
-                src={query.data.image}
-                fallback={query.data.name}
-                size="small"
-            />
-            <span>{query.data.name}</span>
-        </div>
-    );
-}
-
-DMPage.useLayout = (c) => {
-    const router = useRouter();
-
-    return (
-        <AppLayout
-            footer={<DirectMessageSendbar />}
-            breadcrumb={[
-                {
-                    text: <BreadcrumbItem />,
-                    href: router.asPath,
-                },
-            ]}
-        >
-            {c}
-        </AppLayout>
-    );
-};
+DMPage.useLayout = (c) =>
+    useDirectMessageLayout({
+        children: c,
+        footer: <DirectMessageSendbar />,
+    });
 
 export default DMPage;
