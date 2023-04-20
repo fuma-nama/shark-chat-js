@@ -20,7 +20,7 @@ const SignIn: NextPageWithLayout<Props> = ({ providers }) => {
                 "flex flex-col gap-2 sm:gap-4 text-center m-auto py-4 px-6 rounded-xl bg-light-100 dark:bg-dark-900"
             )}
         >
-            <h1 className="text-4xl font-bold">Sign in</h1>
+            <h1 className="text-3xl font-bold">Sign in</h1>
             <p className="mb-2 text-accent-700 dark:text-accent-600 sm:text-lg">
                 Login or register an account to start your life on Shark Chat
             </p>
