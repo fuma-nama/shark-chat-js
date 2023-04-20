@@ -5,7 +5,7 @@ import { trpc } from "@/utils/trpc";
 import { groupIcon } from "@/utils/media/format";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { NextPageWithLayout } from "../_app";
+import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { RecentChatType } from "@/server/schema/chat";
@@ -15,11 +15,11 @@ import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
 import { text } from "@/components/system/text";
 import { BoxModelIcon } from "@radix-ui/react-icons";
-import Router, { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import { usePageStore } from "@/utils/stores/page";
 import { useEffect } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
+import { useRouter } from "next/router";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
@@ -30,29 +30,34 @@ const JoinGroupModal = dynamic(
 );
 
 function Modals() {
+    const router = useRouter();
+    const { modal: initialModal } = router.query;
     const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
-    const query = useRouter().query as { modal?: string };
 
     useEffect(() => {
-        if (query.modal === "new") {
-            Router.replace("/home").then(() => {
+        if (initialModal === "new") {
+            router.replace("/home", undefined, { shallow: true }).then(() => {
                 setModal("boarding");
             });
         }
-    }, [query.modal, setModal]);
+    }, [initialModal, router, setModal]);
 
     return (
         <>
             {modal === "create-group" && (
                 <CreateGroupModal
                     open
-                    setOpen={(open) => !open && setModal(undefined)}
+                    setOpen={(open) =>
+                        setModal(open ? "create-group" : undefined)
+                    }
                 />
             )}
             {modal === "join-group" && (
                 <JoinGroupModal
                     open
-                    setOpen={(open) => !open && setModal(undefined)}
+                    setOpen={(open) =>
+                        setModal(open ? "join-group" : undefined)
+                    }
                 />
             )}
             {modal === "boarding" && (
