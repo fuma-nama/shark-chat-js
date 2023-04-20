@@ -20,3 +20,5 @@ A Simple Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Drizzl
 -   100% Typescript
 
 **Play with it:** https://shark-chat.vercel.app
+<br />
+**Learn More:** https://shark-chat.vercel.app/info
