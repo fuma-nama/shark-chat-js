@@ -239,6 +239,7 @@ async function getGroupsWithNotifications(
         .innerJoin(groups, eq(groups.id, members.group_id))
         .where(eq(members.user_id, userId))
         .orderBy(desc(members.group_id));
+    if (result.length === 0) return [];
 
     const last_reads = await getLastReads(
         result.map((row) => [row.group.id, userId])
