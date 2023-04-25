@@ -7,11 +7,10 @@ import {
     primaryKey,
     uniqueIndex,
     index,
-    serial,
     boolean,
     mysqlEnum,
 } from "drizzle-orm/mysql-core";
-import { datetimeUtc as datetime } from "../server/db/datetimeUTC";
+import { timestamp } from "@/server/db/timestampUTC";
 
 export const accounts = mysqlTable(
     "Account",
@@ -46,7 +45,7 @@ export const directMessages = mysqlTable(
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
         receiver_id: varchar("receiver_id", { length: 191 }).notNull(),
         content: varchar("content", { length: 2000 }).notNull(),
-        timestamp: datetime("timestamp", { fsp: 3 })
+        timestamp: timestamp("timestamp", { fsp: 3 })
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
         attachment_id: varchar(`attachment_id`, { length: 32 }),
@@ -121,7 +120,7 @@ export const messages = mysqlTable(
         group_id: int(`group_id`).notNull(),
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
         content: varchar(`content`, { length: 2000 }).notNull(),
-        timestamp: datetime(`timestamp`, { fsp: 3 })
+        timestamp: timestamp(`timestamp`, { fsp: 3 })
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
         attachment_id: varchar(`attachment_id`, { length: 32 }),
@@ -140,7 +139,7 @@ export const sessions = mysqlTable(
         id: varchar(`id`, { length: 191 }).notNull().primaryKey(),
         sessionToken: varchar(`sessionToken`, { length: 191 }).notNull(),
         userId: varchar(`userId`, { length: 191 }).notNull(),
-        expires: datetime(`expires`, { fsp: 3 }).notNull(),
+        expires: timestamp(`expires`, { fsp: 3 }).notNull(),
     },
     (table) => ({
         Session_sessionToken_key: uniqueIndex(`Session_sessionToken_key`).on(
@@ -156,7 +155,7 @@ export const users = mysqlTable(
         id: varchar(`id`, { length: 191 }).notNull().primaryKey(),
         name: varchar(`name`, { length: 191 }).notNull().default("User"),
         email: varchar(`email`, { length: 191 }),
-        emailVerified: datetime(`emailVerified`, { fsp: 3 }),
+        emailVerified: timestamp(`emailVerified`, { fsp: 3 }),
         image: varchar(`image`, { length: 191 }),
         is_ai: boolean(`is_ai`).notNull().default(false),
     },

@@ -1,13 +1,1 @@
-{
-    "version": "5",
-    "dialect": "mysql",
-    "entries": [
-        {
-            "idx": 16,
-            "version": "5",
-            "when": 1681727026435,
-            "tag": "0016_petite_susan_delgado",
-            "breakpoints": true
-        }
-    ]
-}
+{"version":"5","dialect":"mysql","entries":[]}
