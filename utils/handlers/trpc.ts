@@ -16,9 +16,6 @@ export function useMutationHandlers() {
                 base.createGroup(group);
                 channels.private.group_created.publish([data!!.user.id], group);
             },
-            deleteGroup: async (groupId: number) => {
-                base.deleteGroup(groupId);
-            },
         }),
         [base, data]
     );

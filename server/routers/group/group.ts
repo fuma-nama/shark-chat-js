@@ -178,7 +178,7 @@ export const groupRouter = router({
         )
         .mutation(async ({ ctx, input }) => {
             const group = await db
-                .select()
+                .select({ owner_id: groups.owner_id })
                 .from(groups)
                 .where(eq(groups.id, input.groupId))
                 .then((res) => res[0]);
@@ -203,6 +203,13 @@ export const groupRouter = router({
                         eq(members.user_id, ctx.session.user.id)
                     )
                 );
+
+            await channels.private.group_removed.publish(
+                [ctx.session.user.id],
+                {
+                    id: input.groupId,
+                }
+            );
         }),
     invite: inviteRouter,
     member: membersRouter,

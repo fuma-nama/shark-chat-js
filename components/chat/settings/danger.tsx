@@ -64,7 +64,6 @@ function DeleteGroupButton({ group }: { group: number }) {
     const deleteMutation = trpc.group.delete.useMutation({
         onSuccess(_, { groupId }) {
             setOpen(false);
-            return handlers.deleteGroup(groupId);
         },
     });
 
