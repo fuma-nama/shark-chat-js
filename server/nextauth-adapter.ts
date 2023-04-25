@@ -8,14 +8,7 @@ import { createId } from "@paralleldrive/cuid2";
 import redis from "./redis/client";
 import { Serialize } from "@/utils/types";
 
-export const options = {
-    baseKeyPrefix: "",
-    accountKeyPrefix: "user:account:",
-    accountByUserIdPrefix: "user:account:by-user-id:",
-    emailKeyPrefix: "user:email:",
-    sessionKeyPrefix: "user:session:",
-    sessionByUserIdKeyPrefix: "user:session:by-user-id:",
-    userKeyPrefix: "user:",
+const options = {
     verificationTokenKeyPrefix: "user:token:",
 };
 
