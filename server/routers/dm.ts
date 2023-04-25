@@ -78,6 +78,7 @@ export const dmRouter = router({
             .where(eq(directMessageChannels.author_id, ctx.session.user.id))
             .innerJoin(users, eq(directMessageChannels.receiver_id, users.id));
 
+        if (channels.length === 0) return [];
         const lastReads = await getDMLastReads(
             channels.map((c) => [ctx.session.user.id, c.receiver.id])
         );
