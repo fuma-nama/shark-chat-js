@@ -60,9 +60,8 @@ export function LeaveGroup({ group }: { group: number }) {
 
 function DeleteGroupButton({ group }: { group: number }) {
     const [open, setOpen] = useState(false);
-    const handlers = useMutationHandlers();
     const deleteMutation = trpc.group.delete.useMutation({
-        onSuccess(_, { groupId }) {
+        onSuccess() {
             setOpen(false);
         },
     });
