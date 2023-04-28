@@ -60,9 +60,13 @@ export default function Sidebar({ children }: { children: ReactNode }) {
                 >
                     <Cross1Icon className="w-5 h-5" />
                 </button>
-                <div className="flex flex-col items-center justify-center aspect-[5/2] bg-gradient-to-br from-brand-400 to-brand-500 rounded-xl text-5xl mb-4 flex-shrink-0">
+                <Link
+                    href="/info"
+                    prefetch={false}
+                    className="flex flex-col items-center justify-center aspect-[5/2] bg-gradient-to-br from-brand-400 to-brand-500 rounded-xl text-5xl mb-4 flex-shrink-0"
+                >
                     <p className="font-light text-white">Shark</p>
-                </div>
+                </Link>
                 <Items />
                 {children}
                 <BottomCard />
