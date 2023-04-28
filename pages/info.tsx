@@ -104,18 +104,17 @@ const SharkPage: NextPageWithLayout = () => {
             <SupportedChannels />
             <Features />
             <div className="-mt-[60px] h-[300px] bg-gradient-to-br from-brand-200 to-brand-500 -mx-6 md:-mx-8" />
-            <div className="z-[2] -mt-[100px] mb-[100px] grid grid-cols-1 lg:grid-cols-2 gap-6 text-accent-50">
+            <div className="z-[2] -mt-[100px] mb-[50px] grid grid-cols-1 lg:grid-cols-2 gap-6 text-accent-50">
                 <div className="bg-gradient-to-br from-black via-black to-orange-900 px-7 py-6 rounded-xl flex flex-col gap-3">
                     <h2 className="font-bold text-2xl">Lighting Fast</h2>
                     <p className="text-accent-600">
                         Using Redis, PlanetScale with Drizzle ORM to provide
                         incredible loading speed
                     </p>
-                    <div className="flex flex-row gap-3">
+                    <div className="flex flex-row gap-3 mt-auto">
                         <Link
                             href="https://github.com/SonMooSans/shark-chat-js#shark-chat"
                             target="_blank"
-                            className=""
                         >
                             See Tech Stack{" "}
                             <ArrowRightIcon className="inline w-5 h-5" />
@@ -127,8 +126,20 @@ const SharkPage: NextPageWithLayout = () => {
                     <p className="text-accent-600">
                         Feel free to star the repository if you like it
                     </p>
+                    <div className="flex flex-row gap-3 mt-auto">
+                        <Link
+                            href="https://github.com/SonMooSans/shark-chat-js"
+                            target="_blank"
+                        >
+                            Go to Github{" "}
+                            <ArrowRightIcon className="inline w-5 h-5" />
+                        </Link>
+                    </div>
                 </div>
             </div>
+            <p className="text-accent-900 dark:text-accent-50 mx-auto text-sm">
+                Made with ❤️ by Money Shark
+            </p>
         </div>
     );
 };
