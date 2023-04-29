@@ -1,6 +1,7 @@
 import {
     InworldClient,
     ServiceError,
+    Session,
     SessionToken,
     status,
 } from "@inworld/nodejs-sdk";
@@ -10,6 +11,7 @@ import redis from "./redis/client";
 import db from "./db/client";
 import { messages, users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { requireOne } from "./db/utils";
 
 type Message = {
     group_id: number;
@@ -20,13 +22,30 @@ type Message = {
 //preload bot account
 createBotAccount();
 
+async function get(groupId: number) {
+    const json = await redis.get<string>(getKey(groupId));
+
+    return json != null ? Session.deserialize(json) : undefined;
+}
+
+async function set(groupId: number, entity: Session) {
+    await redis.set(getKey(groupId), Session.serialize(entity));
+}
+
 export async function onReceiveMessage(message: Message) {
     const { group_id, content, user_name } = message;
     const lines: string[] = [];
     const bot = await createBotAccount();
 
     const connection = new InworldClient()
-        .setGenerateSessionToken(generateSessionToken(group_id))
+        .setOnSession({
+            get: () => get(message.group_id),
+            set: (session) => set(message.group_id, session),
+        })
+        .setApiKey({
+            key: process.env.INWORLD_KEY!,
+            secret: process.env.INWORLD_SECRET!,
+        })
         .setConfiguration({
             capabilities: {
                 audio: false,
@@ -72,7 +91,7 @@ function handleError(message: Message) {
                     );
                 break;
             case status.UNAVAILABLE:
-                sendErrorMessage(message.group_id, "Shark is sleeping now");
+                sendErrorMessage(message.group_id, "The Shark is sleeping now");
             default:
                 sendErrorMessage(message.group_id, err.message);
                 break;
@@ -120,38 +139,16 @@ async function createBotAccount() {
         name: "Shark AI",
         is_ai: true,
     });
-    const selectResult = await db
+    const user = await db
         .select()
         .from(users)
-        .where(eq(users.id, "shark"));
+        .where(eq(users.id, "shark"))
+        .then((res) => requireOne(res));
 
-    global.bot_account = selectResult[0];
-    return global.bot_account;
-}
-
-function generateSessionToken(group_id: number) {
-    const client = new InworldClient().setApiKey({
-        key: process.env.INWORLD_KEY!,
-        secret: process.env.INWORLD_SECRET!,
-    });
-
-    return async () => {
-        const token = await client.generateSessionToken();
-        const session_id = await redis.get<string>(getKey(group_id));
-
-        if (session_id == null) {
-            await redis.set(getKey(group_id), token.getSessionId());
-        }
-
-        return new SessionToken({
-            expirationTime: token.getExpirationTime(),
-            token: token.getToken(),
-            type: token.getType(),
-            sessionId: session_id ?? token.getSessionId(),
-        });
-    };
+    global.bot_account = user;
+    return user;
 }
 
 function getKey(group_id: number) {
-    return `ai_session_group_${group_id}`;
+    return `ai_session_g_${group_id}`;
 }
