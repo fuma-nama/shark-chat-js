@@ -5,12 +5,11 @@ import {
     TrashIcon,
 } from "@radix-ui/react-icons";
 import { textArea } from "@/components/system/textarea";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { IconButton, iconButton } from "@/components/system/button";
 import clsx from "clsx";
 import React from "react";
-import { UserInfo, contentSchema } from "@/server/schema/chat";
-import { Avatar } from "../system/avatar";
+import { contentSchema } from "@/server/schema/chat";
 import { text } from "../system/text";
 import { Control, useController, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +67,20 @@ export function Sendbar({
                     "dark:shadow-none dark:bg-dark-800"
                 )}
             >
+                {openModal !== undefined && (
+                    <GenerateTextModal
+                        open={openModal}
+                        setOpen={setOpenModal}
+                        onFocus={() => setFocus("content")}
+                        setValue={(s) =>
+                            setValue("content", s, {
+                                shouldDirty: true,
+                                shouldTouch: true,
+                                shouldValidate: true,
+                            })
+                        }
+                    />
+                )}
                 {children}
                 <AttachmentPicker control={control} />
                 <div className="flex flex-row gap-3">
@@ -81,22 +94,8 @@ export function Sendbar({
                     >
                         <FilePlusIcon />
                     </label>
-                    {openModal !== undefined && (
-                        <GenerateTextModal
-                            open={openModal}
-                            setOpen={setOpenModal}
-                            onFocus={() => setFocus("content")}
-                            setValue={(s) =>
-                                setValue("content", s, {
-                                    shouldDirty: true,
-                                    shouldTouch: true,
-                                    shouldValidate: true,
-                                })
-                            }
-                        />
-                    )}
                     <IconButton
-                        className="aspect-square h-[41.6px]"
+                        className="aspect-square h-[41.6px] max-sm:hidden"
                         onClick={() => setOpenModal(true)}
                     >
                         <TextIcon />
@@ -197,11 +196,6 @@ function TextArea({
     );
 }
 
-type TypingData = {
-    user: UserInfo;
-    timestamp: Date;
-};
-
 function canSendSignal(lastType: Date | undefined, intervalSeconds: number) {
     if (lastType == null) return true;
 
@@ -209,57 +203,4 @@ function canSendSignal(lastType: Date | undefined, intervalSeconds: number) {
     min.setSeconds(min.getSeconds() + intervalSeconds);
 
     return new Date(Date.now()) > min;
-}
-
-export function useTypingStatus() {
-    const [typing, setTyping] = useState<TypingData[]>([]);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            const last = new Date(Date.now());
-            last.setSeconds(last.getSeconds() - 5);
-
-            setTyping((prev) => prev.filter((data) => data.timestamp >= last));
-        }, 5000);
-
-        return () => {
-            clearInterval(timer);
-        };
-    }, []);
-
-    return {
-        typing,
-        add: (user: UserInfo) => {
-            const data: TypingData = {
-                user,
-                timestamp: new Date(Date.now()),
-            };
-
-            setTyping((prev) =>
-                prev.some((u) => u.user.id === data.user.id)
-                    ? prev
-                    : [...prev, data]
-            );
-        },
-    };
-}
-
-export function TypingStatus({ typing }: { typing: TypingData[] }) {
-    if (typing.length === 0) return <></>;
-
-    return (
-        <div className="flex flex-row gap-1 items-center">
-            {typing.map((data) => (
-                <Avatar
-                    key={data.user.id}
-                    src={data.user.image}
-                    fallback={data.user.name}
-                    size="small"
-                />
-            ))}
-            <p className={text({ size: "sm", type: "primary" })}>
-                is typing...
-            </p>
-        </div>
-    );
 }
