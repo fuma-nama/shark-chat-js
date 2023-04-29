@@ -22,6 +22,7 @@ import { and, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
 import { createId } from "@paralleldrive/cuid2";
 import { generateText } from "../eden";
+import { onReceiveMessage } from "../inworld";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -72,6 +73,14 @@ export const chatRouter = router({
             });
 
             await channels.chat.message_sent.publish([input.groupId], message);
+
+            if (input.content.startsWith("@Shark")) {
+                await onReceiveMessage({
+                    content: input.content,
+                    group_id: input.groupId,
+                    user_name: message.author.name,
+                });
+            }
 
             await setLastRead(
                 input.groupId,
