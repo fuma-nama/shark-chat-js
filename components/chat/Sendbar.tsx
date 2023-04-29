@@ -1,4 +1,9 @@
-import { FilePlusIcon, PaperPlaneIcon, TrashIcon } from "@radix-ui/react-icons";
+import {
+    FilePlusIcon,
+    PaperPlaneIcon,
+    TextIcon,
+    TrashIcon,
+} from "@radix-ui/react-icons";
 import { textArea } from "@/components/system/textarea";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { IconButton, iconButton } from "@/components/system/button";
@@ -10,6 +15,9 @@ import { text } from "../system/text";
 import { Control, useController, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import dynamic from "next/dynamic";
+
+const GenerateTextModal = dynamic(() => import("../modal/GenerateTextModal"));
 
 const schema = z
     .object({
@@ -36,13 +44,15 @@ export function Sendbar({
     onType: () => void;
     children?: ReactNode;
 }) {
-    const { control, handleSubmit, reset, formState } = useForm<SendData>({
-        resolver: zodResolver(schema),
-        defaultValues: {
-            content: "",
-            attachment: null,
-        },
-    });
+    const [openModal, setOpenModal] = useState<boolean | undefined>(undefined);
+    const { control, handleSubmit, reset, formState, setValue, setFocus } =
+        useForm<SendData>({
+            resolver: zodResolver(schema),
+            defaultValues: {
+                content: "",
+                attachment: null,
+            },
+        });
 
     const onSend = handleSubmit(async (data) => {
         send(data);
@@ -71,6 +81,26 @@ export function Sendbar({
                     >
                         <FilePlusIcon />
                     </label>
+                    {openModal !== undefined && (
+                        <GenerateTextModal
+                            open={openModal}
+                            setOpen={setOpenModal}
+                            onFocus={() => setFocus("content")}
+                            setValue={(s) =>
+                                setValue("content", s, {
+                                    shouldDirty: true,
+                                    shouldTouch: true,
+                                    shouldValidate: true,
+                                })
+                            }
+                        />
+                    )}
+                    <IconButton
+                        className="aspect-square h-[41.6px]"
+                        onClick={() => setOpenModal(true)}
+                    >
+                        <TextIcon />
+                    </IconButton>
                     <TextArea
                         control={control}
                         onSend={onSend}

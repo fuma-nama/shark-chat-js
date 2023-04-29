@@ -9,7 +9,6 @@ import {
     uploadAttachmentSchema,
 } from "../schema/chat";
 import { checkIsMemberOf } from "@/utils/trpc/permissions";
-import { onReceiveMessage } from "../inworld";
 import { getLastRead, setLastRead } from "../redis/last-read";
 import db from "../db/client";
 import {
@@ -22,6 +21,7 @@ import {
 import { and, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
 import { createId } from "@paralleldrive/cuid2";
+import { generateText } from "../eden";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -217,6 +217,13 @@ export const chatRouter = router({
             await channels.chat.typing.publish([input.groupId], {
                 user,
             });
+        }),
+    generateText: protectedProcedure
+        .input(z.object({ text: z.string().trim().min(0) }))
+        .mutation(async ({ input }) => {
+            return {
+                text: await generateText(input.text),
+            };
         }),
 });
 

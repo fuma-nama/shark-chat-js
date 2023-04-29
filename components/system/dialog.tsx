@@ -31,6 +31,7 @@ export type DialogProps = Pick<
         description: string;
         trigger?: ReactNode;
         children: ReactNode;
+        contentProps?: DialogPrimitive.DialogContentProps;
     };
 
 export function Dialog({
@@ -38,6 +39,7 @@ export function Dialog({
     description,
     trigger,
     children,
+    contentProps,
     ...props
 }: DialogProps) {
     const styles = dialog();
@@ -51,7 +53,10 @@ export function Dialog({
             )}
             <DialogPrimitive.Portal>
                 <DialogPrimitive.Overlay className={styles.overlay()}>
-                    <DialogPrimitive.Content className={styles.content()}>
+                    <DialogPrimitive.Content
+                        className={styles.content()}
+                        {...contentProps}
+                    >
                         <DialogPrimitive.Title className={styles.title()}>
                             {title}
                         </DialogPrimitive.Title>
