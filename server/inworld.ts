@@ -71,16 +71,6 @@ function handleError(message: Message) {
                         sendErrorMessage(message.group_id, e?.toString())
                     );
                 break;
-            case status.UNAVAILABLE:
-                sendErrorMessage(
-                    message.group_id,
-                    [
-                        err.message,
-                        `details: ${err.details}`,
-                        `stack: ${err.stack}`,
-                    ].join("\n")
-                );
-                break;
             default:
                 sendErrorMessage(message.group_id, err.message);
                 break;
