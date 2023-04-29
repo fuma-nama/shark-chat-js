@@ -6,12 +6,11 @@ import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import { Fragment, useEffect } from "react";
 import clsx from "clsx";
 import React from "react";
+import { SendData, Sendbar } from "@/components/chat/Sendbar";
 import {
-    SendData,
-    Sendbar,
-    TypingStatus,
+    TypingIndicator,
     useTypingStatus,
-} from "@/components/chat/Sendbar";
+} from "@/components/chat/TypingIndicator";
 import { Spinner } from "@/components/system/spinner";
 import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
 import { Button, button } from "@/components/system/button";
@@ -190,7 +189,7 @@ function TypingUsers() {
         }
     );
 
-    return <TypingStatus typing={typing} />;
+    return <TypingIndicator typing={typing} />;
 }
 
 function Welcome() {
