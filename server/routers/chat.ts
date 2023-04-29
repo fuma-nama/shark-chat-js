@@ -79,14 +79,6 @@ export const chatRouter = router({
                 message.timestamp
             );
 
-            if (input.content.startsWith("@Shark")) {
-                await onReceiveMessage({
-                    group_id: message.group_id,
-                    content: message.content.replaceAll("@Shark", ""),
-                    user_name: message.author.name,
-                });
-            }
-
             return message;
         }),
     messages: protectedProcedure
