@@ -1,9 +1,9 @@
-import { CldImage } from "next-cloudinary";
 import Link from "next/link";
 import { text } from "../system/text";
 import { AttachmentType } from "@/server/schema/chat";
 import { useState } from "react";
 import { Spinner } from "../system/spinner";
+import Image from "next/image";
 
 export function UploadingAttachmentItem({ file }: { file: File }) {
     return (
@@ -62,10 +62,20 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
                     maxHeight: `${maxH}px`,
                 }}
             >
-                <CldImage
+                <Image
                     alt={attachment.name}
                     src={url}
                     fill
+                    sizes={`(max-width: ${maxW}px) 90vw, ${maxW}px`}
+                    loader={({ src, width, quality }) => {
+                        const params = [
+                            "c_limit",
+                            `w_${width}`,
+                            `q_${quality || "auto"}`,
+                        ];
+
+                        return `${cloudinary_prefix}${params.join(",")}/${src}`;
+                    }}
                     onLoadingComplete={() => setState("loaded")}
                 />
                 {state === "loading" && (

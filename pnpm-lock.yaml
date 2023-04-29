@@ -94,9 +94,6 @@ dependencies:
   next-auth:
     specifier: ^4.19.2
     version: 4.19.2(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
-  next-cloudinary:
-    specifier: ^2.3.0
-    version: 2.3.0(next@13.1.6)(react@18.2.0)
   next-themes:
     specifier: ^0.2.1
     version: 0.2.1(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
@@ -199,29 +196,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
-
-  /@cloudinary-util/url-loader@1.3.0:
-    resolution: {integrity: sha512-ISyFOXRURMRrGyQ/FMMiLRq+698JWTNJpgFdL9t10ZemhOJT/d3ssfas9rcFLOKeHKqb6fAAY+NuYFNUtvpJqw==}
-    dependencies:
-      '@cloudinary-util/util': 1.2.2
-      '@cloudinary/url-gen': 1.9.0
-    dev: false
-
-  /@cloudinary-util/util@1.2.2:
-    resolution: {integrity: sha512-xtXLfjsLoAKTsFUKDS0P/RPfgfnWs6iSkSBYZoG9uxAgK0MutWUZECX6wfN9FDa/3Yr+Z8oTRxxQuFBasyAqDg==}
-    dev: false
-
-  /@cloudinary/transformation-builder-sdk@1.2.3:
-    resolution: {integrity: sha512-JLXdolOJVaX9f9Uz+72LJsX5OWmdi2QKbPSoCTE4+D5GugPWghdYrCDu53SSkbcGWfIohjUNIjS++6eRgYlYPg==}
-    dependencies:
-      '@cloudinary/url-gen': 1.9.0
-    dev: false
-
-  /@cloudinary/url-gen@1.9.0:
-    resolution: {integrity: sha512-rw2/KkWsb2oBTQX58E7Zm1pOb3+K7tqHPxms2C7P49qzJbqG+y/u1StwfqCrE94mZMr8q+o47cHxoQJMwWz1fQ==}
-    dependencies:
-      '@cloudinary/transformation-builder-sdk': 1.2.3
-    dev: false
 
   /@esbuild-kit/cjs-loader@2.4.2:
     resolution: {integrity: sha512-BDXFbYOJzT/NBEtp71cvsrGPwGAMGRB/349rwKuoxNSiKjPraNNnlK6MIIabViCjqZugu6j+xeMDlEkWdHHJSg==}
@@ -4053,19 +4027,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       uuid: 8.3.2
-    dev: false
-
-  /next-cloudinary@2.3.0(next@13.1.6)(react@18.2.0):
-    resolution: {integrity: sha512-csgek4+BcWTgjaN24R2BHcvoW4T3EONLMsaRASBjcwnpgRprnaTurarq80uqDnv7Fxkrq14Fuhz+mwu0lJdGUA==}
-    peerDependencies:
-      next: ^12 || ^13
-      react: ^17 || ^18
-    dependencies:
-      '@cloudinary-util/url-loader': 1.3.0
-      '@cloudinary-util/util': 1.2.2
-      '@cloudinary/url-gen': 1.9.0
-      next: 13.1.6(react-dom@18.2.0)(react@18.2.0)
-      react: 18.2.0
     dev: false
 
   /next-themes@0.2.1(next@13.1.6)(react-dom@18.2.0)(react@18.2.0):
