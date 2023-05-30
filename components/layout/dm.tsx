@@ -89,13 +89,12 @@ function Sidebar() {
 
 function ChatItem({ item }: { item: RecentChatType }) {
     const router = useRouter();
-    const url = `/dm/${item.receiver_id}`;
-    const active = router.asPath.startsWith(url);
+    const active = router.query["user"] === item.receiver_id.toString();
     const styles = siderbarItem({ active });
 
     return (
         <DirectMessageContextMenu userId={item.receiver_id}>
-            <Link href={url} className={styles.root()}>
+            <Link href={`/dm/${item.receiver_id}`} className={styles.root()}>
                 <Avatar
                     rounded="sm"
                     size="2sm"

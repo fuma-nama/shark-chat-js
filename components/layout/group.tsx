@@ -86,12 +86,15 @@ function Sidebar() {
                 </>
             )}
             {query.data?.map((item) => {
-                const url = `/chat/${item.id}`;
-                const active = router.asPath.startsWith(url);
+                const active = router.query["group"] === item.id.toString();
                 const styles = siderbarItem({ active });
 
                 return (
-                    <Link key={item.id} href={url} className={styles.root()}>
+                    <Link
+                        key={item.id}
+                        href={`/chat/${item.id}`}
+                        className={styles.root()}
+                    >
                         <Avatar
                             rounded="sm"
                             size="2sm"
