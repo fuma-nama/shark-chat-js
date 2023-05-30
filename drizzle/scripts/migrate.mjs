@@ -1,6 +1,6 @@
-import { drizzle } from "drizzle-orm/planetscale-serverless";
+import { drizzle } from "drizzle-orm/planetscale-serverless/index.js";
 import { connect } from "@planetscale/database";
-import { migrate } from "drizzle-orm/planetscale-serverless/migrator";
+import { migrate } from "drizzle-orm/planetscale-serverless/migrator.js";
 import "dotenv/config";
 
 const connection = connect({

@@ -2,12 +2,15 @@
     "name": "shark-chat",
     "version": "0.1.0",
     "private": true,
+    "engines": {
+        "node": "^18.x"
+    },
     "scripts": {
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "db:migrate": "tsx ./drizzle/scripts/migrate.ts"
+        "db:migrate": "node ./drizzle/scripts/migrate.mjs"
     },
     "dependencies": {
         "@ably-labs/react-hooks": "^2.1.0",
@@ -65,7 +68,6 @@
         "postcss": "^8.4.21",
         "tailwindcss": "^3.2.4",
         "tailwindcss-radix": "^2.7.0",
-        "tsx": "^3.12.6",
         "typescript": "^5.0.3"
     }
 }
