@@ -1,5 +1,5 @@
 import { usePageStore } from "@/utils/stores/page";
-import useProfile from "@/utils/use-profile";
+import { useProfile } from "@/utils/use-profile";
 import {
     ChevronRightIcon,
     Cross1Icon,

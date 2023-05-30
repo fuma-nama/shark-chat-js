@@ -18,7 +18,7 @@ export type Result =
  *
  * If no requirements on realtime mutates, please use `useSession` instead
  */
-export default function useProfile(): Result {
+export function useProfile(): Result {
     const { status } = useSession();
     const query = trpc.account.get.useQuery(undefined, {
         enabled: status === "authenticated",

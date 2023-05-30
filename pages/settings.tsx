@@ -3,7 +3,7 @@ import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import { AppLayout } from "@/components/layout/app";
 import { label, text } from "@/components/system/text";
-import useProfile from "@/utils/use-profile";
+import { useProfile } from "@/utils/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
