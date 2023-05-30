@@ -15,6 +15,7 @@ A Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Drizzle ORM, 
 -   Embed Links in Messages
 -   Upload profile images
 -   Show notification when new Message received
+-   AI-Powered Message Writer
 -   Built-in AI Chatbot (Powered by Inworld)
 -   Light & Dark Mode
 -   100% Typescript

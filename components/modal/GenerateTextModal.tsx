@@ -76,7 +76,7 @@ function Content({ setValue }: { setValue: (s: string) => void }) {
                 className={textArea({
                     color: "long",
                     className:
-                        "min-h-[50px] max-h-[200px] overflow-y-auto whitespace-pre-line",
+                        "min-h-[50px] max-h-[200px] overflow-y-auto whitespace-pre-wrap",
                 })}
             >
                 {isGenerated ? (
