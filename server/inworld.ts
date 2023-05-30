@@ -2,7 +2,6 @@ import {
     InworldClient,
     ServiceError,
     Session,
-    SessionToken,
     status,
 } from "@inworld/nodejs-sdk";
 import { channels } from "@/server/ably";
