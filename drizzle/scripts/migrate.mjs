@@ -9,8 +9,4 @@ const connection = connect({
 
 const db = drizzle(connection);
 
-async function run() {
-    await migrate(db, { migrationsFolder: "./drizzle" });
-}
-
-run();
+migrate(db, { migrationsFolder: "./drizzle" });

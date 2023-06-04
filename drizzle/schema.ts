@@ -95,10 +95,16 @@ export const groups = mysqlTable(
     })
 );
 
-export const groupInvites = mysqlTable("GroupInvite", {
-    group_id: int(`group_id`).primaryKey(),
-    code: varchar("code", { length: 191 }).notNull(),
-});
+export const groupInvites = mysqlTable(
+    "GroupInvite",
+    {
+        group_id: int(`group_id`).notNull(),
+        code: varchar("code", { length: 191 }).notNull().primaryKey(),
+    },
+    (table) => ({
+        group_idx: index("GroupInvite_group_id_idx").on(table.group_id),
+    })
+);
 
 export const members = mysqlTable(
     `Member`,
@@ -124,6 +130,7 @@ export const messages = mysqlTable(
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
         attachment_id: varchar(`attachment_id`, { length: 32 }),
+        reply: int("reply"),
     },
     (table) => ({
         Message_group_id_idx: index("Message_group_id_idx").on(table.group_id),
