@@ -10,7 +10,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "db:migrate": "node ./drizzle/scripts/migrate.mjs"
+        "db:push": "dotenv -- drizzle-kit push:mysql"
     },
     "dependencies": {
         "@ably-labs/react-hooks": "^2.1.0",
@@ -40,7 +40,7 @@
         "ably": "^1.2.35",
         "cloudinary": "^1.33.0",
         "clsx": "^1.2.1",
-        "drizzle-orm": "^0.23.11",
+        "drizzle-orm": "^0.26.5",
         "next": "13.1.6",
         "next-auth": "^4.19.2",
         "next-themes": "^0.2.1",
@@ -56,13 +56,14 @@
         "zustand": "^4.3.2"
     },
     "devDependencies": {
-        "@types/uuid": "^9.0.1",
         "@types/node": "18.11.18",
         "@types/react": "18.0.27",
         "@types/react-dom": "18.0.10",
+        "@types/uuid": "^9.0.1",
         "autoprefixer": "^10.4.13",
         "dotenv": "^16.0.3",
-        "drizzle-kit": "^0.17.4",
+        "dotenv-cli": "^7.2.1",
+        "drizzle-kit": "^0.18.1",
         "eslint": "8.33.0",
         "eslint-config-next": "13.1.6",
         "postcss": "^8.4.21",
