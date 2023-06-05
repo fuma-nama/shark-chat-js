@@ -123,6 +123,9 @@ async function sendMessage(group_id: number, content: string) {
     await channels.chat.message_sent.publish([group_id], {
         ...message[0],
         attachment: null,
+        reply_id: null,
+        reply_message: null,
+        reply_user: null,
         author: bot,
     });
 }
