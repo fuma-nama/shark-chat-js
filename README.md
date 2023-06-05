@@ -8,6 +8,7 @@ A Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Drizzle ORM, 
 
 -   Create, Update, Delete Chat Group
 -   Send, Update, Delete Message
+-   Reference Messages
 -   Send Multiple Images/Files via Message
 -   Direct Message with anyone
 -   View & Kick Group members
