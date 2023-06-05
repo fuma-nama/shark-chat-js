@@ -8,7 +8,6 @@ import {
     getDirectMessageVariables as getDMVariables,
 } from "@/utils/variables";
 import { DirectMessageEvent } from "@/server/schema/chat";
-import { Serialize } from "@/utils/types";
 import { useDirectMessage } from "@/utils/stores/chat";
 import { removeNonce } from "./shared";
 import type { RouterUtils } from "@/utils/trpc";
@@ -101,7 +100,7 @@ export function PrivateEventManager() {
 function addChannelUnread(
     utils: RouterUtils,
     selfId: string,
-    message: Serialize<DirectMessageEvent>,
+    message: DirectMessageEvent,
     count: number
 ) {
     const [user, self] =

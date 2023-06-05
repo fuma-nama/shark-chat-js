@@ -1,9 +1,5 @@
 import { groupSchema } from "@/server/schema/group";
-import type {
-    DirectMessageType,
-    DirectMessageEvent,
-    UserInfo,
-} from "@/server/schema/chat";
+import type { UserInfo } from "@/server/schema/chat";
 import { z } from "zod";
 import { a } from "./builder";
 import { getHash } from "../get-hash";
@@ -13,6 +9,15 @@ import { AppRouter } from "@/server/routers/_app";
 type ServerMessageType = inferProcedureOutput<
     AppRouter["chat"]["messages"]
 >[number];
+
+type ServerDirectMessageEvent = Omit<
+    inferProcedureOutput<AppRouter["dm"]["messages"]>[number],
+    "author"
+> & {
+    author: UserInfo;
+    receiver: UserInfo;
+    nonce?: number;
+};
 
 function dmKey(user1: string, user2: string): [user1: string, user2: string] {
     if (getHash(user1) > getHash(user2)) {
@@ -29,7 +34,7 @@ export const schema = {
     private: a.channel(([clientId]: [clientId: string]) => [clientId], {
         group_created: a.event(groupSchema),
         group_removed: a.event(groupSchema.pick({ id: true })),
-        message_sent: a.event(z.custom<DirectMessageEvent>()),
+        message_sent: a.event(z.custom<ServerDirectMessageEvent>()),
         close_dm: a.event(
             z.object({
                 userId: z.string(),
@@ -47,14 +52,17 @@ export const schema = {
             message_updated: a.event(
                 z.custom<
                     Pick<
-                        DirectMessageType,
+                        ServerDirectMessageEvent,
                         "id" | "author_id" | "receiver_id" | "content"
                     >
                 >()
             ),
             message_deleted: a.event(
                 z.custom<
-                    Pick<DirectMessageType, "id" | "author_id" | "receiver_id">
+                    Pick<
+                        ServerDirectMessageEvent,
+                        "id" | "author_id" | "receiver_id"
+                    >
                 >()
             ),
         }
