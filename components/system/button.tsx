@@ -35,6 +35,7 @@ export const button = tv({
         size: {
             large: "px-6 py-3 text-base font-semibold",
             medium: "px-4 py-2 text-sm font-semibold",
+            small: "p-2 text-sm font-semibold",
         },
     },
     defaultVariants: {

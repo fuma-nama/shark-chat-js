@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/system/avatar";
-import { trpc } from "@/utils/trpc";
+import { RouterInput, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { Fragment, useEffect } from "react";
 import { SendData, Sendbar } from "@/components/chat/Sendbar";
 import {
@@ -24,6 +24,8 @@ import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
 import { useMutation } from "@tanstack/react-query";
 import { uploadAttachment } from "@/utils/media/upload-attachment";
 import { useDirectMessageLayout } from "@/components/layout/dm";
+import { Cross1Icon } from "@radix-ui/react-icons";
+import { text } from "@/components/system/text";
 
 const DMPage: NextPageWithLayout = () => {
     const { user } = useRouter().query as DirectMessageQuery;
@@ -122,12 +124,18 @@ function useLastRead(userId: string) {
         : null;
 }
 
-type SendMutationInput = SendData & { userId: string; nonce: number };
+type SendMutationInput = Omit<RouterInput["dm"]["send"], "attachment"> & {
+    attachment: File | null;
+};
+
 function DirectMessageSendbar() {
+    const { user } = useRouter().query as DirectMessageQuery;
     const utils = trpc.useContext();
-    const [add, error] = useDirectMessage((s) => [
+    const [add, error, info, update] = useDirectMessage((s) => [
         s.addSending,
         s.errorSending,
+        s.sendbar[user],
+        s.updateSendbar,
     ]);
     const typeMutation = utils.client.dm.type;
     const sendMutation = useMutation(
@@ -152,12 +160,15 @@ function DirectMessageSendbar() {
     );
 
     const onSend = (data: SendData) => {
-        const { user } = Router.query as DirectMessageQuery;
-
         sendMutation.mutate({
             ...data,
             userId: user,
+            reply: info.reply_to?.id ?? undefined,
             nonce: add(user, data).nonce,
+        });
+
+        update(user, {
+            reply_to: undefined,
         });
     };
 
@@ -166,10 +177,31 @@ function DirectMessageSendbar() {
             onSend={onSend}
             onType={() =>
                 typeMutation.mutate({
-                    userId: (Router.query as DirectMessageQuery).user,
+                    userId: user,
                 })
             }
         >
+            {info?.reply_to != null && (
+                <div className="flex flex-row">
+                    <p
+                        className={text({
+                            type: "secondary",
+                            size: "sm",
+                            className: "flex-1",
+                        })}
+                    >
+                        Replying to{" "}
+                        <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
+                    </p>
+                    <button
+                        className="text-muted-foreground"
+                        onClick={() => update(user, { reply_to: undefined })}
+                    >
+                        <Cross1Icon />
+                    </button>
+                </div>
+            )}
+
             <TypingUsers />
         </Sendbar>
     );

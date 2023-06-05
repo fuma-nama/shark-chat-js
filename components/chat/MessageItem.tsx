@@ -8,13 +8,13 @@ import {
     CopyIcon,
     Cross1Icon,
     Pencil1Icon,
+    ThickArrowLeftIcon,
     TrashIcon,
 } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 
-import type { Serialize } from "@/utils/types";
 import { deletedUser, MessageType } from "@/server/schema/chat";
 import { linkIt, urlRegex } from "react-linkify-it";
 
@@ -93,7 +93,7 @@ export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
 }
 
 type ContentProps = {
-    user: Serialize<MessageType["author"]>;
+    user: MessageType["author"];
     timestamp: string | Date | number;
     children: ReactNode;
 };
@@ -109,7 +109,7 @@ function Content({ user, timestamp, children }: ContentProps) {
     return (
         <>
             <Avatar src={author.image} fallback={author.name} />
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col w-0">
                 <div className="flex flex-row items-center">
                     <Link href={`/dm/${author.id}`} className="font-semibold">
                         {author.name}
@@ -128,6 +128,7 @@ type RootProps = {
     isEditing: boolean;
     onEditChange: (v: boolean) => void;
     onCopy: () => void;
+    onReply: () => void;
     onDelete: () => void;
     canEdit: boolean;
     canDelete: boolean;
@@ -141,6 +142,7 @@ export function Root({
     canEdit,
     isEditing,
     onEditChange,
+    onReply,
     ...rest
 }: RootProps & ContentProps) {
     return (
@@ -154,6 +156,12 @@ export function Root({
                 <Content {...rest}>{children}</Content>
             </ContextMenu.Trigger>
             <ContextMenu.Content>
+                <ContextMenu.Item
+                    icon={<ThickArrowLeftIcon className="w-4 h-4" />}
+                    onClick={onReply}
+                >
+                    Reply
+                </ContextMenu.Item>
                 <ContextMenu.Item
                     icon={<CopyIcon className="w-4 h-4" />}
                     onClick={onCopy}

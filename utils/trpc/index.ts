@@ -1,7 +1,7 @@
 import { getBaseUrl } from "@/utils/get-base-url";
 import { TRPCClientError, httpBatchLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
-import type { inferRouterInputs } from "@trpc/server";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../server/routers/_app";
 import { showErrorToast } from "../stores/page";
 import type { CreateReactUtilsProxy } from "@trpc/react-query/shared";
@@ -37,4 +37,5 @@ export const trpc = createTRPCNext<AppRouter>({
 });
 
 export type RouterInput = inferRouterInputs<AppRouter>;
+export type RouterOutput = inferRouterOutputs<AppRouter>;
 export type RouterUtils = CreateReactUtilsProxy<AppRouter, unknown>;

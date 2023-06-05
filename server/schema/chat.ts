@@ -1,10 +1,10 @@
 import {
     DirectMessage,
     User,
-    Message,
     DirectMessageChannel,
     Attachment,
 } from "@/drizzle/schema";
+import { RouterOutput } from "@/utils/trpc";
 import { z } from "zod";
 
 export type UserInfo = Pick<User, "id" | "name" | "image">;
@@ -15,15 +15,9 @@ export type RecentChatType = DirectMessageChannel & {
     unread_messages: number;
 };
 
-export type MessageType = Message & {
-    author: UserInfo | null;
-    attachment: AttachmentType | null;
-};
+export type MessageType = RouterOutput["chat"]["messages"][number];
 
-export type DirectMessageType = DirectMessage & {
-    author: UserInfo | null;
-    attachment: AttachmentType | null;
-};
+export type DirectMessageType = RouterOutput["dm"]["messages"][number];
 
 export type DirectMessageEvent = DirectMessage & {
     receiver: UserInfo;

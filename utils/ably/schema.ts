@@ -2,12 +2,17 @@ import { groupSchema } from "@/server/schema/group";
 import type {
     DirectMessageType,
     DirectMessageEvent,
-    MessageType,
     UserInfo,
 } from "@/server/schema/chat";
 import { z } from "zod";
 import { a } from "./builder";
 import { getHash } from "../get-hash";
+import { inferProcedureOutput } from "@trpc/server";
+import { AppRouter } from "@/server/routers/_app";
+
+type ServerMessageType = inferProcedureOutput<
+    AppRouter["chat"]["messages"]
+>[number];
 
 function dmKey(user1: string, user2: string): [user1: string, user2: string] {
     if (getHash(user1) > getHash(user2)) {
@@ -56,12 +61,14 @@ export const schema = {
     ),
     chat: a.channel(([group]: [groupId: number]) => [`${group}`], {
         typing: a.event(z.object({ user: z.custom<UserInfo>() })),
-        message_sent: a.event(z.custom<MessageType & { nonce?: number }>()),
+        message_sent: a.event(
+            z.custom<ServerMessageType & { nonce?: number }>()
+        ),
         message_updated: a.event(
-            z.custom<Pick<MessageType, "id" | "group_id" | "content">>()
+            z.custom<Pick<ServerMessageType, "id" | "group_id" | "content">>()
         ),
         message_deleted: a.event(
-            z.custom<Pick<MessageType, "id" | "group_id">>()
+            z.custom<Pick<ServerMessageType, "id" | "group_id">>()
         ),
         group_updated: a.event(groupSchema),
         group_deleted: a.event(groupSchema.pick({ id: true })),

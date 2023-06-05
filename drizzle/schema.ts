@@ -49,6 +49,7 @@ export const directMessages = mysqlTable(
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
         attachment_id: varchar(`attachment_id`, { length: 32 }),
+        reply_id: int("reply_id"),
     },
     (table) => ({
         DirectMessage_receiver_id_idx: index(
@@ -130,7 +131,7 @@ export const messages = mysqlTable(
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
         attachment_id: varchar(`attachment_id`, { length: 32 }),
-        reply: int("reply"),
+        reply_id: int("reply_id"),
     },
     (table) => ({
         Message_group_id_idx: index("Message_group_id_idx").on(table.group_id),

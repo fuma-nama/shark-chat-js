@@ -150,6 +150,7 @@ export const dmRouter = router({
                 content: contentSchema,
                 nonce: z.number().optional(),
                 attachment: uploadAttachmentSchema.optional(),
+                reply: z.number().optional(),
             })
         )
         .mutation(async ({ input, ctx }) => {
@@ -164,12 +165,16 @@ export const dmRouter = router({
                         author_id: userId,
                         content: input.content,
                         receiver_id: input.userId,
+                        reply_id: input.reply,
                         attachment_id: attachment?.id ?? null,
                     })
                     .then((res) => Number(res.insertId));
 
                 const receiver = alias(users, "receiver");
                 const author = alias(users, "author");
+                const reply_message = alias(directMessages, "reply_message");
+                const reply_user = alias(users, "repay_user");
+
                 const message = await db
                     .select({
                         ...(directMessages as typeof directMessages._.columns),
@@ -183,6 +188,12 @@ export const dmRouter = router({
                             id: author.id,
                             image: author.image,
                         },
+                        reply_message,
+                        reply_user: {
+                            name: reply_user.name,
+                            id: reply_user.id,
+                            image: reply_user.image,
+                        },
                     })
                     .from(directMessages)
                     .where(eq(directMessages.id, message_id))
@@ -190,6 +201,14 @@ export const dmRouter = router({
                     .innerJoin(
                         receiver,
                         eq(directMessages.receiver_id, receiver.id)
+                    )
+                    .leftJoin(
+                        reply_message,
+                        eq(directMessages.reply_id, reply_message.id)
+                    )
+                    .leftJoin(
+                        reply_user,
+                        eq(reply_message.author_id, reply_user.id)
                     )
                     .then(requireOne);
 
@@ -224,17 +243,34 @@ export const dmRouter = router({
         .query(async ({ input, ctx }) => {
             const count = Math.min(input.count, 50);
 
+            const reply_user = alias(users, "reply_user");
+            const reply_message = alias(directMessages, "reply_message");
+
             return await db
                 .select({
                     ...(directMessages as typeof directMessages._.columns),
                     author: userSelect,
                     attachment: attachmentSelect,
+                    reply_message,
+                    reply_user: {
+                        name: reply_user.name,
+                        id: reply_user.id,
+                        image: reply_user.image,
+                    },
                 })
                 .from(directMessages)
                 .leftJoin(users, eq(directMessages.author_id, users.id))
                 .leftJoin(
                     attachments,
                     eq(attachments.id, directMessages.attachment_id)
+                )
+                .leftJoin(
+                    reply_message,
+                    eq(directMessages.reply_id, reply_message.id)
+                )
+                .leftJoin(
+                    reply_user,
+                    eq(reply_message.author_id, reply_user.id)
                 )
                 .where(
                     and(

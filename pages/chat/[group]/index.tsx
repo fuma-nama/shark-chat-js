@@ -1,8 +1,8 @@
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
-import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
+import { BookmarkIcon, Cross1Icon, GearIcon } from "@radix-ui/react-icons";
 import { Fragment, useEffect } from "react";
 import clsx from "clsx";
 import React from "react";
@@ -25,6 +25,9 @@ import { useEventHandlers } from "@/utils/handlers/base";
 import { uploadAttachment } from "@/utils/media/upload-attachment";
 import { useMutation } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
+import { inferRouterInputs } from "@trpc/server";
+import { AppRouter } from "@/server/routers/_app";
+import { text } from "@/components/system/text";
 
 const GroupChat: NextPageWithLayout = () => {
     const group = getGroupQuery(useRouter()).groupId;
@@ -119,9 +122,20 @@ function useLastRead(groupId: number) {
         : null;
 }
 
-type SendMutationInput = SendData & { groupId: number; nonce: number };
+type SendMutationInput = Omit<
+    inferRouterInputs<AppRouter>["chat"]["send"],
+    "attachment"
+> & {
+    attachment: SendData["attachment"];
+};
+
 function GroupSendbar() {
+    const groupId = getGroupQuery(useRouter()).groupId;
     const utils = trpc.useContext();
+    const [info, update] = useGroupMessage((s) => [
+        s.sendbar[groupId],
+        s.updateSendbar,
+    ]);
     const [add, addError] = useGroupMessage((s) => [
         s.addSending,
         s.errorSending,
@@ -153,22 +167,44 @@ function GroupSendbar() {
     );
 
     const onSend = (data: SendData) => {
-        const { groupId } = getGroupQuery(Router);
-
         sendMutation.mutate({
             ...data,
             groupId,
+            reply: info?.reply_to?.id ?? undefined,
             nonce: add(groupId, data).nonce,
+        });
+
+        update(groupId, {
+            reply_to: undefined,
         });
     };
 
     return (
         <Sendbar
             onSend={onSend}
-            onType={() =>
-                typeMutation.mutate({ groupId: getGroupQuery(Router).groupId })
-            }
+            onType={() => typeMutation.mutate({ groupId })}
         >
+            {info?.reply_to != null && (
+                <div className="flex flex-row">
+                    <p
+                        className={text({
+                            type: "secondary",
+                            size: "sm",
+                            className: "flex-1",
+                        })}
+                    >
+                        Replying to{" "}
+                        <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
+                    </p>
+                    <button
+                        className="text-muted-foreground"
+                        onClick={() => update(groupId, { reply_to: undefined })}
+                    >
+                        <Cross1Icon />
+                    </button>
+                </div>
+            )}
+
             <TypingUsers />
         </Sendbar>
     );

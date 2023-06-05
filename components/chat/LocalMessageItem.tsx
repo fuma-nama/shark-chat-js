@@ -21,6 +21,7 @@ export function LocalMessageItem({
                 timestamp={timestamp}
                 canDelete
                 canEdit={false}
+                onReply={() => {}}
                 isEditing={false}
                 onEditChange={() => {}}
                 onCopy={() => {}}

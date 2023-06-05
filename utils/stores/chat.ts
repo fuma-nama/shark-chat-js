@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { addNonce, removeNonce } from "../handlers/realtime/shared";
 import { SendData } from "@/components/chat/Sendbar";
+import { DirectMessageType, MessageType } from "@/server/schema/chat";
 
 /**
  * Message that being sent locally but not received from the server yet
@@ -11,18 +12,43 @@ export type MessagePlaceholder = {
     nonce: number;
 };
 
-export type ChatStore<K extends number | string> = {
+type DMSendbarData = {
+    reply_to?: DirectMessageType;
+};
+
+type GroupSendbarData = {
+    reply_to?: MessageType;
+};
+
+export type ChatStore<K extends number | string, Data> = {
     sending: {
         [key in K]: MessagePlaceholder[];
     };
+    sendbar: {
+        [key in K]: Data;
+    };
+    updateSendbar(key: K, data: Partial<Data>): void;
     addSending: (key: K, data: SendData) => MessagePlaceholder;
     errorSending: (key: K, nonce: number, message: string) => void;
     removeSending: (key: K, nonce: number) => void;
 };
 
-function createMessageStore<K extends number | string>() {
-    return create<ChatStore<K>>((set) => ({
+function createMessageStore<K extends number | string, Data>() {
+    return create<ChatStore<K, Data>>((set) => ({
+        sendbar: {} as any,
         sending: {} as any,
+        updateSendbar(key, data) {
+            set((prev) => ({
+                ...prev,
+                sendbar: {
+                    ...prev.sendbar,
+                    [key]: {
+                        ...prev.sendbar[key],
+                        ...data,
+                    },
+                },
+            }));
+        },
         addSending: (group, data) => {
             const item: MessagePlaceholder = {
                 data,
@@ -75,5 +101,5 @@ function createMessageStore<K extends number | string>() {
     }));
 }
 
-export const useGroupMessage = createMessageStore<number>();
-export const useDirectMessage = createMessageStore<string>();
+export const useGroupMessage = createMessageStore<number, GroupSendbarData>();
+export const useDirectMessage = createMessageStore<string, DMSendbarData>();

@@ -18,11 +18,12 @@ import {
     messages,
     users,
 } from "../../drizzle/schema";
-import { and, desc, eq, gt, lt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lt } from "drizzle-orm";
 import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
 import { createId } from "@paralleldrive/cuid2";
 import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
+import { alias } from "drizzle-orm/mysql-core";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -32,6 +33,7 @@ export const chatRouter = router({
                     groupId: z.number(),
                     content: contentSchema,
                     attachment: uploadAttachmentSchema.optional(),
+                    reply: z.number().optional(),
                     nonce: z.number().optional(),
                 })
                 .refine(
@@ -52,17 +54,31 @@ export const chatRouter = router({
                         content: input.content,
                         group_id: input.groupId,
                         attachment_id: attachment?.id ?? null,
+                        reply_id: input.reply,
                     })
                     .then((res) => Number(res.insertId));
+
+                const reply_message = alias(messages, "reply_message");
+                const reply_user = alias(users, "reply_user");
 
                 const message = await db
                     .select({
                         ...(messages as typeof messages._.columns),
+                        reply_message,
+                        reply_user,
                         author: userSelect,
                     })
                     .from(messages)
                     .where(eq(messages.id, message_id))
                     .innerJoin(users, eq(users.id, messages.author_id))
+                    .leftJoin(
+                        reply_message,
+                        eq(reply_message.id, messages.reply_id)
+                    )
+                    .leftJoin(
+                        reply_user,
+                        eq(reply_message.author_id, reply_user.id)
+                    )
                     .then((res) => requireOne(res));
 
                 return {
@@ -103,11 +119,16 @@ export const chatRouter = router({
             await checkIsMemberOf(input.groupId, ctx.session);
             const count = Math.min(input.count, 50);
 
+            const reply_message = alias(messages, "reply_message");
+            const reply_user = alias(users, "reply_user");
+
             return await db
                 .select({
                     ...(messages as typeof messages._.columns),
                     author: userSelect,
                     attachment: attachmentSelect,
+                    reply_message: reply_message,
+                    reply_user: reply_user,
                 })
                 .from(messages)
                 .where(
@@ -125,6 +146,14 @@ export const chatRouter = router({
                 .leftJoin(
                     attachments,
                     eq(attachments.id, messages.attachment_id)
+                )
+                .leftJoin(
+                    reply_message,
+                    eq(messages.reply_id, reply_message.id)
+                )
+                .leftJoin(
+                    reply_user,
+                    eq(reply_message.author_id, reply_user.id)
                 )
                 .orderBy(desc(messages.timestamp))
                 .limit(count);

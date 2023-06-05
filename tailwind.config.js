@@ -1,5 +1,4 @@
 const colors = require("tailwindcss/colors");
-const defaultTheme = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -74,6 +73,9 @@ module.exports = {
                     700: "#707EAE",
                     800: "#5d6991",
                     900: "#1B2559",
+                },
+                muted: {
+                    foreground: "hsl(var(--muted-foreground))",
                 },
                 light: {
                     ...colors.slate,

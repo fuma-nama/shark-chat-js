@@ -63,7 +63,7 @@ export function useEventHandlers() {
             },
             addGroupMessage: (
                 variables: RouterInput["chat"]["messages"],
-                message: Serialize<MessageType>
+                message: MessageType
             ) => {
                 utils.chat.messages.setInfiniteData(variables, (prev) => {
                     if (prev == null) return prev;
