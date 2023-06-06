@@ -6,12 +6,11 @@ import { badge } from "../system/badge";
 import { siderbarItem } from "./Sidebar";
 import { AppLayout } from "./app";
 import { ReactNode } from "react";
-import { DirectMessageQuery } from "@/utils/variables";
 import { skeleton } from "../system/skeleton";
 import { Avatar } from "../system/avatar";
 import { text } from "../system/text";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
-import { RecentChatType } from "@/server/schema/chat";
+import { DMChannel } from "@/server/schema/chat";
 
 export function useDirectMessageLayout({
     footer,
@@ -39,10 +38,10 @@ export function useDirectMessageLayout({
 }
 
 function BreadcrumbItem() {
-    const { user } = useRouter().query as DirectMessageQuery;
+    const { channel } = useRouter().query as { channel: string };
     const { status } = useSession();
     const query = trpc.dm.info.useQuery(
-        { userId: user },
+        { channelId: channel },
         { enabled: status === "authenticated" }
     );
 
@@ -51,11 +50,11 @@ function BreadcrumbItem() {
     ) : (
         <div className="flex flex-row gap-2 items-center">
             <Avatar
-                src={query.data.image}
-                fallback={query.data.name}
+                src={query.data.user.image}
+                fallback={query.data.user.name}
                 size="small"
             />
-            <span>{query.data.name}</span>
+            <span>{query.data.user.name}</span>
         </div>
     );
 }
@@ -69,7 +68,13 @@ function Sidebar() {
 
     return (
         <div className="flex flex-col mt-3">
-            <p className={text({ type: "primary", size: "md" })}>
+            <p
+                className={text({
+                    type: "primary",
+                    size: "md",
+                    className: "mb-2",
+                })}
+            >
                 Direct Messages
             </p>
             {query.status === "loading" && (
@@ -81,27 +86,27 @@ function Sidebar() {
                 </>
             )}
             {query.data?.map((item) => (
-                <ChatItem key={item.receiver_id} item={item} />
+                <ChatItem key={item.id} item={item} />
             ))}
         </div>
     );
 }
 
-function ChatItem({ item }: { item: RecentChatType }) {
+function ChatItem({ item }: { item: DMChannel }) {
     const router = useRouter();
-    const active = router.query["user"] === item.receiver_id.toString();
+    const active = router.query["channel"] === item.id;
     const styles = siderbarItem({ active });
 
     return (
-        <DirectMessageContextMenu userId={item.receiver_id}>
-            <Link href={`/dm/${item.receiver_id}`} className={styles.root()}>
+        <DirectMessageContextMenu channelId={item.id}>
+            <Link href={`/dm/${item.id}`} className={styles.root()}>
                 <Avatar
                     rounded="sm"
                     size="2sm"
-                    fallback={item.receiver.name}
-                    src={item.receiver.image}
+                    fallback={item.user.name}
+                    src={item.user.image}
                 />
-                <p className={styles.text()}>{item.receiver.name}</p>
+                <p className={styles.text()}>{item.user.name}</p>
                 {item.unread_messages !== 0 && (
                     <div className={badge({ className: "ml-auto" })}>
                         {item.unread_messages}

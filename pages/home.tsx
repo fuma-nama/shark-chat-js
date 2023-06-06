@@ -8,8 +8,7 @@ import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { RecentChatType } from "@/server/schema/chat";
-import { Serialize } from "@/utils/types";
+import { DMChannel } from "@/server/schema/chat";
 import { GroupWithNotifications } from "@/server/schema/group";
 import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
@@ -117,7 +116,7 @@ const Home: NextPageWithLayout = () => {
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
                         {dmQuery.data.map((chat) => (
-                            <ChatItem key={chat.receiver_id} chat={chat} />
+                            <ChatItem key={chat.id} chat={chat} />
                         ))}
                     </div>
                     <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
@@ -162,14 +161,13 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
     );
 }
 
-function ChatItem({ chat }: { chat: Serialize<RecentChatType> }) {
-    const user = chat.receiver;
-    const url = `/dm/${user.id}`;
+function ChatItem({ chat }: { chat: DMChannel }) {
+    const user = chat.user;
 
     return (
-        <DirectMessageContextMenu userId={chat.receiver_id}>
+        <DirectMessageContextMenu channelId={chat.id}>
             <Link
-                href={url}
+                href={`/dm/${chat.id}`}
                 className={clsx(
                     "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
                     "shadow-2xl dark:shadow-none shadow-brand-500/10"

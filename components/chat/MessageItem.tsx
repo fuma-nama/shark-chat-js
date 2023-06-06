@@ -17,6 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import { deletedUser, MessageType } from "@/server/schema/chat";
 import { linkIt, urlRegex } from "react-linkify-it";
+import { UserProfileModal } from "../modal/UserProfileModal";
 
 export type EditPayload = { content: string };
 
@@ -111,10 +112,12 @@ function Content({ user, timestamp, children }: ContentProps) {
             <Avatar src={author.image} fallback={author.name} />
             <div className="flex-1 flex flex-col w-0">
                 <div className="flex flex-row items-center">
-                    <Link href={`/dm/${author.id}`} className="font-semibold">
-                        {author.name}
-                    </Link>
-                    <p className="text-xs sm:text-xs text-accent-800 dark:text-accent-600 ml-auto sm:ml-2">
+                    <UserProfileModal userId={author.id}>
+                        <p className="font-semibold cursor-pointer">
+                            {author.name}
+                        </p>
+                    </UserProfileModal>
+                    <p className="text-xs sm:text-xs text-muted-foreground ml-auto sm:ml-2">
                         {date}
                     </p>
                 </div>

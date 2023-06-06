@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { addNonce, removeNonce } from "../handlers/realtime/shared";
 import { SendData } from "@/components/chat/Sendbar";
-import { DirectMessageType, MessageType } from "@/server/schema/chat";
+import { MessageType } from "@/server/schema/chat";
 
 /**
  * Message that being sent locally but not received from the server yet
@@ -12,94 +12,85 @@ export type MessagePlaceholder = {
     nonce: number;
 };
 
-type DMSendbarData = {
-    reply_to?: DirectMessageType;
-};
-
-type GroupSendbarData = {
+type SendbarData = {
     reply_to?: MessageType;
 };
 
-export type ChatStore<K extends number | string, Data> = {
+export type ChatStore = {
     sending: {
-        [key in K]: MessagePlaceholder[];
+        [id: string]: MessagePlaceholder[];
     };
     sendbar: {
-        [key in K]: Data;
+        [id: string]: SendbarData;
     };
-    updateSendbar(key: K, data: Partial<Data>): void;
-    addSending: (key: K, data: SendData) => MessagePlaceholder;
-    errorSending: (key: K, nonce: number, message: string) => void;
-    removeSending: (key: K, nonce: number) => void;
+    updateSendbar(id: string, data: Partial<SendbarData>): void;
+    addSending: (id: string, data: SendData) => MessagePlaceholder;
+    errorSending: (id: string, nonce: number, message: string) => void;
+    removeSending: (id: string, nonce: number) => void;
 };
 
-function createMessageStore<K extends number | string, Data>() {
-    return create<ChatStore<K, Data>>((set) => ({
-        sendbar: {} as any,
-        sending: {} as any,
-        updateSendbar(key, data) {
-            set((prev) => ({
-                ...prev,
-                sendbar: {
-                    ...prev.sendbar,
-                    [key]: {
-                        ...prev.sendbar[key],
-                        ...data,
-                    },
+export const useMessageStore = create<ChatStore>((set) => ({
+    sendbar: {} as any,
+    sending: {} as any,
+    updateSendbar(id, data) {
+        set((prev) => ({
+            ...prev,
+            sendbar: {
+                ...prev.sendbar,
+                [id]: {
+                    ...prev.sendbar[id],
+                    ...data,
                 },
-            }));
-        },
-        addSending: (group, data) => {
-            const item: MessagePlaceholder = {
-                data,
-                nonce: Date.now(),
+            },
+        }));
+    },
+    addSending: (group, data) => {
+        const item: MessagePlaceholder = {
+            data,
+            nonce: Date.now(),
+        };
+
+        addNonce(item.nonce);
+        set((prev) => {
+            const next = {
+                ...prev.sending,
+                [group]: [...(prev.sending[group] ?? []), item],
             };
 
-            addNonce(item.nonce);
-            set((prev) => {
-                const next = {
+            return {
+                sending: next,
+            };
+        });
+
+        return item;
+    },
+    errorSending(group, nonce, message) {
+        set((prev) => {
+            const updated = prev.sending[group]?.map((item) =>
+                item.nonce === nonce ? { ...item, error: message } : item
+            );
+
+            return {
+                sending: {
                     ...prev.sending,
-                    [group]: [...(prev.sending[group] ?? []), item],
-                };
+                    [group]: updated,
+                },
+            };
+        });
+    },
+    removeSending(group, nonce) {
+        removeNonce(nonce);
+        set((prev) => {
+            const filtered = prev.sending[group]?.filter(
+                (item) => item.nonce !== nonce
+            );
 
-                return {
-                    sending: next,
-                };
-            });
-
-            return item;
-        },
-        errorSending(group, nonce, message) {
-            set((prev) => {
-                const updated = prev.sending[group]?.map((item) =>
-                    item.nonce === nonce ? { ...item, error: message } : item
-                );
-
-                return {
-                    sending: {
-                        ...prev.sending,
-                        [group]: updated,
-                    },
-                };
-            });
-        },
-        removeSending(group, nonce) {
-            removeNonce(nonce);
-            set((prev) => {
-                const filtered = prev.sending[group]?.filter(
-                    (item) => item.nonce !== nonce
-                );
-
-                return {
-                    sending: {
-                        ...prev.sending,
-                        [group]: filtered,
-                    },
-                };
-            });
-        },
-    }));
-}
-
-export const useGroupMessage = createMessageStore<number, GroupSendbarData>();
-export const useDirectMessage = createMessageStore<string, DMSendbarData>();
+            return {
+                sending: {
+                    ...prev.sending,
+                    [group]: filtered,
+                },
+            };
+        });
+    },
+}));

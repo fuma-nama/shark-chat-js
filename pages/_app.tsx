@@ -4,10 +4,8 @@ import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 import { ReactElement } from "react";
 import { ToastProvider } from "@/components/system/toast";
-import {
-    DirectMessageEventManager,
-    MessageEventManager,
-} from "@/utils/handlers/realtime/chat";
+import { MessageEventManager } from "@/utils/handlers/realtime/chat";
+import { GroupEventManager } from "@/utils/handlers/realtime/group";
 import { PrivateEventManager } from "@/utils/handlers/realtime/private";
 
 import type { AppProps } from "next/app";
@@ -31,7 +29,7 @@ function App({
         <SessionProvider session={session}>
             <AblyClientProvider />
             <PrivateEventManager />
-            <DirectMessageEventManager />
+            <GroupEventManager />
             <MessageEventManager />
             <ToastProvider />
 

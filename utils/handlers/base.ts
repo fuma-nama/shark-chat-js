@@ -47,10 +47,13 @@ export function useEventHandlers() {
                     groups?.filter((g) => g.id !== groupId)
                 );
             },
-            setGroupUnread: (groupId: number, fn: (prev: number) => number) => {
+            setChannelUnread: (
+                channelId: string,
+                fn: (prev: number) => number
+            ) => {
                 utils.group.all.setData(undefined, (groups) =>
                     groups?.map((group) => {
-                        if (group.id === groupId) {
+                        if (`g_${group.id}` === channelId) {
                             return {
                                 ...group,
                                 unread_messages: fn(group.unread_messages),

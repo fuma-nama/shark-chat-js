@@ -62,6 +62,7 @@ export type AvatarProps = {
     fallback?: string;
     alt?: string;
     asImage?: ReactNode;
+    className?: string;
 } & VariantProps<typeof avatar>;
 
 export function Avatar({
@@ -72,6 +73,7 @@ export function Avatar({
     alt,
     border,
     rounded,
+    ...props
 }: AvatarProps) {
     const styles = avatar({ size, border, rounded });
     const fallbackText = useMemo(() => {
@@ -85,7 +87,10 @@ export function Avatar({
     }, [fallback, size]);
 
     return (
-        <AvatarBase.Root className={styles.root()}>
+        <AvatarBase.Root
+            {...props}
+            className={styles.root({ className: props.className })}
+        >
             {src != null && (
                 <AvatarBase.Image
                     alt={fallback ?? alt ?? "avatar"}

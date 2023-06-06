@@ -5,20 +5,31 @@ import { useState } from "react";
 
 import * as Item from "./MessageItem";
 import { AttachmentItem } from "./AttachmentItem";
-import { useGroupMessage } from "@/utils/stores/chat";
 import { text } from "../system/text";
+import { useMessageStore } from "@/utils/stores/chat";
+import { useRouter } from "next/router";
 
-export function GroupMessageItem({ message }: { message: MessageType }) {
+export function ChatMessageItem({ message }: { message: MessageType }) {
+    const { group } = useRouter().query;
+
     const { status, data } = useSession();
     const [editing, setEditing] = useState(false);
+
     const query = trpc.group.info.useQuery(
-        { groupId: message.group_id },
-        { enabled: status === "authenticated", staleTime: Infinity }
+        { groupId: typeof group === "string" ? Number(group) : NaN },
+        {
+            enabled: status === "authenticated" && typeof group === "string",
+            staleTime: Infinity,
+        }
     );
-    const updateSendbar = useGroupMessage((s) => s.updateSendbar);
+
+    const updateSendbar = useMessageStore((s) => s.updateSendbar);
 
     const isAuthor =
         status === "authenticated" && message.author_id === data.user.id;
+
+    const isGroup = typeof group === "string";
+
     const isAdmin =
         query.status === "success" &&
         status === "authenticated" &&
@@ -35,7 +46,7 @@ export function GroupMessageItem({ message }: { message: MessageType }) {
         editMutation.mutate({
             content: v.content,
             messageId: message.id,
-            groupId: message.group_id,
+            channelId: message.channel_id,
         });
     };
 
@@ -51,44 +62,15 @@ export function GroupMessageItem({ message }: { message: MessageType }) {
             timestamp={message.timestamp}
             isEditing={editing}
             canEdit={isAuthor}
-            canDelete={isAdmin || isAuthor}
+            canDelete={(isGroup && isAdmin) || isAuthor}
             onCopy={() => navigator.clipboard.writeText(message.content)}
             onEditChange={setEditing}
             onReply={() =>
-                updateSendbar(message.group_id, { reply_to: message })
+                updateSendbar(message.channel_id, { reply_to: message })
             }
             onDelete={onDelete}
         >
-            {message.reply_message != null && (
-                <div className="flex flex-row gap-2 items-center overflow-hidden max-w-full border-l-2 border-slate-500 p-2 rounded-md">
-                    <p
-                        className={text({
-                            type: "secondary",
-                            size: "sm",
-                            className: "font-medium",
-                        })}
-                    >
-                        {message.reply_user?.name}
-                    </p>
-                    <p
-                        className={text({
-                            type: "secondary",
-                            size: "sm",
-                            className: "whitespace-nowrap",
-                        })}
-                    >
-                        {message.reply_message.content}
-                    </p>
-                </div>
-            )}
-            {message.reply_id != null && message.reply_message == null && (
-                <div className="border-l-2 border-slate-500 p-2 rounded-md">
-                    <p className={text({ type: "secondary", size: "sm" })}>
-                        Message Deleted
-                    </p>
-                </div>
-            )}
-
+            {message.reply_id != null && <Reference data={message} />}
             {editing ? (
                 <Item.Edit
                     onEdit={onEdit}
@@ -103,5 +85,40 @@ export function GroupMessageItem({ message }: { message: MessageType }) {
                 <AttachmentItem attachment={message.attachment} />
             )}
         </Item.Root>
+    );
+}
+
+function Reference({ data }: { data: MessageType }) {
+    if (data.reply_message == null) {
+        return (
+            <div className="border-l-2 border-slate-500 p-2 rounded-md">
+                <p className={text({ type: "secondary", size: "sm" })}>
+                    Message Deleted
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-row gap-2 items-center overflow-hidden max-w-full border-l-2 border-slate-500 p-2 rounded-md">
+            <p
+                className={text({
+                    type: "secondary",
+                    size: "sm",
+                    className: "font-medium",
+                })}
+            >
+                {data.reply_user?.name ?? "Unknown User"}
+            </p>
+            <p
+                className={text({
+                    type: "secondary",
+                    size: "sm",
+                    className: "whitespace-nowrap",
+                })}
+            >
+                {data.reply_message.content}
+            </p>
+        </div>
     );
 }

@@ -9,6 +9,7 @@ import {
     index,
     boolean,
     mysqlEnum,
+    bigint,
 } from "drizzle-orm/mysql-core";
 import { timestamp } from "@/server/db/timestampUTC";
 
@@ -38,45 +39,22 @@ export const accounts = mysqlTable(
     })
 );
 
-export const directMessages = mysqlTable(
-    "DirectMessage",
+export const directMessageInfos = mysqlTable(
+    "DirectMessageInfo",
     {
-        id: int(`id`).autoincrement().notNull().primaryKey(),
-        author_id: varchar(`author_id`, { length: 191 }).notNull(),
-        receiver_id: varchar("receiver_id", { length: 191 }).notNull(),
-        content: varchar("content", { length: 2000 }).notNull(),
-        timestamp: timestamp("timestamp", { fsp: 3 })
-            .notNull()
-            .default(sql`CURRENT_TIMESTAMP(3)`),
-        attachment_id: varchar(`attachment_id`, { length: 32 }),
-        reply_id: int("reply_id"),
+        channel_id: varchar("channel_id", { length: 32 }).notNull(),
+        user_id: varchar("user_id", { length: 191 }).notNull(),
+        to_user_id: varchar("to_user_id", { length: 191 }).notNull(),
+        open: boolean("open").default(true),
     },
     (table) => ({
-        DirectMessage_receiver_id_idx: index(
-            `DirectMessage_receiver_id_idx`
-        ).on(table.receiver_id),
-        DirectMessage_author_id_idx: index(`DirectMessage_author_id_idx`).on(
-            table.author_id
-        ),
+        cpk: primaryKey(table.user_id, table.to_user_id),
     })
 );
 
-export const directMessageChannels = mysqlTable(
-    "DirectMessageChannel",
-    {
-        author_id: varchar(`author_id`, { length: 191 }).notNull(),
-        receiver_id: varchar(`receiver_id`, { length: 191 }).notNull(),
-    },
-    (table) => ({
-        cpk: primaryKey(table.receiver_id, table.author_id),
-        DirectMessageChannel_author_id_idx: index(
-            `DirectMessageChannel_author_id_idx`
-        ).on(table.author_id),
-        DirectMessageChannel_receiver_id_idx: index(
-            `DirectMessageChannel_receiver_id_idx`
-        ).on(table.receiver_id),
-    })
-);
+export const directMessageChannels = mysqlTable("DirectMessageChannel", {
+    id: varchar("id", { length: 32 }).primaryKey(),
+});
 
 export const groups = mysqlTable(
     "Group",
@@ -124,8 +102,8 @@ export const messages = mysqlTable(
     "Message",
     {
         id: int(`id`).autoincrement().notNull().primaryKey(),
-        group_id: int(`group_id`).notNull(),
         author_id: varchar(`author_id`, { length: 191 }).notNull(),
+        channel_id: varchar("channel_id", { length: 32 }).notNull(),
         content: varchar(`content`, { length: 2000 }).notNull(),
         timestamp: timestamp(`timestamp`, { fsp: 3 })
             .notNull()
@@ -134,7 +112,9 @@ export const messages = mysqlTable(
         reply_id: int("reply_id"),
     },
     (table) => ({
-        Message_group_id_idx: index("Message_group_id_idx").on(table.group_id),
+        Message_channel_id_idx: index("Message_channel_id_idx").on(
+            table.channel_id
+        ),
         Message_author_id_idx: index(`Message_author_id_idx`).on(
             table.author_id
         ),
@@ -186,8 +166,8 @@ export const attachments = mysqlTable("Attachment", {
 export type Group = InferModel<typeof groups>;
 export type User = InferModel<typeof users>;
 export type Message = InferModel<typeof messages>;
-export type DirectMessage = InferModel<typeof directMessages>;
 export type DirectMessageChannel = InferModel<typeof directMessageChannels>;
+export type DirectMessageInfo = InferModel<typeof directMessageInfos>;
 export type GroupInvite = InferModel<typeof groupInvites>;
 export type Member = InferModel<typeof members>;
 export type Attachment = InferModel<typeof attachments>;

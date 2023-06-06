@@ -1,232 +1,19 @@
-import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
-import { BookmarkIcon, Cross1Icon, GearIcon } from "@radix-ui/react-icons";
-import { Fragment, useEffect } from "react";
+import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import React from "react";
-import { SendData, Sendbar } from "@/components/chat/Sendbar";
-import {
-    TypingIndicator,
-    useTypingStatus,
-} from "@/components/chat/TypingIndicator";
-import { Spinner } from "@/components/system/spinner";
-import { GroupMessageItem } from "@/components/chat/GroupMessageItem";
-import { Button, button } from "@/components/system/button";
+import { button } from "@/components/system/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
-import { UnreadSeparator, useChatView } from "@/components/chat/ChatView";
-import { channels } from "@/utils/ably/client";
-import { getGroupQuery, getMessageVariables } from "@/utils/variables";
-import { useGroupMessage } from "@/utils/stores/chat";
-import { LocalMessageItem } from "@/components/chat/LocalMessageItem";
-import { useEventHandlers } from "@/utils/handlers/base";
-import { uploadAttachment } from "@/utils/media/upload-attachment";
-import { useMutation } from "@tanstack/react-query";
-import { TRPCClientError } from "@trpc/client";
-import { inferRouterInputs } from "@trpc/server";
-import { AppRouter } from "@/server/routers/_app";
-import { text } from "@/components/system/text";
+import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
+import { MessageList } from "@/components/chat/MessageList";
 
 const GroupChat: NextPageWithLayout = () => {
-    const group = getGroupQuery(useRouter()).groupId;
-    const { status } = useSession();
-    const variables = getMessageVariables(group);
-    const lastRead = useLastRead(group);
-    const [sending, remove] = useGroupMessage((s) => [
-        s.sending[group],
-        s.removeSending,
-    ]);
+    const { group } = useRouter().query as { group: string };
 
-    const query = trpc.chat.messages.useInfiniteQuery(variables, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
-        getPreviousPageParam: (messages) =>
-            messages.length >= variables.count
-                ? messages[messages.length - 1].timestamp
-                : null,
-    });
-
-    const pages = query.data?.pages;
-    const { scrollToBottom, sentryRef } = useChatView({
-        hasNextPage: query.hasPreviousPage ?? true,
-        onLoadMore: () => query.isSuccess && query.fetchPreviousPage(),
-        disabled: query.isLoading,
-        loading: query.isFetchingPreviousPage,
-    });
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [pages, sending, scrollToBottom]);
-
-    return (
-        <div className="flex flex-col gap-3 mb-8">
-            {query.isLoading || query.hasPreviousPage ? (
-                <div ref={sentryRef} className="flex flex-col m-auto">
-                    <Spinner size="large" />
-                </div>
-            ) : query.isError ? (
-                <>
-                    <p>{query.error.message}</p>
-                    <Button color="danger" onClick={() => query.refetch()}>
-                        Retry
-                    </Button>
-                </>
-            ) : (
-                <Welcome />
-            )}
-            {pages
-                ?.flatMap((messages) => [...messages].reverse())
-                .map((message, i, arr) => {
-                    const prev_message = i > 0 ? arr[i - 1] : null;
-                    const newLine =
-                        lastRead != null &&
-                        lastRead < new Date(message.timestamp) &&
-                        (prev_message == null ||
-                            new Date(prev_message.timestamp) <= lastRead);
-
-                    return (
-                        <Fragment key={message.id}>
-                            {newLine && <UnreadSeparator />}
-                            <GroupMessageItem message={message} />
-                        </Fragment>
-                    );
-                })}
-            {sending?.map((message) => (
-                <LocalMessageItem
-                    key={message.nonce}
-                    item={message}
-                    onDelete={() => remove(group, message.nonce)}
-                />
-            ))}
-        </div>
-    );
+    return <MessageList channelId={`g_${group}`} welcome={<Welcome />} />;
 };
-
-function useLastRead(groupId: number) {
-    const { status } = useSession();
-    const handlers = useEventHandlers();
-
-    const checkoutQuery = trpc.chat.checkout.useQuery(
-        { groupId },
-        {
-            enabled: status === "authenticated",
-            refetchOnWindowFocus: false,
-            onSuccess: () => handlers.setGroupUnread(groupId, () => 0),
-        }
-    );
-
-    return checkoutQuery.data?.last_read != null
-        ? new Date(checkoutQuery.data.last_read)
-        : null;
-}
-
-type SendMutationInput = Omit<
-    inferRouterInputs<AppRouter>["chat"]["send"],
-    "attachment"
-> & {
-    attachment: SendData["attachment"];
-};
-
-function GroupSendbar() {
-    const groupId = getGroupQuery(useRouter()).groupId;
-    const utils = trpc.useContext();
-    const [info, update] = useGroupMessage((s) => [
-        s.sendbar[groupId],
-        s.updateSendbar,
-    ]);
-    const [add, addError] = useGroupMessage((s) => [
-        s.addSending,
-        s.errorSending,
-    ]);
-    const typeMutation = trpc.useContext().client.chat.type;
-    const sendMutation = useMutation(
-        async ({ attachment, ...data }: SendMutationInput) => {
-            await utils.client.chat.send.mutate({
-                ...data,
-                attachment:
-                    attachment != null
-                        ? await uploadAttachment(utils, attachment)
-                        : undefined,
-            });
-        },
-        {
-            onError(error, { nonce, groupId }) {
-                if (nonce == null) return;
-
-                addError(
-                    groupId,
-                    nonce,
-                    error instanceof TRPCClientError
-                        ? error.message
-                        : "Something went wrong"
-                );
-            },
-        }
-    );
-
-    const onSend = (data: SendData) => {
-        sendMutation.mutate({
-            ...data,
-            groupId,
-            reply: info?.reply_to?.id ?? undefined,
-            nonce: add(groupId, data).nonce,
-        });
-
-        update(groupId, {
-            reply_to: undefined,
-        });
-    };
-
-    return (
-        <Sendbar
-            onSend={onSend}
-            onType={() => typeMutation.mutate({ groupId })}
-        >
-            {info?.reply_to != null && (
-                <div className="flex flex-row">
-                    <p
-                        className={text({
-                            type: "secondary",
-                            size: "sm",
-                            className: "flex-1",
-                        })}
-                    >
-                        Replying to{" "}
-                        <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
-                    </p>
-                    <button
-                        className="text-muted-foreground"
-                        onClick={() => update(groupId, { reply_to: undefined })}
-                    >
-                        <Cross1Icon />
-                    </button>
-                </div>
-            )}
-
-            <TypingUsers />
-        </Sendbar>
-    );
-}
-
-function TypingUsers() {
-    const { status, data: session } = useSession();
-    const { groupId } = getGroupQuery(useRouter());
-    const { typing, add } = useTypingStatus();
-
-    channels.chat.typing.useChannel(
-        [groupId],
-        { enabled: status === "authenticated" },
-        (message) => {
-            if (message.data.user.id === session?.user.id) return;
-
-            add(message.data.user);
-        }
-    );
-
-    return <TypingIndicator typing={typing} />;
-}
 
 function Welcome() {
     return (
@@ -250,7 +37,7 @@ function Welcome() {
 GroupChat.useLayout = (children) =>
     useGroupLayout({
         children,
-        footer: <GroupSendbar />,
+        footer: <ChannelSendbar channelId={`g_${useRouter().query.group}`} />,
         items: (
             <Link
                 href={{

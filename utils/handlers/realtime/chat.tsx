@@ -5,13 +5,9 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import { useEventHandlers } from "../base";
 import Router from "next/router";
-import {
-    getDirectMessageVariables as getDMVariables,
-    getGroupQuery,
-    getMessageVariables,
-} from "@/utils/variables";
-import { useGroupMessage } from "@/utils/stores/chat";
+import { getGroupQuery, getMessageVariables } from "@/utils/variables";
 import { removeNonce } from "./shared";
+import { useMessageStore } from "@/utils/stores/chat";
 
 export function MessageEventManager() {
     const { status, data } = useSession();
@@ -22,44 +18,36 @@ export function MessageEventManager() {
         ({ name, data: message }) => {
             if (name === "typing") return;
 
-            if (name === "group_deleted") {
-                return handlers.deleteGroup(message.id);
-            }
-
-            if (name === "group_updated") {
-                return handlers.updateGroup(message);
-            }
-
-            const variables = getMessageVariables(message.group_id);
+            const variables = getMessageVariables(message.channel_id);
             const active =
                 Router.asPath.startsWith("/chat/") &&
-                getGroupQuery(Router).groupId === message.group_id;
+                `g_${getGroupQuery(Router).groupId}` === message.channel_id;
 
             if (name === "message_sent") {
                 const self = message.author_id === data?.user.id;
 
                 if (active || self) {
                     utils.chat.checkout.setData(
-                        { groupId: message.group_id },
+                        { channelId: message.channel_id },
                         { last_read: message.timestamp }
                     );
                 } else {
-                    handlers.setGroupUnread(
-                        message.group_id,
+                    handlers.setChannelUnread(
+                        message.channel_id,
                         (prev) => prev + 1
                     );
                 }
 
                 if (active && !self) {
                     utils.client.chat.read.mutate({
-                        groupId: message.group_id,
+                        channelId: message.channel_id,
                     });
                 }
 
                 if (message.nonce != null && removeNonce(message.nonce)) {
-                    useGroupMessage
+                    useMessageStore
                         .getState()
-                        .removeSending(message.group_id, message.nonce);
+                        .removeSending(message.channel_id, message.nonce);
                 }
 
                 return handlers.addGroupMessage(variables, message);
@@ -118,84 +106,20 @@ export function MessageEventManager() {
         staleTime: Infinity,
     });
 
-    const channelList = useMemo(() => {
-        if (groups.data == null) return [];
-
-        return groups.data.map((group) => channels.chat.get([group.id]));
-    }, [groups.data]);
-
-    useChannels(channelList, onEvent);
-
-    return <></>;
-}
-
-export function DirectMessageEventManager() {
-    const { status, data } = useSession();
-    const utils = trpc.useContext();
-
-    const onEvent = channels.dm.useCallback(
-        ({ name, data: message }) => {
-            if (name === "typing") return;
-
-            const user =
-                message.author_id === data!!.user.id
-                    ? message.receiver_id
-                    : message.author_id;
-            const variables = getDMVariables(user);
-
-            if (name === "message_updated") {
-                return utils.dm.messages.setInfiniteData(variables, (prev) => {
-                    if (prev == null) return prev;
-
-                    const pages = prev.pages.map((page) =>
-                        page.map((msg) => {
-                            if (msg.id === message.id) {
-                                return {
-                                    ...msg,
-                                    content: message.content,
-                                };
-                            }
-
-                            return msg;
-                        })
-                    );
-
-                    return {
-                        ...prev,
-                        pages,
-                    };
-                });
-            }
-
-            if (name === "message_deleted") {
-                return utils.dm.messages.setInfiniteData(variables, (prev) => {
-                    if (prev == null) return prev;
-
-                    const pages = prev.pages.map((page) => {
-                        return page.filter((msg) => msg.id !== message.id);
-                    });
-                    return {
-                        ...prev,
-                        pages,
-                    };
-                });
-            }
-        },
-        [utils.dm.messages]
-    );
-
-    const channelQuery = trpc.dm.channels.useQuery(undefined, {
+    const dm = trpc.dm.channels.useQuery(undefined, {
         enabled: status === "authenticated",
         staleTime: Infinity,
     });
 
     const channelList = useMemo(() => {
-        if (channelQuery.data == null || data == null) return [];
-
-        return channelQuery.data.map((dm) =>
-            channels.dm.get([dm.receiver_id, data.user.id])
-        );
-    }, [channelQuery.data, data]);
+        return [
+            ...(groups.data?.map((group) =>
+                channels.chat.get([`g_${group.id}`])
+            ) ?? []),
+            ...(dm.data?.map((channel) => channels.chat.get([channel.id])) ??
+                []),
+        ];
+    }, [groups.data, dm.data]);
 
     useChannels(channelList, onEvent);
 

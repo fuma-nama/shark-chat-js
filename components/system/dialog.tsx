@@ -5,10 +5,6 @@ import { tv, VariantProps } from "tailwind-variants";
 
 export const dialog = tv({
     slots: {
-        close: [
-            "absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1",
-            "focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
-        ],
         content: [
             "relative m-auto z-50 animate-zoom-in",
             "w-[95vw] max-w-md rounded-lg p-4 md:w-full",
@@ -66,7 +62,7 @@ export function Dialog({
                             {description}
                         </DialogPrimitive.Description>
                         {children}
-                        <CloseButton className={styles.close()} />
+                        <CloseButton />
                     </DialogPrimitive.Content>
                 </DialogPrimitive.Overlay>
             </DialogPrimitive.Portal>
@@ -74,10 +70,18 @@ export function Dialog({
     );
 }
 
-export function CloseButton({ className }: { className: string }) {
+const closeBn = tv({
+    base: [
+        "absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 text-accent-700 hover:text-accent-900",
+        "focus-visible:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
+        "dark:text-accent-700 dark:hover:text-accent-600",
+    ],
+});
+
+export function CloseButton({ className }: { className?: string }) {
     return (
-        <DialogPrimitive.Close className={className}>
-            <Cross1Icon className="h-4 w-4 text-accent-700 hover:text-accent-900 dark:text-accent-700 dark:hover:text-accent-600" />
+        <DialogPrimitive.Close className={closeBn({ className })}>
+            <Cross1Icon className="h-4 w-4" />
         </DialogPrimitive.Close>
     );
 }

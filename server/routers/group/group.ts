@@ -142,7 +142,10 @@ export const groupRouter = router({
                 .where(eq(groups.id, input.groupId))
                 .then((res) => requireOne(res));
 
-            await channels.chat.group_updated.publish([input.groupId], updated);
+            await channels.group.group_updated.publish(
+                [input.groupId],
+                updated
+            );
             return updated;
         }),
     delete: protectedProcedure
@@ -155,7 +158,7 @@ export const groupRouter = router({
 
                 await db
                     .delete(messages)
-                    .where(eq(messages.group_id, input.groupId));
+                    .where(eq(messages.channel_id, `g_${input.groupId}`));
 
                 await db
                     .delete(members)
@@ -166,7 +169,7 @@ export const groupRouter = router({
                     .where(eq(groupInvites.group_id, input.groupId));
             });
 
-            await channels.chat.group_deleted.publish([input.groupId], {
+            await channels.group.group_deleted.publish([input.groupId], {
                 id: input.groupId,
             });
         }),
@@ -249,7 +252,7 @@ async function getGroupsWithNotifications(
     if (result.length === 0) return [];
 
     const last_reads = await getLastReads(
-        result.map((row) => [row.group.id, userId])
+        result.map((row) => [`g_${row.group.id}`, userId])
     );
 
     return await db.transaction(
@@ -263,7 +266,7 @@ async function getGroupsWithNotifications(
                     .from(messages)
                     .where(
                         and(
-                            eq(messages.group_id, group.id),
+                            eq(messages.channel_id, `g_${group.id}`),
                             last_read != null
                                 ? gt(messages.timestamp, last_read)
                                 : undefined

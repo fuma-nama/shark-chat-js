@@ -1,8 +1,8 @@
-import { getHash } from "@/utils/get-hash";
+import { hash } from "@/utils/common";
 import redis from "./client";
 
 function getKey(user1: string, user2: string) {
-    if (getHash(user1) > getHash(user2)) {
+    if (hash(user1) > hash(user2)) {
         return `last_message_dm_${user1}_u_${user2}`;
     } else {
         return `last_message_dm_${user2}_u_${user1}`;
