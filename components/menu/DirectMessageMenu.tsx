@@ -10,16 +10,7 @@ export function DirectMessageContextMenu({
     children: ReactNode;
     channelId: string;
 }) {
-    const utils = trpc.useContext();
-    const deleteMutation = trpc.dm.close.useMutation({
-        onSuccess: (_, params) => {
-            utils.dm.channels.setData(undefined, (prev) => {
-                if (prev == null) return prev;
-
-                return prev.filter((dm) => dm.id !== params.channelId);
-            });
-        },
-    });
+    const deleteMutation = trpc.dm.close.useMutation();
 
     const onClose = () => {
         deleteMutation.mutate({
