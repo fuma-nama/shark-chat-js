@@ -1,6 +1,6 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { dialog } from "../system/dialog";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { RouterOutput, trpc } from "@/utils/trpc";
 import { Avatar } from "../system/avatar";
 import { Button, button } from "../system/button";
@@ -16,10 +16,11 @@ export function UserProfileModal({
     children: ReactNode;
 }) {
     const styles = dialog();
+    const [open, setOpen] = useState(false);
     const query = trpc.account.profile.useQuery({ userId });
 
     return (
-        <DialogPrimitive.Root>
+        <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
             <DialogPrimitive.Trigger asChild>
                 {children}
             </DialogPrimitive.Trigger>
@@ -29,7 +30,10 @@ export function UserProfileModal({
                         className={styles.content({ className: "max-w-lg" })}
                     >
                         {query.status === "success" && (
-                            <Content user={query.data} />
+                            <Content
+                                user={query.data}
+                                onClose={() => setOpen(false)}
+                            />
                         )}
                     </DialogPrimitive.Content>
                 </DialogPrimitive.Overlay>
@@ -38,11 +42,12 @@ export function UserProfileModal({
     );
 }
 
-function Content({ user }: { user: Profile }) {
+function Content({ user, onClose }: { user: Profile; onClose: () => void }) {
     const utils = trpc.useContext();
     const dmMutation = trpc.dm.open.useMutation({
         onSuccess: (res) => {
             Router.push(`/dm/${res.id}`);
+            onClose();
         },
     });
 
@@ -54,6 +59,7 @@ function Content({ user }: { user: Profile }) {
 
             if (channel != null) {
                 Router.push(`/dm/${channel.id}`);
+                onClose();
                 return;
             }
         }
