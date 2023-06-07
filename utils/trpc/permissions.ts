@@ -1,8 +1,70 @@
 import db from "@/server/db/client";
-import { groups, members } from "@/drizzle/schema";
+import {
+    DirectMessageInfo,
+    Member,
+    directMessageInfos,
+    groups,
+    members,
+} from "@/drizzle/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { Session } from "next-auth";
+
+type Result =
+    | {
+          type: "dm";
+          data: DirectMessageInfo;
+      }
+    | {
+          type: "group";
+          data: Member;
+      };
+export async function checkChannelPermissions(
+    channelId: string,
+    user: Session
+): Promise<Result> {
+    if (channelId.startsWith("g_")) {
+        const rows = await db
+            .select()
+            .from(members)
+            .where(
+                and(
+                    eq(members.group_id, Number(channelId.slice("g_".length))),
+                    eq(members.user_id, user.user.id)
+                )
+            )
+            .limit(1);
+
+        if (rows.length === 0) {
+            throw new TRPCError({
+                code: "UNAUTHORIZED",
+                message: "Missing required permissions",
+            });
+        }
+
+        return { type: "group", data: rows[0] };
+    }
+
+    const rows = await db
+        .select()
+        .from(directMessageInfos)
+        .where(
+            and(
+                eq(directMessageInfos.channel_id, channelId),
+                eq(directMessageInfos.user_id, user.user.id)
+            )
+        )
+        .limit(1);
+
+    if (rows.length === 0) {
+        throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Missing required permissions",
+        });
+    }
+
+    return { type: "dm", data: rows[0] };
+}
 
 export async function checkIsMemberOf(group: number, user: Session) {
     const rows = await db
