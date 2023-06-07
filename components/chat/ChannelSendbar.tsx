@@ -6,9 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
 import { SendData, Sendbar } from "./Sendbar";
 import { channels } from "@/utils/ably/client";
-import { getGroupQuery } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { useTypingStatus, TypingIndicator } from "./TypingIndicator";
 
 type SendMutationInput = Omit<RouterInput["chat"]["send"], "attachment"> & {
@@ -85,18 +83,17 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
                 </div>
             )}
 
-            <TypingUsers />
+            <TypingUsers channelId={channelId} />
         </Sendbar>
     );
 }
 
-function TypingUsers() {
+function TypingUsers({ channelId }: { channelId: string }) {
     const { status, data: session } = useSession();
-    const { groupId } = getGroupQuery(useRouter());
     const { typing, add } = useTypingStatus();
 
     channels.chat.typing.useChannel(
-        [`g_${groupId}`],
+        [channelId],
         { enabled: status === "authenticated" },
         (message) => {
             if (message.data.user.id === session?.user.id) return;
