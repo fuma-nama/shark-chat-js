@@ -173,20 +173,10 @@ function ChatItem({ chat }: { chat: DMChannel }) {
                     "shadow-2xl dark:shadow-none shadow-brand-500/10"
                 )}
             >
-                <Avatar src={user.image} fallback={user.name} />
+                <Avatar src={user.image} fallback={user.name} size="2sm" />
                 <div className="flex-1 w-0">
                     <p className={text({ type: "primary", size: "md" })}>
                         {user.name}
-                    </p>
-                    <p
-                        className={text({
-                            type: "secondary",
-                            size: "sm",
-                            className:
-                                "overflow-hidden text-ellipsis whitespace-nowrap",
-                        })}
-                    >
-                        {chat.last_message}
                     </p>
                 </div>
                 {chat.unread_messages > 0 && (
