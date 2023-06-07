@@ -13,6 +13,7 @@ import db from "../db/client";
 import {
     Attachment,
     attachments,
+    directMessageInfos,
     groups,
     messages,
     users,
@@ -23,6 +24,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
 import { alias } from "drizzle-orm/mysql-core";
+import { checkChannelPermissions } from "@/utils/trpc/permissions";
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -42,8 +44,12 @@ export const chatRouter = router({
                 )
         )
         .mutation(async ({ input, ctx }) => {
+            const { type, data } = await checkChannelPermissions(
+                input.channelId,
+                ctx.session
+            );
+
             const message = await db.transaction(async () => {
-                //await checkIsMemberOf(input.channelId, ctx.session);
                 const attachment = await insertAttachment(input.attachment);
 
                 const message_id = await db
@@ -87,10 +93,31 @@ export const chatRouter = router({
                 };
             });
 
-            await channels.chat.message_sent.publish(
-                [input.channelId],
-                message
-            );
+            if (type === "dm") {
+                const result = await db
+                    .update(directMessageInfos)
+                    .set({
+                        open: true,
+                    })
+                    .where(eq(directMessageInfos.channel_id, input.channelId));
+
+                if (result.rowsAffected !== 0) {
+                    await channels.private.open_dm.publish([data.to_user_id], {
+                        id: data.channel_id,
+                        user: message.author,
+                        unread_messages: 1,
+                    });
+                }
+            }
+
+            await Promise.all([
+                channels.chat.message_sent.publish([input.channelId], message),
+                setLastRead(
+                    input.channelId,
+                    ctx.session.user.id,
+                    message.timestamp
+                ),
+            ]);
 
             if (input.content.startsWith("@Shark")) {
                 await onReceiveMessage({
@@ -99,12 +126,6 @@ export const chatRouter = router({
                     user_name: message.author.name,
                 });
             }
-
-            await setLastRead(
-                input.channelId,
-                ctx.session.user.id,
-                message.timestamp
-            );
 
             return message;
         }),
@@ -117,8 +138,8 @@ export const chatRouter = router({
                 cursor: z.string().datetime().optional(),
             })
         )
-        .query(async ({ input }) => {
-            //await checkIsMemberOf(input.channelId, ctx.session);
+        .query(async ({ input, ctx }) => {
+            await checkChannelPermissions(input.channelId, ctx.session);
             const count = Math.min(input.count, 50);
 
             const reply_message = alias(messages, "reply_message");

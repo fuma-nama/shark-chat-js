@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import { useEventHandlers } from "../base";
 import Router from "next/router";
-import { getGroupQuery, getMessageVariables } from "@/utils/variables";
+import { getMessageVariables } from "@/utils/variables";
 import { removeNonce } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
 
@@ -20,8 +20,8 @@ export function MessageEventManager() {
 
             const variables = getMessageVariables(message.channel_id);
             const active =
-                Router.asPath.startsWith("/chat/") &&
-                `g_${getGroupQuery(Router).groupId}` === message.channel_id;
+                Router.query.channel === message.channel_id ||
+                `g_${Router.query.group}` === message.channel_id;
 
             if (name === "message_sent") {
                 const self = message.author_id === data?.user.id;

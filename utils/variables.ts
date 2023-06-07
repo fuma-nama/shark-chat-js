@@ -18,7 +18,3 @@ export function getMessageVariables(channelId: string) {
         cursorType: "before",
     } as const;
 }
-
-export type DirectMessageQuery = {
-    user: string;
-};

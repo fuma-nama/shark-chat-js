@@ -2,7 +2,6 @@ import { groupSchema } from "@/server/schema/group";
 import type { UserInfo } from "@/server/schema/chat";
 import { z } from "zod";
 import { a } from "./builder";
-import { hash } from "../common";
 import { inferProcedureOutput } from "@trpc/server";
 import { AppRouter } from "@/server/routers/_app";
 
@@ -10,15 +9,9 @@ type ServerMessageType = inferProcedureOutput<
     AppRouter["chat"]["messages"]
 >[number];
 
-type ServerDirectChannelEvent = {};
-
-function dmKey(user1: string, user2: string): [user1: string, user2: string] {
-    if (hash(user1) > hash(user2)) {
-        return [user1, user2];
-    } else {
-        return [user2, user1];
-    }
-}
+type ServerDirectChannelEvent = inferProcedureOutput<
+    AppRouter["dm"]["channels"]
+>[number];
 
 export const schema = {
     /**
@@ -28,6 +21,7 @@ export const schema = {
         group_created: a.event(groupSchema),
         group_removed: a.event(groupSchema.pick({ id: true })),
         open_dm: a.event(z.custom<ServerDirectChannelEvent>()),
+        close_dm: a.event(z.custom<{ channel_id: string }>()),
     }),
     group: a.channel(([group]: [groupId: number]) => [`${group}`], {
         group_updated: a.event(groupSchema),

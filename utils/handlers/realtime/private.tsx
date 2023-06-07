@@ -19,6 +19,21 @@ export function PrivateEventManager() {
             if (name === "group_removed" && !isSelf) {
                 return handlers.deleteGroup(message.id);
             }
+
+            if (name === "open_dm") {
+                return handlers.utils.dm.channels.setData(undefined, (prev) => {
+                    if (prev == null || prev.some((c) => c.id === message.id))
+                        return prev;
+
+                    return [message, ...prev];
+                });
+            }
+
+            if (name === "close_dm") {
+                return handlers.utils.dm.channels.setData(undefined, (prev) => {
+                    return prev?.filter((c) => c.id !== message.channel_id);
+                });
+            }
         },
         [ably.connection.id, data, handlers]
     );

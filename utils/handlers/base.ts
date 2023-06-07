@@ -51,6 +51,19 @@ export function useEventHandlers() {
                 channelId: string,
                 fn: (prev: number) => number
             ) => {
+                utils.dm.channels.setData(undefined, (prev) =>
+                    prev?.map((channel) => {
+                        if (channel.id === channelId) {
+                            return {
+                                ...channel,
+                                unread_messages: fn(channel.unread_messages),
+                            };
+                        }
+
+                        return channel;
+                    })
+                );
+
                 utils.group.all.setData(undefined, (groups) =>
                     groups?.map((group) => {
                         if (`g_${group.id}` === channelId) {
