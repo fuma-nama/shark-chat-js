@@ -3,7 +3,7 @@ import { Adapter, AdapterUser, VerificationToken } from "next-auth/adapters";
 import db from "./db/client";
 import { accounts, members, users } from "../drizzle/schema";
 import { and, eq } from "drizzle-orm";
-import { oneOrNull, requireOne, update } from "./db/utils";
+import { oneOrNull, requireOne } from "./db/utils";
 import { createId } from "@paralleldrive/cuid2";
 import redis from "./redis/client";
 import { Serialize } from "@/utils/types";
@@ -58,12 +58,15 @@ export const authAdapter: Adapter<true> = {
     async updateUser({ id, ...data }) {
         if (id == null) throw new Error("id can't be null");
 
-        await update(users, {
-            email: data.email,
-            emailVerified: data.emailVerified,
-            image: data.image,
-            name: data.name ?? undefined,
-        }).where(eq(users.id, id));
+        await db
+            .update(users)
+            .set({
+                email: data.email,
+                emailVerified: data.emailVerified,
+                image: data.image,
+                name: data.name ?? undefined,
+            })
+            .where(eq(users.id, id));
 
         return await db
             .select()
@@ -122,9 +125,12 @@ export const authAdapter: Adapter<true> = {
         return { id, ...data };
     },
     async updateSession({ sessionToken, ...data }) {
-        await update(sessions, {
-            ...data,
-        }).where(eq(sessions.sessionToken, sessionToken));
+        await db
+            .update(sessions)
+            .set({
+                ...data,
+            })
+            .where(eq(sessions.sessionToken, sessionToken));
 
         return await db
             .select()

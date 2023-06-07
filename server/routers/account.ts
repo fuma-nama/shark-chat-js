@@ -4,7 +4,6 @@ import { protectedProcedure, router } from "../trpc";
 import db from "../db/client";
 import { users } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
-import { update } from "../db/utils";
 import { pick } from "@/utils/common";
 
 export const accountRouter = router({
@@ -53,10 +52,13 @@ export const accountRouter = router({
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id;
 
-            await update(users, {
-                name: input.name ?? undefined,
-                image: input.avatar_url ?? undefined,
-            }).where(eq(users.id, userId));
+            await db
+                .update(users)
+                .set({
+                    name: input.name ?? undefined,
+                    image: input.avatar_url ?? undefined,
+                })
+                .where(eq(users.id, userId));
 
             return await db
                 .select()

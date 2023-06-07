@@ -15,7 +15,7 @@ import db from "@/server/db/client";
 import { createId } from "@paralleldrive/cuid2";
 import { groupInvites, groups, members, messages } from "@/drizzle/schema";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
-import { requireOne, updateOptional } from "@/server/db/utils";
+import { requireOne } from "@/server/db/utils";
 
 export const groupRouter = router({
     create: protectedProcedure
@@ -125,16 +125,15 @@ export const groupRouter = router({
         .input(updateGroupSchema)
         .mutation(async ({ ctx, input }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
-            await updateOptional({
-                table: groups,
-                value: {
+            await db
+                .update(groups)
+                .set({
                     name: input.name,
                     icon_hash: input.icon_hash,
                     unique_name: input.unique_name,
                     public: input.public,
-                },
-                where: eq(groups.id, input.groupId),
-            });
+                })
+                .where(eq(groups.id, input.groupId));
 
             const updated = await db
                 .select()

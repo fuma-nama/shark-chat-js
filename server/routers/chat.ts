@@ -19,12 +19,15 @@ import {
     users,
 } from "../../drizzle/schema";
 import { and, desc, eq, gt, lt } from "drizzle-orm";
-import { attachmentSelect, requireOne, update, userSelect } from "../db/utils";
+import { requireOne } from "../db/utils";
 import { createId } from "@paralleldrive/cuid2";
 import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
 import { alias } from "drizzle-orm/mysql-core";
 import { checkChannelPermissions } from "@/utils/trpc/permissions";
+import { pick } from "@/utils/common";
+
+const userProfileKeys = ["id", "name", "image"] as const;
 
 export const chatRouter = router({
     send: protectedProcedure
@@ -69,9 +72,9 @@ export const chatRouter = router({
                 const message = await db
                     .select({
                         ...(messages as typeof messages._.columns),
-                        reply_message,
-                        reply_user,
-                        author: userSelect,
+                        reply_message: pick(reply_message, "content"),
+                        reply_user: pick(reply_user, ...userProfileKeys),
+                        author: pick(users, ...userProfileKeys),
                     })
                     .from(messages)
                     .where(eq(messages.id, message_id))
@@ -99,7 +102,12 @@ export const chatRouter = router({
                     .set({
                         open: true,
                     })
-                    .where(eq(directMessageInfos.channel_id, input.channelId));
+                    .where(
+                        and(
+                            eq(directMessageInfos.channel_id, input.channelId),
+                            eq(directMessageInfos.open, false)
+                        )
+                    );
 
                 if (result.rowsAffected !== 0) {
                     await channels.private.open_dm.publish([data.to_user_id], {
@@ -148,10 +156,10 @@ export const chatRouter = router({
             return await db
                 .select({
                     ...(messages as typeof messages._.columns),
-                    author: userSelect,
-                    attachment: attachmentSelect,
-                    reply_message: reply_message,
-                    reply_user: reply_user,
+                    author: pick(users, ...userProfileKeys),
+                    attachment: attachments,
+                    reply_message: pick(reply_message, "content"),
+                    reply_user: pick(reply_user, ...userProfileKeys),
                 })
                 .from(messages)
                 .where(
@@ -190,15 +198,18 @@ export const chatRouter = router({
             })
         )
         .mutation(async ({ ctx, input }) => {
-            const rows = await update(messages, {
-                content: input.content,
-            }).where(
-                and(
-                    eq(messages.id, input.messageId),
-                    eq(messages.author_id, ctx.session.user.id),
-                    eq(messages.channel_id, input.channelId)
-                )
-            );
+            const rows = await db
+                .update(messages)
+                .set({
+                    content: input.content,
+                })
+                .where(
+                    and(
+                        eq(messages.id, input.messageId),
+                        eq(messages.author_id, ctx.session.user.id),
+                        eq(messages.channel_id, input.channelId)
+                    )
+                );
 
             if (rows.rowsAffected === 0)
                 throw new TRPCError({
@@ -264,7 +275,7 @@ export const chatRouter = router({
         )
         .mutation(async ({ ctx, input }) => {
             const user = await db
-                .select(userSelect)
+                .select(pick(users, ...userProfileKeys))
                 .from(users)
                 .where(eq(users.id, ctx.session.user.id))
                 .then((res) => res[0]);
