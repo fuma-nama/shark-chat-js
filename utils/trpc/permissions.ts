@@ -51,7 +51,8 @@ export async function checkChannelPermissions(
         .where(
             and(
                 eq(directMessageInfos.channel_id, channelId),
-                eq(directMessageInfos.user_id, user.user.id)
+                eq(directMessageInfos.user_id, user.user.id),
+                eq(directMessageInfos.open, true)
             )
         )
         .limit(1);

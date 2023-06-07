@@ -116,15 +116,15 @@ export const dmRouter = router({
                         const id = createId();
 
                         await Promise.all([
-                            db.insert(directMessageChannels).values({
+                            db.insert(directMessageChannels).ignore().values({
                                 id,
                             }),
-                            db.insert(directMessageInfos).values({
+                            db.insert(directMessageInfos).ignore().values({
                                 channel_id: id,
                                 user_id: ctx.session.user.id,
                                 to_user_id: input.userId,
                             }),
-                            db.insert(directMessageInfos).values({
+                            db.insert(directMessageInfos).ignore().values({
                                 channel_id: id,
                                 user_id: input.userId,
                                 to_user_id: ctx.session.user.id,
