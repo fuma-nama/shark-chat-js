@@ -28,7 +28,8 @@ export const dmRouter = router({
                 .where(
                     and(
                         eq(directMessageInfos.channel_id, input.channelId),
-                        eq(directMessageInfos.user_id, ctx.session.user.id)
+                        eq(directMessageInfos.user_id, ctx.session.user.id),
+                        eq(directMessageInfos.open, true)
                     )
                 )
                 .innerJoin(users, eq(users.id, directMessageInfos.to_user_id));

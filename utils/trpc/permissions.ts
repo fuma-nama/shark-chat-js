@@ -59,8 +59,8 @@ export async function checkChannelPermissions(
 
     if (rows.length === 0) {
         throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Missing required permissions",
+            code: "NOT_FOUND",
+            message: "Channel not found",
         });
     }
 
