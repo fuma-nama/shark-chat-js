@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { upload } from "../media/upload";
-import { RouterInput, RouterUtils, trpc } from "./index";
+import { upload } from "../../media/upload";
+import { RouterInput, RouterUtils, trpc } from "../../trpc";
 
 type Input = Omit<RouterInput["group"]["update"], "icon_hash"> & {
     icon?: string;

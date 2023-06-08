@@ -1,4 +1,4 @@
-import { useProfile } from "@/utils/use-profile";
+import { useProfile } from "@/utils/hooks/use-profile";
 import * as MessageItem from "./MessageItem";
 import { useMemo } from "react";
 import { MessagePlaceholder } from "@/utils/stores/chat";
