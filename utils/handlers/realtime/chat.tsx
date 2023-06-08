@@ -1,18 +1,17 @@
 import { channels } from "@/utils/ably/client";
 import { useChannels } from "@/utils/ably/hooks";
-import { trpc } from "@/utils/trpc";
+import { RouterInput, RouterUtils, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import { useEventHandlers } from "../base";
 import Router from "next/router";
 import { getMessageVariables } from "@/utils/variables";
-import { removeNonce } from "./shared";
+import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
+import { MessageType } from "@/server/schema/chat";
 
 export function MessageEventManager() {
     const { status, data } = useSession();
-    const handlers = useEventHandlers();
-    const utils = handlers.utils;
+    const utils = trpc.useContext();
 
     const onEvent = channels.chat.useCallback(
         ({ name, data: message }) => {
@@ -32,7 +31,8 @@ export function MessageEventManager() {
                         { last_read: message.timestamp }
                     );
                 } else {
-                    handlers.setChannelUnread(
+                    setChannelUnread(
+                        utils,
                         message.channel_id,
                         (prev) => prev + 1
                     );
@@ -50,7 +50,7 @@ export function MessageEventManager() {
                         .removeSending(message.channel_id, message.nonce);
                 }
 
-                return handlers.addGroupMessage(variables, message);
+                return addGroupMessage(utils, variables, message);
             }
 
             if (name === "message_updated") {
@@ -98,7 +98,7 @@ export function MessageEventManager() {
                 );
             }
         },
-        [data, utils, handlers]
+        [data, utils]
     );
 
     const groups = trpc.group.all.useQuery(undefined, {
@@ -124,4 +124,19 @@ export function MessageEventManager() {
     useChannels(channelList, onEvent);
 
     return <></>;
+}
+
+function addGroupMessage(
+    utils: RouterUtils,
+    variables: RouterInput["chat"]["messages"],
+    message: MessageType
+) {
+    utils.chat.messages.setInfiniteData(variables, (prev) => {
+        if (prev == null) return prev;
+
+        return {
+            ...prev,
+            pages: [...prev.pages, [message]],
+        };
+    });
 }

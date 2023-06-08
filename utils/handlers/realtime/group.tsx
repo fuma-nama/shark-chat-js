@@ -1,26 +1,27 @@
 import { channels } from "@/utils/ably/client";
 import { useChannels } from "@/utils/ably/hooks";
-import { trpc } from "@/utils/trpc";
+import { RouterUtils, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import { useEventHandlers } from "../base";
+import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
+import { Group } from "@/drizzle/schema";
+import { deleteGroup } from "./shared";
 
 export function GroupEventManager() {
     const { status, data } = useSession();
-    const handlers = useEventHandlers();
-    const utils = handlers.utils;
+    const utils = trpc.useContext();
 
     const onEvent = channels.group.useCallback(
         ({ name, data: message }) => {
             if (name === "group_deleted") {
-                return handlers.deleteGroup(message.id);
+                return deleteGroup(utils, message.id);
             }
 
             if (name === "group_updated") {
-                return handlers.updateGroup(message);
+                return updateGroup(utils, message);
             }
         },
-        [data, utils, handlers]
+        [data, utils]
     );
 
     const groups = trpc.group.all.useQuery(undefined, {
@@ -37,4 +38,15 @@ export function GroupEventManager() {
     useChannels(channelList, onEvent);
 
     return <></>;
+}
+
+function updateGroup(utils: RouterUtils, group: Serialize<Group>) {
+    utils.group.info.setData({ groupId: group.id }, group);
+    utils.group.all.setData(undefined, (groups) =>
+        groups?.map((g) =>
+            g.id === group.id
+                ? { ...group, unread_messages: g.unread_messages }
+                : g
+        )
+    );
 }

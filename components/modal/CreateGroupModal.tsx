@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Dialog } from "../system/dialog";
 import { createGroupSchema } from "@/server/schema/group";
-import { useMutationHandlers } from "@/utils/handlers/trpc";
+import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { updateGroupInfo } from "@/utils/trpc/update-group-info";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -96,7 +96,7 @@ function Content({ onClose }: { onClose: () => void }) {
 }
 
 function useCreateMutation(onClose: () => void) {
-    const handlers = useMutationHandlers();
+    const handlers = useMutationHelpers();
     const utils = handlers.utils;
 
     return useMutation(

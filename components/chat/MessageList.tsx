@@ -1,4 +1,3 @@
-import { useEventHandlers } from "@/utils/handlers/base";
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
@@ -9,6 +8,7 @@ import { Spinner } from "../system/spinner";
 import { useChatView, UnreadSeparator } from "./ChatView";
 import { ChatMessageItem } from "./GroupMessageItem";
 import { LocalMessageItem } from "./LocalMessageItem";
+import { setChannelUnread } from "@/utils/handlers/realtime/shared";
 
 export function MessageList({
     channelId,
@@ -92,14 +92,14 @@ export function MessageList({
 
 function useLastRead(channelId: string) {
     const { status } = useSession();
-    const handlers = useEventHandlers();
+    const utils = trpc.useContext();
 
     const checkoutQuery = trpc.chat.checkout.useQuery(
         { channelId: channelId },
         {
             enabled: status === "authenticated",
             refetchOnWindowFocus: false,
-            onSuccess: () => handlers.setChannelUnread(channelId, () => 0),
+            onSuccess: () => setChannelUnread(utils, channelId, () => 0),
         }
     );
 

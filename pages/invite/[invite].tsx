@@ -6,7 +6,7 @@ import { Group, groupInvites, groups } from "@/drizzle/schema";
 import { Avatar } from "@/components/system/avatar";
 import { groupIcon } from "@/utils/media/format";
 import { Button } from "@/components/system/button";
-import { useMutationHandlers } from "@/utils/handlers/trpc";
+import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
 import Head from "next/head";
@@ -20,7 +20,7 @@ type Props = {
 };
 
 const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
-    const handlers = useMutationHandlers();
+    const handlers = useMutationHelpers();
     const client = handlers.utils.client;
     const join = useMutation(
         async () => {

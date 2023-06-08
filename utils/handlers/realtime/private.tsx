@@ -1,28 +1,29 @@
 import { channels } from "@/utils/ably/client";
 import { assertConfiguration } from "@ably-labs/react-hooks";
 import { useSession } from "next-auth/react";
-import { useEventHandlers } from "../base";
 import Router from "next/router";
+import { createGroup, deleteGroup } from "./shared";
+import { trpc } from "@/utils/trpc";
 
 export function PrivateEventManager() {
     const ably = assertConfiguration();
     const { data, status } = useSession();
-    const handlers = useEventHandlers();
+    const utils = trpc.useContext();
 
     const onEvent = channels.private.useCallback(
         ({ data: message, name, connectionId }) => {
             const isSelf = ably.connection.id === connectionId;
 
             if (name === "group_created" && !isSelf) {
-                return handlers.createGroup(message);
+                return createGroup(utils, message);
             }
 
             if (name === "group_removed" && !isSelf) {
-                return handlers.deleteGroup(message.id);
+                return deleteGroup(utils, message.id);
             }
 
             if (name === "open_dm") {
-                return handlers.utils.dm.channels.setData(undefined, (prev) => {
+                return utils.dm.channels.setData(undefined, (prev) => {
                     if (prev == null || prev.some((c) => c.id === message.id))
                         return prev;
 
@@ -31,7 +32,7 @@ export function PrivateEventManager() {
             }
 
             if (name === "close_dm") {
-                handlers.utils.dm.channels.setData(undefined, (prev) => {
+                utils.dm.channels.setData(undefined, (prev) => {
                     return prev?.filter((c) => c.id !== message.channel_id);
                 });
 
@@ -42,7 +43,7 @@ export function PrivateEventManager() {
                 return;
             }
         },
-        [ably.connection.id, data, handlers]
+        [ably.connection.id, data, utils]
     );
 
     channels.private.useChannel(
