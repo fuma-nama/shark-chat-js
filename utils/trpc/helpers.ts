@@ -3,20 +3,21 @@ import { Group } from "@/drizzle/schema";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably/client";
 import { Serialize } from "../types";
-import { useEventHandlers } from "./base";
+import { createGroup } from "../handlers/realtime/shared";
+import { trpc } from ".";
 
-export function useMutationHandlers() {
-    const base = useEventHandlers();
+export function useMutationHelpers() {
+    const utils = trpc.useContext();
     const { data } = useSession();
 
     return useMemo(
         () => ({
-            utils: base.utils,
+            utils: utils,
             createGroup: (group: Serialize<Group>) => {
-                base.createGroup(group);
+                createGroup(utils, group);
                 channels.private.group_created.publish([data!!.user.id], group);
             },
         }),
-        [base, data]
+        [utils, data]
     );
 }

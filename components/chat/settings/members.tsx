@@ -7,6 +7,7 @@ import { Serialize } from "@/utils/types";
 import { Member } from "@/drizzle/schema";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { UserProfileModal } from "@/components/modal/UserProfileModal";
 
 export default function Members({
     group,
@@ -72,12 +73,9 @@ function MemberItem({
                 src={member.user.image}
                 fallback={member.user.name}
             />
-            <Link
-                href={`/dm/${member.user_id}`}
-                className={text({ size: "md", type: "primary" })}
-            >
-                {member.user.name}
-            </Link>
+            <UserProfileModal userId={member.user_id}>
+                <p>{member.user.name}</p>
+            </UserProfileModal>
             {canKick && (
                 <Button
                     color="danger"

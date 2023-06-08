@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { trpc } from ".";
-import { upload } from "../media/upload";
+import { trpc } from "@/utils/trpc";
+import { upload } from "@/utils/media/upload";
 
 export function useUpdateProfileMutation() {
     const client = trpc.useContext().client;

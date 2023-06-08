@@ -4,7 +4,7 @@ import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { label, text } from "@/components/system/text";
 import { groupIcon } from "@/utils/media/format";
-import { useUpdateGroupInfoMutation } from "@/utils/trpc/update-group-info";
+import { useUpdateGroupInfoMutation } from "@/utils/hooks/mutations/update-group-info";
 import { Group } from "@/drizzle/schema";
 import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
 import { useState } from "react";

@@ -13,7 +13,7 @@ import { eq } from "drizzle-orm";
 import { requireOne } from "./db/utils";
 
 type Message = {
-    group_id: number;
+    channel_id: string;
     content: string;
     user_name: string;
 };
@@ -21,25 +21,25 @@ type Message = {
 //preload bot account
 createBotAccount();
 
-async function get(groupId: number) {
-    const json = await redis.get<string>(getKey(groupId));
+async function get(channelId: string) {
+    const json = await redis.get<string>(getKey(channelId));
 
     return json != null ? Session.deserialize(json) : undefined;
 }
 
-async function set(groupId: number, entity: Session) {
-    await redis.set(getKey(groupId), Session.serialize(entity));
+async function set(channelId: string, entity: Session) {
+    await redis.set(getKey(channelId), Session.serialize(entity));
 }
 
 export async function onReceiveMessage(message: Message) {
-    const { group_id, content, user_name } = message;
+    const { channel_id, content, user_name } = message;
     const lines: string[] = [];
     const bot = await createBotAccount();
 
     const connection = new InworldClient()
         .setOnSession({
-            get: () => get(message.group_id),
-            set: (session) => set(message.group_id, session),
+            get: () => get(message.channel_id),
+            set: (session) => set(message.channel_id, session),
         })
         .setApiKey({
             key: process.env.INWORLD_KEY!,
@@ -57,8 +57,8 @@ export async function onReceiveMessage(message: Message) {
         .setOnError(handleError(message))
         .setOnMessage((packet) => {
             if (packet.isInteractionEnd()) {
-                sendMessage(group_id, lines.join("\n")).catch((e) =>
-                    sendErrorMessage(group_id, e?.toString())
+                sendMessage(channel_id, lines.join("\n")).catch((e) =>
+                    sendErrorMessage(channel_id, e?.toString())
                 );
                 connection.close();
                 return;
@@ -71,7 +71,7 @@ export async function onReceiveMessage(message: Message) {
         })
         .build();
 
-    channels.chat.typing.publish([group_id], { user: bot });
+    channels.chat.typing.publish([channel_id], { user: bot });
     await connection.sendText(content);
 }
 
@@ -83,36 +83,39 @@ function handleError(message: Message) {
                 break;
             case status.FAILED_PRECONDITION:
                 redis
-                    .del(getKey(message.group_id))
+                    .del(getKey(message.channel_id))
                     .then(() => onReceiveMessage(message))
                     .catch((e) =>
-                        sendErrorMessage(message.group_id, e?.toString())
+                        sendErrorMessage(message.channel_id, e?.toString())
                     );
                 break;
             case status.UNAVAILABLE:
-                sendErrorMessage(message.group_id, "The Shark is sleeping now");
+                sendErrorMessage(
+                    message.channel_id,
+                    "The Shark is sleeping now"
+                );
             default:
-                sendErrorMessage(message.group_id, err.message);
+                sendErrorMessage(message.channel_id, err.message);
                 break;
         }
     };
 }
 
-function sendErrorMessage(group_id: number, message?: string) {
+function sendErrorMessage(channel_id: string, message?: string) {
     return sendMessage(
-        group_id,
+        channel_id,
         message != null
             ? `Oops! something went wrong: ${message}`
             : `Oops! something went wrong`
     );
 }
 
-async function sendMessage(group_id: number, content: string) {
+async function sendMessage(channel_id: string, content: string) {
     const bot = await createBotAccount();
     const insertResult = await db.insert(messages).values({
         author_id: bot.id,
         content,
-        group_id,
+        channel_id,
     });
 
     const message = await db
@@ -120,7 +123,7 @@ async function sendMessage(group_id: number, content: string) {
         .from(messages)
         .where(eq(messages.id, Number(insertResult.insertId)));
 
-    await channels.chat.message_sent.publish([group_id], {
+    await channels.chat.message_sent.publish([channel_id], {
         ...message[0],
         attachment: null,
         reply_id: null,
@@ -151,6 +154,6 @@ async function createBotAccount() {
     return user;
 }
 
-function getKey(group_id: number) {
+function getKey(group_id: string) {
     return `ai_session_g_${group_id}`;
 }

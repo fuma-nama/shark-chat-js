@@ -3,14 +3,14 @@ import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import { AppLayout } from "@/components/layout/app";
 import { label, text } from "@/components/system/text";
-import { useProfile } from "@/utils/use-profile";
+import { useProfile } from "@/utils/hooks/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
 import { User } from "@/drizzle/schema";
 import { Serialize } from "@/utils/types";
-import { useUpdateProfileMutation } from "@/utils/trpc/update-profile";
+import { useUpdateProfileMutation } from "@/utils/hooks/mutations/update-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { input } from "@/components/system/input";
 

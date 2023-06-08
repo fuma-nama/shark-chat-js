@@ -11,21 +11,9 @@ export function getGroupQuery(router: NextRouter) {
     };
 }
 
-export function getMessageVariables(groupId: number) {
+export function getMessageVariables(channelId: string) {
     return {
-        groupId,
-        count: 30,
-        cursorType: "before",
-    } as const;
-}
-
-export type DirectMessageQuery = {
-    user: string;
-};
-
-export function getDirectMessageVariables(userId: string) {
-    return {
-        userId,
+        channelId: channelId,
         count: 30,
         cursorType: "before",
     } as const;

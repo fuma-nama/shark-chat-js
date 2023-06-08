@@ -25,7 +25,7 @@ export default async function handler(
                 "subscribe",
                 "publish",
             ],
-            ["dm:*"]: ["subscribe"],
+            ["group:*"]: ["subscribe"],
             ["chat:*"]: ["subscribe"],
         },
     });

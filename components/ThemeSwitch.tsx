@@ -11,7 +11,7 @@ import {
 import { Button } from "./system/button";
 import clsx from "clsx";
 import { useMemo } from "react";
-import { useMounted } from "@/utils/use-mounted";
+import { useMounted } from "@/utils/hooks/use-mounted";
 
 export type ThemeSwitchProps = Omit<
     Select.SelectProps,
