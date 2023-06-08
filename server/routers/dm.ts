@@ -1,7 +1,7 @@
 import { protectedProcedure, router } from "../trpc";
 import db from "../db/client";
 import {
-    directMessageChannels,
+    messageChannels,
     directMessageInfos,
     messages,
     users,
@@ -117,7 +117,7 @@ export const dmRouter = router({
                         const id = createId();
 
                         await Promise.all([
-                            db.insert(directMessageChannels).ignore().values({
+                            db.insert(messageChannels).ignore().values({
                                 id,
                             }),
                             db.insert(directMessageInfos).ignore().values({

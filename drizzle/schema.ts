@@ -52,7 +52,7 @@ export const directMessageInfos = mysqlTable(
     })
 );
 
-export const directMessageChannels = mysqlTable("DirectMessageChannel", {
+export const messageChannels = mysqlTable("MessageChannel", {
     id: varchar("id", { length: 32 }).primaryKey(),
 });
 
@@ -166,7 +166,7 @@ export const attachments = mysqlTable("Attachment", {
 export type Group = InferModel<typeof groups>;
 export type User = InferModel<typeof users>;
 export type Message = InferModel<typeof messages>;
-export type DirectMessageChannel = InferModel<typeof directMessageChannels>;
+export type MessageChannel = InferModel<typeof messageChannels>;
 export type DirectMessageInfo = InferModel<typeof directMessageInfos>;
 export type GroupInvite = InferModel<typeof groupInvites>;
 export type Member = InferModel<typeof members>;
