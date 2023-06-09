@@ -1,173 +1,183 @@
 lockfileVersion: '6.0'
 
-dependencies:
-  '@ably-labs/react-hooks':
-    specifier: ^2.1.0
-    version: 2.1.0(react-dom@18.2.0)(react@18.2.0)
-  '@hookform/resolvers':
-    specifier: ^2.9.11
-    version: 2.9.11(react-hook-form@7.43.5)
-  '@inworld/nodejs-sdk':
-    specifier: 1.4.0
-    version: 1.4.0
-  '@next/font':
-    specifier: 13.1.6
-    version: 13.1.6
-  '@paralleldrive/cuid2':
-    specifier: ^2.2.0
-    version: 2.2.0
-  '@planetscale/database':
-    specifier: ^1.7.0
-    version: 1.7.0
-  '@radix-ui/react-alert-dialog':
-    specifier: ^1.0.3
-    version: 1.0.3(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-avatar':
-    specifier: ^1.0.1
-    version: 1.0.1(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-context-menu':
-    specifier: ^2.1.1
-    version: 2.1.1(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-dialog':
-    specifier: ^1.0.2
-    version: 1.0.2(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-icons':
-    specifier: ^1.1.1
-    version: 1.1.1(react@18.2.0)
-  '@radix-ui/react-popover':
-    specifier: ^1.0.5
-    version: 1.0.5(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-select':
-    specifier: ^1.2.0
-    version: 1.2.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-switch':
-    specifier: ^1.0.2
-    version: 1.0.2(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-tabs':
-    specifier: ^1.0.3
-    version: 1.0.3(react-dom@18.2.0)(react@18.2.0)
-  '@radix-ui/react-toast':
-    specifier: ^1.1.3
-    version: 1.1.3(react-dom@18.2.0)(react@18.2.0)
-  '@tanstack/react-query':
-    specifier: ^4.24.4
-    version: 4.24.4(react-dom@18.2.0)(react@18.2.0)
-  '@trpc-limiter/core':
-    specifier: ^0.0.8
-    version: 0.0.8(@trpc/client@10.10.0)(@trpc/server@10.10.0)
-  '@trpc/client':
-    specifier: ^10.10.0
-    version: 10.10.0(@trpc/server@10.10.0)
-  '@trpc/next':
-    specifier: ^10.10.0
-    version: 10.10.0(@tanstack/react-query@4.24.4)(@trpc/client@10.10.0)(@trpc/react-query@10.10.0)(@trpc/server@10.10.0)(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
-  '@trpc/react-query':
-    specifier: ^10.10.0
-    version: 10.10.0(@tanstack/react-query@4.24.4)(@trpc/client@10.10.0)(@trpc/server@10.10.0)(react-dom@18.2.0)(react@18.2.0)
-  '@trpc/server':
-    specifier: ^10.10.0
-    version: 10.10.0
-  '@upstash/ratelimit':
-    specifier: ^0.4.1
-    version: 0.4.1(@upstash/redis@1.20.2)
-  '@upstash/redis':
-    specifier: ^1.20.2
-    version: 1.20.2
-  ably:
-    specifier: ^1.2.35
-    version: 1.2.35
-  cloudinary:
-    specifier: ^1.33.0
-    version: 1.33.0
-  clsx:
-    specifier: ^1.2.1
-    version: 1.2.1
-  drizzle-orm:
-    specifier: ^0.26.5
-    version: 0.26.5(@planetscale/database@1.7.0)
-  next:
-    specifier: 13.1.6
-    version: 13.1.6(react-dom@18.2.0)(react@18.2.0)
-  next-auth:
-    specifier: ^4.19.2
-    version: 4.19.2(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
-  next-themes:
-    specifier: ^0.2.1
-    version: 0.2.1(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
-  react:
-    specifier: 18.2.0
-    version: 18.2.0
-  react-cropper:
-    specifier: ^2.1.8
-    version: 2.1.8(react@18.2.0)
-  react-dom:
-    specifier: 18.2.0
-    version: 18.2.0(react@18.2.0)
-  react-hook-form:
-    specifier: ^7.43.5
-    version: 7.43.5(react@18.2.0)
-  react-infinite-scroll-hook:
-    specifier: ^4.0.4
-    version: 4.0.4(react@18.2.0)
-  react-linkify-it:
-    specifier: ^1.0.7
-    version: 1.0.7(react@18.2.0)
-  tailwind-variants:
-    specifier: ^0.0.30
-    version: 0.0.30(tailwindcss@3.2.4)
-  uuid:
-    specifier: ^9.0.0
-    version: 9.0.0
-  zod:
-    specifier: ^3.20.2
-    version: 3.20.2
-  zustand:
-    specifier: ^4.3.2
-    version: 4.3.2(react@18.2.0)
+importers:
 
-devDependencies:
-  '@types/node':
-    specifier: 18.11.18
-    version: 18.11.18
-  '@types/react':
-    specifier: 18.0.27
-    version: 18.0.27
-  '@types/react-dom':
-    specifier: 18.0.10
-    version: 18.0.10
-  '@types/uuid':
-    specifier: ^9.0.1
-    version: 9.0.1
-  autoprefixer:
-    specifier: ^10.4.13
-    version: 10.4.13(postcss@8.4.21)
-  dotenv:
-    specifier: ^16.0.3
-    version: 16.0.3
-  dotenv-cli:
-    specifier: ^7.2.1
-    version: 7.2.1
-  drizzle-kit:
-    specifier: ^0.18.1
-    version: 0.18.1
-  eslint:
-    specifier: 8.33.0
-    version: 8.33.0
-  eslint-config-next:
-    specifier: 13.1.6
-    version: 13.1.6(eslint@8.33.0)(typescript@5.0.3)
-  postcss:
-    specifier: ^8.4.21
-    version: 8.4.21
-  tailwindcss:
-    specifier: ^3.2.4
-    version: 3.2.4(postcss@8.4.21)
-  tailwindcss-radix:
-    specifier: ^2.7.0
-    version: 2.7.0
-  typescript:
-    specifier: ^5.0.3
-    version: 5.0.3
+  .:
+    devDependencies:
+      autoprefixer:
+        specifier: ^10.4.13
+        version: 10.4.13(postcss@8.4.21)
+      dotenv-cli:
+        specifier: ^7.2.1
+        version: 7.2.1
+      drizzle-kit:
+        specifier: ^0.18.1
+        version: 0.18.1
+      eslint:
+        specifier: 8.33.0
+        version: 8.33.0
+      eslint-config-next:
+        specifier: 13.1.6
+        version: 13.1.6(eslint@8.33.0)(typescript@5.0.3)
+      postcss:
+        specifier: ^8.4.21
+        version: 8.4.21
+      tailwindcss:
+        specifier: ^3.2.4
+        version: 3.2.4(postcss@8.4.21)
+      tailwindcss-radix:
+        specifier: ^2.7.0
+        version: 2.7.0
+      turbo:
+        specifier: ^1.10.2
+        version: 1.10.2
+
+  apps/web:
+    dependencies:
+      '@ably-labs/react-hooks':
+        specifier: ^2.1.0
+        version: 2.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@hookform/resolvers':
+        specifier: ^2.9.11
+        version: 2.9.11(react-hook-form@7.43.5)
+      '@inworld/nodejs-sdk':
+        specifier: 1.4.0
+        version: 1.4.0
+      '@next/font':
+        specifier: 13.1.6
+        version: 13.1.6
+      '@paralleldrive/cuid2':
+        specifier: ^2.2.0
+        version: 2.2.0
+      '@planetscale/database':
+        specifier: ^1.7.0
+        version: 1.7.0
+      '@radix-ui/react-alert-dialog':
+        specifier: ^1.0.3
+        version: 1.0.3(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-avatar':
+        specifier: ^1.0.1
+        version: 1.0.1(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-context-menu':
+        specifier: ^2.1.1
+        version: 2.1.1(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-dialog':
+        specifier: ^1.0.2
+        version: 1.0.2(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-icons':
+        specifier: ^1.1.1
+        version: 1.1.1(react@18.2.0)
+      '@radix-ui/react-popover':
+        specifier: ^1.0.5
+        version: 1.0.5(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-select':
+        specifier: ^1.2.0
+        version: 1.2.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-switch':
+        specifier: ^1.0.2
+        version: 1.0.2(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-tabs':
+        specifier: ^1.0.3
+        version: 1.0.3(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-toast':
+        specifier: ^1.1.3
+        version: 1.1.3(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-query':
+        specifier: ^4.24.4
+        version: 4.24.4(react-dom@18.2.0)(react@18.2.0)
+      '@trpc-limiter/core':
+        specifier: ^0.0.8
+        version: 0.0.8(@trpc/client@10.10.0)(@trpc/server@10.10.0)
+      '@trpc/client':
+        specifier: ^10.10.0
+        version: 10.10.0(@trpc/server@10.10.0)
+      '@trpc/next':
+        specifier: ^10.10.0
+        version: 10.10.0(@tanstack/react-query@4.24.4)(@trpc/client@10.10.0)(@trpc/react-query@10.10.0)(@trpc/server@10.10.0)(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
+      '@trpc/react-query':
+        specifier: ^10.10.0
+        version: 10.10.0(@tanstack/react-query@4.24.4)(@trpc/client@10.10.0)(@trpc/server@10.10.0)(react-dom@18.2.0)(react@18.2.0)
+      '@trpc/server':
+        specifier: ^10.10.0
+        version: 10.10.0
+      '@upstash/ratelimit':
+        specifier: ^0.4.1
+        version: 0.4.1(@upstash/redis@1.20.2)
+      '@upstash/redis':
+        specifier: ^1.20.2
+        version: 1.20.2
+      ably:
+        specifier: ^1.2.35
+        version: 1.2.35
+      cloudinary:
+        specifier: ^1.33.0
+        version: 1.33.0
+      clsx:
+        specifier: ^1.2.1
+        version: 1.2.1
+      drizzle-orm:
+        specifier: ^0.26.5
+        version: 0.26.5(@planetscale/database@1.7.0)
+      next:
+        specifier: 13.1.6
+        version: 13.1.6(react-dom@18.2.0)(react@18.2.0)
+      next-auth:
+        specifier: ^4.19.2
+        version: 4.19.2(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
+      next-themes:
+        specifier: ^0.2.1
+        version: 0.2.1(next@13.1.6)(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-cropper:
+        specifier: ^2.1.8
+        version: 2.1.8(react@18.2.0)
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-hook-form:
+        specifier: ^7.43.5
+        version: 7.43.5(react@18.2.0)
+      react-infinite-scroll-hook:
+        specifier: ^4.0.4
+        version: 4.0.4(react@18.2.0)
+      react-linkify-it:
+        specifier: ^1.0.7
+        version: 1.0.7(react@18.2.0)
+      tailwind-variants:
+        specifier: ^0.0.30
+        version: 0.0.30(tailwindcss@3.2.4)
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
+      zod:
+        specifier: ^3.20.2
+        version: 3.20.2
+      zustand:
+        specifier: ^4.3.2
+        version: 4.3.2(react@18.2.0)
+    devDependencies:
+      '@types/node':
+        specifier: 18.11.18
+        version: 18.11.18
+      '@types/react':
+        specifier: 18.0.27
+        version: 18.0.27
+      '@types/react-dom':
+        specifier: 18.0.10
+        version: 18.0.10
+      '@types/uuid':
+        specifier: ^9.0.1
+        version: 9.0.1
+      config:
+        specifier: workspace:*
+        version: link:../../packages/config
+      typescript:
+        specifier: ^5.0.3
+        version: 5.0.3
+
+  packages/config: {}
 
 packages:
 
@@ -4851,6 +4861,67 @@ packages:
     dependencies:
       tslib: 1.14.1
       typescript: 5.0.3
+    dev: true
+
+  /turbo-darwin-64@1.10.2:
+    resolution: {integrity: sha512-sVLpVVANByfMgqf7OYPcZM4KiDnjGu7ITvAzBSa9Iwe14yoWLn8utrNsWCRaQEB6kEqBGLPmvL7AKwkl8M2Gqg==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /turbo-darwin-arm64@1.10.2:
+    resolution: {integrity: sha512-TKG91DSoYQjsCft4XBx4lYycVT5n3UQB/nOKgv/WJCSfwshLWulya3yhP8JT5erv9rPF8gwgnx87lrCmT4EAVA==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /turbo-linux-64@1.10.2:
+    resolution: {integrity: sha512-ZIzAkfrzjJFkSM/uEfxU6JjseCsT5PHRu0s0lmYce37ApQbv/HC7tI0cFhuosI30+O8109/mkyZykKE7AQfgqA==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /turbo-linux-arm64@1.10.2:
+    resolution: {integrity: sha512-G4uZA+RBQ5S1X/oUxO5KoLL2NDMkrrBZF52+00jQv6UEb9lWDgwzqSwoAGjdXxeDCrqMW5rBVwb/IBIF2/yhwA==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /turbo-windows-64@1.10.2:
+    resolution: {integrity: sha512-ObfQO37kGu1jBzFs/L+hybrCXBwdnimotJwzg7pCoSyGijKITlugrpJoPDKlg0eMr3/1Y6KUeHy26vZaDXrbuQ==}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /turbo-windows-arm64@1.10.2:
+    resolution: {integrity: sha512-7S6dx4738R/FIT2cxbsunqgHN5LelXzuzkcaZgdkU33oswRf/6KOfOABzQLdTX7Uos59cBSdwayf6KQJxuOXUg==}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /turbo@1.10.2:
+    resolution: {integrity: sha512-m9sR5XHhuzxUQACf0vI2qCG5OqDYAZiPTaAsTwECnwUF4/cXwEmcYddbLJnO+K9orNvcnjjent5oBNBVQ/o0ow==}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      turbo-darwin-64: 1.10.2
+      turbo-darwin-arm64: 1.10.2
+      turbo-linux-64: 1.10.2
+      turbo-linux-arm64: 1.10.2
+      turbo-windows-64: 1.10.2
+      turbo-windows-arm64: 1.10.2
     dev: true
 
   /type-check@0.3.2:

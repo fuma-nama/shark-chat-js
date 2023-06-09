@@ -1,0 +1,10 @@
+{
+    "schema": "https://json.schemastore.org/tsconfig",
+    "extends": "./tsconfig-base.json",
+    "compilerOptions": {
+        "target": "es5",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "jsx": "preserve"
+    },
+    "exclude": ["node_modules"]
+}

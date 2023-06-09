@@ -1,0 +1,17 @@
+{
+    "schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "incremental": true
+    },
+    "exclude": ["node_modules"]
+}

@@ -12,7 +12,6 @@ import {
     TrashIcon,
 } from "@radix-ui/react-icons";
 import clsx from "clsx";
-import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 
 import { deletedUser, MessageType } from "@/server/schema/chat";
