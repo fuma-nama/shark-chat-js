@@ -1,15 +1,15 @@
 import { BaseLayout } from "@/components/layout/base";
 import { NextPageWithLayout } from "../_app";
 import { GetServerSideProps } from "next";
-import { Group, groupInvites, groups } from "@/drizzle/schema";
-import { Avatar } from "@/components/system/avatar";
-import { groupIcon } from "@/utils/media/format";
-import { Button } from "@/components/system/button";
+import { Group, groupInvites, groups } from "db/schema";
+import { Avatar } from "ui/components/avatar";
+import { groupIcon } from "shared/media/format";
+import { Button } from "ui/components/button";
 import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
 import Head from "next/head";
-import db from "@/server/db/client";
+import db from "db/client";
 import { eq } from "drizzle-orm";
 
 type Props = {
@@ -56,7 +56,7 @@ const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
                         @{group.unique_name}
                     </span>
                 </h2>
-                <h1 className="text-primary-foreground text-xl font-bold">
+                <h1 className="text-foreground text-xl font-bold">
                     {group.name}
                 </h1>
             </div>

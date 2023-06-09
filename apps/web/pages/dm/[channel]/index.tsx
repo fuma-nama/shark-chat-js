@@ -1,8 +1,8 @@
-import { Avatar } from "@/components/system/avatar";
+import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { skeleton } from "@/components/system/skeleton";
+import { skeleton } from "ui/components/skeleton";
 
 import type { NextPageWithLayout } from "../../_app";
 import { useDirectMessageLayout } from "@/components/layout/dm";

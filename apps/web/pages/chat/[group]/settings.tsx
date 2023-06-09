@@ -2,9 +2,9 @@ import { useGroupLayout } from "@/components/layout/group";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useRouter } from "next/router";
 import Info from "@/components/chat/settings/info";
-import { Spinner } from "@/components/system/spinner";
+import { Spinner } from "ui/components/spinner";
 import { getGroupQuery } from "@/utils/variables";
-import { Tabs, TabsContent } from "@/components/system/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import dynamic from "next/dynamic";
 import { LeaveGroup } from "@/components/chat/settings/danger";
 import Members from "@/components/chat/settings/members";
@@ -34,21 +34,19 @@ const Settings: NextPageWithLayout = () => {
                 <>
                     <Info group={query.data} isAdmin={isAdmin} />
                     {isAdmin && (
-                        <Tabs
-                            defaultValue="invite"
-                            items={[
-                                { text: "Invite", value: "invite" },
-                                { text: "Member", value: "member" },
-                                { text: "Danger", value: "danger" },
-                            ]}
-                        >
-                            <TabsContent value="invite" className="mt-5">
+                        <Tabs defaultValue="invite">
+                            <TabsList className="mb-2">
+                                <TabsTrigger value="invite">Invite</TabsTrigger>
+                                <TabsTrigger value="member">Member</TabsTrigger>
+                                <TabsTrigger value="danger">Danger</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="invite">
                                 <Invite group={query.data} />
                             </TabsContent>
-                            <TabsContent value="member" className="mt-5">
+                            <TabsContent value="member">
                                 <Members group={groupId} isAdmin />
                             </TabsContent>
-                            <TabsContent value="danger" className="mt-5">
+                            <TabsContent value="danger">
                                 <Danger group={groupId} />
                             </TabsContent>
                         </Tabs>
@@ -56,7 +54,7 @@ const Settings: NextPageWithLayout = () => {
                     {!isAdmin && (
                         <>
                             <div>
-                                <h2 className="font-medium text-base mb-3 text-primary-foreground">
+                                <h2 className="font-medium text-base mb-3 text-foreground">
                                     Members
                                 </h2>
                                 <Members group={groupId} isAdmin={false} />

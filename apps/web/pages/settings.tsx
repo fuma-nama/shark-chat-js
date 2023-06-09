@@ -1,5 +1,5 @@
-import { Avatar } from "@/components/system/avatar";
-import { Button } from "@/components/system/button";
+import { Avatar } from "ui/components/avatar";
+import { Button } from "ui/components/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import { AppLayout } from "@/components/layout/app";
 import { useProfile } from "@/utils/hooks/use-profile";
@@ -7,11 +7,11 @@ import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { NextPageWithLayout } from "./_app";
-import { User } from "@/drizzle/schema";
-import { Serialize } from "@/utils/types";
+import { User } from "db/schema";
+import { Serialize } from "shared/types";
 import { useUpdateProfileMutation } from "@/utils/hooks/mutations/update-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { input } from "@/components/system/input";
+import { input } from "ui/components/input";
 
 const Settings: NextPageWithLayout = () => {
     const { status, profile } = useProfile();
@@ -47,7 +47,7 @@ const Settings: NextPageWithLayout = () => {
                 <div>
                     <label
                         htmlFor="theme"
-                        className="font-medium text-base text-primary-foreground"
+                        className="font-medium text-base text-foreground"
                     >
                         Appearance
                     </label>
@@ -96,7 +96,7 @@ function UpdateProfile({
             <fieldset>
                 <label
                     htmlFor="username"
-                    className="text-sm font-medium text-primary-foreground"
+                    className="text-sm font-medium text-foreground"
                 >
                     Username
                 </label>

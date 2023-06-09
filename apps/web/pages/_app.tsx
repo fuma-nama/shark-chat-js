@@ -3,7 +3,6 @@ import { AblyClientProvider } from "@/utils/ably/client";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 import { ReactElement } from "react";
-import { ToastProvider } from "@/components/system/toast";
 import { MessageEventManager } from "@/utils/handlers/realtime/chat";
 import { GroupEventManager } from "@/utils/handlers/realtime/group";
 import { PrivateEventManager } from "@/utils/handlers/realtime/private";
@@ -31,7 +30,6 @@ function App({
             <PrivateEventManager />
             <GroupEventManager />
             <MessageEventManager />
-            <ToastProvider />
 
             <ThemeProvider attribute="class" disableTransitionOnChange>
                 <Content Component={Component} pageProps={pageProps} />

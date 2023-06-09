@@ -3,7 +3,7 @@ import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import React from "react";
-import { button } from "@/components/system/button";
+import { button } from "ui/components/button";
 import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";

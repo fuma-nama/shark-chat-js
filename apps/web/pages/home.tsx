@@ -1,17 +1,17 @@
-import { Avatar } from "@/components/system/avatar";
-import { Button } from "@/components/system/button";
+import { Avatar } from "ui/components/avatar";
+import { Button } from "ui/components/button";
 import { AppLayout } from "@/components/layout/app";
 import { trpc } from "@/utils/trpc";
-import { groupIcon } from "@/utils/media/format";
+import { groupIcon } from "shared/media/format";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { DMChannel } from "@/server/schema/chat";
-import { GroupWithNotifications } from "@/server/schema/group";
-import { badge } from "@/components/system/badge";
-import { Spinner } from "@/components/system/spinner";
+import { DMChannel } from "@/utils/types";
+import { GroupWithNotifications } from "shared/schema/group";
+import { badge } from "ui/components/badge";
+import { Spinner } from "ui/components/spinner";
 import { BoxModelIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
 import { usePageStore } from "@/utils/stores/page";
@@ -104,7 +104,7 @@ const Home: NextPageWithLayout = () => {
                 </div>
             ) : dmQuery.isError || groups.isError ? (
                 <div className="m-auto flex flex-col gap-3">
-                    <h2 className="font-semibold text-lg text-primary-foreground">
+                    <h2 className="font-semibold text-lg text-foreground">
                         Failed to fetch info
                     </h2>
                     <Button color="danger" size="medium" onClick={onRetry}>
@@ -174,7 +174,7 @@ function ChatItem({ chat }: { chat: DMChannel }) {
             >
                 <Avatar src={user.image} fallback={user.name} size="2sm" />
                 <div className="flex-1 w-0">
-                    <p className="text-base font-medium text-primary-foreground">
+                    <p className="text-base font-medium text-foreground">
                         {user.name}
                     </p>
                 </div>
@@ -196,7 +196,7 @@ function Placeholder() {
     return (
         <div className="flex flex-col items-center justify-center my-auto">
             <BoxModelIcon className="w-20 h-20 text-brand-500 dark:text-brand-400 max-md:hidden" />
-            <p className="font-medium text-base text-primary-foreground">
+            <p className="font-medium text-base text-foreground">
                 Nothing here
             </p>
             <p className="text-muted-foreground text-sm">
