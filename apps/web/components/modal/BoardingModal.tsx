@@ -1,8 +1,8 @@
 import { ChatBubbleIcon } from "@radix-ui/react-icons";
-import { Dialog } from "../system/dialog";
+import { SimpleDialog } from "ui/components/dialog";
 import { useMounted } from "@/utils/hooks/use-mounted";
 import { useState } from "react";
-import { Button } from "../system/button";
+import { Button } from "ui/components/button";
 import { useSession } from "next-auth/react";
 
 export default function BoardingModal({
@@ -17,7 +17,7 @@ export default function BoardingModal({
     if (!mounted || status !== "authenticated") return <></>;
 
     return (
-        <Dialog
+        <SimpleDialog
             title="Welcome!"
             description="Start talking on Shark Chat!"
             open={open}
@@ -40,6 +40,6 @@ export default function BoardingModal({
                     Explore
                 </Button>
             </div>
-        </Dialog>
+        </SimpleDialog>
     );
 }

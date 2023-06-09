@@ -1,4 +1,4 @@
-import { uploadAttachment } from "@/utils/media/upload-attachment";
+import { uploadAttachment } from "@/utils/hooks/mutations/upload-attachment";
 import { useMessageStore } from "@/utils/stores/chat";
 import { RouterInput, trpc } from "@/utils/trpc";
 import { Cross1Icon } from "@radix-ui/react-icons";

@@ -1,6 +1,6 @@
-import { UserInfo } from "@/server/schema/chat";
+import { UserInfo } from "shared/schema/chat";
 import { useState, useEffect } from "react";
-import { Avatar } from "../system/avatar";
+import { Avatar } from "ui/components/avatar";
 
 type TypingData = {
     user: UserInfo;
@@ -53,7 +53,7 @@ export function TypingIndicator({ typing }: { typing: TypingData[] }) {
                     size="small"
                 />
             ))}
-            <p className="text-sm text-primary-foreground">is typing...</p>
+            <p className="text-sm text-foreground">is typing...</p>
         </div>
     );
 }

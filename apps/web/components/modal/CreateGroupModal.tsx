@@ -1,14 +1,14 @@
 import React, { ReactNode } from "react";
-import { Dialog } from "../system/dialog";
-import { createGroupSchema } from "@/server/schema/group";
+import { SimpleDialog } from "ui/components/dialog";
+import { createGroupSchema } from "shared/schema/group";
 import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { updateGroupInfo } from "@/utils/hooks/mutations/update-group-info";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { ImagePicker } from "../input/ImagePicker";
-import { Button } from "../system/button";
-import { input } from "../system/input";
+import { Button } from "ui/components/button";
+import { input } from "ui/components/input";
 import { useMutation } from "@tanstack/react-query";
 
 export default function CreateGroupModal({
@@ -19,14 +19,14 @@ export default function CreateGroupModal({
     setOpen: (open: boolean) => void;
 }) {
     return (
-        <Dialog
+        <SimpleDialog
             title="Create Group"
             description="Give your chat group a beautiful name and icon"
             open={open}
             onOpenChange={setOpen}
         >
             <Content onClose={() => setOpen(false)} />
-        </Dialog>
+        </SimpleDialog>
     );
 }
 
@@ -70,7 +70,7 @@ function Content({ onClose }: { onClose: () => void }) {
             <fieldset>
                 <label
                     htmlFor="name"
-                    className="text-sm font-medium text-primary-foreground"
+                    className="text-sm font-medium text-foreground"
                 >
                     Name
                     <span className="text-red-400 mx-1 text-base">*</span>

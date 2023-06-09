@@ -1,16 +1,16 @@
 import { ImagePicker } from "@/components/input/ImagePicker";
-import { input } from "@/components/system/input";
-import { Avatar } from "@/components/system/avatar";
-import { Button } from "@/components/system/button";
-import { groupIcon } from "@/utils/media/format";
+import { input } from "ui/components/input";
+import { Avatar } from "ui/components/avatar";
+import { Button } from "ui/components/button";
+import { groupIcon } from "shared/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/hooks/mutations/update-group-info";
-import { Group } from "@/drizzle/schema";
-import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
+import { Group } from "db/schema";
+import { Serialize } from "shared/types";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { updateGroupSchema } from "@/server/schema/group";
+import { updateGroupSchema } from "shared/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 
 export default function Info({
@@ -115,7 +115,7 @@ function EditGroupPanel({
             <fieldset>
                 <label
                     htmlFor="name"
-                    className="font-medium text-primary-foreground text-sm"
+                    className="font-medium text-foreground text-sm"
                 >
                     Name
                 </label>
@@ -124,7 +124,7 @@ function EditGroupPanel({
             <fieldset>
                 <label
                     htmlFor="unique_name"
-                    className="font-medium text-primary-foreground text-sm"
+                    className="font-medium text-foreground text-sm"
                 >
                     Unique Name
                 </label>

@@ -1,8 +1,7 @@
 import { trpc } from "@/utils/trpc";
-import { Dialog } from "../system/dialog";
-import { textArea } from "../system/textarea";
-import { Button, button } from "../system/button";
-import { DialogClose } from "@radix-ui/react-dialog";
+import { SimpleDialog, DialogClose } from "ui/components/dialog";
+import { textArea } from "ui/components/textarea";
+import { Button, button } from "ui/components/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,7 +18,7 @@ export default function GenerateTextModal({
     setOpen: (v: boolean) => void;
 }) {
     return (
-        <Dialog
+        <SimpleDialog
             title="Generate Text"
             description="Write better message without thinking"
             open={open}
@@ -32,7 +31,7 @@ export default function GenerateTextModal({
             }}
         >
             <Content setValue={setValue} />
-        </Dialog>
+        </SimpleDialog>
     );
 }
 
@@ -67,7 +66,7 @@ function Content({ setValue }: { setValue: (s: string) => void }) {
                 placeholder="Do sharks hunt people?"
             />
             {mutation.isError && (
-                <p className="text-sm text-error-foreground">
+                <p className="text-sm text-destructive-foreground">
                     {mutation.error.message}
                 </p>
             )}

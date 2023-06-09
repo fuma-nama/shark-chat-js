@@ -1,9 +1,9 @@
 import { ReactNode, useMemo } from "react";
-import { Avatar } from "../system/avatar";
-import { Button } from "../system/button";
-import { textArea } from "../system/textarea";
+import { Avatar } from "ui/components/avatar";
+import { Button } from "ui/components/button";
+import { textArea } from "ui/components/textarea";
 
-import * as ContextMenu from "../system/context-menu";
+import * as ContextMenu from "ui/components/context-menu";
 import {
     CopyIcon,
     Cross1Icon,
@@ -14,7 +14,7 @@ import {
 import clsx from "clsx";
 import { Controller, useForm } from "react-hook-form";
 
-import { deletedUser, MessageType } from "@/server/schema/chat";
+import { MessageType } from "@/utils/types";
 import { linkIt, urlRegex } from "react-linkify-it";
 import { UserProfileModal } from "../modal/UserProfileModal";
 
@@ -99,7 +99,11 @@ type ContentProps = {
 };
 
 function Content({ user, timestamp, children }: ContentProps) {
-    const author = user ?? deletedUser;
+    const author = user ?? {
+        id: "",
+        image: null,
+        name: "Deleted User",
+    };
     const date = new Date(timestamp).toLocaleString(undefined, {
         dateStyle: "short",
         timeStyle: "short",

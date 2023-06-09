@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import * as ContextMenu from "../system/context-menu";
+import * as ContextMenu from "ui/components/context-menu";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { trpc } from "@/utils/trpc";
 

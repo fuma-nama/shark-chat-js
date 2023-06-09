@@ -10,7 +10,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { Avatar } from "../system/avatar";
+import { Avatar } from "ui/components/avatar";
 import { tv } from "tailwind-variants";
 
 export const siderbarItem = tv({

@@ -2,14 +2,14 @@ import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { badge } from "../system/badge";
+import { badge } from "ui/components/badge";
 import { siderbarItem } from "./Sidebar";
 import { AppLayout } from "./app";
 import { ReactNode } from "react";
-import { skeleton } from "../system/skeleton";
-import { Avatar } from "../system/avatar";
+import { skeleton } from "ui/components/skeleton";
+import { Avatar } from "ui/components/avatar";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
-import { DMChannel } from "@/server/schema/chat";
+import { DMChannel } from "@/utils/types";
 
 export function useDirectMessageLayout({
     footer,
@@ -67,7 +67,7 @@ function Sidebar() {
 
     return (
         <div className="flex flex-col mt-3">
-            <p className="font-medium mb-2 text-base text-primary-foreground">
+            <p className="font-medium mb-2 text-base text-foreground">
                 Direct Messages
             </p>
             {query.status === "loading" && (

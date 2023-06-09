@@ -1,6 +1,6 @@
 import { ComponentPropsWithRef } from "react";
 import { tv } from "tailwind-variants";
-import { input } from "../system/input";
+import { input } from "ui/components/input";
 
 const inputStyles = tv({
     slots: {

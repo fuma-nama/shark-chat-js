@@ -1,14 +1,13 @@
 import { trpc } from "@/utils/trpc";
 import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { useForm } from "react-hook-form";
-import { Button } from "../system/button";
-import { Dialog } from "../system/dialog";
-import { input } from "../system/input";
-import * as Tabs from "@radix-ui/react-tabs";
-import { tabs } from "../system/tabs";
+import { Button } from "ui/components/button";
+import { SimpleDialog } from "ui/components/dialog";
+import { input } from "ui/components/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import { UniqueNameInput } from "../input/UniqueNameInput";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { uniqueNameSchema } from "@/server/schema/group";
+import { uniqueNameSchema } from "shared/schema/group";
 import { z } from "zod";
 
 export default function JoinGroupModal({
@@ -18,43 +17,30 @@ export default function JoinGroupModal({
     open: boolean;
     setOpen: (v: boolean) => void;
 }) {
-    const tabStyles = tabs();
-
     return (
-        <Dialog
+        <SimpleDialog
             title="Join Group"
             description="Chat with other peoples in the group"
             open={open}
             onOpenChange={setOpen}
         >
-            <Tabs.Root
-                defaultValue="code"
-                className={tabStyles.root({ className: "mt-3" })}
-            >
-                <Tabs.List className={tabStyles.list()}>
-                    <Tabs.TabsTrigger
-                        value="code"
-                        className={tabStyles.item()}
-                        asChild
-                    >
+            <Tabs defaultValue="code">
+                <TabsList className="grid w-full grid-cols-2 mt-4">
+                    <TabsTrigger value="code" asChild>
                         <label htmlFor="code">Invite Code</label>
-                    </Tabs.TabsTrigger>
-                    <Tabs.TabsTrigger
-                        value="unique_name"
-                        className={tabStyles.item()}
-                        asChild
-                    >
+                    </TabsTrigger>
+                    <TabsTrigger value="unique_name" asChild>
                         <label htmlFor="code">Unique Name</label>
-                    </Tabs.TabsTrigger>
-                </Tabs.List>
-                <Tabs.Content value="code" className="focus:shadow-none">
+                    </TabsTrigger>
+                </TabsList>
+                <TabsContent value="code">
                     <JoinGroupByCode onClose={() => setOpen(false)} />
-                </Tabs.Content>
-                <Tabs.Content value="unique_name" className="focus:shadow-none">
+                </TabsContent>
+                <TabsContent value="unique_name">
                     <JoinGroupByName onClose={() => setOpen(false)} />
-                </Tabs.Content>
-            </Tabs.Root>
-        </Dialog>
+                </TabsContent>
+            </Tabs>
+        </SimpleDialog>
     );
 }
 
@@ -94,7 +80,7 @@ function JoinGroupByCode({ onClose }: { onClose: () => void }) {
                     placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
                     {...register("code", { minLength: 4 })}
                 />
-                <p className="text-xs text-error-foreground">
+                <p className="text-xs text-destructive-foreground">
                     {formState.errors?.code?.message}
                 </p>
             </fieldset>
@@ -152,7 +138,7 @@ function JoinGroupByName({ onClose }: { onClose: () => void }) {
                         ...register("unique_name"),
                     }}
                 />
-                <p className="text-xs text-error-foreground">
+                <p className="text-xs text-destructive-foreground">
                     {formState.errors.unique_name?.message}
                 </p>
             </fieldset>

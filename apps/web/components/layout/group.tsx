@@ -1,13 +1,13 @@
 import { getGroupQuery } from "@/utils/variables";
-import { groupIcon } from "@/utils/media/format";
+import { groupIcon } from "shared/media/format";
 import { trpc } from "@/utils/trpc";
 import Router, { useRouter } from "next/router";
 import { ComponentProps } from "react";
-import { Avatar } from "../system/avatar";
+import { Avatar } from "ui/components/avatar";
 import { AppLayout } from "./app";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { badge } from "../system/badge";
+import { badge } from "ui/components/badge";
 import { siderbarItem } from "./Sidebar";
 
 function GroupItem() {
@@ -75,9 +75,7 @@ function Sidebar() {
 
     return (
         <div className="flex flex-col mt-3">
-            <p className="font-medium text-base text-primary-foreground">
-                Chats
-            </p>
+            <p className="font-medium text-base text-foreground">Chats</p>
             {query.status === "loading" && (
                 <>
                     <div className="rounded-lg bg-light-200 dark:bg-dark-700 my-2 h-[32px]" />

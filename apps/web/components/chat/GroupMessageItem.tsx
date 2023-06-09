@@ -1,4 +1,4 @@
-import { MessageType } from "@/server/schema/chat";
+import { MessageType } from "@/utils/types";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useState } from "react";

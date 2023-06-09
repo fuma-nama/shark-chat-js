@@ -1,5 +1,5 @@
-import { AlertDialog } from "@/components/system/alert-dialog";
-import { Button } from "@/components/system/button";
+import { AlertDialog } from "ui/components/alert-dialog";
+import { Button } from "ui/components/button";
 import { showErrorToast } from "@/utils/stores/page";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
@@ -10,7 +10,7 @@ export default function Danger({ group }: { group: number }) {
         <div className="flex flex-col gap-3">
             <LeaveGroup group={group} />
             <div className="mt-3">
-                <h3 className="text-primary-foreground font-medium text-base">
+                <h3 className="text-foreground font-medium text-base">
                     Delete Group
                 </h3>
                 <p className="text-sm text-muted-foreground">{`This action is irreversible and can not be undone`}</p>
@@ -36,7 +36,7 @@ export function LeaveGroup({ group }: { group: number }) {
 
     return (
         <div>
-            <h3 className="text-base font-medium text-primary-foreground">
+            <h3 className="text-base font-medium text-foreground">
                 Leave Group
             </h3>
             <p className="text-sm text-muted-foreground">{`You can still join the group after leaving it`}</p>

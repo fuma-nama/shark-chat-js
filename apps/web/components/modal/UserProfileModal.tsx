@@ -1,9 +1,13 @@
-import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { dialog } from "../system/dialog";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogTrigger,
+} from "ui/components/dialog";
 import { ReactNode, useState } from "react";
 import { RouterOutput, trpc } from "@/utils/trpc";
-import { Avatar } from "../system/avatar";
-import { Button, button } from "../system/button";
+import { Avatar } from "ui/components/avatar";
+import { Button, button } from "ui/components/button";
 import Router from "next/router";
 
 type Profile = RouterOutput["account"]["profile"];
@@ -15,30 +19,18 @@ export function UserProfileModal({
     userId: string;
     children: ReactNode;
 }) {
-    const styles = dialog();
     const [open, setOpen] = useState(false);
     const query = trpc.account.profile.useQuery({ userId });
 
     return (
-        <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
-            <DialogPrimitive.Trigger asChild>
-                {children}
-            </DialogPrimitive.Trigger>
-            <DialogPrimitive.Portal>
-                <DialogPrimitive.Overlay className={styles.overlay()}>
-                    <DialogPrimitive.Content
-                        className={styles.content({ className: "max-w-lg" })}
-                    >
-                        {query.status === "success" && (
-                            <Content
-                                user={query.data}
-                                onClose={() => setOpen(false)}
-                            />
-                        )}
-                    </DialogPrimitive.Content>
-                </DialogPrimitive.Overlay>
-            </DialogPrimitive.Portal>
-        </DialogPrimitive.Root>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="max-w-lg">
+                {query.status === "success" && (
+                    <Content user={query.data} onClose={() => setOpen(false)} />
+                )}
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -93,11 +85,9 @@ function Content({ user, onClose }: { user: Profile; onClose: () => void }) {
                     >
                         Send Message
                     </Button>
-                    <DialogPrimitive.Close
-                        className={button({ color: "secondary" })}
-                    >
+                    <DialogClose className={button({ color: "secondary" })}>
                         Close
-                    </DialogPrimitive.Close>
+                    </DialogClose>
                 </div>
             </div>
         </div>

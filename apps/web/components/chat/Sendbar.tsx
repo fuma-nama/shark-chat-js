@@ -4,12 +4,12 @@ import {
     TextIcon,
     TrashIcon,
 } from "@radix-ui/react-icons";
-import { textArea } from "@/components/system/textarea";
+import { textArea } from "ui/components/textarea";
 import { ReactNode, useRef, useState } from "react";
-import { IconButton, iconButton } from "@/components/system/button";
+import { IconButton, iconButton } from "ui/components/button";
 import clsx from "clsx";
 import React from "react";
-import { contentSchema } from "@/server/schema/chat";
+import { contentSchema } from "shared/schema/chat";
 import { Control, useController, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -138,7 +138,7 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
             />
             {value != null && (
                 <div className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center">
-                    <p className="font-medium text-base text-primary-foreground">
+                    <p className="font-medium text-base text-foreground">
                         {value.name}
                     </p>
                     <IconButton

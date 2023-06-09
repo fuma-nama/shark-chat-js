@@ -1,9 +1,9 @@
-import { Avatar } from "@/components/system/avatar";
-import { Button } from "@/components/system/button";
-import { UserInfo } from "@/server/schema/chat";
+import { Avatar } from "ui/components/avatar";
+import { Button } from "ui/components/button";
+import { UserInfo } from "shared/schema/chat";
 import { trpc } from "@/utils/trpc";
-import { Serialize } from "@/utils/types";
-import { Member } from "@/drizzle/schema";
+import { Serialize } from "shared/types";
+import { Member } from "db/schema";
 import { useSession } from "next-auth/react";
 import { UserProfileModal } from "@/components/modal/UserProfileModal";
 

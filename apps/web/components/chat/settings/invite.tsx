@@ -1,17 +1,17 @@
-import { input } from "@/components/system/input";
-import { Button, IconButton } from "@/components/system/button";
+import { input } from "ui/components/input";
+import { Button, IconButton } from "ui/components/button";
 import { trpc } from "@/utils/trpc";
 import { useCopyText } from "@/utils/hooks/use-copy-text";
-import { Group, GroupInvite } from "@/drizzle/schema";
+import { Group, GroupInvite } from "db/schema";
 import {
     CheckIcon,
     CopyIcon,
     Link1Icon,
     TrashIcon,
 } from "@radix-ui/react-icons";
-import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
+import { Serialize } from "shared/types";
 import { useSession } from "next-auth/react";
-import { Switch } from "@/components/system/switch";
+import { Switch } from "ui/components/switch";
 
 export default function Invite({ group }: { group: Group }) {
     const { status } = useSession();
@@ -48,7 +48,7 @@ export default function Invite({ group }: { group: Group }) {
         <div className="flex flex-col gap-3">
             <div className="flex flex-row gap-3 justify-between">
                 <label htmlFor="public">
-                    <h3 className="text-base font-medium text-primary-foreground">
+                    <h3 className="text-base font-medium text-foreground">
                         Pubilc
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -66,7 +66,7 @@ export default function Invite({ group }: { group: Group }) {
                 <PublicInviteItem unique_name={group.unique_name} />
             )}
             <div className="mt-3">
-                <h3 className="font-medium text-base text-primary-foreground">
+                <h3 className="font-medium text-base text-foreground">
                     Private
                 </h3>
                 <p className="text-sm text-muted-foreground">
