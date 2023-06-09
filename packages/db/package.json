@@ -1,0 +1,14 @@
+{
+    "name": "db",
+    "private": true,
+    "main": "./client.ts",
+    "types": "./client.ts",
+    "dependencies": {
+        "drizzle-orm": "^0.26.5",
+        "@planetscale/database": "^1.7.0"
+    },
+    "devDependencies": {
+        "config": "workspace:*",
+        "@types/node": "18.11.18"
+    }
+}

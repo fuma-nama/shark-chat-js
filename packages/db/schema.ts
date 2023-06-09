@@ -11,7 +11,7 @@ import {
     mysqlEnum,
     bigint,
 } from "drizzle-orm/mysql-core";
-import { timestamp } from "@/server/db/timestampUTC";
+import { timestamp } from "./utils/timestampUTC";
 
 export const accounts = mysqlTable(
     "Account",
