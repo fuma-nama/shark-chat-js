@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from "./auth";
 
 /**
  * Creates context for an incoming request

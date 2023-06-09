@@ -1,21 +1,21 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure, router } from "../../trpc";
-import { checkIsOwnerOf } from "@/utils/trpc/permissions";
+import { checkIsOwnerOf } from "../../utils/permissions";
 import { inviteRouter } from "./invite";
 import {
     createGroupSchema,
     GroupWithNotifications,
     updateGroupSchema,
-} from "../../schema/group";
+} from "shared/schema/group";
 import { membersRouter } from "./members";
-import { channels } from "@/server/ably";
-import { getLastReads } from "@/server/redis/last-read";
-import db from "@/server/db/client";
+import { channels } from "../../ably";
+import { getLastReads } from "../../redis/last-read";
+import db from "db/client";
 import { createId } from "@paralleldrive/cuid2";
-import { groupInvites, groups, members, messages } from "@/drizzle/schema";
+import { groupInvites, groups, members, messages } from "db/schema";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
-import { requireOne } from "@/server/db/utils";
+import { requireOne } from "db/utils";
 
 export const groupRouter = router({
     create: protectedProcedure

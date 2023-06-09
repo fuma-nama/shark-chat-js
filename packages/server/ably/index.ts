@@ -1,5 +1,5 @@
-import { schema } from "@/utils/ably/schema";
-import { rest } from "@/utils/ably/builder/rest";
+import { schema } from "./schema";
+import { rest } from "ably-builder/builder/rest";
 import Ably, { Types } from "ably";
 
 function connect() {

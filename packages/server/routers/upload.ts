@@ -1,9 +1,9 @@
-import { userAvatar, groupIcon, attachment } from "@/utils/media/format";
-import { getTimestamp } from "@/utils/media/timestamp";
+import { userAvatar, groupIcon, attachment } from "shared/media/format";
+import { getTimestamp } from "shared/media/timestamp";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
 import { z } from "zod";
-import { checkIsOwnerOf } from "@/utils/trpc/permissions";
+import { checkIsOwnerOf } from "../utils/permissions";
 import { createId } from "@paralleldrive/cuid2";
 
 type SignOptions = {

@@ -1,10 +1,10 @@
-import { protectedProcedure, router } from "@/server/trpc";
-import { channels } from "@/server/ably";
-import { checkIsMemberOf, checkIsOwnerOf } from "@/utils/trpc/permissions";
+import { protectedProcedure, router } from "../../trpc";
+import { channels } from "../../ably";
+import { checkIsMemberOf, checkIsOwnerOf } from "../../utils/permissions";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import db from "@/server/db/client";
-import { members, users } from "@/drizzle/schema";
+import db from "db/client";
+import { members, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
 
 export const membersRouter = router({

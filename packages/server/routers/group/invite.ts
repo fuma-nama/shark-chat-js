@@ -1,11 +1,11 @@
-import { protectedProcedure, router } from "@/server/trpc";
+import { protectedProcedure, router } from "../../trpc";
 import { z } from "zod";
-import { checkIsOwnerOf } from "@/utils/trpc/permissions";
-import { groupInvites } from "@/drizzle/schema";
-import db from "@/server/db/client";
+import { checkIsOwnerOf } from "../../utils/permissions";
+import { groupInvites } from "db/schema";
+import db from "db/client";
 import { and, eq } from "drizzle-orm";
-import { generateInviteCode, requireOne } from "@/server/db/utils";
-
+import { requireOne } from "db/utils";
+import { v4 as uuid } from "uuid";
 /**
  * Only the group owner can manage invites
  */
@@ -28,7 +28,7 @@ export const inviteRouter = router({
         .input(z.object({ groupId: z.number() }))
         .mutation(async ({ input, ctx }) => {
             await checkIsOwnerOf(input.groupId, ctx.session);
-            const code = generateInviteCode();
+            const code = uuid();
 
             await db.insert(groupInvites).values({
                 group_id: input.groupId,

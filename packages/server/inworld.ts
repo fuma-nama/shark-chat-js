@@ -4,13 +4,12 @@ import {
     Session,
     status,
 } from "@inworld/nodejs-sdk";
-import { channels } from "@/server/ably";
-import { User } from "@/drizzle/schema";
+import { channels } from "./ably";
 import redis from "./redis/client";
-import db from "./db/client";
-import { messages, users } from "../drizzle/schema";
+import db from "db/client";
 import { eq } from "drizzle-orm";
-import { requireOne } from "./db/utils";
+import { requireOne } from "db/utils";
+import { messages, users, User } from "db/schema";
 
 type Message = {
     channel_id: string;

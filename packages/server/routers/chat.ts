@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { channels } from "@/server/ably";
+import { channels } from "../ably";
 import { z } from "zod";
 import { protectedProcedure, router } from "./../trpc";
 import {
@@ -7,9 +7,9 @@ import {
     UploadAttachment,
     contentSchema,
     uploadAttachmentSchema,
-} from "../schema/chat";
+} from "shared/schema/chat";
 import { getLastRead, setLastRead } from "../redis/last-read";
-import db from "../db/client";
+import db from "db/client";
 import {
     Attachment,
     attachments,
@@ -17,15 +17,15 @@ import {
     groups,
     messages,
     users,
-} from "../../drizzle/schema";
+} from "db/schema";
 import { and, desc, eq, gt, lt } from "drizzle-orm";
-import { requireOne } from "../db/utils";
+import { requireOne } from "db/utils";
 import { createId } from "@paralleldrive/cuid2";
 import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
 import { alias } from "drizzle-orm/mysql-core";
-import { checkChannelPermissions } from "@/utils/trpc/permissions";
-import { pick } from "@/utils/common";
+import { checkChannelPermissions } from "../utils/permissions";
+import { pick } from "shared/common";
 
 const userProfileKeys = ["id", "name", "image"] as const;
 

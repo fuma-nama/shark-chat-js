@@ -1,7 +1,7 @@
 import { defineTRPCLimiter } from "@trpc-limiter/core";
 import { Ratelimit } from "@upstash/ratelimit";
 import redis from "./client";
-import { NextApiRequest } from "next";
+import { Context } from "../trpc";
 
 export const createTRPCUpstashLimiter = defineTRPCLimiter({
     store: (opts) => {
@@ -20,7 +20,7 @@ export const createTRPCUpstashLimiter = defineTRPCLimiter({
     },
 });
 
-export function getFingerprintFromIP(req: NextApiRequest) {
+export function getFingerprintFromIP(req: Context["req"]) {
     const forwarded = req.headers["x-forwarded-for"];
     const ip = forwarded
         ? (typeof forwarded === "string" ? forwarded : forwarded[0])?.split(

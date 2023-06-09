@@ -1,12 +1,11 @@
-import { sessions } from "../drizzle/schema";
 import { Adapter, AdapterUser, VerificationToken } from "next-auth/adapters";
-import db from "./db/client";
-import { accounts, members, users } from "../drizzle/schema";
+import db from "db/client";
+import { sessions, accounts, members, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
-import { oneOrNull, requireOne } from "./db/utils";
+import { oneOrNull, requireOne } from "db/utils";
 import { createId } from "@paralleldrive/cuid2";
-import redis from "./redis/client";
-import { Serialize } from "@/utils/types";
+import redis from "../redis/client";
+import { Serialize } from "shared/types";
 
 const options = {
     verificationTokenKeyPrefix: "user:token:",

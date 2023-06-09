@@ -1,18 +1,18 @@
 import { protectedProcedure, router } from "../trpc";
-import db from "../db/client";
+import db from "db/client";
 import {
     messageChannels,
     directMessageInfos,
     messages,
     users,
-} from "@/drizzle/schema";
+} from "db/schema";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { getLastReads } from "../redis/last-read";
 import { z } from "zod";
-import { pick } from "@/utils/common";
+import { pick } from "shared/common";
 import { TRPCError } from "@trpc/server";
 import { createId } from "@paralleldrive/cuid2";
-import { requireOne } from "../db/utils";
+import { requireOne } from "db/utils";
 import { channels } from "../ably";
 
 export const dmRouter = router({
