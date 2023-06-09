@@ -1,5 +1,5 @@
 import { channels } from "@/utils/ably/client";
-import { useChannels } from "@/utils/ably/hooks";
+import { useChannels } from "ably-builder/hooks";
 import { RouterInput, RouterUtils, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
@@ -7,7 +7,7 @@ import Router from "next/router";
 import { getMessageVariables } from "@/utils/variables";
 import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
-import { MessageType } from "@/server/schema/chat";
+import { MessageType } from "@/utils/types";
 
 export function MessageEventManager() {
     const { status, data } = useSession();

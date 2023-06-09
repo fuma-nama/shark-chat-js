@@ -1,6 +1,6 @@
 import { upload, blobToBase64 } from "./upload";
-import type { UploadAttachment } from "@/server/schema/chat";
-import type { RouterUtils } from "../trpc";
+import type { UploadAttachment } from "shared/schema/chat";
+import type { RouterUtils } from "@/utils/trpc";
 
 export async function uploadAttachment(
     utils: RouterUtils,

@@ -1,7 +1,7 @@
-import { User } from "@/drizzle/schema";
+import { User } from "db/schema";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/utils/trpc";
-import { Serialize } from "@/utils/types";
+import { Serialize } from "shared/types";
 
 export type Result =
     | {

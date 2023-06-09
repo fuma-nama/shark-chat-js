@@ -1,10 +1,10 @@
 import { channels } from "@/utils/ably/client";
-import { useChannels } from "@/utils/ably/hooks";
+import { useChannels } from "ably-builder/hooks";
 import { RouterUtils, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import { Serialize } from "@trpc/server/dist/shared/internal/serialize";
-import { Group } from "@/drizzle/schema";
+import { Serialize } from "shared/types";
+import { Group } from "db/schema";
 import { deleteGroup } from "./shared";
 
 export function GroupEventManager() {

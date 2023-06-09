@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { addNonce, removeNonce } from "../handlers/realtime/shared";
 import { SendData } from "@/components/chat/Sendbar";
-import { MessageType } from "@/server/schema/chat";
+import { MessageType } from "../types";
 
 /**
  * Message that being sent locally but not received from the server yet

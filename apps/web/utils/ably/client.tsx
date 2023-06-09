@@ -1,8 +1,8 @@
-import { realtime } from "./builder/realtime";
+import { realtime } from "ably-builder/builder/realtime";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { useSession } from "next-auth/react";
 import { getBaseUrl } from "../get-base-url";
-import { schema } from "./schema";
+import { schema } from "server/ably/schema";
 
 const ably = configureAbly({
     authUrl: `${getBaseUrl()}/api/ably/auth`,

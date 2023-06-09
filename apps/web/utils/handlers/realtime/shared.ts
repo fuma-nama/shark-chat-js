@@ -1,7 +1,7 @@
-import { Group } from "@/drizzle/schema";
-import { GroupWithNotifications } from "@/server/schema/group";
+import { Group } from "db/schema";
+import { GroupWithNotifications } from "shared/schema/group";
 import { RouterUtils } from "@/utils/trpc";
-import { Serialize } from "@/utils/types";
+import { Serialize } from "shared/types";
 import { getGroupQuery } from "@/utils/variables";
 import Router from "next/router";
 

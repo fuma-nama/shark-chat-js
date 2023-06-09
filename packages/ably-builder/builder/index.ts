@@ -1,7 +1,7 @@
+import { Serialize } from "shared/types";
 import { z, ZodType } from "zod";
 import { Types } from "ably";
 import { ChannelAndClient } from "../hooks";
-import { Serialize } from "../../types";
 import { DependencyList } from "react";
 import { AblyMessageCallback } from "@ably-labs/react-hooks";
 

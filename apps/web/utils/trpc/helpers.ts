@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { Group } from "@/drizzle/schema";
+import { Group } from "db/schema";
 import { useSession } from "next-auth/react";
 import { channels } from "../ably/client";
-import { Serialize } from "../types";
+import { Serialize } from "shared/types";
 import { createGroup } from "../handlers/realtime/shared";
 import { trpc } from ".";
 

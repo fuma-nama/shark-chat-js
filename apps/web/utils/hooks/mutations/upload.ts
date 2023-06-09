@@ -1,6 +1,6 @@
-import { SignResponse } from "@/server/routers/upload";
+import { SignResponse } from "server/routers/upload";
 import { z } from "zod";
-import { cloudName } from "./format";
+import { cloudName } from "shared/media/format";
 
 const uploadResponseSchema = z.object({
     secure_url: z.string(),

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { upload } from "../../media/upload";
+import { upload } from "./upload";
 import { RouterInput, RouterUtils, trpc } from "../../trpc";
 
 type Input = Omit<RouterInput["group"]["update"], "icon_hash"> & {

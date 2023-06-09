@@ -1,0 +1,11 @@
+{
+    "name": "shared",
+    "private": true,
+    "dependencies": {
+        "zod": "^3.20.2",
+        "db": "workspace:*"
+    },
+    "devDependencies": {
+        "config": "workspace:*"
+    }
+}
