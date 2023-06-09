@@ -1,17 +1,17 @@
 {
     "schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
-        "allowJs": true,
-        "skipLibCheck": true,
-        "strict": true,
-        "forceConsistentCasingInFileNames": true,
-        "noEmit": true,
+        "composite": false,
+        "declaration": true,
+        "declarationMap": true,
         "esModuleInterop": true,
-        "module": "esnext",
-        "moduleResolution": "node",
-        "resolveJsonModule": true,
+        "forceConsistentCasingInFileNames": true,
         "isolatedModules": true,
-        "incremental": true
+        "moduleResolution": "node",
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "skipLibCheck": true,
+        "strict": true
     },
     "exclude": ["node_modules"]
 }
