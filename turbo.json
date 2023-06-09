@@ -2,7 +2,7 @@
     "$schema": "https://turbo.build/schema.json",
     "pipeline": {
         "dev": {
-            "persistent": false,
+            "persistent": true,
             "cache": false
         },
         "build": {
@@ -10,6 +10,10 @@
             "outputs": [".next/**", "!.next/cache/**"]
         },
         "lint": {
+            "cache": false
+        },
+        "start": {
+            "persistent": true,
             "cache": false
         }
     }

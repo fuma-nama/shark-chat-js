@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
+        "start": "dotenv -- turbo start",
         "dev": "dotenv -- turbo dev",
         "build": "dotenv -- turbo build",
         "lint": "turbo lint",
