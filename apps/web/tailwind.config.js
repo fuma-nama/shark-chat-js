@@ -2,7 +2,11 @@ const colors = require("tailwindcss/colors");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ["pages/**/*.tsx", "components/**/*.tsx"],
+    content: [
+        "pages/**/*.tsx",
+        "components/**/*.tsx",
+        "../../packages/ui/**/*.tsx",
+    ],
     darkMode: "class",
     theme: {
         extend: {
@@ -38,11 +42,30 @@ module.exports = {
                 },
             },
             colors: {
-                error: {
-                    foreground: "hsl(var(--error-foreground))",
-                },
+                border: "hsl(var(--border))",
+                input: "hsl(var(--border))",
+                ring: "hsl(var(--brand))",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
                 primary: {
+                    DEFAULT: "hsl(var(--primary))",
                     foreground: "hsl(var(--primary-foreground))",
+                },
+                secondary: {
+                    DEFAULT: "hsl(var(--secondary))",
+                    foreground: "hsl(var(--secondary-foreground))",
+                },
+                destructive: {
+                    DEFAULT: "hsl(var(--destructive))",
+                    foreground: "hsl(var(--destructive-foreground))",
+                },
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
+                },
+                popover: {
+                    DEFAULT: "hsl(var(--popover))",
+                    foreground: "hsl(var(--popover-foreground))",
                 },
                 dark: {
                     50: "#d0dcfb",
@@ -58,6 +81,7 @@ module.exports = {
                     950: "#080f2c",
                 },
                 brand: {
+                    DEFAULT: "hsl(var(--brand))",
                     100: "#e4ddff",
                     200: "#b0acff",
                     300: "#8e72ff",
@@ -69,6 +93,8 @@ module.exports = {
                     900: "#11047A",
                 },
                 accent: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--foreground))",
                     50: colors.gray[50],
                     100: "#E0E5F2",
                     200: "#E1E9F8",
@@ -79,9 +105,6 @@ module.exports = {
                     700: "#707EAE",
                     800: "#5d6991",
                     900: "#1B2559",
-                },
-                muted: {
-                    foreground: "hsl(var(--muted-foreground))",
                 },
                 light: {
                     ...colors.slate,
