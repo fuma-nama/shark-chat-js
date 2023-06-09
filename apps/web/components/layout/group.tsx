@@ -7,7 +7,6 @@ import { Avatar } from "../system/avatar";
 import { AppLayout } from "./app";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { text } from "../system/text";
 import { badge } from "../system/badge";
 import { siderbarItem } from "./Sidebar";
 
@@ -76,7 +75,9 @@ function Sidebar() {
 
     return (
         <div className="flex flex-col mt-3">
-            <p className={text({ type: "primary", size: "md" })}>Chats</p>
+            <p className="font-medium text-base text-primary-foreground">
+                Chats
+            </p>
             {query.status === "loading" && (
                 <>
                     <div className="rounded-lg bg-light-200 dark:bg-dark-700 my-2 h-[32px]" />

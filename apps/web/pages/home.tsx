@@ -12,7 +12,6 @@ import { DMChannel } from "@/server/schema/chat";
 import { GroupWithNotifications } from "@/server/schema/group";
 import { badge } from "@/components/system/badge";
 import { Spinner } from "@/components/system/spinner";
-import { text } from "@/components/system/text";
 import { BoxModelIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
 import { usePageStore } from "@/utils/stores/page";
@@ -105,7 +104,7 @@ const Home: NextPageWithLayout = () => {
                 </div>
             ) : dmQuery.isError || groups.isError ? (
                 <div className="m-auto flex flex-col gap-3">
-                    <h2 className={text({ size: "lg", type: "primary" })}>
+                    <h2 className="font-semibold text-lg text-primary-foreground">
                         Failed to fetch info
                     </h2>
                     <Button color="danger" size="medium" onClick={onRetry}>
@@ -175,7 +174,7 @@ function ChatItem({ chat }: { chat: DMChannel }) {
             >
                 <Avatar src={user.image} fallback={user.name} size="2sm" />
                 <div className="flex-1 w-0">
-                    <p className={text({ type: "primary", size: "md" })}>
+                    <p className="text-base font-medium text-primary-foreground">
                         {user.name}
                     </p>
                 </div>
@@ -197,10 +196,10 @@ function Placeholder() {
     return (
         <div className="flex flex-col items-center justify-center my-auto">
             <BoxModelIcon className="w-20 h-20 text-brand-500 dark:text-brand-400 max-md:hidden" />
-            <p className={text({ size: "md", type: "primary" })}>
+            <p className="font-medium text-base text-primary-foreground">
                 Nothing here
             </p>
-            <p className={text({ size: "sm", type: "secondary" })}>
+            <p className="text-muted-foreground text-sm">
                 Try to find someone chat with you?
             </p>
         </div>

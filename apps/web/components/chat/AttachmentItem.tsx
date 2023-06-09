@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { text } from "../system/text";
 import { AttachmentType } from "@/server/schema/chat";
 import { useState } from "react";
 import { Spinner } from "../system/spinner";
@@ -8,10 +7,10 @@ import Image from "next/image";
 export function UploadingAttachmentItem({ file }: { file: File }) {
     return (
         <div className="p-3 rounded-lg bg-light-100 dark:bg-dark-700 flex flex-col mt-3">
-            <p className={text({ size: "md", type: "primary" })}>{file.name}</p>
-            <p className={text({ type: "secondary", size: "sm" })}>
-                Uploading...
+            <p className="text-primary-foreground text-base font-medium">
+                {file.name}
             </p>
+            <p className="text-sm text-muted-foreground">Uploading...</p>
         </div>
     );
 }
@@ -33,11 +32,11 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
             <Link
                 target="_blank"
                 href={attachment.url}
-                className={text({ size: "md", type: "primary" })}
+                className="text-base font-medium text-primary-foreground"
             >
                 {attachment.name}
             </Link>
-            <p className={text({ type: "secondary", size: "sm" })}>
+            <p className="text-sm text-muted-foreground">
                 {attachment.bytes} Bytes
             </p>
         </div>

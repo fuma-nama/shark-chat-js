@@ -2,7 +2,6 @@ import { ImagePicker } from "@/components/input/ImagePicker";
 import { input } from "@/components/system/input";
 import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
-import { label, text } from "@/components/system/text";
 import { groupIcon } from "@/utils/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/hooks/mutations/update-group-info";
 import { Group } from "@/drizzle/schema";
@@ -52,7 +51,7 @@ export default function Info({
                 <div>
                     <h2 className="text-2xl font-bold">{group.name}</h2>
                     {group.unique_name != null && (
-                        <p className={text({ size: "sm", type: "secondary" })}>
+                        <p className="text-sm text-muted-foreground">
                             @{group.unique_name}
                         </p>
                     )}
@@ -114,21 +113,22 @@ function EditGroupPanel({
             />
 
             <fieldset>
-                <label htmlFor="name" className={label()}>
+                <label
+                    htmlFor="name"
+                    className="font-medium text-primary-foreground text-sm"
+                >
                     Name
                 </label>
                 <input id="name" className={input()} {...register("name")} />
             </fieldset>
             <fieldset>
-                <label htmlFor="unique_name" className={label()}>
+                <label
+                    htmlFor="unique_name"
+                    className="font-medium text-primary-foreground text-sm"
+                >
                     Unique Name
                 </label>
-                <p
-                    className={text({
-                        size: "sm",
-                        type: "secondary",
-                    })}
-                >
+                <p className="text-sm text-muted-foreground">
                     People can find a group by its unique name
                 </p>
                 <UniqueNameInput
@@ -139,13 +139,7 @@ function EditGroupPanel({
                         ...register("unique_name"),
                     }}
                 />
-                <p
-                    className={text({
-                        size: "xs",
-                        type: "secondary",
-                        className: "mt-1",
-                    })}
-                >
+                <p className="mt-1 text-xs text-muted-foreground">
                     Only lower-case letters, numbers, underscore
                 </p>
             </fieldset>

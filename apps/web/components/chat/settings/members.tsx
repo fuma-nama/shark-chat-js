@@ -1,12 +1,10 @@
 import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
-import { text } from "@/components/system/text";
 import { UserInfo } from "@/server/schema/chat";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "@/utils/types";
 import { Member } from "@/drizzle/schema";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { UserProfileModal } from "@/components/modal/UserProfileModal";
 
 export default function Members({

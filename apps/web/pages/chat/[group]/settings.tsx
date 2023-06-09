@@ -8,7 +8,6 @@ import { Tabs, TabsContent } from "@/components/system/tabs";
 import dynamic from "next/dynamic";
 import { LeaveGroup } from "@/components/chat/settings/danger";
 import Members from "@/components/chat/settings/members";
-import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 
@@ -57,13 +56,7 @@ const Settings: NextPageWithLayout = () => {
                     {!isAdmin && (
                         <>
                             <div>
-                                <h2
-                                    className={text({
-                                        size: "md",
-                                        type: "primary",
-                                        className: "mb-3",
-                                    })}
-                                >
+                                <h2 className="font-medium text-base mb-3 text-primary-foreground">
                                     Members
                                 </h2>
                                 <Members group={groupId} isAdmin={false} />

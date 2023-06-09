@@ -8,7 +8,6 @@ import { AppLayout } from "./app";
 import { ReactNode } from "react";
 import { skeleton } from "../system/skeleton";
 import { Avatar } from "../system/avatar";
-import { text } from "../system/text";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
 import { DMChannel } from "@/server/schema/chat";
 
@@ -68,13 +67,7 @@ function Sidebar() {
 
     return (
         <div className="flex flex-col mt-3">
-            <p
-                className={text({
-                    type: "primary",
-                    size: "md",
-                    className: "mb-2",
-                })}
-            >
+            <p className="font-medium mb-2 text-base text-primary-foreground">
                 Direct Messages
             </p>
             {query.status === "loading" && (

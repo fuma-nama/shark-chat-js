@@ -1,7 +1,6 @@
 import * as Base from "@radix-ui/react-toast";
 import { usePageStore } from "@/utils/stores/page";
 import { ReactNode } from "react";
-import { text } from "./text";
 import { tv, VariantProps } from "tailwind-variants";
 import { Cross1Icon } from "@radix-ui/react-icons";
 
@@ -12,8 +11,8 @@ export const toast = tv({
             "dark:shadow-none",
             "radix-state-open:animate-zoom-in",
         ],
-        heading: text({ type: "primary", size: "lg" }),
-        body: text({ type: "secondary" }),
+        heading: "font-semibold text-lg text-primary-foreground",
+        body: "text-muted-foreground",
     },
     variants: {
         color: {

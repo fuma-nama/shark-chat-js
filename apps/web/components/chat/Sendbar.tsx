@@ -10,7 +10,6 @@ import { IconButton, iconButton } from "@/components/system/button";
 import clsx from "clsx";
 import React from "react";
 import { contentSchema } from "@/server/schema/chat";
-import { text } from "../system/text";
 import { Control, useController, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -139,7 +138,7 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
             />
             {value != null && (
                 <div className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center">
-                    <p className={text({ size: "md", type: "primary" })}>
+                    <p className="font-medium text-base text-primary-foreground">
                         {value.name}
                     </p>
                     <IconButton

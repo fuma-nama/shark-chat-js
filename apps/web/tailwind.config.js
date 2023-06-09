@@ -38,6 +38,12 @@ module.exports = {
                 },
             },
             colors: {
+                error: {
+                    foreground: "hsl(var(--error-foreground))",
+                },
+                primary: {
+                    foreground: "hsl(var(--primary-foreground))",
+                },
                 dark: {
                     50: "#d0dcfb",
                     100: "#aac0fe",

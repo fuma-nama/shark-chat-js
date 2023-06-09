@@ -9,7 +9,6 @@ import { z } from "zod";
 import { ImagePicker } from "../input/ImagePicker";
 import { Button } from "../system/button";
 import { input } from "../system/input";
-import { label } from "../system/text";
 import { useMutation } from "@tanstack/react-query";
 
 export default function CreateGroupModal({
@@ -69,7 +68,10 @@ function Content({ onClose }: { onClose: () => void }) {
                 />
             </fieldset>
             <fieldset>
-                <label htmlFor="name" className={label()}>
+                <label
+                    htmlFor="name"
+                    className="text-sm font-medium text-primary-foreground"
+                >
                     Name
                     <span className="text-red-400 mx-1 text-base">*</span>
                 </label>

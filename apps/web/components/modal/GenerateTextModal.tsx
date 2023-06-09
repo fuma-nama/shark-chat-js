@@ -6,7 +6,6 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { text } from "../system/text";
 
 export default function GenerateTextModal({
     setValue,
@@ -68,7 +67,7 @@ function Content({ setValue }: { setValue: (s: string) => void }) {
                 placeholder="Do sharks hunt people?"
             />
             {mutation.isError && (
-                <p className={text({ type: "error", size: "sm" })}>
+                <p className="text-sm text-error-foreground">
                     {mutation.error.message}
                 </p>
             )}

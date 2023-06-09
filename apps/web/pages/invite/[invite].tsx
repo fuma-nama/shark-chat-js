@@ -1,6 +1,5 @@
 import { BaseLayout } from "@/components/layout/base";
 import { NextPageWithLayout } from "../_app";
-import { text } from "@/components/system/text";
 import { GetServerSideProps } from "next";
 import { Group, groupInvites, groups } from "@/drizzle/schema";
 import { Avatar } from "@/components/system/avatar";
@@ -51,13 +50,13 @@ const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
                 fallback={group.name}
             />
             <div className="text-center">
-                <h2 className={text({ type: "secondary", size: "sm" })}>
+                <h2 className="text-sm text-muted-foreground">
                     You are invited to{" "}
                     <span className="text-brand-500 dark:text-brand-300">
                         @{group.unique_name}
                     </span>
                 </h2>
-                <h1 className={text({ type: "primary", size: "xl" })}>
+                <h1 className="text-primary-foreground text-xl font-bold">
                     {group.name}
                 </h1>
             </div>

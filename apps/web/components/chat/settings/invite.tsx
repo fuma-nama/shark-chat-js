@@ -1,6 +1,5 @@
 import { input } from "@/components/system/input";
 import { Button, IconButton } from "@/components/system/button";
-import { text } from "@/components/system/text";
 import { trpc } from "@/utils/trpc";
 import { useCopyText } from "@/utils/hooks/use-copy-text";
 import { Group, GroupInvite } from "@/drizzle/schema";
@@ -49,10 +48,10 @@ export default function Invite({ group }: { group: Group }) {
         <div className="flex flex-col gap-3">
             <div className="flex flex-row gap-3 justify-between">
                 <label htmlFor="public">
-                    <h3 className={text({ size: "md", type: "primary" })}>
+                    <h3 className="text-base font-medium text-primary-foreground">
                         Pubilc
                     </h3>
-                    <p className={text({ size: "sm", type: "secondary" })}>
+                    <p className="text-sm text-muted-foreground">
                         Anyone can join your group with an invite url
                     </p>
                 </label>
@@ -67,10 +66,10 @@ export default function Invite({ group }: { group: Group }) {
                 <PublicInviteItem unique_name={group.unique_name} />
             )}
             <div className="mt-3">
-                <h3 className={text({ size: "md", type: "primary" })}>
+                <h3 className="font-medium text-base text-primary-foreground">
                     Private
                 </h3>
-                <p className={text({ size: "sm", type: "secondary" })}>
+                <p className="text-sm text-muted-foreground">
                     Peoples with the invite code can join your group
                 </p>
                 {invites?.map((invite) => (

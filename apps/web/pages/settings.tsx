@@ -2,7 +2,6 @@ import { Avatar } from "@/components/system/avatar";
 import { Button } from "@/components/system/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
 import { AppLayout } from "@/components/layout/app";
-import { label, text } from "@/components/system/text";
 import { useProfile } from "@/utils/hooks/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
@@ -48,11 +47,11 @@ const Settings: NextPageWithLayout = () => {
                 <div>
                     <label
                         htmlFor="theme"
-                        className={text({ size: "md", type: "primary" })}
+                        className="font-medium text-base text-primary-foreground"
                     >
                         Appearance
                     </label>
-                    <p className={text({ size: "sm", type: "secondary" })}>
+                    <p className="text-sm text-muted-foreground">
                         Change the color theme of UI
                     </p>
                 </div>
@@ -95,7 +94,10 @@ function UpdateProfile({
             />
 
             <fieldset>
-                <label htmlFor="username" className={label()}>
+                <label
+                    htmlFor="username"
+                    className="text-sm font-medium text-primary-foreground"
+                >
                     Username
                 </label>
                 <input

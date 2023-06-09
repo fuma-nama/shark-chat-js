@@ -1,6 +1,5 @@
 import { AlertDialog } from "@/components/system/alert-dialog";
 import { Button } from "@/components/system/button";
-import { text } from "@/components/system/text";
 import { showErrorToast } from "@/utils/stores/page";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
@@ -11,12 +10,10 @@ export default function Danger({ group }: { group: number }) {
         <div className="flex flex-col gap-3">
             <LeaveGroup group={group} />
             <div className="mt-3">
-                <h3 className={text({ size: "md", type: "primary" })}>
+                <h3 className="text-primary-foreground font-medium text-base">
                     Delete Group
                 </h3>
-                <p
-                    className={text({ size: "sm", type: "secondary" })}
-                >{`This action is irreversible and can not be undone`}</p>
+                <p className="text-sm text-muted-foreground">{`This action is irreversible and can not be undone`}</p>
                 <DeleteGroupButton group={group} />
             </div>
         </div>
@@ -39,12 +36,10 @@ export function LeaveGroup({ group }: { group: number }) {
 
     return (
         <div>
-            <h3 className={text({ size: "md", type: "primary" })}>
+            <h3 className="text-base font-medium text-primary-foreground">
                 Leave Group
             </h3>
-            <p
-                className={text({ size: "sm", type: "secondary" })}
-            >{`You can still join the group after leaving it`}</p>
+            <p className="text-sm text-muted-foreground">{`You can still join the group after leaving it`}</p>
             <Button
                 color="danger"
                 isLoading={mutation.isLoading}

@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "../system/button";
 import { Dialog } from "../system/dialog";
 import { input } from "../system/input";
-import { text } from "../system/text";
 import * as Tabs from "@radix-ui/react-tabs";
 import { tabs } from "../system/tabs";
 import { UniqueNameInput } from "../input/UniqueNameInput";
@@ -95,7 +94,7 @@ function JoinGroupByCode({ onClose }: { onClose: () => void }) {
                     placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
                     {...register("code", { minLength: 4 })}
                 />
-                <p className={text({ size: "xs", type: "error" })}>
+                <p className="text-xs text-error-foreground">
                     {formState.errors?.code?.message}
                 </p>
             </fieldset>
@@ -153,7 +152,7 @@ function JoinGroupByName({ onClose }: { onClose: () => void }) {
                         ...register("unique_name"),
                     }}
                 />
-                <p className={text({ size: "xs", type: "error" })}>
+                <p className="text-xs text-error-foreground">
                     {formState.errors.unique_name?.message}
                 </p>
             </fieldset>
