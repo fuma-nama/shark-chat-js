@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 type State = {
     show: boolean;
-    timer: number | null;
+    timer: NodeJS.Timeout | null;
 };
 
 export function useCopyText(timeout = 1000) {

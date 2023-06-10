@@ -149,6 +149,12 @@ importers:
       ably:
         specifier: ^1.2.35
         version: 1.2.35
+      shared:
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^3.20.2
+        version: 3.20.2
     devDependencies:
       '@types/react':
         specifier: 18.0.27
@@ -159,12 +165,6 @@ importers:
       config:
         specifier: workspace:*
         version: link:../config
-      shared:
-        specifier: workspace:*
-        version: link:../shared
-      zod:
-        specifier: ^3.20.2
-        version: 3.20.2
 
   packages/config: {}
 
@@ -300,6 +300,9 @@ importers:
         specifier: ^0.0.30
         version: 0.0.30(tailwindcss@3.2.4)
     devDependencies:
+      '@types/node':
+        specifier: 18.11.18
+        version: 18.11.18
       '@types/react':
         specifier: 18.0.27
         version: 18.0.27
@@ -309,12 +312,6 @@ importers:
       config:
         specifier: workspace:*
         version: link:../config
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
 
 packages:
 
@@ -4432,6 +4429,7 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+    dev: false
 
   /react-hook-form@7.43.5(react@18.2.0):
     resolution: {integrity: sha512-YcaXhuFHoOPipu5pC7ckxrLrialiOcU91pKu8P+isAcXZyMgByUK9PkI9j5fENO4+6XU5PwWXRGMIFlk9u9UBQ==}
@@ -4537,6 +4535,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /read-cache@1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
@@ -4646,6 +4645,7 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
 
   /semver@6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
