@@ -1,0 +1,31 @@
+{
+    "folders": [
+        {
+            "path": "../apps/web"
+        },
+        {
+            "path": "../packages/db"
+        },
+        {
+            "path": "../packages/ably-builder"
+        },
+        {
+            "path": "../packages/ui"
+        },
+        {
+            "path": "../packages/server"
+        },
+        {
+            "path": "../packages/shared"
+        }
+    ],
+    "settings": {
+        "tailwindCSS.experimental.classRegex": [
+            ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+        ],
+        "files.exclude": {
+            ".turbo": true,
+            "node_modules": true
+        }
+    }
+}
