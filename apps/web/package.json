@@ -1,0 +1,53 @@
+{
+    "name": "web",
+    "version": "0.1.0",
+    "private": true,
+    "engines": {
+        "node": "^18.x"
+    },
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "db": "workspace:*",
+        "ui": "workspace:*",
+        "server": "workspace:*",
+        "ably-builder": "workspace:*",
+        "shared": "workspace:*",
+        "drizzle-orm": "^0.26.5",
+        "@radix-ui/react-icons": "^1.1.1",
+        "@ably-labs/react-hooks": "^2.1.0",
+        "@hookform/resolvers": "^2.9.11",
+        "@tanstack/react-query": "^4.24.4",
+        "@trpc/client": "^10.10.0",
+        "@trpc/next": "^10.10.0",
+        "@trpc/react-query": "^10.10.0",
+        "@trpc/server": "^10.10.0",
+        "clsx": "^1.2.1",
+        "next": "13.4.3",
+        "next-auth": "^4.22.1",
+        "next-themes": "^0.2.1",
+        "react": "18.2.0",
+        "react-cropper": "^2.1.8",
+        "react-dom": "18.2.0",
+        "react-hook-form": "^7.43.5",
+        "react-infinite-scroll-hook": "^4.0.4",
+        "react-linkify-it": "^1.0.7",
+        "tailwind-variants": "^0.0.30",
+        "zod": "^3.20.2",
+        "zustand": "^4.3.2",
+        "cloudinary": "^1.37.0",
+        "ably": "^1.2.35",
+        "@inworld/nodejs-sdk": "1.4.0"
+    },
+    "devDependencies": {
+        "config": "workspace:*",
+        "@types/node": "18.11.18",
+        "@types/react": "18.0.27",
+        "@types/react-dom": "18.0.10",
+        "typescript": "^5.0.3"
+    }
+}

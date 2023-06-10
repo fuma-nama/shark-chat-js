@@ -6,8 +6,8 @@ if (url == null) {
 }
 
 export default {
-    out: "./drizzle",
-    schema: "./drizzle/schema.ts",
+    out: "./packages/db",
+    schema: "./packages/db/schema.ts",
     connectionString: url,
     breakpoints: true,
 } satisfies Config;
