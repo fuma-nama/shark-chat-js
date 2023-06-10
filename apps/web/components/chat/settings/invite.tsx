@@ -1,7 +1,7 @@
 import { input } from "ui/components/input";
 import { Button, IconButton } from "ui/components/button";
 import { trpc } from "@/utils/trpc";
-import { useCopyText } from "@/utils/hooks/use-copy-text";
+import { useCopyText } from "ui/hooks/use-copy-text";
 import { Group, GroupInvite } from "db/schema";
 import {
     CheckIcon,

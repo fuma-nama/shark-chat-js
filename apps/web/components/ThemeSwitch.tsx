@@ -9,7 +9,7 @@ import {
 } from "ui/components/select";
 import { Half2Icon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useMemo } from "react";
-import { useMounted } from "@/utils/hooks/use-mounted";
+import { useMounted } from "ui/hooks/use-mounted";
 
 export type ThemeSwitchProps = Omit<SelectProps, "value" | "onValueChanged"> & {
     id?: string;

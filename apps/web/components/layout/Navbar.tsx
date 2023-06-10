@@ -1,6 +1,5 @@
 import { usePageStore } from "@/utils/stores/page";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { BreadcrumbItem, Breadcrumbs } from "./Breadcrumbs";
 

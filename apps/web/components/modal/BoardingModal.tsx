@@ -1,6 +1,6 @@
 import { ChatBubbleIcon } from "@radix-ui/react-icons";
 import { SimpleDialog } from "ui/components/dialog";
-import { useMounted } from "@/utils/hooks/use-mounted";
+import { useMounted } from "ui/hooks/use-mounted";
 import { useState } from "react";
 import { Button } from "ui/components/button";
 import { useSession } from "next-auth/react";

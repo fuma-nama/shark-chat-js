@@ -5,7 +5,7 @@ import React, { RefObject, createContext } from "react";
 import { ReactNode } from "react";
 import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
-import { useViewScrollController } from "@/utils/hooks/use-bottom-scroll";
+import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
 
 export const ViewContext = createContext<
     | {
