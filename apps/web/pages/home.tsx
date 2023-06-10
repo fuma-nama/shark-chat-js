@@ -10,7 +10,6 @@ import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { DMChannel } from "@/utils/types";
 import { GroupWithNotifications } from "shared/schema/group";
-import { badge } from "ui/components/badge";
 import { Spinner } from "ui/components/spinner";
 import { BoxModelIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
@@ -152,7 +151,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
                 {group.name}
             </p>
             {group.unread_messages > 0 && (
-                <p className={badge({ className: "absolute top-4 right-4" })}>
+                <p className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-sm font-medium">
                     {group.unread_messages}
                 </p>
             )}
@@ -179,11 +178,7 @@ function ChatItem({ chat }: { chat: DMChannel }) {
                     </p>
                 </div>
                 {chat.unread_messages > 0 && (
-                    <p
-                        className={badge({
-                            className: "absolute top-4 right-4",
-                        })}
-                    >
+                    <p className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-sm font-medium">
                         {chat.unread_messages}
                     </p>
                 )}

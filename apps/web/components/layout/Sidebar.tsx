@@ -9,9 +9,12 @@ import {
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
 import { tv } from "tailwind-variants";
+import { trpc } from "@/utils/trpc";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
+import { cn } from "ui/utils/cn";
+import { groupIcon } from "shared/media/format";
 
 export const siderbarItem = tv({
     slots: {
@@ -31,7 +34,7 @@ export const siderbarItem = tv({
     },
 });
 
-export default function Sidebar({ children }: { children: ReactNode }) {
+export default function Sidebar() {
     const [isOpen, setOpen] = usePageStore((v) => [
         v.isSidebarOpen,
         v.setSidebarOpen,
@@ -48,27 +51,22 @@ export default function Sidebar({ children }: { children: ReactNode }) {
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 pb-0 gap-1 bg-light-50 dark:bg-dark-800 overflow-x-hidden overflow-y-auto h-full",
+                    "relative flex flex-col p-4 pb-0 gap-1 bg-background border-r-2 overflow-x-hidden overflow-y-auto h-full",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
                     "max-md:transition-transform max-md:duration-300",
                     !isOpen && "max-md:-translate-x-full"
                 )}
             >
                 <button
-                    className="p-2 rounded-lg bg-light-50 dark:bg-dark-800 absolute top-0 right-0 md:hidden"
+                    className="bg-background absolute p-1 top-4 right-4 md:hidden"
                     onClick={onClose}
                 >
-                    <Cross1Icon className="w-5 h-5" />
+                    <Cross1Icon className="w-4 h-4" />
                 </button>
-                <Link
-                    href="/info"
-                    prefetch={false}
-                    className="flex flex-col items-center justify-center aspect-[5/2] bg-gradient-to-br from-brand-400 to-brand-500 rounded-xl text-5xl mb-4 flex-shrink-0"
-                >
-                    <p className="font-light text-white">Shark</p>
+                <Link href="/info" prefetch={false} className="font-bold mb-2">
+                    Shark Chat
                 </Link>
                 <Items />
-                {children}
                 <BottomCard />
             </aside>
         </>
@@ -90,31 +88,112 @@ const items = [
 
 function Items() {
     const router = useRouter();
+    const query = trpc.group.all.useQuery(undefined);
+    const dm = trpc.dm.channels.useQuery(undefined);
 
     return (
         <>
             {items.map(({ name, route, icon }) => {
                 const active = route === router.route;
-                const styles = siderbarItem({ active });
 
                 return (
-                    <Link key={route} href={route} className={styles.root()}>
+                    <Link
+                        key={route}
+                        href={route}
+                        className={cn(
+                            "flex flex-row gap-3 items-center p-1 rounded-lg",
+                            active && "bg-accent"
+                        )}
+                    >
                         <div
-                            className={clsx(
-                                "rounded-xl p-1.5",
+                            className={cn(
+                                "rounded-lg p-1.5 border-[1px] shadow-lg",
                                 active &&
-                                    "bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
+                                    "border-transparent bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
                                 !active &&
-                                    "text-brand-400 bg-brand-100/40 dark:text-brand-100 dark:bg-brand-400/30"
+                                    "text-secondary-foreground border-secondary"
                             )}
                         >
                             {icon}
                         </div>
-                        <p className={styles.text()}>{name}</p>
+                        <p
+                            className={cn(
+                                "text-sm text-foreground",
+                                active ? "font-medium" : "text-muted-foreground"
+                            )}
+                        >
+                            {name}
+                        </p>
                     </Link>
                 );
             })}
+            <Tabs defaultValue="group" className="mt-2">
+                <TabsList>
+                    <TabsTrigger value="group">Group</TabsTrigger>
+                    <TabsTrigger value="friend">User</TabsTrigger>
+                </TabsList>
+                <TabsContent value="group" className="flex flex-col gap-1">
+                    {query.data?.map((group) => (
+                        <SidebarItem
+                            key={group.id}
+                            href={`/chat/${group.id}`}
+                            active={router.query.group === group.id.toString()}
+                            image={groupIcon.url([group.id], group.icon_hash)}
+                            notifications={group.unread_messages}
+                        >
+                            {group.name}
+                        </SidebarItem>
+                    ))}
+                </TabsContent>
+                <TabsContent value="friend">
+                    {dm.data?.map((item) => (
+                        <SidebarItem
+                            key={item.id}
+                            href={`/dm/${item.id}`}
+                            active={router.query.channel === item.id}
+                            image={item.user.image}
+                            notifications={item.unread_messages}
+                        >
+                            {item.user.name}
+                        </SidebarItem>
+                    ))}
+                </TabsContent>
+            </Tabs>
         </>
+    );
+}
+
+function SidebarItem({
+    active,
+    href,
+    image,
+    children: name,
+    notifications,
+}: {
+    active: boolean;
+    href: string;
+    image: string | null;
+    children: string;
+    notifications: number;
+}) {
+    return (
+        <Link
+            href={href}
+            className={cn(
+                "flex flex-row items-center gap-2 p-1 rounded-lg text-sm",
+                active
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "text-muted-foreground"
+            )}
+        >
+            <Avatar src={image} fallback={name} size="small" rounded="sm" />
+            {name}
+            {notifications > 0 && (
+                <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
+                    {notifications}
+                </div>
+            )}
+        </Link>
     );
 }
 
@@ -123,27 +202,28 @@ function BottomCard() {
     if (status !== "authenticated") return <></>;
 
     return (
-        <div className="sticky bottom-0 bg-light-50 dark:bg-dark-800 mt-auto -mx-2 py-2">
+        <div className="sticky bottom-0 bg-background mt-auto -mx-2 py-2">
             <Link
                 href="/settings"
                 className={clsx(
                     "p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors",
-                    "hover:bg-brand-200/20 dark:hover:bg-brand-300/10"
+                    "hover:bg-accent"
                 )}
             >
                 <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
                     <Avatar
                         src={profile.image ?? undefined}
                         fallback={profile.name ?? undefined}
+                        size="2sm"
                     />
                 </div>
                 <div className="flex-1 overflow-hidden flex flex-col">
-                    <p className="font-semibold">{profile.name}</p>
-                    <p className="text-accent-800 dark:text-accent-600 text-sm text-ellipsis inline-block w-full break-keep overflow-hidden">
-                        {profile.email}
+                    <p className="font-semibold text-sm">{profile.name}</p>
+                    <p className="text-muted-foreground text-xs">
+                        View Profile
                     </p>
                 </div>
-                <ChevronRightIcon className="w-6 h-6 group-hover:translate-x-1 transition-transform my-auto text-accent-800" />
+                <ChevronRightIcon className="w-4 h-4 my-auto text-muted-foreground" />
             </Link>
         </div>
     );

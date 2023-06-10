@@ -93,7 +93,7 @@ module.exports = {
                     900: "#11047A",
                 },
                 accent: {
-                    DEFAULT: "hsl(var(--muted))",
+                    DEFAULT: "hsl(var(--accent))",
                     foreground: "hsl(var(--foreground))",
                     50: colors.gray[50],
                     100: "#E0E5F2",

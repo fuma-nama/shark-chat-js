@@ -1,15 +1,10 @@
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { badge } from "ui/components/badge";
-import { siderbarItem } from "./Sidebar";
 import { AppLayout } from "./app";
 import { ReactNode } from "react";
 import { skeleton } from "ui/components/skeleton";
 import { Avatar } from "ui/components/avatar";
-import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
-import { DMChannel } from "@/utils/types";
 
 export function useDirectMessageLayout({
     footer,
@@ -23,7 +18,6 @@ export function useDirectMessageLayout({
     return (
         <AppLayout
             footer={footer}
-            sidebar={<Sidebar />}
             breadcrumb={[
                 {
                     text: <BreadcrumbItem />,
@@ -55,57 +49,5 @@ function BreadcrumbItem() {
             />
             <span>{query.data.user.name}</span>
         </div>
-    );
-}
-
-function Sidebar() {
-    const { status } = useSession();
-    const query = trpc.dm.channels.useQuery(undefined, {
-        staleTime: Infinity,
-        enabled: status === "authenticated",
-    });
-
-    return (
-        <div className="flex flex-col mt-3">
-            <p className="font-medium mb-2 text-base text-foreground">
-                Direct Messages
-            </p>
-            {query.status === "loading" && (
-                <>
-                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 my-2 h-[32px]" />
-                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 my-2 h-[32px]" />
-                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 my-2 h-[32px]" />
-                    <div className="rounded-lg bg-light-200 dark:bg-dark-700 my-2 h-[32px]" />
-                </>
-            )}
-            {query.data?.map((item) => (
-                <ChatItem key={item.id} item={item} />
-            ))}
-        </div>
-    );
-}
-
-function ChatItem({ item }: { item: DMChannel }) {
-    const router = useRouter();
-    const active = router.query["channel"] === item.id;
-    const styles = siderbarItem({ active });
-
-    return (
-        <DirectMessageContextMenu channelId={item.id}>
-            <Link href={`/dm/${item.id}`} className={styles.root()}>
-                <Avatar
-                    rounded="sm"
-                    size="2sm"
-                    fallback={item.user.name}
-                    src={item.user.image}
-                />
-                <p className={styles.text()}>{item.user.name}</p>
-                {item.unread_messages !== 0 && (
-                    <div className={badge({ className: "ml-auto" })}>
-                        {item.unread_messages}
-                    </div>
-                )}
-            </Link>
-        </DirectMessageContextMenu>
     );
 }

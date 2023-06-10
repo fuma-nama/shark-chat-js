@@ -35,7 +35,7 @@ const Settings: NextPageWithLayout = () => {
                     <Info group={query.data} isAdmin={isAdmin} />
                     {isAdmin && (
                         <Tabs defaultValue="invite">
-                            <TabsList className="mb-2">
+                            <TabsList className="mb-4">
                                 <TabsTrigger value="invite">Invite</TabsTrigger>
                                 <TabsTrigger value="member">Member</TabsTrigger>
                                 <TabsTrigger value="danger">Danger</TabsTrigger>
