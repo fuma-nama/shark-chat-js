@@ -186,8 +186,8 @@ function SidebarItem({
                     : "text-muted-foreground"
             )}
         >
-            <Avatar src={image} fallback={name} size="small" rounded="sm" />
-            {name}
+            <Avatar src={image} fallback={name} size="2sm" rounded="sm" />
+            <p>{name}</p>
             {notifications > 0 && (
                 <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
                     {notifications}
