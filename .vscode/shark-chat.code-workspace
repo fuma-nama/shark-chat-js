@@ -17,6 +17,9 @@
         },
         {
             "path": "../packages/shared"
+        },
+        {
+            "path": "../"
         }
     ],
     "settings": {
@@ -27,6 +30,7 @@
             ".turbo": true,
             "node_modules": true
         },
-        "search.useParentIgnoreFiles": true
+        "search.useParentIgnoreFiles": true,
+        "eslint.enable": false
     }
 }

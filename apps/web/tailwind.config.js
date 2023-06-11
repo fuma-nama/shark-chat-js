@@ -67,6 +67,10 @@ module.exports = {
                     DEFAULT: "hsl(var(--popover))",
                     foreground: "hsl(var(--popover-foreground))",
                 },
+                card: {
+                    DEFAULT: "hsl(var(--card))",
+                    foreground: "hsl(var(--card-foreground))",
+                },
                 dark: {
                     50: "#d0dcfb",
                     100: "#aac0fe",

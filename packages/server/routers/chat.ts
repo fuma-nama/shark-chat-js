@@ -15,6 +15,7 @@ import {
     attachments,
     directMessageInfos,
     groups,
+    messageChannels,
     messages,
     users,
 } from "db/schema";
@@ -89,33 +90,48 @@ export const chatRouter = router({
                     )
                     .then((res) => requireOne(res));
 
+                await db
+                    .update(messageChannels)
+                    .set({
+                        last_message_id: message.id,
+                    })
+                    .where(eq(messageChannels.id, message.channel_id));
+
+                let is_new_dm = false;
+
+                if (type === "dm") {
+                    const result = await db
+                        .update(directMessageInfos)
+                        .set({
+                            open: true,
+                        })
+                        .where(
+                            and(
+                                eq(
+                                    directMessageInfos.channel_id,
+                                    input.channelId
+                                ),
+                                eq(directMessageInfos.open, false)
+                            )
+                        );
+                    is_new_dm = result.rowsAffected !== 0;
+                }
+
                 return {
                     ...message,
                     attachment,
+                    is_new_dm,
                     nonce: input.nonce,
                 };
             });
 
-            if (type === "dm") {
-                const result = await db
-                    .update(directMessageInfos)
-                    .set({
-                        open: true,
-                    })
-                    .where(
-                        and(
-                            eq(directMessageInfos.channel_id, input.channelId),
-                            eq(directMessageInfos.open, false)
-                        )
-                    );
-
-                if (result.rowsAffected !== 0) {
-                    await channels.private.open_dm.publish([data.to_user_id], {
-                        id: data.channel_id,
-                        user: message.author,
-                        unread_messages: 1,
-                    });
-                }
+            if (type === "dm" && message.is_new_dm) {
+                await channels.private.open_dm.publish([data.to_user_id], {
+                    id: data.channel_id,
+                    user: message.author,
+                    unread_messages: 1,
+                    last_message: message,
+                });
             }
 
             await Promise.all([

@@ -1,11 +1,12 @@
 import Sidebar from "@/components/layout/Sidebar";
-import clsx from "clsx";
 import Head from "next/head";
 import React, { RefObject, createContext } from "react";
 import { ReactNode } from "react";
 import { BreadcrumbItem } from "./Breadcrumbs";
 import { Navbar } from "./Navbar";
 import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
+import { trpc } from "@/utils/trpc";
+import { Spinner } from "ui/components/spinner";
 
 export const ViewContext = createContext<
     | {
@@ -40,12 +41,7 @@ export function AppLayout({
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main
-                className={clsx(
-                    "grid grid-cols-1 md:grid-cols-[20rem_auto] h-full max-h-full overflow-hidden text-accent-900 bg-light-100",
-                    "dark:text-accent-50 dark:bg-dark-900"
-                )}
-            >
+            <main className="grid grid-cols-1 md:grid-cols-[20rem_auto] h-full max-h-full overflow-hidden">
                 <Sidebar />
                 <div
                     className="overflow-y-auto flex flex-col max-h-full"
@@ -53,16 +49,34 @@ export function AppLayout({
                     onScroll={handleRootScroll}
                 >
                     <Navbar breadcrumb={breadcrumb}>{items}</Navbar>
+
                     <ViewContext.Provider
                         value={{ viewRef: rootRef, scrollToBottom }}
                     >
-                        <div className="max-w-screen-2xl w-full mx-auto flex flex-col flex-1 pt-2 p-4">
-                            {children}
-                        </div>
+                        <Content>{children}</Content>
                         {footer}
                     </ViewContext.Provider>
                 </div>
             </main>
         </>
+    );
+}
+
+function Content({ children }: { children: ReactNode }) {
+    const groupQuery = trpc.group.all.useQuery();
+    const dmQuery = trpc.dm.channels.useQuery();
+
+    if (groupQuery.isLoading || dmQuery.isLoading) {
+        return (
+            <div className="m-auto">
+                <Spinner size="large" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-screen-2xl w-full mx-auto flex flex-col flex-1 pt-2 p-4">
+            {children}
+        </div>
     );
 }

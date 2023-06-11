@@ -5,12 +5,12 @@ import { Group, groupInvites, groups } from "db/schema";
 import { Avatar } from "ui/components/avatar";
 import { groupIcon } from "shared/media/format";
 import { Button } from "ui/components/button";
-import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { useMutation } from "@tanstack/react-query";
 import Router from "next/router";
 import Head from "next/head";
 import db from "db/client";
 import { eq } from "drizzle-orm";
+import { trpc } from "@/utils/trpc";
 
 type Props = {
     group: Group;
@@ -19,8 +19,7 @@ type Props = {
 };
 
 const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
-    const handlers = useMutationHelpers();
-    const client = handlers.utils.client;
+    const client = trpc.useContext().client;
     const join = useMutation(
         async () => {
             return type === "code"
@@ -29,7 +28,6 @@ const InvitePage: NextPageWithLayout<Props> = ({ group, type, query }) => {
         },
         {
             async onSuccess(data) {
-                handlers.createGroup(data);
                 await Router.push(`/chat/${data.id}`);
             },
         }

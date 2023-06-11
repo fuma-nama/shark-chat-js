@@ -1,5 +1,5 @@
 import { Group } from "db/schema";
-import { GroupWithNotifications } from "shared/schema/group";
+import { GroupWithNotifications } from "@/utils/types";
 import { RouterUtils } from "@/utils/trpc";
 import { Serialize } from "shared/types";
 import { getGroupQuery } from "@/utils/variables";
@@ -18,6 +18,7 @@ export function removeNonce(nonce: number) {
 export function createGroup(utils: RouterUtils, group: Serialize<Group>) {
     const full_group: GroupWithNotifications = {
         ...group,
+        last_message: null,
         unread_messages: 0,
     };
 
@@ -61,7 +62,7 @@ export function setChannelUnread(
 
     utils.group.all.setData(undefined, (groups) =>
         groups?.map((group) => {
-            if (`g_${group.id}` === channelId) {
+            if (group.channel_id === channelId) {
                 return {
                     ...group,
                     unread_messages: fn(group.unread_messages),

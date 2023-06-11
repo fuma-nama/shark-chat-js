@@ -54,6 +54,7 @@ export const directMessageInfos = mysqlTable(
 
 export const messageChannels = mysqlTable("MessageChannel", {
     id: varchar("id", { length: 32 }).primaryKey(),
+    last_message_id: int("last_message_id"),
 });
 
 export const groups = mysqlTable(
@@ -63,6 +64,7 @@ export const groups = mysqlTable(
         name: varchar(`name`, { length: 256 }).notNull(),
         unique_name: varchar(`unique_name`, { length: 32 }).notNull(),
         icon_hash: int(`icon_hash`),
+        channel_id: varchar("channel_id", { length: 32 }).notNull().default(""),
         owner_id: varchar(`owner_id`, { length: 191 }).notNull(),
         public: boolean(`public`).notNull().default(false),
     },
