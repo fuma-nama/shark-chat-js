@@ -11,14 +11,12 @@ export function PrivateEventManager() {
     const utils = trpc.useContext();
 
     const onEvent = channels.private.useCallback(
-        ({ data: message, name, connectionId }) => {
-            const isSelf = ably.connection.id === connectionId;
-
-            if (name === "group_created" && !isSelf) {
+        ({ data: message, name }) => {
+            if (name === "group_created") {
                 return createGroup(utils, message);
             }
 
-            if (name === "group_removed" && !isSelf) {
+            if (name === "group_removed") {
                 return deleteGroup(utils, message.id);
             }
 

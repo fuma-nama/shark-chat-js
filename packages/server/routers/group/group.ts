@@ -40,16 +40,7 @@ export const groupRouter = router({
                     id: channel_id,
                 });
 
-                await db.insert(members).values({
-                    user_id: ctx.session.user.id,
-                    group_id: group_id,
-                });
-
-                return await db
-                    .select()
-                    .from(groups)
-                    .where(eq(groups.id, group_id))
-                    .then((res) => requireOne(res));
+                return await joinMember(group_id, ctx.session.user.id);
             });
         }),
     all: protectedProcedure.query(({ ctx }) =>
@@ -227,23 +218,22 @@ export const groupRouter = router({
 });
 
 async function joinMember(groupId: number, userId: string) {
-    try {
-        await db.insert(members).values({
-            group_id: groupId,
-            user_id: userId,
-        });
+    await db.insert(members).ignore().values({
+        group_id: groupId,
+        user_id: userId,
+    });
 
-        return await db
-            .select()
-            .from(groups)
-            .where(eq(groups.id, groupId))
-            .then((res) => requireOne(res));
-    } catch (e) {
-        throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You had been joined the group",
-        });
-    }
+    const res = await db.select().from(groups).where(eq(groups.id, groupId));
+
+    if (res.length === 0) return;
+
+    await channels.private.group_created.publish([userId], {
+        ...res[0],
+        last_message: null,
+        unread_messages: 0,
+    });
+
+    return res[0];
 }
 
 async function getGroupsWithNotifications(userId: string) {

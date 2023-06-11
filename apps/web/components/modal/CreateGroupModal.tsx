@@ -1,7 +1,6 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { SimpleDialog } from "ui/components/dialog";
 import { createGroupSchema } from "shared/schema/group";
-import { useMutationHelpers } from "@/utils/trpc/helpers";
 import { updateGroupInfo } from "@/utils/hooks/mutations/update-group-info";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
@@ -10,6 +9,7 @@ import { ImagePicker } from "../input/ImagePicker";
 import { Button } from "ui/components/button";
 import { input } from "ui/components/input";
 import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/utils/trpc";
 
 export default function CreateGroupModal({
     open,
@@ -98,8 +98,7 @@ function Content({ onClose }: { onClose: () => void }) {
 }
 
 function useCreateMutation(onClose: () => void) {
-    const handlers = useMutationHelpers();
-    const utils = handlers.utils;
+    const utils = trpc.useContext();
 
     return useMutation(
         async ({ name, icon }: z.infer<typeof schema>) => {
@@ -115,9 +114,8 @@ function useCreateMutation(onClose: () => void) {
             return data;
         },
         {
-            onSuccess(data) {
+            onSuccess() {
                 onClose();
-                handlers.createGroup(data);
             },
         }
     );
