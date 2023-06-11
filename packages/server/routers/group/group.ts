@@ -218,22 +218,22 @@ export const groupRouter = router({
 });
 
 async function joinMember(groupId: number, userId: string) {
-    await db.insert(members).ignore().values({
+    const res = await db.insert(members).ignore().values({
         group_id: groupId,
         user_id: userId,
     });
 
-    const res = await db.select().from(groups).where(eq(groups.id, groupId));
+    const rows = await db.select().from(groups).where(eq(groups.id, groupId));
 
-    if (res.length === 0) return;
+    if (rows.length !== 0 && res.rowsAffected !== 0) {
+        await channels.private.group_created.publish([userId], {
+            ...rows[0],
+            last_message: null,
+            unread_messages: 0,
+        });
+    }
 
-    await channels.private.group_created.publish([userId], {
-        ...res[0],
-        last_message: null,
-        unread_messages: 0,
-    });
-
-    return res[0];
+    return rows[0];
 }
 
 async function getGroupsWithNotifications(userId: string) {
