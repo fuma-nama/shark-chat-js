@@ -151,6 +151,7 @@ function Items() {
                         <SidebarItem
                             key={item.id}
                             href={`/dm/${item.id}`}
+                            description={item.last_message?.content}
                             active={router.query.channel === item.id}
                             image={item.user.image}
                             notifications={item.unread_messages}

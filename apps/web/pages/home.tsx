@@ -137,7 +137,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
         <Link
             href={`/chat/${group.id}`}
             className={clsx(
-                "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-col gap-4",
+                "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-3",
                 "shadow-2xl dark:shadow-none shadow-brand-500/10"
             )}
         >
@@ -146,9 +146,15 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
                 alt="icon"
                 fallback={group.name}
             />
-            <p className="font-semibold text-lg overflow-hidden text-ellipsis max-w-full break-keep">
-                {group.name}
-            </p>
+            <div className="w-0 flex-1">
+                <p className="font-semibold text-lg overflow-hidden text-ellipsis whitespace-nowrap">
+                    {group.name}
+                </p>
+                <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
+                    {group.last_message?.content}
+                </p>
+            </div>
+
             {group.unread_messages > 0 && (
                 <p className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-sm font-medium">
                     {group.unread_messages}
@@ -174,6 +180,9 @@ function ChatItem({ chat }: { chat: DMChannel }) {
                 <div className="flex-1 w-0">
                     <p className="text-base font-medium text-foreground">
                         {user.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
+                        {chat.last_message?.content}
                     </p>
                 </div>
                 {chat.unread_messages > 0 && (

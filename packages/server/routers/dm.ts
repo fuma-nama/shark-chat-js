@@ -47,6 +47,7 @@ export const dmRouter = router({
             .select({
                 id: directMessageInfos.channel_id,
                 user: pick(users, "name", "image", "id"),
+                last_message: pick(messages, "content"),
             })
             .from(directMessageInfos)
             .where(
@@ -55,7 +56,15 @@ export const dmRouter = router({
                     eq(directMessageInfos.open, true)
                 )
             )
-            .innerJoin(users, eq(directMessageInfos.to_user_id, users.id));
+            .innerJoin(users, eq(directMessageInfos.to_user_id, users.id))
+            .innerJoin(
+                messageChannels,
+                eq(messageChannels.id, directMessageInfos.channel_id)
+            )
+            .leftJoin(
+                messages,
+                eq(messages.id, messageChannels.last_message_id)
+            );
 
         if (channels.length === 0) return [];
         const lastReads = await getLastReads(
@@ -158,6 +167,7 @@ export const dmRouter = router({
 
             await channels.private.open_dm.publish([ctx.session.user.id], {
                 ...res,
+                last_message: null,
                 unread_messages: 0,
             });
 

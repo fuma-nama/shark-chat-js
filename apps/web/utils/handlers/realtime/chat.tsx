@@ -146,6 +146,16 @@ function addMessage(
         };
     });
 
+    utils.dm.channels.setData(undefined, (prev) => {
+        if (prev == null) return prev;
+
+        return prev.map((channel) =>
+            channel.id === message.channel_id
+                ? { ...channel, last_message: message }
+                : channel
+        );
+    });
+
     utils.group.all.setData(undefined, (prev) => {
         if (prev == null) return prev;
         return prev.map((group) =>
