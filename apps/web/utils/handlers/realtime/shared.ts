@@ -19,10 +19,6 @@ export function createGroup(utils: RouterUtils, group: Serialize<Group>) {
     const full_group: GroupWithNotifications = {
         ...group,
         last_message: null,
-        channel: {
-            id: group.channel_id,
-            last_message_id: null,
-        },
         unread_messages: 0,
     };
 
