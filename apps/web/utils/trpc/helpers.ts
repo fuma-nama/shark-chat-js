@@ -15,7 +15,11 @@ export function useMutationHelpers() {
             utils: utils,
             createGroup: (group: Serialize<Group>) => {
                 createGroup(utils, group);
-                channels.private.group_created.publish([data!!.user.id], group);
+                channels.private.group_created.publish([data!!.user.id], {
+                    ...group,
+                    last_message: { content: "" },
+                    unread_messages: 0,
+                });
             },
         }),
         [utils, data]

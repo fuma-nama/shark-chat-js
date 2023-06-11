@@ -9,6 +9,16 @@ import { PrivateEventManager } from "@/utils/handlers/realtime/private";
 
 import type { AppProps } from "next/app";
 import type { NextPage } from "next";
+import { usePageStore } from "@/utils/stores/page";
+import {
+    Toast,
+    ToastClose,
+    ToastDescription,
+    ToastProvider,
+    ToastTitle,
+    ToastViewport,
+} from "ui/components/toast";
+
 import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
 
@@ -30,11 +40,33 @@ function App({
             <PrivateEventManager />
             <GroupEventManager />
             <MessageEventManager />
+            <ToastManager />
 
             <ThemeProvider attribute="class" disableTransitionOnChange>
                 <Content Component={Component} pageProps={pageProps} />
             </ThemeProvider>
         </SessionProvider>
+    );
+}
+
+function ToastManager() {
+    const messages = usePageStore((s) => s.messages);
+
+    return (
+        <ToastProvider>
+            {messages.map((message) => (
+                <Toast key={message.id} variant="destructive">
+                    <div className="grid gap-1">
+                        <ToastTitle>{message.title}</ToastTitle>
+                        <ToastDescription>
+                            {message.description}
+                        </ToastDescription>
+                    </div>
+                    <ToastClose />
+                </Toast>
+            ))}
+            <ToastViewport className="gap-4" />
+        </ToastProvider>
     );
 }
 

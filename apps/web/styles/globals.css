@@ -7,8 +7,8 @@
         --muted-foreground: 226 22% 47%;
         --muted: 214 32% 91%;
 
-        --destructive: 0 91% 71%;
-        --destructive-foreground: 0 91% 71%;
+        --destructive: 0 91% 55%;
+        --destructive-foreground: 210 20% 98%;
 
         --secondary-foreground: 230 53% 23%;
         --secondary: 213 27% 84%;
@@ -42,6 +42,9 @@
         --secondary: 228 59% 34%;
 
         --accent: 227 60% 17%;
+
+        --destructive: 0 91% 61%;
+        --destructive-foreground: 210 20% 98%;
 
         --card: 227, 60%, 17%;
         --card-foreground: 210 20% 98%;
