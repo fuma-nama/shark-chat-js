@@ -191,9 +191,13 @@ function SidebarItem({
             )}
         >
             <Avatar src={image} fallback={name} size="2sm" rounded="sm" />
-            <div>
-                <p className="font-medium">{name}</p>
-                <p className="text-muted-foreground text-xs">{description}</p>
+            <div className="w-0 flex-1">
+                <p className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+                    {name}
+                </p>
+                <p className="text-muted-foreground text-xs overflow-hidden text-ellipsis whitespace-nowrap">
+                    {description}
+                </p>
             </div>
             {notifications > 0 && (
                 <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
