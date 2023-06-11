@@ -130,6 +130,7 @@ export const chatRouter = router({
                     id: data.channel_id,
                     user: message.author,
                     unread_messages: 1,
+                    last_message: message,
                 });
             }
 
