@@ -18,9 +18,15 @@ export function MessageEventManager() {
             if (name === "typing") return;
 
             const variables = getMessageVariables(message.channel_id);
-            const active =
-                Router.query.channel === message.channel_id ||
-                `g_${Router.query.group}` === message.channel_id;
+            const channel_id =
+                Router.query.group != null
+                    ? utils.group.all
+                          .getData(undefined)
+                          ?.find(
+                              (group) => group.id === Number(Router.query.group)
+                          )?.channel_id
+                    : Router.query.channel;
+            const active = channel_id === message.channel_id;
 
             if (name === "message_sent") {
                 const self = message.author_id === data?.user.id;
@@ -50,7 +56,7 @@ export function MessageEventManager() {
                         .removeSending(message.channel_id, message.nonce);
                 }
 
-                return addGroupMessage(utils, variables, message);
+                return addMessage(utils, variables, message);
             }
 
             if (name === "message_updated") {
@@ -114,7 +120,7 @@ export function MessageEventManager() {
     const channelList = useMemo(() => {
         return [
             ...(groups.data?.map((group) =>
-                channels.chat.get([`g_${group.id}`])
+                channels.chat.get([group.channel_id])
             ) ?? []),
             ...(dm.data?.map((channel) => channels.chat.get([channel.id])) ??
                 []),
@@ -126,7 +132,7 @@ export function MessageEventManager() {
     return <></>;
 }
 
-function addGroupMessage(
+function addMessage(
     utils: RouterUtils,
     variables: RouterInput["chat"]["messages"],
     message: MessageType
@@ -138,5 +144,14 @@ function addGroupMessage(
             ...prev,
             pages: [...prev.pages, [message]],
         };
+    });
+
+    utils.group.all.setData(undefined, (prev) => {
+        if (prev == null) return prev;
+        return prev.map((group) =>
+            group.channel_id === message.channel_id
+                ? { ...group, last_message: message }
+                : group
+        );
     });
 }

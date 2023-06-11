@@ -5,6 +5,7 @@ import {
     directMessageInfos,
     groups,
     members,
+    messageChannels,
 } from "db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
@@ -23,48 +24,38 @@ export async function checkChannelPermissions(
     channelId: string,
     user: Session
 ): Promise<Result> {
-    if (channelId.startsWith("g_")) {
-        const rows = await db
-            .select()
-            .from(members)
-            .where(
-                and(
-                    eq(members.group_id, Number(channelId.slice("g_".length))),
-                    eq(members.user_id, user.user.id)
-                )
-            )
-            .limit(1);
-
-        if (rows.length === 0) {
-            throw new TRPCError({
-                code: "UNAUTHORIZED",
-                message: "Missing required permissions",
-            });
-        }
-
-        return { type: "group", data: rows[0] };
-    }
-
-    const rows = await db
-        .select()
-        .from(directMessageInfos)
-        .where(
+    const channel = await db
+        .select({ member: members, dm: directMessageInfos })
+        .from(messageChannels)
+        .where(eq(messageChannels.id, channelId))
+        .leftJoin(groups, eq(groups.channel_id, messageChannels.id))
+        .leftJoin(
+            members,
             and(
-                eq(directMessageInfos.channel_id, channelId),
+                eq(members.group_id, groups.id),
+                eq(members.user_id, user.user.id)
+            )
+        )
+        .leftJoin(
+            directMessageInfos,
+            and(
+                eq(directMessageInfos.channel_id, messageChannels.id),
                 eq(directMessageInfos.user_id, user.user.id),
                 eq(directMessageInfos.open, true)
             )
         )
-        .limit(1);
+        .limit(1)
+        .then((res) => res[0]);
 
-    if (rows.length === 0) {
-        throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Channel not found",
-        });
+    if (channel?.member != null) {
+        return { type: "group", data: channel.member };
     }
 
-    return { type: "dm", data: rows[0] };
+    if (channel?.dm != null) {
+        return { type: "dm", data: channel.dm };
+    }
+
+    throw new TRPCError({ code: "NOT_FOUND" });
 }
 
 export async function checkIsMemberOf(group: number, user: Session) {
@@ -97,4 +88,6 @@ export async function checkIsOwnerOf(group: number, user: Session) {
             code: "BAD_REQUEST",
         });
     }
+
+    return rows;
 }

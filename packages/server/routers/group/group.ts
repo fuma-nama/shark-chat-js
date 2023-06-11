@@ -3,33 +3,42 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../../trpc";
 import { checkIsOwnerOf } from "../../utils/permissions";
 import { inviteRouter } from "./invite";
-import {
-    createGroupSchema,
-    GroupWithNotifications,
-    updateGroupSchema,
-} from "shared/schema/group";
+import { createGroupSchema, updateGroupSchema } from "shared/schema/group";
 import { membersRouter } from "./members";
 import { channels } from "../../ably";
 import { getLastReads } from "../../redis/last-read";
 import db from "db/client";
 import { createId } from "@paralleldrive/cuid2";
-import { groupInvites, groups, members, messages } from "db/schema";
+import {
+    groupInvites,
+    groups,
+    members,
+    messageChannels,
+    messages,
+} from "db/schema";
 import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { requireOne } from "db/utils";
+import { pick } from "shared/common";
 
 export const groupRouter = router({
     create: protectedProcedure
         .input(createGroupSchema)
         .mutation(({ ctx, input }) => {
             return db.transaction(async () => {
+                const channel_id = createId();
                 const group_id = await db
                     .insert(groups)
                     .values({
+                        channel_id,
                         name: input.name,
                         owner_id: ctx.session.user.id,
                         unique_name: createId(),
                     })
                     .then((res) => Number(res.insertId));
+
+                await db.insert(messageChannels).values({
+                    id: channel_id,
+                });
 
                 await db.insert(members).values({
                     user_id: ctx.session.user.id,
@@ -150,14 +159,14 @@ export const groupRouter = router({
     delete: protectedProcedure
         .input(z.object({ groupId: z.number() }))
         .mutation(async ({ ctx, input }) => {
-            await checkIsOwnerOf(input.groupId, ctx.session);
+            const res = await checkIsOwnerOf(input.groupId, ctx.session);
 
             db.transaction(async () => {
                 await db.delete(groups).where(eq(groups.id, input.groupId));
 
                 await db
                     .delete(messages)
-                    .where(eq(messages.channel_id, `g_${input.groupId}`));
+                    .where(eq(messages.channel_id, res[0].channel_id));
 
                 await db
                     .delete(members)
@@ -237,26 +246,28 @@ async function joinMember(groupId: number, userId: string) {
     }
 }
 
-async function getGroupsWithNotifications(
-    userId: string
-): Promise<GroupWithNotifications[]> {
+async function getGroupsWithNotifications(userId: string) {
     const result = await db
         .select({
             group: groups,
+            last_message: pick(messages, "content"),
         })
         .from(members)
         .innerJoin(groups, eq(groups.id, members.group_id))
+        .innerJoin(messageChannels, eq(groups.channel_id, messageChannels.id))
+        .leftJoin(messages, eq(messageChannels.last_message_id, messages.id))
         .where(eq(members.user_id, userId))
         .orderBy(desc(members.group_id));
+
     if (result.length === 0) return [];
 
     const last_reads = await getLastReads(
-        result.map((row) => [`g_${row.group.id}`, userId])
+        result.map((row) => [row.group.channel_id, userId])
     );
 
     return await db.transaction(
         async () => {
-            const groups = result.map(async ({ group }, i) => {
+            const groups = result.map(async ({ group, last_message }, i) => {
                 const last_read = last_reads[i];
                 const result = await db
                     .select({
@@ -265,7 +276,7 @@ async function getGroupsWithNotifications(
                     .from(messages)
                     .where(
                         and(
-                            eq(messages.channel_id, `g_${group.id}`),
+                            eq(messages.channel_id, group.channel_id),
                             last_read != null
                                 ? gt(messages.timestamp, last_read)
                                 : undefined
@@ -275,6 +286,7 @@ async function getGroupsWithNotifications(
 
                 return {
                     ...group,
+                    last_message,
                     unread_messages: Number(result.count),
                 };
             });

@@ -8,11 +8,15 @@ import Link from "next/link";
 import { useGroupLayout } from "@/components/layout/group";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
+import { trpc } from "@/utils/trpc";
+import { Sendbar } from "@/components/chat/Sendbar";
 
 const GroupChat: NextPageWithLayout = () => {
-    const { group } = useRouter().query as { group: string };
+    const channel_id = useChannelId();
 
-    return <MessageList channelId={`g_${group}`} welcome={<Welcome />} />;
+    if (channel_id == null) return <></>;
+
+    return <MessageList channelId={channel_id} welcome={<Welcome />} />;
 };
 
 function Welcome() {
@@ -37,7 +41,7 @@ function Welcome() {
 GroupChat.useLayout = (children) =>
     useGroupLayout({
         children,
-        footer: <ChannelSendbar channelId={`g_${useRouter().query.group}`} />,
+        footer: <GroupSendbar />,
         items: (
             <Link
                 href={{
@@ -53,5 +57,20 @@ GroupChat.useLayout = (children) =>
             </Link>
         ),
     });
+
+function GroupSendbar() {
+    const id = useChannelId();
+    if (id == null) return <Sendbar onSend={() => {}} onType={() => {}} />;
+
+    return <ChannelSendbar channelId={id} />;
+}
+
+function useChannelId() {
+    const group_id = useRouter().query.group;
+    const query = trpc.group.all.useQuery(undefined);
+    const group = query.data?.find((group) => group.id === Number(group_id));
+
+    return group?.channel_id ?? null;
+}
 
 export default GroupChat;

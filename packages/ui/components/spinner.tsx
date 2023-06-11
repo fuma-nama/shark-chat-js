@@ -4,7 +4,7 @@ const spinner = tv({
     slots: {
         container: "flex justify-center items-center",
         status: [
-            "align-[-0.125rem] border-l-accent-900 border-r-transparent animate-spin inline-block rounded-full",
+            "align-[-0.125rem] border-l-accent-900 animate-spin inline-block rounded-full",
             "dark:border-l-accent-50",
         ],
     },

@@ -4,7 +4,6 @@ import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
 import { useEffect, Fragment, ReactNode } from "react";
 import { Button } from "ui/components/button";
-import { Spinner } from "ui/components/spinner";
 import { useChatView, UnreadSeparator } from "./ChatView";
 import { ChatMessageItem } from "./GroupMessageItem";
 import { LocalMessageItem } from "./LocalMessageItem";
@@ -49,8 +48,10 @@ export function MessageList({
     return (
         <div className="flex flex-col gap-3 mb-8">
             {query.isLoading || query.hasPreviousPage ? (
-                <div ref={sentryRef} className="flex flex-col m-auto">
-                    <Spinner size="large" />
+                <div ref={sentryRef} className="flex flex-col gap-3">
+                    {new Array(40).fill(0).map((_, i) => (
+                        <Skeleton key={i} />
+                    ))}
                 </div>
             ) : query.isError ? (
                 <>
@@ -86,6 +87,22 @@ export function MessageList({
                     onDelete={() => remove(channelId, message.nonce)}
                 />
             ))}
+        </div>
+    );
+}
+
+function Skeleton() {
+    return (
+        <div className="flex flex-row gap-3 p-4 rounded-xl bg-card">
+            <div className="bg-muted-foreground rounded-full h-12 w-12 opacity-20" />
+            <div className="flex flex-col gap-3 flex-1 opacity-20">
+                <div className="flex flex-row gap-3 items-center">
+                    <div className="bg-muted-foreground rounded-xl h-4 w-20" />
+                    <div className="bg-muted-foreground rounded-xl h-4 w-8" />
+                </div>
+                <div className="bg-muted-foreground rounded-xl h-4 max-w-xl" />
+                <div className="bg-muted-foreground rounded-xl h-4 max-w-md" />
+            </div>
         </div>
     );
 }

@@ -43,10 +43,6 @@ export function GroupEventManager() {
 function updateGroup(utils: RouterUtils, group: Serialize<Group>) {
     utils.group.info.setData({ groupId: group.id }, group);
     utils.group.all.setData(undefined, (groups) =>
-        groups?.map((g) =>
-            g.id === group.id
-                ? { ...group, unread_messages: g.unread_messages }
-                : g
-        )
+        groups?.map((g) => (g.id === group.id ? { ...g, ...group } : g))
     );
 }

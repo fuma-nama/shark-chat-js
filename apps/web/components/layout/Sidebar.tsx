@@ -137,6 +137,7 @@ function Items() {
                         <SidebarItem
                             key={group.id}
                             href={`/chat/${group.id}`}
+                            description={group.last_message?.content}
                             active={router.query.group === group.id.toString()}
                             image={groupIcon.url([group.id], group.icon_hash)}
                             notifications={group.unread_messages}
@@ -167,10 +168,12 @@ function SidebarItem({
     active,
     href,
     image,
+    description,
     children: name,
     notifications,
 }: {
     active: boolean;
+    description?: string;
     href: string;
     image: string | null;
     children: string;
@@ -182,12 +185,15 @@ function SidebarItem({
             className={cn(
                 "flex flex-row items-center gap-2 p-1 rounded-lg text-sm",
                 active
-                    ? "bg-accent text-accent-foreground font-medium"
+                    ? "bg-accent text-accent-foreground"
                     : "text-muted-foreground"
             )}
         >
             <Avatar src={image} fallback={name} size="2sm" rounded="sm" />
-            <p>{name}</p>
+            <div>
+                <p className="font-medium">{name}</p>
+                <p className="text-muted-foreground text-xs">{description}</p>
+            </div>
             {notifications > 0 && (
                 <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
                     {notifications}
