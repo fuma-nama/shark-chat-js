@@ -129,7 +129,7 @@ export const chatRouter = router({
                 await channels.private.open_dm.publish([data.to_user_id], {
                     id: data.channel_id,
                     user: message.author,
-                    unread_messages: 1,
+                    unread_messages: 0,
                     last_message: message,
                 });
             }

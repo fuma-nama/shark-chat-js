@@ -15,6 +15,7 @@ import { trpc } from "@/utils/trpc";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
+import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
 
 export const siderbarItem = tv({
     slots: {
@@ -148,16 +149,22 @@ function Items() {
                 </TabsContent>
                 <TabsContent value="friend">
                     {dm.data?.map((item) => (
-                        <SidebarItem
+                        <DirectMessageContextMenu
                             key={item.id}
-                            href={`/dm/${item.id}`}
-                            description={item.last_message?.content}
-                            active={router.query.channel === item.id}
-                            image={item.user.image}
-                            notifications={item.unread_messages}
+                            channelId={item.id}
                         >
-                            {item.user.name}
-                        </SidebarItem>
+                            <div>
+                                <SidebarItem
+                                    href={`/dm/${item.id}`}
+                                    description={item.last_message?.content}
+                                    active={router.query.channel === item.id}
+                                    image={item.user.image}
+                                    notifications={item.unread_messages}
+                                >
+                                    {item.user.name}
+                                </SidebarItem>
+                            </div>
+                        </DirectMessageContextMenu>
                     ))}
                 </TabsContent>
             </Tabs>
