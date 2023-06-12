@@ -9,6 +9,9 @@ import {
     index,
     boolean,
     mysqlEnum,
+    json,
+    MySqlJsonBuilderInitial,
+    MySqlJsonBuilder,
 } from "drizzle-orm/mysql-core";
 import { timestamp } from "./utils/timestampUTC";
 
@@ -99,6 +102,13 @@ export const members = mysqlTable(
     })
 );
 
+type Embed = {
+    url: string;
+    title: string;
+    description?: string;
+    image?: string;
+};
+
 export const messages = mysqlTable(
     "Message",
     {
@@ -110,6 +120,13 @@ export const messages = mysqlTable(
             .notNull()
             .default(sql`CURRENT_TIMESTAMP(3)`),
         attachment_id: varchar(`attachment_id`, { length: 32 }),
+        embeds: json("embeds") as MySqlJsonBuilder<{
+            name: "embeds";
+            data: Embed[];
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+        }>,
         reply_id: int("reply_id"),
     },
     (table) => ({

@@ -18,6 +18,7 @@ import {
     uploadAttachmentSchema,
 } from "shared/schema/chat";
 import { createId } from "@paralleldrive/cuid2";
+import ogs from "open-graph-scraper";
 
 const userProfileKeys = ["id", "name", "image"] as const;
 
@@ -68,11 +69,40 @@ export const messageSchema = z
         "Message is empty"
     );
 
+export type Embed = {
+    url: string;
+    title: string;
+    description?: string;
+    image?: string;
+};
+
 export async function createMessage(
     input: z.infer<typeof messageSchema>,
     author_id: string
 ) {
     const attachment = insertAttachment(input.attachment);
+    const url_regex = /(https?:\/\/[^\s]+)/g;
+    const url_result = input.content.match(url_regex);
+
+    const embeds: Embed[] = [];
+    if (url_result != null) {
+        for (const url of url_result) {
+            console.log(url_result);
+            const { result, error } = await ogs({ url: url });
+
+            if (!error && result.ogTitle != null) {
+                embeds.push({
+                    title: result.ogTitle,
+                    url: result.ogUrl ?? url,
+                    description:
+                        result.ogDescription ??
+                        result.dcDescription ??
+                        result.twitterDescription,
+                    image: result.ogImage?.[0]?.url,
+                });
+            }
+        }
+    }
 
     const message_id = await db
         .insert(messages)
@@ -82,6 +112,7 @@ export async function createMessage(
             channel_id: input.channelId,
             attachment_id: attachment?.id ?? null,
             reply_id: input.reply,
+            embeds: embeds.length === 0 ? null : embeds,
         })
         .then((res) => Number(res.insertId));
 
@@ -109,7 +140,7 @@ export async function createMessage(
         .where(eq(messageChannels.id, message.channel_id))
         .execute();
 
-    return { ...message, attachment };
+    return { ...message, attachment, embeds };
 }
 
 function insertAttachment(

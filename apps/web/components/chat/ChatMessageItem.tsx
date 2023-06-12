@@ -83,6 +83,26 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
             {message.attachment != null && (
                 <AttachmentItem attachment={message.attachment} />
             )}
+            <div className="flex flex-col gap-3 mt-3">
+                {message.embeds?.map((v, i) => (
+                    <div
+                        key={i}
+                        className="bg-card text-card-foreground p-2 border-l-2 border-l-primary rounded-lg"
+                    >
+                        <a
+                            href={v.url}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="font-medium text-sm"
+                        >
+                            {v.title}
+                        </a>
+                        <p className="text-muted-foreground text-xs">
+                            {v.description}
+                        </p>
+                    </div>
+                ))}
+            </div>
         </Item.Root>
     );
 }
