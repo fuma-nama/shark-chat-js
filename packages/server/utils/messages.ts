@@ -25,8 +25,8 @@ const userProfileKeys = ["id", "name", "image"] as const;
 export function fetchMessages(
     channel: string,
     count: number,
-    after?: number,
-    before?: number
+    after?: Date,
+    before?: Date
 ) {
     const reply_message = alias(messages, "reply_message");
     const reply_user = alias(users, "reply_user");
@@ -43,8 +43,8 @@ export function fetchMessages(
         .where(
             and(
                 eq(messages.channel_id, channel),
-                after != null ? gt(messages.id, after) : undefined,
-                before != null ? lt(messages.id, before) : undefined
+                after != null ? gt(messages.timestamp, after) : undefined,
+                before != null ? lt(messages.timestamp, before) : undefined
             )
         )
         .leftJoin(users, eq(users.id, messages.author_id))

@@ -132,6 +132,9 @@ export const messages = mysqlTable(
         Message_channel_id_idx: index("Message_channel_id_idx").on(
             table.channel_id
         ),
+        Message_timestamp_idx: index("Message_timestamp_idx").on(
+            table.timestamp
+        ),
     })
 );
 

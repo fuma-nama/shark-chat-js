@@ -29,7 +29,7 @@ export function MessageList({
         staleTime: Infinity,
         getPreviousPageParam: (messages) =>
             messages.length >= variables.count
-                ? messages[messages.length - 1].id
+                ? messages[messages.length - 1].timestamp
                 : null,
     });
 

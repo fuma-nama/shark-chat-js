@@ -98,10 +98,7 @@ export const chatRouter = router({
                 channelId: z.string(),
                 count: z.number().min(0).max(50).default(50),
                 cursorType: z.enum(["after", "before"]).default("before"),
-                /** 
-                the message id
-                */
-                cursor: z.number().optional(),
+                cursor: z.string().datetime().optional(),
             })
         )
         .query(async ({ input, ctx }) => {
@@ -111,10 +108,10 @@ export const chatRouter = router({
                 input.channelId,
                 input.count,
                 input.cursor != null && input.cursorType === "after"
-                    ? input.cursor
+                    ? new Date(input.cursor)
                     : undefined,
                 input.cursor != null && input.cursorType === "before"
-                    ? input.cursor
+                    ? new Date(input.cursor)
                     : undefined
             );
         }),
