@@ -133,9 +133,6 @@ export const messages = mysqlTable(
         Message_channel_id_idx: index("Message_channel_id_idx").on(
             table.channel_id
         ),
-        Message_author_id_idx: index(`Message_author_id_idx`).on(
-            table.author_id
-        ),
     })
 );
 
