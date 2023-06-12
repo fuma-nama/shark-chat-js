@@ -30,7 +30,6 @@ export function fetchMessages(
 ) {
     const reply_message = alias(messages, "reply_message");
     const reply_user = alias(users, "reply_user");
-    const userProfileKeys = ["id", "name", "image"] as const;
 
     return db
         .select({

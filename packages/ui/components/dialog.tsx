@@ -58,11 +58,11 @@ const DialogClose = DialogPrimitive.DialogClose;
 
 function DialogContent(props: DialogPrimitive.DialogContentProps) {
     return (
-        <DialogPrimitive.Overlay className="fixed inset-0 z-20 bg-black/50 overflow-y-auto flex">
+        <DialogPrimitive.Overlay className="fixed inset-0 z-20 bg-black/50 overflow-y-auto flex backdrop-blur-md">
             <DialogPrimitive.Content
                 {...props}
                 className={twMerge(
-                    "relative m-auto z-50 animate-zoom-in",
+                    "relative m-auto z-50 animate-in fade-in-90 zoom-in-90",
                     "w-[95vw] max-w-md rounded-lg p-4 md:w-full",
                     "bg-light-50 dark:bg-dark-900",
                     "focus:outline-none",

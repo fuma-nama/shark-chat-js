@@ -26,21 +26,6 @@ module.exports = {
                     "sans-serif",
                 ],
             },
-            animation: {
-                "zoom-in": "zoom-in 0.2s ease-out",
-            },
-            keyframes: {
-                "zoom-in": {
-                    from: {
-                        opacity: "0",
-                        transform: "scale(0.8)",
-                    },
-                    to: {
-                        opacity: "100%",
-                        transform: "scale(1)",
-                    },
-                },
-            },
             colors: {
                 border: "hsl(var(--border))",
                 input: "hsl(var(--border))",
