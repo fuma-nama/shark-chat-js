@@ -66,7 +66,7 @@ function Content({ setValue }: { setValue: (s: string) => void }) {
                 placeholder="Do sharks hunt people?"
             />
             {mutation.isError && (
-                <p className="text-sm text-destructive-foreground">
+                <p className="text-sm text-destructive">
                     {mutation.error.message}
                 </p>
             )}

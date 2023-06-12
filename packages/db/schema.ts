@@ -10,7 +10,6 @@ import {
     boolean,
     mysqlEnum,
     json,
-    MySqlJsonBuilderInitial,
     MySqlJsonBuilder,
 } from "drizzle-orm/mysql-core";
 import { timestamp } from "./utils/timestampUTC";

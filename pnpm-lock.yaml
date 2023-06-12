@@ -25,6 +25,9 @@ importers:
       tailwindcss:
         specifier: ^3.2.4
         version: 3.2.4(postcss@8.4.21)
+      tailwindcss-animate:
+        specifier: ^1.0.6
+        version: 1.0.6(tailwindcss@3.2.4)
       tailwindcss-radix:
         specifier: ^2.7.0
         version: 2.7.0
@@ -4983,6 +4986,14 @@ packages:
       tailwind-merge: 1.13.1
       tailwindcss: 3.2.4(postcss@8.4.21)
     dev: false
+
+  /tailwindcss-animate@1.0.6(tailwindcss@3.2.4):
+    resolution: {integrity: sha512-4WigSGMvbl3gCCact62ZvOngA+PRqhAn7si3TQ3/ZuPuQZcIEtVap+ENSXbzWhpojKB8CpvnIsrwBu8/RnHtuw==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || insiders'
+    dependencies:
+      tailwindcss: 3.2.4(postcss@8.4.21)
+    dev: true
 
   /tailwindcss-radix@2.7.0:
     resolution: {integrity: sha512-fIVkT5zQYdsjT9+/Mvp+DTlJDdTFpRDuyS5+PLuJDAIIVr9+rWYKhK6rsB9QtjwUwwb0YF+BkAJN6CjZivOfLA==}

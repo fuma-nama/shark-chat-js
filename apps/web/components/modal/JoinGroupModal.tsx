@@ -77,7 +77,7 @@ function JoinGroupByCode({ onClose }: { onClose: () => void }) {
                     placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
                     {...register("code", { minLength: 4 })}
                 />
-                <p className="text-xs text-destructive-foreground">
+                <p className="text-xs text-destructive">
                     {formState.errors?.code?.message}
                 </p>
             </fieldset>
@@ -133,7 +133,7 @@ function JoinGroupByName({ onClose }: { onClose: () => void }) {
                         ...register("unique_name"),
                     }}
                 />
-                <p className="text-xs text-destructive-foreground">
+                <p className="text-xs text-destructive">
                     {formState.errors.unique_name?.message}
                 </p>
             </fieldset>
