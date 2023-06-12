@@ -7,7 +7,7 @@ import {
     Attachment,
 } from "db/schema";
 import { requireOne } from "db/utils";
-import { and, eq, placeholder, or, isNull, lt, desc } from "drizzle-orm";
+import { and, eq, lt, desc, gt } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
 import { pick } from "shared/common";
 import { z } from "zod";
@@ -19,46 +19,40 @@ import {
 } from "shared/schema/chat";
 import { createId } from "@paralleldrive/cuid2";
 
-const reply_message = alias(messages, "reply_message");
-const reply_user = alias(users, "reply_user");
 const userProfileKeys = ["id", "name", "image"] as const;
 
-const message_query = db
-    .select({
-        ...(messages as typeof messages._.columns),
-        author: pick(users, ...userProfileKeys),
-        attachment: attachments,
-        reply_message: pick(reply_message, "content"),
-        reply_user: pick(reply_user, ...userProfileKeys),
-    })
-    .from(messages)
-    .where(
-        and(
-            eq(messages.channel_id, placeholder("channel")),
-            or(
-                isNull(placeholder("after")),
-                lt(messages.timestamp, placeholder("after"))
-            ),
-            or(
-                isNull(placeholder("before")),
-                lt(messages.timestamp, placeholder("before"))
+export function fetchMessages(
+    channel: string,
+    count: number,
+    after?: number,
+    before?: number
+) {
+    const reply_message = alias(messages, "reply_message");
+    const reply_user = alias(users, "reply_user");
+    const userProfileKeys = ["id", "name", "image"] as const;
+
+    return db
+        .select({
+            ...(messages as typeof messages._.columns),
+            author: pick(users, ...userProfileKeys),
+            attachment: attachments,
+            reply_message: pick(reply_message, "content"),
+            reply_user: pick(reply_user, ...userProfileKeys),
+        })
+        .from(messages)
+        .where(
+            and(
+                eq(messages.channel_id, channel),
+                after != null ? gt(messages.id, after) : undefined,
+                before != null ? lt(messages.id, before) : undefined
             )
         )
-    )
-    .leftJoin(users, eq(users.id, messages.author_id))
-    .leftJoin(attachments, eq(attachments.id, messages.attachment_id))
-    .leftJoin(reply_message, eq(messages.reply_id, reply_message.id))
-    .leftJoin(reply_user, eq(reply_message.author_id, reply_user.id))
-    .orderBy(desc(messages.timestamp))
-    .limit(30)
-    .prepare();
-
-export function fetchMessages(channel: string, after?: Date, before?: Date) {
-    return message_query.execute({
-        after: after ?? null,
-        before: before ?? null,
-        channel,
-    });
+        .leftJoin(users, eq(users.id, messages.author_id))
+        .leftJoin(attachments, eq(attachments.id, messages.attachment_id))
+        .leftJoin(reply_message, eq(messages.reply_id, reply_message.id))
+        .leftJoin(reply_user, eq(reply_message.author_id, reply_user.id))
+        .orderBy(desc(messages.timestamp))
+        .limit(count);
 }
 
 export const messageSchema = z

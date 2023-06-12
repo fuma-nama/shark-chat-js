@@ -9,7 +9,6 @@ import {
     index,
     boolean,
     mysqlEnum,
-    bigint,
 } from "drizzle-orm/mysql-core";
 import { timestamp } from "./utils/timestampUTC";
 
@@ -72,7 +71,7 @@ export const groups = mysqlTable(
         Group_unique_name_key: uniqueIndex(`Group_unique_name_key`).on(
             table.unique_name
         ),
-        Group_owner_id_idx: index(`Group_owner_id_idx`).on(table.owner_id),
+        Group_channel_idx: index(`Group_channel_idx`).on(table.channel_id),
     })
 );
 
