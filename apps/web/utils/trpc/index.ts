@@ -12,8 +12,10 @@ export const trpc = createTRPCNext<AppRouter>({
                 defaultOptions: {
                     queries: {
                         retry: false,
+                        retryOnMount: false,
                     },
                     mutations: {
+                        retry: false,
                         onError(error) {
                             if (error instanceof TRPCClientError) {
                                 showErrorToast({
