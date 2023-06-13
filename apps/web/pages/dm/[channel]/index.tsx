@@ -17,10 +17,9 @@ const DMPage: NextPageWithLayout = () => {
 
 function Welcome() {
     const { channel } = useRouter().query as { channel: string };
-    const { status } = useSession();
     const query = trpc.dm.info.useQuery(
         { channelId: channel },
-        { enabled: status === "authenticated" }
+        { enabled: false }
     );
 
     const data = query.data;

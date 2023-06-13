@@ -63,8 +63,12 @@ export function AppLayout({
 }
 
 function Content({ children }: { children: ReactNode }) {
-    const groupQuery = trpc.group.all.useQuery();
-    const dmQuery = trpc.dm.channels.useQuery();
+    const groupQuery = trpc.group.all.useQuery(undefined, {
+        enabled: false,
+    });
+    const dmQuery = trpc.dm.channels.useQuery(undefined, {
+        enabled: false,
+    });
 
     if (groupQuery.isLoading || dmQuery.isLoading) {
         return (

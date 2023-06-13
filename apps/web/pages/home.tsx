@@ -67,12 +67,10 @@ const Home: NextPageWithLayout = () => {
     const { status } = useSession();
     const setModal = usePageStore((s) => s.setModal);
     const dmQuery = trpc.dm.channels.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
+        enabled: false,
     });
     const groups = trpc.group.all.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
+        enabled: false,
     });
 
     const onRetry = () => {

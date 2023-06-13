@@ -89,8 +89,8 @@ const items = [
 
 function Items() {
     const router = useRouter();
-    const query = trpc.group.all.useQuery(undefined);
-    const dm = trpc.dm.channels.useQuery(undefined);
+    const query = trpc.group.all.useQuery(undefined, { enabled: false });
+    const dm = trpc.dm.channels.useQuery(undefined, { enabled: false });
 
     return (
         <>

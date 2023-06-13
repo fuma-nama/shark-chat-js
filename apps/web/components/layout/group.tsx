@@ -15,6 +15,7 @@ function GroupItem() {
         { groupId },
         {
             enabled: status === "authenticated" && isReady,
+            staleTime: Infinity,
             onError(err) {
                 if (err.data?.code === "NOT_FOUND") {
                     Router.push("/");

@@ -5,12 +5,10 @@ import {
     DialogTrigger,
 } from "ui/components/dialog";
 import { ReactNode, useState } from "react";
-import { RouterOutput, trpc } from "@/utils/trpc";
+import { trpc } from "@/utils/trpc";
 import { Avatar } from "ui/components/avatar";
 import { Button, button } from "ui/components/button";
 import Router from "next/router";
-
-type Profile = RouterOutput["account"]["profile"];
 
 export function UserProfileModal({
     userId,
@@ -20,22 +18,20 @@ export function UserProfileModal({
     children: ReactNode;
 }) {
     const [open, setOpen] = useState(false);
-    const query = trpc.account.profile.useQuery({ userId });
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="max-w-lg">
-                {query.status === "success" && (
-                    <Content user={query.data} onClose={() => setOpen(false)} />
-                )}
+                <Content userId={userId} onClose={() => setOpen(false)} />
             </DialogContent>
         </Dialog>
     );
 }
 
-function Content({ user, onClose }: { user: Profile; onClose: () => void }) {
+function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
     const utils = trpc.useContext();
+    const query = trpc.account.profile.useQuery({ userId });
     const dmMutation = trpc.dm.open.useMutation({
         onSuccess: (res) => {
             Router.push(`/dm/${res.id}`);
@@ -47,7 +43,7 @@ function Content({ user, onClose }: { user: Profile; onClose: () => void }) {
         const data = utils.dm.channels.getData();
 
         if (data != null) {
-            const channel = data.find((channel) => channel.user.id === user.id);
+            const channel = data.find((channel) => channel.user.id === userId);
 
             if (channel != null) {
                 Router.push(`/dm/${channel.id}`);
@@ -57,9 +53,15 @@ function Content({ user, onClose }: { user: Profile; onClose: () => void }) {
         }
 
         dmMutation.mutate({
-            userId: user.id,
+            userId,
         });
     };
+
+    if (query.data == null) {
+        return <></>;
+    }
+
+    const user = query.data;
 
     return (
         <div className="flex flex-col">

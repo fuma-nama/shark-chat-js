@@ -35,7 +35,7 @@ function BreadcrumbItem() {
     const { status } = useSession();
     const query = trpc.dm.info.useQuery(
         { channelId: channel },
-        { enabled: status === "authenticated" }
+        { enabled: status === "authenticated", staleTime: Infinity }
     );
 
     return query.data == null ? (

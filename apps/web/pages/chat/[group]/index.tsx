@@ -66,7 +66,7 @@ function useGroupSendbar() {
 
 function useChannelId() {
     const group_id = useRouter().query.group;
-    const query = trpc.group.all.useQuery(undefined);
+    const query = trpc.group.all.useQuery(undefined, { enabled: false });
     const group = query.data?.find((group) => group.id === Number(group_id));
 
     return group?.channel_id ?? null;
