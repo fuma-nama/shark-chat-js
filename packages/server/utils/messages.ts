@@ -78,14 +78,17 @@ export async function createMessage(
     const url_result = input.content.match(url_regex);
 
     const embeds: Embed[] = [];
-    if (url_result != null) {
-        for (const url of new Set(url_result).values()) {
-            const embed = await info(url).catch(() => undefined);
 
-            if (embed != null) {
-                embeds.push(embed);
-            }
-        }
+    if (url_result != null) {
+        await Promise.all(
+            Array.from(new Set(url_result)).map((url) =>
+                info(url)
+                    .catch(() => undefined)
+                    .then((res) => {
+                        if (res != null) embeds.push(res);
+                    })
+            )
+        );
     }
 
     const message_id = await db
