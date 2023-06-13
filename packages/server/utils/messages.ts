@@ -5,6 +5,7 @@ import {
     attachments,
     messageChannels,
     Attachment,
+    Embed,
 } from "db/schema";
 import { requireOne } from "db/utils";
 import { and, eq, lt, desc, gt } from "drizzle-orm";
@@ -18,7 +19,7 @@ import {
     uploadAttachmentSchema,
 } from "shared/schema/chat";
 import { createId } from "@paralleldrive/cuid2";
-import ogs from "open-graph-scraper";
+import { info } from "./og-meta";
 
 const userProfileKeys = ["id", "name", "image"] as const;
 
@@ -68,13 +69,6 @@ export const messageSchema = z
         "Message is empty"
     );
 
-export type Embed = {
-    url: string;
-    title: string;
-    description?: string;
-    image?: string;
-};
-
 export async function createMessage(
     input: z.infer<typeof messageSchema>,
     author_id: string
@@ -86,19 +80,10 @@ export async function createMessage(
     const embeds: Embed[] = [];
     if (url_result != null) {
         for (const url of url_result) {
-            console.log(url_result);
-            const { result, error } = await ogs({ url: url });
+            const embed = await info(url).catch(() => undefined);
 
-            if (!error && result.ogTitle != null) {
-                embeds.push({
-                    title: result.ogTitle,
-                    url: result.ogUrl ?? url,
-                    description:
-                        result.ogDescription ??
-                        result.dcDescription ??
-                        result.twitterDescription,
-                    image: result.ogImage?.[0]?.url,
-                });
+            if (embed != null) {
+                embeds.push(embed);
             }
         }
     }

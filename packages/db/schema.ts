@@ -101,11 +101,15 @@ export const members = mysqlTable(
     })
 );
 
-type Embed = {
+export type Embed = {
     url: string;
     title: string;
     description?: string;
-    image?: string;
+    image?: {
+        url: string;
+        width?: number;
+        height?: number;
+    };
 };
 
 export const messages = mysqlTable(

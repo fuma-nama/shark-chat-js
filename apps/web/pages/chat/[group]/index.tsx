@@ -9,7 +9,6 @@ import { useGroupLayout } from "@/components/layout/group";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
 import { trpc } from "@/utils/trpc";
-import { Sendbar } from "@/components/chat/Sendbar";
 
 const GroupChat: NextPageWithLayout = () => {
     const channel_id = useChannelId();
@@ -41,7 +40,7 @@ function Welcome() {
 GroupChat.useLayout = (children) =>
     useGroupLayout({
         children,
-        footer: <GroupSendbar />,
+        footer: useGroupSendbar(),
         items: (
             <Link
                 href={{
@@ -58,10 +57,10 @@ GroupChat.useLayout = (children) =>
         ),
     });
 
-function GroupSendbar() {
+function useGroupSendbar() {
     const id = useChannelId();
-    if (id == null) return <Sendbar onSend={() => {}} onType={() => {}} />;
 
+    if (id == null) return <></>;
     return <ChannelSendbar channelId={id} />;
 }
 

@@ -7,6 +7,8 @@ import * as Item from "./MessageItem";
 import { AttachmentItem } from "./AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useRouter } from "next/router";
+import { Spinner } from "ui/components/spinner";
+import { Embed } from "db/schema";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
     const { group } = useRouter().query;
@@ -83,27 +85,48 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
             {message.attachment != null && (
                 <AttachmentItem attachment={message.attachment} />
             )}
-            <div className="flex flex-col gap-3 mt-3">
-                {message.embeds?.map((v, i) => (
-                    <div
-                        key={i}
-                        className="bg-card text-card-foreground p-2 border-l-2 border-l-primary rounded-lg"
+            {message.embeds?.map((v, i) => (
+                <div
+                    key={i}
+                    className="bg-card text-card-foreground mt-3 p-2 border-l-2 border-l-primary rounded-lg"
+                >
+                    <a
+                        href={v.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="font-medium text-sm"
                     >
-                        <a
-                            href={v.url}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="font-medium text-sm"
-                        >
-                            {v.title}
-                        </a>
-                        <p className="text-muted-foreground text-xs">
-                            {v.description}
-                        </p>
-                    </div>
-                ))}
-            </div>
+                        {v.title}
+                    </a>
+                    <p className="text-muted-foreground text-xs">
+                        {v.description}
+                    </p>
+                    {v.image != null && <EmbedImage image={v.image} />}
+                </div>
+            ))}
         </Item.Root>
+    );
+}
+
+function EmbedImage({ image }: { image: Exclude<Embed["image"], undefined> }) {
+    const [state, setState] = useState<"loading" | "loaded">("loading");
+
+    return (
+        <div className="w-fit h-fit relative mt-3 rounded-xl overflow-hidden">
+            <img
+                alt="image"
+                src={image.url}
+                width={image.width ?? 400}
+                height={image.height ?? 400}
+                className="max-w-[400px]"
+                onLoad={() => setState("loaded")}
+            />
+            {state === "loading" && (
+                <div className="flex flex-col justify-center items-center absolute inset-0 bg-light-100 dark:bg-dark-700">
+                    <Spinner size="medium" />
+                </div>
+            )}
+        </div>
     );
 }
 
