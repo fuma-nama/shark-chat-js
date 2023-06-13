@@ -250,6 +250,12 @@ importers:
       '@types/probe-image-size':
         specifier: ^7.2.0
         version: 7.2.0
+      '@types/react':
+        specifier: 18.0.27
+        version: 18.0.27
+      '@types/react-dom':
+        specifier: 18.0.10
+        version: 18.0.10
       '@types/uuid':
         specifier: ^9.0.1
         version: 9.0.1

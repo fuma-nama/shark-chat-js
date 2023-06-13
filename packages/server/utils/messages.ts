@@ -79,7 +79,7 @@ export async function createMessage(
 
     const embeds: Embed[] = [];
     if (url_result != null) {
-        for (const url of url_result) {
+        for (const url of new Set(url_result).values()) {
             const embed = await info(url).catch(() => undefined);
 
             if (embed != null) {
