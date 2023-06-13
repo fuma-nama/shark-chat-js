@@ -11,6 +11,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build/)).
 -   Create, Update, Delete Chat Group
 -   Send, Update, Delete Message
 -   Reference Messages
+-   Message Embeds (Display url open-graph data in message)
 -   Send Multiple Images/Files via Message
 -   Direct Message with anyone
 -   View & Kick Group members
