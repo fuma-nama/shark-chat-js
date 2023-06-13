@@ -69,25 +69,28 @@ export const messageSchema = z
         "Message is empty"
     );
 
+const url_regex = /(https?:\/\/[^\s]+)/g;
+
 export async function createMessage(
     input: z.infer<typeof messageSchema>,
     author_id: string
 ) {
     const attachment = insertAttachment(input.attachment);
-    const url_regex = /(https?:\/\/[^\s]+)/g;
     const url_result = input.content.match(url_regex);
 
     const embeds: Embed[] = [];
 
     if (url_result != null) {
         await Promise.all(
-            Array.from(new Set(url_result)).map((url) =>
-                info(url)
-                    .catch(() => undefined)
-                    .then((res) => {
-                        if (res != null) embeds.push(res);
-                    })
-            )
+            Array.from(new Set(url_result))
+                .slice(0, 3)
+                .map((url) =>
+                    info(url)
+                        .catch(() => undefined)
+                        .then((res) => {
+                            if (res != null) embeds.push(res);
+                        })
+                )
         );
     }
 
