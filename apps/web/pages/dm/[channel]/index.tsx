@@ -1,6 +1,5 @@
 import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { skeleton } from "ui/components/skeleton";
 

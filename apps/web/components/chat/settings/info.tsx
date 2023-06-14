@@ -31,8 +31,8 @@ export default function Info({
             <div className="flex flex-col gap-3 -mt-[4rem]">
                 <div className="w-full flex flex-row justify-between items-end">
                     <Avatar
-                        border="wide"
                         size="xlarge"
+                        className="border-4 border-background"
                         src={groupIcon.url([group.id], group.icon_hash)}
                         fallback={group.name}
                     />

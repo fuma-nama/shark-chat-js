@@ -1,15 +1,13 @@
 import * as AvatarBase from "@radix-ui/react-avatar";
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { tv, VariantProps } from "tailwind-variants";
 
 const avatar = tv({
     slots: {
-        root: "relative inline-flex aspect-square",
+        root: "relative inline-flex aspect-square overflow-hidden",
         image: "h-full w-full object-cover",
-        fallback: [
-            "flex h-full w-full text-center items-center justify-center bg-brand-500 text-sm font-medium uppercase",
-            "text-accent-50 dark:bg-brand-400",
-        ],
+        fallback:
+            "flex h-full w-full text-center items-center justify-center bg-primary text-primary-foreground text-sm font-medium uppercase",
     },
     variants: {
         size: {
@@ -36,18 +34,15 @@ const avatar = tv({
         },
         rounded: {
             full: {
-                image: "rounded-full",
-                fallback: "rounded-full",
+                root: "rounded-full",
             },
             sm: {
-                image: "rounded-lg",
-                fallback: "rounded-lg",
+                root: "rounded-lg",
             },
         },
         border: {
             wide: {
-                image: "border-4 border-light-100 dark:border-dark-900",
-                fallback: "border-4 border-light-100 dark:border-dark-900",
+                root: "border-4 border-background",
             },
         },
     },
@@ -61,14 +56,12 @@ export type AvatarProps = {
     src?: string | null;
     fallback?: string;
     alt?: string;
-    asImage?: ReactNode;
     className?: string;
 } & VariantProps<typeof avatar>;
 
 export function Avatar({
     size,
     fallback,
-    asImage,
     src,
     alt,
     border,
@@ -89,6 +82,7 @@ export function Avatar({
     return (
         <AvatarBase.Root
             {...props}
+            key={src}
             className={styles.root({ className: props.className })}
         >
             {src != null && (
@@ -96,15 +90,9 @@ export function Avatar({
                     alt={fallback ?? alt ?? "avatar"}
                     src={src}
                     className={styles.image()}
-                    asChild={asImage != null}
-                >
-                    {asImage}
-                </AvatarBase.Image>
+                />
             )}
-            <AvatarBase.Fallback
-                className={styles.fallback()}
-                delayMs={src != null ? 200 : 0}
-            >
+            <AvatarBase.Fallback className={styles.fallback()} delayMs={0}>
                 <p>{fallbackText}</p>
             </AvatarBase.Fallback>
         </AvatarBase.Root>
