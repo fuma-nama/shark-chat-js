@@ -208,8 +208,9 @@ export function Text({ children }: { children: string }) {
     const nodes = useMemo(() => {
         return linkIt(
             children,
-            (url) => (
+            (url, key) => (
                 <a
+                    key={key}
                     href={url}
                     target="_blank"
                     rel="noreferrer"
