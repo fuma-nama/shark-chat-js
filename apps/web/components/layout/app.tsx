@@ -11,7 +11,9 @@ import { Spinner } from "ui/components/spinner";
 export const ViewContext = createContext<
     | {
           viewRef: RefObject<HTMLDivElement>;
-          scrollToBottom: () => void;
+          scrollToBottom: ReturnType<
+              typeof useViewScrollController
+          >["scrollToBottom"];
       }
     | undefined
 >(undefined);

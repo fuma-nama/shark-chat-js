@@ -13,16 +13,20 @@ export function useViewScrollController() {
         }
     }, []);
 
-    const scrollToBottom = useCallback(() => {
-        const scrollableRoot = rootRef.current;
-        const lastScrollDistanceToBottom =
-            lastScrollDistanceToBottomRef.current ?? 0;
+    const scrollToBottom = useCallback(
+        (type: "last_distance" | "force" = "last_distance") => {
+            const scrollableRoot = rootRef.current;
+            const lastScrollDistanceToBottom =
+                lastScrollDistanceToBottomRef.current ?? 0;
 
-        if (scrollableRoot) {
+            if (scrollableRoot == null) return;
             scrollableRoot.scrollTop =
-                scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
-        }
-    }, []);
+                type === "last_distance"
+                    ? scrollableRoot.scrollHeight - lastScrollDistanceToBottom
+                    : scrollableRoot.scrollHeight;
+        },
+        []
+    );
 
     return { rootRef, handleRootScroll, scrollToBottom };
 }

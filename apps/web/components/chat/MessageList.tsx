@@ -2,7 +2,7 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { useEffect, Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, useLayoutEffect } from "react";
 import { Button } from "ui/components/button";
 import { useChatView, UnreadSeparator } from "./ChatView";
 import { ChatMessageItem } from "./ChatMessageItem";
@@ -41,9 +41,13 @@ export function MessageList({
         loading: query.isFetchingPreviousPage,
     });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         scrollToBottom();
     }, [pages, sending, scrollToBottom]);
+
+    useLayoutEffect(() => {
+        scrollToBottom("force");
+    }, [channelId, scrollToBottom]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">
