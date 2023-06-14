@@ -9,6 +9,7 @@ import { trpc } from "@/utils/trpc";
 import { Avatar } from "ui/components/avatar";
 import { Button, button } from "ui/components/button";
 import Router from "next/router";
+import { Spinner } from "ui/components/spinner";
 
 export function UserProfileModal({
     userId,
@@ -58,7 +59,12 @@ function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
     };
 
     if (query.data == null) {
-        return <></>;
+        return (
+            <div className="min-h-[350px] flex flex-col items-center justify-center text-center">
+                <Spinner size="medium" />
+                <p className="text-xs mt-2">Loading</p>
+            </div>
+        );
     }
 
     const user = query.data;
@@ -71,8 +77,7 @@ function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
                     fallback={user.name}
                     src={user.image}
                     size="large"
-                    border="wide"
-                    className="-ml-2"
+                    className="-ml-2 border-4 border-background"
                 />
                 <div className="mt-2">
                     <p className="font-semibold text-xl">{user.name}</p>
