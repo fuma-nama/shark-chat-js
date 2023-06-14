@@ -23,7 +23,11 @@ export async function info(url: string) {
     };
 
     if (result.ogImage?.[0] != null) {
-        const data = await probe(result.ogImage[0].url, {
+        const imgUrl = result.ogImage[0].url.startsWith("/")
+            ? new URL(result.ogImage[0].url, result.ogUrl ?? url).toString()
+            : result.ogImage[0].url;
+
+        const data = await probe(imgUrl, {
             timeout: 5000,
         });
 
