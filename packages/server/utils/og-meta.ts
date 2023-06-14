@@ -19,7 +19,7 @@ export async function info(url: string) {
     const embed: Embed = {
         title: result.ogTitle,
         url: result.ogUrl ?? url,
-        description: result.ogDescription,
+        description: result.ogDescription?.slice(0, 100),
     };
 
     if (result.ogImage?.[0] != null) {

@@ -107,8 +107,8 @@ export type Embed = {
     description?: string;
     image?: {
         url: string;
-        width?: number;
-        height?: number;
+        width: number;
+        height: number;
     };
 };
 

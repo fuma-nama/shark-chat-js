@@ -112,14 +112,19 @@ function EmbedImage({ image }: { image: Exclude<Embed["image"], undefined> }) {
     const [state, setState] = useState<"loading" | "loaded">("loading");
 
     return (
-        <div className="w-fit h-fit relative mt-3 rounded-xl overflow-hidden">
+        <div
+            className="w-auto relative mt-3 rounded-xl overflow-hidden"
+            style={{
+                maxWidth: `${Math.min(image.width, 400)}px`,
+                maxHeight: `${Math.min(image.height, 400)}px`,
+                aspectRatio: image.width / image.height,
+            }}
+        >
             <img
                 alt="image"
                 src={image.url}
-                width={image.width ?? 400}
-                height={image.height ?? 400}
-                className="max-w-[400px]"
                 onLoad={() => setState("loaded")}
+                className="w-full h-full"
             />
             {state === "loading" && (
                 <div className="flex flex-col justify-center items-center absolute inset-0 bg-light-100 dark:bg-dark-700">
