@@ -22,6 +22,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { info } from "./og-meta";
 
 const userProfileKeys = ["id", "name", "image"] as const;
+const url_regex = /(https?:\/\/[^\s]+)/g;
 
 export function fetchMessages(
     channel: string,
@@ -69,30 +70,12 @@ export const messageSchema = z
         "Message is empty"
     );
 
-const url_regex = /(https?:\/\/[^\s]+)/g;
-
 export async function createMessage(
     input: z.infer<typeof messageSchema>,
-    author_id: string
+    author_id: string,
+    embeds: Embed[]
 ) {
     const attachment = insertAttachment(input.attachment);
-    const url_result = input.content.match(url_regex);
-
-    const embeds: Embed[] = [];
-
-    if (url_result != null) {
-        await Promise.all(
-            Array.from(new Set(url_result))
-                .slice(0, 3)
-                .map((url) =>
-                    info(url)
-                        .catch(() => undefined)
-                        .then((res) => {
-                            if (res != null) embeds.push(res);
-                        })
-                )
-        );
-    }
 
     const message_id = await db
         .insert(messages)
@@ -105,6 +88,13 @@ export async function createMessage(
             embeds: embeds.length === 0 ? null : embeds,
         })
         .then((res) => Number(res.insertId));
+
+    db.update(messageChannels)
+        .set({
+            last_message_id: message_id,
+        })
+        .where(eq(messageChannels.id, input.channelId))
+        .execute();
 
     const reply_message = alias(messages, "reply_message");
     const reply_user = alias(users, "reply_user");
@@ -123,14 +113,28 @@ export async function createMessage(
         .leftJoin(reply_user, eq(reply_message.author_id, reply_user.id))
         .then((res) => requireOne(res));
 
-    db.update(messageChannels)
-        .set({
-            last_message_id: message.id,
-        })
-        .where(eq(messageChannels.id, message.channel_id))
-        .execute();
-
     return { ...message, attachment, embeds };
+}
+
+export async function getEmbeds(content: string): Promise<Embed[]> {
+    const embeds: Embed[] = [];
+    const url_result = content.match(url_regex);
+
+    if (url_result != null) {
+        await Promise.all(
+            Array.from(new Set(url_result))
+                .slice(0, 3)
+                .map((url) =>
+                    info(url)
+                        .then((res) => {
+                            if (res != null) embeds.push(res);
+                        })
+                        .catch(() => {})
+                )
+        );
+    }
+
+    return embeds;
 }
 
 function insertAttachment(

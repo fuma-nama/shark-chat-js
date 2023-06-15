@@ -11,7 +11,12 @@ import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
 import { checkChannelPermissions } from "../utils/permissions";
 import { pick } from "shared/common";
-import { createMessage, fetchMessages, messageSchema } from "../utils/messages";
+import {
+    createMessage,
+    fetchMessages,
+    getEmbeds,
+    messageSchema,
+} from "../utils/messages";
 
 const userProfileKeys = ["id", "name", "image"] as const;
 
@@ -19,50 +24,49 @@ export const chatRouter = router({
     send: protectedProcedure
         .input(messageSchema)
         .mutation(async ({ input, ctx }) => {
-            const { message, is_new_dm, data } = await db.transaction(
-                async () => {
-                    const { type, data } = await checkChannelPermissions(
-                        input.channelId,
-                        ctx.session
-                    );
-
-                    const message = await createMessage(
-                        input,
-                        ctx.session.user.id
-                    );
-
-                    let is_new_dm = false;
-
-                    if (type === "dm") {
-                        const result = await db
-                            .update(directMessageInfos)
-                            .set({
-                                open: true,
-                            })
-                            .where(
-                                and(
-                                    eq(
-                                        directMessageInfos.channel_id,
-                                        input.channelId
-                                    ),
-                                    eq(directMessageInfos.open, false)
-                                )
-                            );
-                        is_new_dm = result.rowsAffected !== 0;
-                    }
-
-                    return {
-                        message: {
-                            ...message,
-                            nonce: input.nonce,
-                        },
-                        is_new_dm,
-                        data: type === "dm" ? data : null,
-                    };
-                }
+            const { type, data } = await checkChannelPermissions(
+                input.channelId,
+                ctx.session
             );
 
-            if (data != null && is_new_dm) {
+            const embeds = await getEmbeds(input.content);
+            const { message, is_new_dm } = await db.transaction(async () => {
+                const message = await createMessage(
+                    input,
+                    ctx.session.user.id,
+                    embeds
+                );
+
+                let is_new_dm = false;
+
+                if (type === "dm") {
+                    const result = await db
+                        .update(directMessageInfos)
+                        .set({
+                            open: true,
+                        })
+                        .where(
+                            and(
+                                eq(
+                                    directMessageInfos.channel_id,
+                                    input.channelId
+                                ),
+                                eq(directMessageInfos.open, false)
+                            )
+                        );
+                    is_new_dm = result.rowsAffected !== 0;
+                }
+
+                return {
+                    message: {
+                        ...message,
+                        nonce: input.nonce,
+                    },
+                    is_new_dm,
+                };
+            });
+
+            if (type === "dm" && is_new_dm) {
                 await channels.private.open_dm.publish([data.to_user_id], {
                     id: data.channel_id,
                     user: message.author,
@@ -120,14 +124,17 @@ export const chatRouter = router({
             z.object({
                 messageId: z.number(),
                 channelId: z.string(),
-                content: contentSchema,
+                content: contentSchema.min(1),
             })
         )
         .mutation(async ({ ctx, input }) => {
+            const embeds = await getEmbeds(input.content);
+
             const rows = await db
                 .update(messages)
                 .set({
                     content: input.content,
+                    embeds,
                 })
                 .where(
                     and(
@@ -146,6 +153,7 @@ export const chatRouter = router({
             await channels.chat.message_updated.publish([input.channelId], {
                 id: input.messageId,
                 content: input.content,
+                embeds,
                 channel_id: input.channelId,
             });
         }),
@@ -230,9 +238,11 @@ async function checkDeleteMessage(messageId: number, user: string) {
         .select({
             author_id: messages.author_id,
             channel_id: messages.channel_id,
+            owner_id: groups.owner_id,
         })
         .from(messages)
         .where(eq(messages.id, messageId))
+        .leftJoin(groups, eq(groups.channel_id, messages.channel_id))
         .limit(1)
         .then((res) => res[0]);
 
@@ -242,22 +252,12 @@ async function checkDeleteMessage(messageId: number, user: string) {
             message: "Message not found",
         });
 
-    if (message.author_id === user) {
-        return { channel_id: message.channel_id };
+    if (message.author_id !== user && message.owner_id !== user) {
+        throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Missing required permission",
+        });
     }
 
-    const group_rows = await db
-        .select({ owner: groups.owner_id })
-        .from(groups)
-        .where(eq(groups.channel_id, message.channel_id))
-        .limit(1);
-
-    if (group_rows.length !== 0 && group_rows[0].owner === user) {
-        return { channel_id: message.channel_id };
-    }
-
-    throw new TRPCError({
-        code: "BAD_REQUEST",
-        message: "Missing required permission",
-    });
+    return { channel_id: message.channel_id };
 }

@@ -36,7 +36,12 @@ export const schema = {
             z.custom<ServerMessageType & { nonce?: number }>()
         ),
         message_updated: a.event(
-            z.custom<Pick<ServerMessageType, "id" | "channel_id" | "content">>()
+            z.custom<
+                Pick<
+                    ServerMessageType,
+                    "id" | "channel_id" | "content" | "embeds"
+                >
+            >()
         ),
         message_deleted: a.event(
             z.custom<Pick<ServerMessageType, "id" | "channel_id">>()

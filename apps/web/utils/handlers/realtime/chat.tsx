@@ -70,7 +70,7 @@ export function MessageEventManager() {
                                 if (msg.id === message.id) {
                                     return {
                                         ...msg,
-                                        content: message.content,
+                                        ...message,
                                     };
                                 }
 
