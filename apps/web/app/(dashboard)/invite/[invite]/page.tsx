@@ -30,7 +30,7 @@ export default async function InvitePage({
 
     return (
         <main className="flex flex-col items-center justify-center bg-gradient-to-b from-light-50 to-light-400  dark:from-dark-600 dark:to-dark-950  min-h-full p-4">
-            <div className="flex flex-col gap-2 sm:gap-4 items-center text-center p-6 max-w-lg border-[1px] rounded-xl bg-card/50 shadow-lg">
+            <div className="flex flex-col gap-2 sm:gap-4 items-center text-center p-6 w-full max-w-sm border-[1px] rounded-xl bg-card/50 shadow-lg">
                 <Avatar
                     src={groupIcon.url([group.id], group.icon_hash)}
                     size="medium"
