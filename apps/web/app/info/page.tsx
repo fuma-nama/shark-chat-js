@@ -12,36 +12,9 @@ import PreviewImage from "@/public/preview-1.png";
 import PreviewLightImage from "@/public/preview-light.png";
 import Link from "next/link";
 
-function MessageBubble({ className }: { className?: string }) {
-    return (
-        <svg
-            width="162.19084mm"
-            height="91.04966mm"
-            viewBox="0 0 182.19084 111.04966"
-            className={clsx(className, "drop-shadow-2xl")}
-        >
-            <g id="layer1" transform="translate(-3.7594938,-48.584229)">
-                <path
-                    id="rect1170"
-                    d="m 21.052495,54.946631 c -2.93158,0 -5.291667,2.360087 -5.291667,5.291667 v 72.992962 c 0,2.93158 2.360087,5.29167 5.291667,5.29167 H 139.7822 l 35.61281,15.03784 -11.85716,-31.10301 V 60.238298 c 0,-2.93158 -2.36008,-5.291667 -5.29166,-5.291667 z"
-                    className="fill-white dark:fill-brand-100 stroke-2 stroke-brand-300"
-                />
-                <text
-                    x="25"
-                    y="85"
-                    className="text-accent-900 text-2xl font-bold"
-                >
-                    Hello
-                </text>
-            </g>
-        </svg>
-    );
-}
-
 export default function InfoPage() {
     return (
-        <main className="flex flex-col">
-        <div className="relative flex flex-col max-w-screen-2xl px-2 py-4 md:px-4 mx-auto w-full gap-3">
+        <div className="relative flex flex-col w-full max-w-screen-2xl mx-auto px-6 py-4 md:px-8 gap-3">
             <div className="sticky top-0 w-full py-2 flex flex-row items-center z-50 rounded-xl bg-light-100/30 dark:bg-dark-900/30 -mx-2 px-2 backdrop-blur-xl">
                 <div className="w-8 h-8 mr-2 bg-brand rounded-full" />
                 <p className="font-semibold text-xl">Shark Chat</p>
@@ -94,7 +67,32 @@ export default function InfoPage() {
                 Made with ❤️ by Money Shark
             </p>
         </div>
-        </main>
+    );
+}
+
+function MessageBubble({ className }: { className?: string }) {
+    return (
+        <svg
+            width="162.19084mm"
+            height="91.04966mm"
+            viewBox="0 0 182.19084 111.04966"
+            className={clsx(className, "drop-shadow-2xl")}
+        >
+            <g id="layer1" transform="translate(-3.7594938,-48.584229)">
+                <path
+                    id="rect1170"
+                    d="m 21.052495,54.946631 c -2.93158,0 -5.291667,2.360087 -5.291667,5.291667 v 72.992962 c 0,2.93158 2.360087,5.29167 5.291667,5.29167 H 139.7822 l 35.61281,15.03784 -11.85716,-31.10301 V 60.238298 c 0,-2.93158 -2.36008,-5.291667 -5.29166,-5.291667 z"
+                    className="fill-white dark:fill-brand-100 stroke-2 stroke-brand-300"
+                />
+                <text
+                    x="25"
+                    y="85"
+                    className="text-accent-900 text-2xl font-bold"
+                >
+                    Hello
+                </text>
+            </g>
+        </svg>
     );
 }
 
