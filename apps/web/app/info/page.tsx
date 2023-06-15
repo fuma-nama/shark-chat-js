@@ -167,6 +167,7 @@ function Features() {
                     <Image
                         alt="preview"
                         src={PreviewLightImage}
+                        priority
                         className={clsx(
                             "mx-auto w-[80%] min-w-[800px] max-w-full rounded-xl shadow-2xl",
                             "[mask-image:linear-gradient(to_bottom,_white_50%,_transparent_100%)]"
@@ -177,6 +178,7 @@ function Features() {
                     <Image
                         alt="preview"
                         src={PreviewImage}
+                        priority
                         className={clsx(
                             "mx-auto w-[80%] min-w-[800px] max-w-full rounded-xl shadow-2xl",
                             "[mask-image:linear-gradient(to_bottom,_white_50%,_transparent_100%)]"
