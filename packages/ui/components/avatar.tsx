@@ -1,3 +1,4 @@
+"use client";
 import * as AvatarBase from "@radix-ui/react-avatar";
 import { useMemo } from "react";
 import { tv, VariantProps } from "tailwind-variants";
