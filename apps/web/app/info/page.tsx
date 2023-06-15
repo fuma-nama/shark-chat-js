@@ -40,6 +40,7 @@ function MessageBubble({ className }: { className?: string }) {
 
 export default function InfoPage() {
     return (
+        <main className="flex flex-col">
         <div className="relative flex flex-col max-w-screen-2xl px-2 py-4 md:px-4 mx-auto w-full gap-3">
             <div className="sticky top-0 w-full py-2 flex flex-row items-center z-50 rounded-xl bg-light-100/30 dark:bg-dark-900/30 -mx-2 px-2 backdrop-blur-xl">
                 <div className="w-8 h-8 mr-2 bg-brand rounded-full" />
@@ -93,6 +94,7 @@ export default function InfoPage() {
                 Made with ❤️ by Money Shark
             </p>
         </div>
+        </main>
     );
 }
 
