@@ -55,8 +55,8 @@ export type AvatarProps = {
 } & VariantProps<typeof avatar>;
 
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
-    const { size, fallback, src, alt, border, rounded, className } = props;
-    const styles = avatar({ size, border, rounded });
+    const { size, fallback, src, alt, rounded, className } = props;
+    const styles = avatar({ size, rounded });
 
     const fallbackText = useMemo(() => {
         const isSmall = size === "small" || size === "2sm";
