@@ -1,12 +1,11 @@
 "use client";
 import * as AvatarBase from "@radix-ui/react-avatar";
-import { useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { tv, VariantProps } from "tailwind-variants";
 
 const avatar = tv({
     slots: {
         root: "relative inline-flex aspect-square overflow-hidden",
-        image: "h-full w-full object-cover",
         fallback:
             "flex h-full w-full text-center items-center justify-center bg-primary text-primary-foreground text-sm font-medium uppercase",
     },
@@ -41,11 +40,6 @@ const avatar = tv({
                 root: "rounded-lg",
             },
         },
-        border: {
-            wide: {
-                root: "border-4 border-background",
-            },
-        },
     },
     defaultVariants: {
         size: "medium",
@@ -60,16 +54,10 @@ export type AvatarProps = {
     className?: string;
 } & VariantProps<typeof avatar>;
 
-export function Avatar({
-    size,
-    fallback,
-    src,
-    alt,
-    border,
-    rounded,
-    ...props
-}: AvatarProps) {
+export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
+    const { size, fallback, src, alt, border, rounded, className } = props;
     const styles = avatar({ size, border, rounded });
+
     const fallbackText = useMemo(() => {
         const isSmall = size === "small" || size === "2sm";
 
@@ -82,15 +70,15 @@ export function Avatar({
 
     return (
         <AvatarBase.Root
-            {...props}
             key={src}
-            className={styles.root({ className: props.className })}
+            ref={ref}
+            className={styles.root({ className: className })}
         >
             {src != null && (
                 <AvatarBase.Image
                     alt={fallback ?? alt ?? "avatar"}
                     src={src}
-                    className={styles.image()}
+                    className="h-full w-full object-cover"
                 />
             )}
             <AvatarBase.Fallback className={styles.fallback()} delayMs={0}>
@@ -98,4 +86,6 @@ export function Avatar({
             </AvatarBase.Fallback>
         </AvatarBase.Root>
     );
-}
+});
+
+Avatar.displayName = "Avatar";
