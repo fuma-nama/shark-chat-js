@@ -129,18 +129,14 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
     return (
         <ContextMenu.Trigger
             className={cn(
-                "p-3 rounded-xl bg-light-50 flex flex-row gap-2",
+                "p-3 rounded-xl bg-light-50 flex flex-row items-start gap-2",
                 "dark:bg-dark-800",
                 props.className
             )}
         >
             <UserProfileModal userId={author.id}>
-                <DialogTrigger asChild>
-                    <Avatar
-                        src={author.image}
-                        className="cursor-pointer"
-                        fallback={author.name}
-                    />
+                <DialogTrigger>
+                    <Avatar src={author.image} fallback={author.name} />
                 </DialogTrigger>
                 <div className="flex-1 flex flex-col w-0">
                     <div className="flex flex-row items-center">
