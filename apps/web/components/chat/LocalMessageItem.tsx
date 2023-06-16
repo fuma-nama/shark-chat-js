@@ -15,17 +15,19 @@ export function LocalMessageItem({
     const { profile } = useProfile();
 
     return (
-        <div className="opacity-50">
-            <MessageItem.Root
-                user={profile!!}
+        <MessageItem.Root
+            canDelete
+            canEdit={false}
+            onReply={() => {}}
+            isEditing={false}
+            onEditChange={() => {}}
+            onCopy={() => {}}
+            onDelete={onDelete}
+        >
+            <MessageItem.Content
+                user={profile}
                 timestamp={timestamp}
-                canDelete
-                canEdit={false}
-                onReply={() => {}}
-                isEditing={false}
-                onEditChange={() => {}}
-                onCopy={() => {}}
-                onDelete={onDelete}
+                className="opacity-50"
             >
                 <MessageItem.Text>{item.data.content}</MessageItem.Text>
                 {item.data.attachment != null && (
@@ -34,7 +36,7 @@ export function LocalMessageItem({
                 {item.error != null && (
                     <p className="text-red-400">{item.error}</p>
                 )}
-            </MessageItem.Root>
-        </div>
+            </MessageItem.Content>
+        </MessageItem.Root>
     );
 }

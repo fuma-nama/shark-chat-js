@@ -1,7 +1,7 @@
 import { MessageType } from "@/utils/types";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import * as Item from "./MessageItem";
 import { AttachmentItem } from "./AttachmentItem";
@@ -36,6 +36,7 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
         status === "authenticated" &&
         query.data.owner_id === data.user.id;
 
+    const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const deleteMutation = trpc.chat.delete.useMutation();
     const editMutation = trpc.chat.update.useMutation({
         onSuccess: () => {
@@ -59,8 +60,6 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
 
     return (
         <Item.Root
-            user={message.author}
-            timestamp={message.timestamp}
             isEditing={editing}
             canEdit={isAuthor}
             canDelete={(isGroup && isAdmin) || isAuthor}
@@ -70,40 +69,46 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
                 updateSendbar(message.channel_id, { reply_to: message })
             }
             onDelete={onDelete}
+            onCloseAutoFocus={() => {
+                inputRef.current?.focus();
+            }}
         >
-            {message.reply_id != null && <Reference data={message} />}
-            {editing ? (
-                <Item.Edit
-                    onEdit={onEdit}
-                    isLoading={editMutation.isLoading}
-                    initialValue={message.content}
-                    onCancel={() => setEditing(false)}
-                />
-            ) : (
-                <Item.Text>{message.content}</Item.Text>
-            )}
-            {message.attachment != null && (
-                <AttachmentItem attachment={message.attachment} />
-            )}
-            {message.embeds?.map((v, i) => (
-                <div
-                    key={i}
-                    className="bg-card text-card-foreground mt-3 p-2 border-l-2 border-l-primary rounded-lg"
-                >
-                    <a
-                        href={v.url}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="font-medium text-sm"
+            <Item.Content user={message.author} timestamp={message.timestamp}>
+                {message.reply_id != null && <Reference data={message} />}
+                {editing ? (
+                    <Item.Edit
+                        inputRef={inputRef}
+                        onEdit={onEdit}
+                        isLoading={editMutation.isLoading}
+                        initialValue={message.content}
+                        onCancel={() => setEditing(false)}
+                    />
+                ) : (
+                    <Item.Text>{message.content}</Item.Text>
+                )}
+                {message.attachment != null && (
+                    <AttachmentItem attachment={message.attachment} />
+                )}
+                {message.embeds?.map((v, i) => (
+                    <div
+                        key={i}
+                        className="bg-card text-card-foreground mt-3 p-2 border-l-2 border-l-primary rounded-lg"
                     >
-                        {v.title}
-                    </a>
-                    <p className="text-muted-foreground text-xs">
-                        {v.description}
-                    </p>
-                    {v.image != null && <EmbedImage image={v.image} />}
-                </div>
-            ))}
+                        <a
+                            href={v.url}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="font-medium text-sm"
+                        >
+                            {v.title}
+                        </a>
+                        <p className="text-muted-foreground text-xs">
+                            {v.description}
+                        </p>
+                        {v.image != null && <EmbedImage image={v.image} />}
+                    </div>
+                ))}
+            </Item.Content>
         </Item.Root>
     );
 }

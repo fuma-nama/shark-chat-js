@@ -1,9 +1,4 @@
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogTrigger,
-} from "ui/components/dialog";
+import { Dialog, DialogClose, DialogContent } from "ui/components/dialog";
 import { ReactNode, useState } from "react";
 import { trpc } from "@/utils/trpc";
 import { Avatar } from "ui/components/avatar";
@@ -22,7 +17,7 @@ export function UserProfileModal({
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
+            {children}
             <DialogContent className="max-w-lg">
                 <Content userId={userId} onClose={() => setOpen(false)} />
             </DialogContent>

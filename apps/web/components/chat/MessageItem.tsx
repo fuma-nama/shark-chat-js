@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react";
+import { MutableRefObject, ReactNode, useMemo } from "react";
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
 import { textArea } from "ui/components/textarea";
@@ -11,12 +11,13 @@ import {
     ThickArrowLeftIcon,
     TrashIcon,
 } from "@radix-ui/react-icons";
-import clsx from "clsx";
 import { Controller, useForm } from "react-hook-form";
 
 import { MessageType } from "@/utils/types";
 import { linkIt, urlRegex } from "react-linkify-it";
 import { UserProfileModal } from "../modal/UserProfileModal";
+import { DialogTrigger } from "ui/components/dialog";
+import { cn } from "ui/utils/cn";
 
 export type EditPayload = { content: string };
 
@@ -24,10 +25,17 @@ type EditProps = {
     initialValue: string;
     isLoading: boolean;
     onEdit: (d: EditPayload) => void;
+    inputRef: MutableRefObject<HTMLTextAreaElement | null>;
     onCancel: () => void;
 };
 
-export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
+export function Edit({
+    initialValue,
+    isLoading,
+    onEdit,
+    inputRef,
+    onCancel,
+}: EditProps) {
     const { control, handleSubmit } = useForm<EditPayload>({
         defaultValues: {
             content: initialValue,
@@ -37,7 +45,7 @@ export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
     const onSave = handleSubmit(onEdit);
 
     return (
-        <>
+        <form onSubmit={onSave}>
             <Controller
                 control={control}
                 name="content"
@@ -48,7 +56,6 @@ export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
                         autoComplete="off"
                         rows={Math.min(20, field.value.split("\n").length)}
                         wrap="virtual"
-                        color="primary"
                         className={textArea({
                             color: "long",
                             className:
@@ -66,6 +73,13 @@ export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
                             }
                         }}
                         {...field}
+                        ref={(e) => {
+                            field.ref(e);
+
+                            if (inputRef != null) {
+                                inputRef.current = e;
+                            }
+                        }}
                     />
                 )}
             />
@@ -77,10 +91,11 @@ export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
             </label>
 
             <div className="flex flex-row gap-3 mt-3">
-                <Button color="primary" onClick={onSave} isLoading={isLoading}>
+                <Button color="primary" isLoading={isLoading}>
                     Save changes
                 </Button>
                 <Button
+                    type="button"
                     color="secondary"
                     onClick={onCancel}
                     className="dark:bg-dark-700"
@@ -88,17 +103,18 @@ export function Edit({ initialValue, isLoading, onEdit, onCancel }: EditProps) {
                     Cancel
                 </Button>
             </div>
-        </>
+        </form>
     );
 }
 
 type ContentProps = {
     user: MessageType["author"];
     timestamp: string | Date | number;
+    className?: string;
     children: ReactNode;
 };
 
-function Content({ user, timestamp, children }: ContentProps) {
+export function Content({ user, timestamp, children, ...props }: ContentProps) {
     const author = user ?? {
         id: "",
         image: null,
@@ -111,22 +127,38 @@ function Content({ user, timestamp, children }: ContentProps) {
     });
 
     return (
-        <>
-            <Avatar src={author.image} fallback={author.name} />
-            <div className="flex-1 flex flex-col w-0">
-                <div className="flex flex-row items-center">
-                    <UserProfileModal userId={author.id}>
-                        <p className="font-semibold cursor-pointer">
-                            {author.name}
+        <ContextMenu.Trigger
+            className={cn(
+                "p-3 rounded-xl bg-light-50 flex flex-row gap-2",
+                "dark:bg-dark-800",
+                props.className
+            )}
+        >
+            <UserProfileModal userId={author.id}>
+                <DialogTrigger asChild>
+                    <Avatar
+                        src={author.image}
+                        className="cursor-pointer"
+                        fallback={author.name}
+                    />
+                </DialogTrigger>
+                <div className="flex-1 flex flex-col w-0">
+                    <div className="flex flex-row items-center">
+                        <DialogTrigger asChild>
+                            <p className="font-semibold cursor-pointer">
+                                {author.name}
+                            </p>
+                        </DialogTrigger>
+
+                        <p className="text-xs sm:text-xs text-muted-foreground ml-auto sm:ml-2">
+                            {date}
                         </p>
-                    </UserProfileModal>
-                    <p className="text-xs sm:text-xs text-muted-foreground ml-auto sm:ml-2">
-                        {date}
-                    </p>
+                    </div>
+
+                    {children}
                 </div>
-                {children}
-            </div>
-        </>
+            </UserProfileModal>
+        </ContextMenu.Trigger>
     );
 }
 
@@ -138,7 +170,7 @@ type RootProps = {
     onDelete: () => void;
     canEdit: boolean;
     canDelete: boolean;
-};
+} & ContextMenu.ContentProps;
 
 export function Root({
     children,
@@ -149,19 +181,12 @@ export function Root({
     isEditing,
     onEditChange,
     onReply,
-    ...rest
-}: RootProps & ContentProps) {
+    ...props
+}: RootProps) {
     return (
         <ContextMenu.Root>
-            <ContextMenu.Trigger
-                className={clsx(
-                    "p-3 rounded-xl bg-light-50 flex flex-row gap-2",
-                    "dark:bg-dark-800"
-                )}
-            >
-                <Content {...rest}>{children}</Content>
-            </ContextMenu.Trigger>
-            <ContextMenu.Content>
+            {children}
+            <ContextMenu.Content {...props}>
                 <ContextMenu.Item
                     icon={<ThickArrowLeftIcon className="w-4 h-4" />}
                     onClick={onReply}
