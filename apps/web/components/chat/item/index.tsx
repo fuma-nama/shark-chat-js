@@ -3,18 +3,27 @@ import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useRef, useState } from "react";
 
-import * as Item from "./MessageItem";
-import { AttachmentItem } from "./AttachmentItem";
+import * as Item from "./atom";
+import { AttachmentItem } from "../AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useRouter } from "next/router";
 import { Spinner } from "ui/components/spinner";
 import { Embed } from "db/schema";
+import * as ContextMenu from "ui/components/context-menu";
+import {
+    CopyIcon,
+    Pencil1Icon,
+    ThickArrowLeftIcon,
+    TrashIcon,
+} from "@radix-ui/react-icons";
+import Edit from "./edit";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
     const { group } = useRouter().query;
 
     const { status, data } = useSession();
     const [editing, setEditing] = useState(false);
+    const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
     const query = trpc.group.info.useQuery(
         { groupId: typeof group === "string" ? Number(group) : NaN },
@@ -36,21 +45,7 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
         status === "authenticated" &&
         query.data.owner_id === data.user.id;
 
-    const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const deleteMutation = trpc.chat.delete.useMutation();
-    const editMutation = trpc.chat.update.useMutation({
-        onSuccess: () => {
-            setEditing(false);
-        },
-    });
-
-    const onEdit = (v: Item.EditPayload) => {
-        editMutation.mutate({
-            content: v.content,
-            messageId: message.id,
-            channelId: message.channel_id,
-        });
-    };
 
     const onDelete = () => {
         deleteMutation.mutate({
@@ -59,28 +54,13 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
     };
 
     return (
-        <Item.Root
-            isEditing={editing}
-            canEdit={isAuthor}
-            canDelete={(isGroup && isAdmin) || isAuthor}
-            onCopy={() => navigator.clipboard.writeText(message.content)}
-            onEditChange={setEditing}
-            onReply={() =>
-                updateSendbar(message.channel_id, { reply_to: message })
-            }
-            onDelete={onDelete}
-            onCloseAutoFocus={() => {
-                inputRef.current?.focus();
-            }}
-        >
+        <Item.Root>
             <Item.Content user={message.author} timestamp={message.timestamp}>
                 {message.reply_id != null && <Reference data={message} />}
                 {editing ? (
-                    <Item.Edit
+                    <Edit
                         inputRef={inputRef}
-                        onEdit={onEdit}
-                        isLoading={editMutation.isLoading}
-                        initialValue={message.content}
+                        message={message}
                         onCancel={() => setEditing(false)}
                     />
                 ) : (
@@ -109,6 +89,47 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
                     </div>
                 ))}
             </Item.Content>
+
+            <ContextMenu.Content
+                onCloseAutoFocus={() => {
+                    inputRef.current?.focus();
+                }}
+            >
+                <ContextMenu.Item
+                    icon={<ThickArrowLeftIcon className="w-4 h-4" />}
+                    onClick={() =>
+                        updateSendbar(message.channel_id, { reply_to: message })
+                    }
+                >
+                    Reply
+                </ContextMenu.Item>
+                <ContextMenu.Item
+                    icon={<CopyIcon className="w-4 h-4" />}
+                    onClick={() =>
+                        navigator.clipboard.writeText(message.content)
+                    }
+                >
+                    Copy
+                </ContextMenu.Item>
+                {isAuthor && (
+                    <ContextMenu.CheckboxItem
+                        icon={<Pencil1Icon className="w-4 h-4" />}
+                        value={editing}
+                        onChange={() => setEditing((prev) => !prev)}
+                    >
+                        {editing ? "Close Edit" : "Edit"}
+                    </ContextMenu.CheckboxItem>
+                )}
+                {((isGroup && isAdmin) || isAuthor) && (
+                    <ContextMenu.Item
+                        icon={<TrashIcon className="w-4 h-4" />}
+                        color="danger"
+                        onClick={onDelete}
+                    >
+                        Delete
+                    </ContextMenu.Item>
+                )}
+            </ContextMenu.Content>
         </Item.Root>
     );
 }

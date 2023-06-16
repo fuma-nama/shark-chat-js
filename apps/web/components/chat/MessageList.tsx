@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 import { Fragment, ReactNode, useLayoutEffect } from "react";
 import { Button } from "ui/components/button";
 import { useChatView, UnreadSeparator } from "./ChatView";
-import { ChatMessageItem } from "./ChatMessageItem";
-import { LocalMessageItem } from "./LocalMessageItem";
+import { ChatMessageItem } from "./item";
+import { LocalMessageItem } from "./item/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
 
 export function MessageList({

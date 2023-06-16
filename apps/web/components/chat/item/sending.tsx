@@ -1,8 +1,10 @@
 import { useProfile } from "@/utils/hooks/use-profile";
-import * as MessageItem from "./MessageItem";
+import * as MessageItem from "./atom";
+import * as ContextMenu from "ui/components/context-menu";
 import { useMemo } from "react";
 import { MessagePlaceholder } from "@/utils/stores/chat";
-import { UploadingAttachmentItem } from "./AttachmentItem";
+import { UploadingAttachmentItem } from "../AttachmentItem";
+import { Cross1Icon } from "@radix-ui/react-icons";
 
 export function LocalMessageItem({
     item,
@@ -15,15 +17,7 @@ export function LocalMessageItem({
     const { profile } = useProfile();
 
     return (
-        <MessageItem.Root
-            canDelete
-            canEdit={false}
-            onReply={() => {}}
-            isEditing={false}
-            onEditChange={() => {}}
-            onCopy={() => {}}
-            onDelete={onDelete}
-        >
+        <MessageItem.Root>
             <MessageItem.Content
                 user={profile}
                 timestamp={timestamp}
@@ -37,6 +31,16 @@ export function LocalMessageItem({
                     <p className="text-red-400">{item.error}</p>
                 )}
             </MessageItem.Content>
+            <ContextMenu.Content>
+                <ContextMenu.Item
+                    icon={<Cross1Icon className="w-4 h-4" />}
+                    shortcut="⌘+D"
+                    color="danger"
+                    onClick={onDelete}
+                >
+                    Delete
+                </ContextMenu.Item>
+            </ContextMenu.Content>
         </MessageItem.Root>
     );
 }
