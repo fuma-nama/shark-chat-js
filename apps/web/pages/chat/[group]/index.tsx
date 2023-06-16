@@ -2,13 +2,16 @@ import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
-import React from "react";
-import { button } from "ui/components/button";
-import Link from "next/link";
-import { useGroupLayout } from "@/components/layout/group";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
 import { trpc } from "@/utils/trpc";
+import { BreadcrumbItem } from "@/components/layout/group-breadcrumb";
+import { ViewContext } from "@/components/chat/ChatView";
+import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout, Content } from "@/components/layout/app";
+import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
+import Link from "next/link";
+import { button } from "ui/components/button";
 
 const GroupChat: NextPageWithLayout = () => {
     const channel_id = useChannelId();
@@ -37,27 +40,48 @@ function Welcome() {
     );
 }
 
-GroupChat.useLayout = (children) =>
-    useGroupLayout({
-        children,
-        footer: useGroupSendbar(),
-        items: (
-            <Link
-                href={{
-                    pathname: "/chat/[group]/settings",
-                    query: useRouter().query,
-                }}
-                className={button({
-                    color: "secondary",
-                    className: "gap-2",
-                })}
-            >
-                <GearIcon /> Settings
-            </Link>
-        ),
-    });
+GroupChat.useLayout = (children) => {
+    const router = useRouter();
+    const { rootRef, handleRootScroll, scrollToBottom } =
+        useViewScrollController();
 
-function useGroupSendbar() {
+    return (
+        <AppLayout root={{ ref: rootRef, onScroll: handleRootScroll }}>
+            <Navbar
+                breadcrumb={[
+                    {
+                        text: <BreadcrumbItem />,
+                        href: `/chat/[group]`,
+                    },
+                ]}
+            >
+                <Link
+                    href={{
+                        pathname: "/chat/[group]/settings",
+                        query: router.query,
+                    }}
+                    className={button({
+                        color: "secondary",
+                        className: "gap-2",
+                    })}
+                >
+                    <GearIcon /> Settings
+                </Link>
+            </Navbar>
+
+            <Content>
+                <ViewContext.Provider
+                    value={{ viewRef: rootRef, scrollToBottom }}
+                >
+                    {children}
+                </ViewContext.Provider>
+            </Content>
+            <Sendbar />
+        </AppLayout>
+    );
+};
+
+function Sendbar() {
     const id = useChannelId();
 
     if (id == null) return <></>;

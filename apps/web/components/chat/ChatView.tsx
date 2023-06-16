@@ -1,8 +1,18 @@
-import { useContext, useEffect } from "react";
+import { RefObject, createContext, useContext, useEffect } from "react";
 import useInfiniteScroll, {
     UseInfiniteScrollHookArgs,
 } from "react-infinite-scroll-hook";
-import { ViewContext } from "../layout/app";
+import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
+
+export const ViewContext = createContext<
+    | {
+          viewRef: RefObject<HTMLDivElement>;
+          scrollToBottom: ReturnType<
+              typeof useViewScrollController
+          >["scrollToBottom"];
+      }
+    | undefined
+>(undefined);
 
 export function useChatView(props: UseInfiniteScrollHookArgs) {
     const ctx = useContext(ViewContext)!!;

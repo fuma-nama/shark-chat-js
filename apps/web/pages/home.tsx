@@ -1,10 +1,9 @@
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
-import { AppLayout } from "@/components/layout/app";
+import { AppLayout, Content } from "@/components/layout/app";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "shared/media/format";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
@@ -16,6 +15,7 @@ import { usePageStore } from "@/utils/stores/page";
 import { useEffect } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
 import { useRouter } from "next/router";
+import { Navbar } from "@/components/layout/Navbar";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
@@ -64,7 +64,6 @@ function Modals() {
 }
 
 const Home: NextPageWithLayout = () => {
-    const { status } = useSession();
     const setModal = usePageStore((s) => s.setModal);
     const dmQuery = trpc.dm.channels.useQuery(undefined, {
         enabled: false,
@@ -208,21 +207,21 @@ function Placeholder() {
 }
 
 Home.useLayout = (children) => (
-    <AppLayout
-        breadcrumb={[
-            {
-                href: "/home",
-                text: "Home",
-            },
-        ]}
-        items={
+    <AppLayout>
+        <Navbar
+            breadcrumb={[
+                {
+                    href: "/home",
+                    text: "Home",
+                },
+            ]}
+        >
             <div className="max-sm:hidden flex flex-row gap-3">
                 <ThemeSwitch />
             </div>
-        }
-    >
-        {children}
+        </Navbar>
+
+        <Content>{children}</Content>
     </AppLayout>
 );
-
 export default Home;

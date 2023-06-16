@@ -1,4 +1,4 @@
-import { useGroupLayout } from "@/components/layout/group";
+import { BreadcrumbItem } from "@/components/layout/group-breadcrumb";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useRouter } from "next/router";
 import Info from "@/components/chat/settings/info";
@@ -10,6 +10,8 @@ import { LeaveGroup } from "@/components/chat/settings/danger";
 import Members from "@/components/chat/settings/members";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
+import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout, Content } from "@/components/layout/app";
 
 const Invite = dynamic(() => import("@/components/chat/settings/invite"));
 const Danger = dynamic(() => import("@/components/chat/settings/danger"));
@@ -69,9 +71,20 @@ const Settings: NextPageWithLayout = () => {
     );
 };
 
-Settings.useLayout = (children) =>
-    useGroupLayout({
-        breadcrumb: [{ href: `/chat/[group]/settings`, text: "Settings" }],
-        children,
-    });
+Settings.useLayout = (children) => (
+    <AppLayout>
+        <Navbar
+            breadcrumb={[
+                {
+                    text: <BreadcrumbItem />,
+                    href: `/chat/[group]`,
+                },
+                { href: `/chat/[group]/settings`, text: "Settings" },
+            ]}
+        />
+
+        <Content>{children}</Content>
+    </AppLayout>
+);
+
 export default Settings;

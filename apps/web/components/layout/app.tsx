@@ -1,37 +1,17 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Head from "next/head";
-import React, { RefObject, createContext } from "react";
+import React, { ComponentProps } from "react";
 import { ReactNode } from "react";
-import { BreadcrumbItem } from "./Breadcrumbs";
-import { Navbar } from "./Navbar";
-import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
 import { trpc } from "@/utils/trpc";
 import { Spinner } from "ui/components/spinner";
 
-export const ViewContext = createContext<
-    | {
-          viewRef: RefObject<HTMLDivElement>;
-          scrollToBottom: ReturnType<
-              typeof useViewScrollController
-          >["scrollToBottom"];
-      }
-    | undefined
->(undefined);
-
 export function AppLayout({
-    items,
     children,
-    breadcrumb,
-    footer,
+    root,
 }: {
-    breadcrumb: BreadcrumbItem[];
-    items?: ReactNode;
-    children?: ReactNode;
-    footer?: ReactNode;
+    children: ReactNode;
+    root?: Omit<ComponentProps<"div">, "className">;
 }) {
-    const { handleRootScroll, rootRef, scrollToBottom } =
-        useViewScrollController();
-
     return (
         <>
             <Head>
@@ -46,25 +26,17 @@ export function AppLayout({
             <main className="grid grid-cols-1 md:grid-cols-[20rem_auto] h-full max-h-full overflow-hidden">
                 <Sidebar />
                 <div
+                    {...root}
                     className="overflow-y-auto flex flex-col max-h-full"
-                    ref={rootRef}
-                    onScroll={handleRootScroll}
                 >
-                    <Navbar breadcrumb={breadcrumb}>{items}</Navbar>
-
-                    <ViewContext.Provider
-                        value={{ viewRef: rootRef, scrollToBottom }}
-                    >
-                        <Content>{children}</Content>
-                        {footer}
-                    </ViewContext.Provider>
+                    {children}
                 </div>
             </main>
         </>
     );
 }
 
-function Content({ children }: { children: ReactNode }) {
+export function Content({ children }: { children: ReactNode }) {
     const groupQuery = trpc.group.all.useQuery(undefined, {
         enabled: false,
     });

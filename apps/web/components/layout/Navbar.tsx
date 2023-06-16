@@ -1,13 +1,13 @@
 import { usePageStore } from "@/utils/stores/page";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { ReactNode } from "react";
-import { BreadcrumbItem, Breadcrumbs } from "./Breadcrumbs";
+import { BreadcrumbItemType, Breadcrumbs } from "./Breadcrumbs";
 
 export function Navbar({
     children,
     breadcrumb,
 }: {
-    breadcrumb: BreadcrumbItem[];
+    breadcrumb: BreadcrumbItemType[];
     children?: ReactNode;
 }) {
     const [setSidebarOpen] = usePageStore((v) => [v.setSidebarOpen]);

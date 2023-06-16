@@ -6,7 +6,6 @@ import { skeleton } from "ui/components/skeleton";
 import type { NextPageWithLayout } from "../../_app";
 import { useDirectMessageLayout } from "@/components/layout/dm";
 import { MessageList } from "@/components/chat/MessageList";
-import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 
 const DMPage: NextPageWithLayout = () => {
     const { channel } = useRouter().query as { channel: string };
@@ -50,12 +49,6 @@ function Welcome() {
     );
 }
 
-DMPage.useLayout = (c) =>
-    useDirectMessageLayout({
-        children: c,
-        footer: (
-            <ChannelSendbar channelId={useRouter().query.channel as string} />
-        ),
-    });
+DMPage.useLayout = useDirectMessageLayout;
 
 export default DMPage;

@@ -2,12 +2,10 @@ import { getGroupQuery } from "@/utils/variables";
 import { groupIcon } from "shared/media/format";
 import { trpc } from "@/utils/trpc";
 import Router, { useRouter } from "next/router";
-import { ComponentProps } from "react";
 import { Avatar } from "ui/components/avatar";
-import { AppLayout } from "./app";
 import { useSession } from "next-auth/react";
 
-function GroupItem() {
+export function BreadcrumbItem() {
     const { status } = useSession();
     const { groupId, isReady } = getGroupQuery(useRouter());
 
@@ -40,24 +38,5 @@ function GroupItem() {
             />
             <span>{info.data.name}</span>
         </div>
-    );
-}
-
-export function useGroupLayout(
-    props: Partial<ComponentProps<typeof AppLayout>>
-) {
-    return (
-        <AppLayout
-            {...props}
-            breadcrumb={[
-                {
-                    text: <GroupItem />,
-                    href: `/chat/[group]`,
-                },
-                ...(props.breadcrumb ?? []),
-            ]}
-        >
-            {props.children}
-        </AppLayout>
     );
 }

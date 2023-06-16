@@ -1,31 +1,39 @@
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { AppLayout } from "./app";
+import { AppLayout, Content } from "./app";
 import { ReactNode } from "react";
 import { skeleton } from "ui/components/skeleton";
 import { Avatar } from "ui/components/avatar";
+import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
+import { Navbar } from "./Navbar";
+import { ChannelSendbar } from "../chat/ChannelSendbar";
+import { ViewContext } from "../chat/ChatView";
 
-export function useDirectMessageLayout({
-    footer,
-    children,
-}: {
-    footer: ReactNode;
-    children: ReactNode;
-}) {
+export function useDirectMessageLayout(children: ReactNode) {
+    const { rootRef, handleRootScroll, scrollToBottom } =
+        useViewScrollController();
     const router = useRouter();
 
     return (
-        <AppLayout
-            footer={footer}
-            breadcrumb={[
-                {
-                    text: <BreadcrumbItem />,
-                    href: router.asPath,
-                },
-            ]}
-        >
-            {children}
+        <AppLayout root={{ ref: rootRef, onScroll: handleRootScroll }}>
+            <Navbar
+                breadcrumb={[
+                    {
+                        text: <BreadcrumbItem />,
+                        href: router.asPath,
+                    },
+                ]}
+            />
+
+            <Content>
+                <ViewContext.Provider
+                    value={{ viewRef: rootRef, scrollToBottom }}
+                >
+                    {children}
+                </ViewContext.Provider>
+            </Content>
+            <ChannelSendbar channelId={router.query.channel as string} />
         </AppLayout>
     );
 }

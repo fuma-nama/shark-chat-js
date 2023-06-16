@@ -1,7 +1,7 @@
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
-import { AppLayout } from "@/components/layout/app";
+import { AppLayout, Content } from "@/components/layout/app";
 import { useProfile } from "@/utils/hooks/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
@@ -12,6 +12,7 @@ import { Serialize } from "shared/types";
 import { useUpdateProfileMutation } from "@/utils/hooks/mutations/update-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { input } from "ui/components/input";
+import { Navbar } from "@/components/layout/Navbar";
 
 const Settings: NextPageWithLayout = () => {
     const { status, profile } = useProfile();
@@ -123,8 +124,17 @@ function UpdateProfile({
 }
 
 Settings.useLayout = (children) => (
-    <AppLayout breadcrumb={[{ href: "/settings", text: "Settings" }]}>
-        {children}
+    <AppLayout>
+        <Navbar
+            breadcrumb={[
+                {
+                    href: "/settings",
+                    text: "Settings",
+                },
+            ]}
+        />
+
+        <Content>{children}</Content>
     </AppLayout>
 );
 

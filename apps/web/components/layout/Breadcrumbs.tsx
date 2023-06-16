@@ -5,12 +5,12 @@ import { Fragment, ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
 import { useRouter } from "next/router";
 
-export type BreadcrumbItem = {
+export type BreadcrumbItemType = {
     text: string | ReactNode;
     href: string;
 };
 
-export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
+export function Breadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
     const { profile } = useProfile();
     const query = useRouter().query;
 

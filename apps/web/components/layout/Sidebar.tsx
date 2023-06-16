@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
+import { ReactNode } from "react";
 
 export const siderbarItem = tv({
     slots: {
@@ -74,19 +75,6 @@ export default function Sidebar() {
     );
 }
 
-const items = [
-    {
-        name: "Home",
-        route: "/home",
-        icon: <HomeIcon className="w-5 h-5" />,
-    },
-    {
-        name: "Settings",
-        route: "/settings",
-        icon: <GearIcon className="w-5 h-5" />,
-    },
-];
-
 function Items() {
     const router = useRouter();
     const query = trpc.group.all.useQuery(undefined, { enabled: false });
@@ -94,40 +82,16 @@ function Items() {
 
     return (
         <>
-            {items.map(({ name, route, icon }) => {
-                const active = route === router.route;
-
-                return (
-                    <Link
-                        key={route}
-                        href={route}
-                        className={cn(
-                            "flex flex-row gap-3 items-center p-1 rounded-lg",
-                            active && "bg-accent"
-                        )}
-                    >
-                        <div
-                            className={cn(
-                                "rounded-lg p-1.5 border-[1px] shadow-lg",
-                                active &&
-                                    "border-transparent bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
-                                !active &&
-                                    "text-secondary-foreground border-secondary"
-                            )}
-                        >
-                            {icon}
-                        </div>
-                        <p
-                            className={cn(
-                                "text-sm text-foreground",
-                                active ? "font-medium" : "text-muted-foreground"
-                            )}
-                        >
-                            {name}
-                        </p>
-                    </Link>
-                );
-            })}
+            <LinkItem
+                name="Home"
+                route="/home"
+                icon={<HomeIcon className="w-5 h-5" />}
+            />
+            <LinkItem
+                name="Settings"
+                route="/settings"
+                icon={<GearIcon className="w-5 h-5" />}
+            />
             <Tabs defaultValue="group" className="mt-2">
                 <TabsList>
                     <TabsTrigger value="group">Group</TabsTrigger>
@@ -169,6 +133,47 @@ function Items() {
                 </TabsContent>
             </Tabs>
         </>
+    );
+}
+
+function LinkItem({
+    icon,
+    name,
+    route,
+}: {
+    name: string;
+    route: string;
+    icon: ReactNode;
+}) {
+    const active = route === useRouter().route;
+
+    return (
+        <Link
+            href={route}
+            className={cn(
+                "flex flex-row gap-3 items-center p-1 rounded-lg",
+                active && "bg-accent"
+            )}
+        >
+            <div
+                className={cn(
+                    "rounded-lg p-1.5 border-[1px] shadow-lg",
+                    active &&
+                        "border-transparent bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
+                    !active && "text-secondary-foreground border-secondary"
+                )}
+            >
+                {icon}
+            </div>
+            <p
+                className={cn(
+                    "text-sm text-foreground",
+                    active ? "font-medium" : "text-muted-foreground"
+                )}
+            >
+                {name}
+            </p>
+        </Link>
     );
 }
 
