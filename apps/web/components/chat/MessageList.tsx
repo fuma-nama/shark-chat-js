@@ -43,14 +43,12 @@ export function MessageList({
     });
 
     useEffect(() => {
-        console.log("scroll a");
         scrollToBottom();
     }, [pages, sending, scrollToBottom]);
 
     useLayoutEffect(() => {
-        console.log("scroll");
         scrollToBottom("force");
-    }, [useRouter().pathname, scrollToBottom]);
+    }, [channelId, scrollToBottom]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">

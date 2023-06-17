@@ -171,12 +171,11 @@ function SidebarItem({
     return (
         <Link
             href={href}
-            scroll={false}
             className={cn(
-                "flex flex-row items-center gap-2 p-1 rounded-lg text-sm",
+                "flex flex-row items-center gap-2 p-1 rounded-lg text-sm transition-colors",
                 active
                     ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-accent/50 transition-colors"
+                    : "text-muted-foreground hover:bg-accent/50"
             )}
         >
             <Avatar src={image} fallback={name} size="2sm" rounded="sm" />

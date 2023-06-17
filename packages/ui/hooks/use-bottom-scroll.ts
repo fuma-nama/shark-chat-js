@@ -12,7 +12,7 @@ export function useViewScrollController() {
                 rootNode.scrollHeight - rootNode.scrollTop;
             lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
         }
-    }, []);
+    }, [rootRef.current]);
 
     useEffect(() => {
         rootRef.current = document.scrollingElement;
@@ -37,9 +37,6 @@ export function useViewScrollController() {
                 scrollableRoot.scrollTop =
                     scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
             }
-
-            lastScrollDistanceToBottomRef.current =
-                scrollableRoot.scrollHeight - scrollableRoot.scrollTop;
         },
         []
     );
