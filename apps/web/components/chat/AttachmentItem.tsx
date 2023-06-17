@@ -69,6 +69,9 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
 
                         return `${cloudinary_prefix}${params.join(",")}/${src}`;
                     }}
+                    style={{
+                        aspectRatio: attachment.width!! / attachment.height!!,
+                    }}
                     onLoadingComplete={() => setState("loaded")}
                 />
                 {state === "loading" && (
