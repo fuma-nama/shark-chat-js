@@ -10,7 +10,7 @@ export const textArea = tv({
         color: {
             primary: [
                 "rounded-md p-1.5 bg-transparent",
-                "max-sm:bg-background max-sm:mx-2 max-sm:text-sm max-sm:p-2 max-sm:rounded-2xl",
+                "max-sm:bg-background max-sm:mx-2 max-sm:p-2 max-sm:rounded-2xl",
             ],
             long: "rounded-md px-2 py-1 border dark:bg-dark-900",
         },
