@@ -33,11 +33,13 @@ export function useViewScrollController() {
 
             if (type === "force") {
                 scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
-                lastScrollDistanceToBottomRef.current = 0;
             } else {
                 scrollableRoot.scrollTop =
                     scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
             }
+
+            lastScrollDistanceToBottomRef.current =
+                scrollableRoot.scrollHeight - scrollableRoot.scrollTop;
         },
         []
     );
