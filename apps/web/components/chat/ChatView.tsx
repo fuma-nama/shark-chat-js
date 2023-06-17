@@ -48,15 +48,11 @@ export function ChatViewProvider({
 
 export function useChatView(props: UseInfiniteScrollHookArgs) {
     const ctx = useContext(ViewContext)!!;
-    const [sentryRef, { rootRef }] = useInfiniteScroll({
+    const [sentryRef] = useInfiniteScroll({
         delayInMs: 100,
         rootMargin: "20px",
         ...props,
     });
-
-    useEffect(() => {
-        rootRef(ctx.viewRef.current);
-    }, [rootRef, ctx.viewRef]);
 
     return {
         ...ctx,
