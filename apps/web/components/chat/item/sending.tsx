@@ -4,7 +4,7 @@ import * as ContextMenu from "ui/components/context-menu";
 import { useMemo } from "react";
 import { MessagePlaceholder } from "@/utils/stores/chat";
 import { UploadingAttachmentItem } from "../AttachmentItem";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { XIcon } from "lucide-react";
 
 export function LocalMessageItem({
     item,
@@ -33,7 +33,7 @@ export function LocalMessageItem({
             </MessageItem.Content>
             <ContextMenu.Content>
                 <ContextMenu.Item
-                    icon={<Cross1Icon className="w-4 h-4" />}
+                    icon={<XIcon className="w-4 h-4" />}
                     shortcut="⌘+D"
                     color="danger"
                     onClick={onDelete}

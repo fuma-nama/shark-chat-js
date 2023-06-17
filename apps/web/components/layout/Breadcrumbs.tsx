@@ -1,5 +1,5 @@
 import { useProfile } from "@/utils/hooks/use-profile";
-import { ChevronRightIcon } from "@radix-ui/react-icons";
+import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { Fragment, ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";

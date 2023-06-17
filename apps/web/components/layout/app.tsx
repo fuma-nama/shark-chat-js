@@ -23,12 +23,9 @@ export function AppLayout({
                 />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className="grid grid-cols-1 md:grid-cols-[20rem_auto] h-full max-h-full overflow-hidden">
+            <main className="grid grid-cols-1 md:grid-cols-[20rem_auto] min-h-screen">
                 <Sidebar />
-                <div
-                    {...root}
-                    className="overflow-y-auto flex flex-col max-h-full"
-                >
+                <div {...root} className="flex flex-col">
                     {children}
                 </div>
             </main>

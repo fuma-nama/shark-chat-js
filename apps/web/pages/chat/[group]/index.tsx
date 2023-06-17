@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
-import { BookmarkIcon, GearIcon } from "@radix-ui/react-icons";
+import { BookmarkIcon, SettingsIcon } from "lucide-react";
 import clsx from "clsx";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
@@ -42,11 +42,10 @@ function Welcome() {
 
 GroupChat.useLayout = (children) => {
     const router = useRouter();
-    const { rootRef, handleRootScroll, scrollToBottom } =
-        useViewScrollController();
+    const { rootRef, scrollToBottom } = useViewScrollController();
 
     return (
-        <AppLayout root={{ ref: rootRef, onScroll: handleRootScroll }}>
+        <AppLayout>
             <Navbar
                 breadcrumb={[
                     {
@@ -65,7 +64,7 @@ GroupChat.useLayout = (children) => {
                         className: "gap-2",
                     })}
                 >
-                    <GearIcon /> Settings
+                    <SettingsIcon className="w-5 h-5" /> Settings
                 </Link>
             </Navbar>
 

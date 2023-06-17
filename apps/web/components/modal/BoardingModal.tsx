@@ -1,4 +1,4 @@
-import { ChatBubbleIcon } from "@radix-ui/react-icons";
+import { MessageCircleIcon } from "lucide-react";
 import { SimpleDialog } from "ui/components/dialog";
 import { useMounted } from "ui/hooks/use-mounted";
 import { useState } from "react";
@@ -25,7 +25,7 @@ export default function BoardingModal({
         >
             <div className="p-3 py-11 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 mt-4">
                 <p className="text-white m-auto w-fit">
-                    <ChatBubbleIcon className="inline w-11 h-11" />
+                    <MessageCircleIcon className="inline w-11 h-11" />
                     <span className="ml-2 text-xl font-bold">
                         {data.user.name}
                     </span>

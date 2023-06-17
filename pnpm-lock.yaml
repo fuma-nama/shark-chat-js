@@ -46,9 +46,6 @@ importers:
       '@inworld/nodejs-sdk':
         specifier: 1.4.0
         version: 1.4.0
-      '@radix-ui/react-icons':
-        specifier: ^1.1.1
-        version: 1.1.1(react@18.2.0)
       '@tanstack/react-query':
         specifier: ^4.24.4
         version: 4.24.4(react-dom@18.2.0)(react@18.2.0)
@@ -293,9 +290,6 @@ importers:
       '@radix-ui/react-dialog':
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-      '@radix-ui/react-icons':
-        specifier: ^1.1.1
-        version: 1.1.1(react@18.2.0)
       '@radix-ui/react-popover':
         specifier: ^1.0.5
         version: 1.0.5(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
@@ -314,6 +308,9 @@ importers:
       clsx:
         specifier: ^1.2.1
         version: 1.2.1
+      lucide-react:
+        specifier: ^0.244.0
+        version: 0.244.0(react@18.2.0)
       tailwind-merge:
         specifier: ^1.13.1
         version: 1.13.1
@@ -930,14 +927,6 @@ packages:
       '@radix-ui/react-use-callback-ref': 1.0.0(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /@radix-ui/react-icons@1.1.1(react@18.2.0):
-    resolution: {integrity: sha512-xc3wQC59rsFylVbSusQCrrM+6695ppF730Q6yqzhRdqDcRNWIm2R6ngpzBoSOQMcwnq4p805F+Gr7xo4fmtN1A==}
-    peerDependencies:
-      react: ^16.x || ^17.x || ^18.x
-    dependencies:
-      react: 18.2.0
     dev: false
 
   /@radix-ui/react-id@1.0.0(react@18.2.0):

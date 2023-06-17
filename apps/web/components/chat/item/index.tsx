@@ -10,12 +10,7 @@ import { useRouter } from "next/router";
 import { Spinner } from "ui/components/spinner";
 import { Embed } from "db/schema";
 import * as ContextMenu from "ui/components/context-menu";
-import {
-    CopyIcon,
-    Pencil1Icon,
-    ThickArrowLeftIcon,
-    TrashIcon,
-} from "@radix-ui/react-icons";
+import { CopyIcon, PencilIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
@@ -101,7 +96,7 @@ function Menu({
             }}
         >
             <ContextMenu.Item
-                icon={<ThickArrowLeftIcon className="w-4 h-4" />}
+                icon={<ReplyIcon className="w-4 h-4" />}
                 onClick={() =>
                     updateSendbar(message.channel_id, { reply_to: message })
                 }
@@ -116,7 +111,7 @@ function Menu({
             </ContextMenu.Item>
             {isAuthor && (
                 <ContextMenu.CheckboxItem
-                    icon={<Pencil1Icon className="w-4 h-4" />}
+                    icon={<PencilIcon className="w-4 h-4" />}
                     value={editing}
                     onChange={() => setEditing(!editing)}
                 >

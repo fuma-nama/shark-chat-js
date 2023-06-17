@@ -1,17 +1,27 @@
-import React, { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 
 export function useViewScrollController() {
-    const rootRef = useRef<HTMLDivElement | null>(null);
+    const rootRef = useRef<Element | null>(null);
     const lastScrollDistanceToBottomRef = useRef<number>();
 
-    const handleRootScroll = React.useCallback(() => {
+    const handleRootScroll = useCallback(() => {
         const rootNode = rootRef.current;
+
         if (rootNode) {
             const scrollDistanceToBottom =
                 rootNode.scrollHeight - rootNode.scrollTop;
             lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
         }
     }, []);
+
+    useEffect(() => {
+        rootRef.current = document.scrollingElement;
+        document.addEventListener("scroll", handleRootScroll);
+
+        return () => {
+            document.removeEventListener("scroll", handleRootScroll);
+        };
+    }, [handleRootScroll]);
 
     const scrollToBottom = useCallback(
         (type: "last_distance" | "force" = "last_distance") => {
@@ -28,5 +38,5 @@ export function useViewScrollController() {
         []
     );
 
-    return { rootRef, handleRootScroll, scrollToBottom };
+    return { rootRef, scrollToBottom };
 }

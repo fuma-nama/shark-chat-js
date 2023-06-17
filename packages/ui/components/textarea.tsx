@@ -2,21 +2,17 @@ import { tv } from "tailwind-variants";
 
 export const textArea = tv({
     base: [
-        "block w-full",
-        "text-base border border-accent-500 text-accent-900 placeholder:text-accent-600 dark:text-accent-400 dark:placeholder:text-accent-800",
-        "dark:bg-dark-900 dark:border-accent-900",
+        "block w-full text-base text-foreground bg-background",
+        "placeholder:text-muted-foreground/70",
         "focus:outline-none",
     ],
     variants: {
         color: {
             primary: [
-                "rounded-3xl px-3 py-2",
-                "border border-accent-500 focus-visible:border-transparent",
-                "focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:ring-opacity-75",
-                "dark:bg-dark-900 dark:focus-visible:ring-brand-400",
-                "transition-shadow",
+                "rounded-md p-1.5 bg-transparent",
+                "max-sm:bg-background max-sm:mx-2 max-sm:text-sm max-sm:p-2 max-sm:rounded-2xl",
             ],
-            long: ["rounded-md px-2 py-1", "dark:bg-dark-900"],
+            long: "rounded-md px-2 py-1 border dark:bg-dark-900",
         },
     },
     defaultVariants: {

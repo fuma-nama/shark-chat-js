@@ -4,7 +4,7 @@ import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
 import { Fragment, ReactNode, useLayoutEffect } from "react";
 import { Button } from "ui/components/button";
-import { useChatView, UnreadSeparator } from "./ChatView";
+import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./item";
 import { LocalMessageItem } from "./item/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
@@ -107,6 +107,21 @@ function Skeleton() {
                 <div className="bg-muted-foreground rounded-xl h-4 max-w-xl" />
                 <div className="bg-muted-foreground rounded-xl h-4 max-w-md" />
             </div>
+        </div>
+    );
+}
+
+function UnreadSeparator() {
+    return (
+        <div
+            className="flex flex-row gap-2 items-center"
+            aria-label="separator"
+        >
+            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
+            <p className="text-red-500 dark:text-red-400 text-sm mx-auto">
+                New Message
+            </p>
+            <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
         </div>
     );
 }

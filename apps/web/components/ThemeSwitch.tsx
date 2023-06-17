@@ -8,7 +8,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "ui/components/select";
-import { Half2Icon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useMemo } from "react";
 import { useMounted } from "ui/hooks/use-mounted";
 
@@ -45,11 +45,23 @@ export function ThemeSwitch({ id, ...props }: ThemeSwitchProps) {
 function getInfo(theme: string) {
     switch (theme) {
         case "light":
-            return { name: "Light", icon: <SunIcon />, value: theme };
+            return {
+                name: "Light",
+                icon: <SunIcon className="w-4" />,
+                value: theme,
+            };
         case "dark":
-            return { name: "Dark", icon: <MoonIcon />, value: theme };
+            return {
+                name: "Dark",
+                icon: <MoonIcon className="w-4" />,
+                value: theme,
+            };
         case "system":
-            return { name: "System", icon: <Half2Icon />, value: theme };
+            return {
+                name: "System",
+                icon: <MonitorIcon className="w-4" />,
+                value: theme,
+            };
         default:
             return { name: theme, icon: undefined, value: theme };
     }

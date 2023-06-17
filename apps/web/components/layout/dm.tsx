@@ -11,12 +11,11 @@ import { ChannelSendbar } from "../chat/ChannelSendbar";
 import { ChatViewProvider } from "../chat/ChatView";
 
 export function useDirectMessageLayout(children: ReactNode) {
-    const { rootRef, handleRootScroll, scrollToBottom } =
-        useViewScrollController();
     const router = useRouter();
+    const { rootRef, scrollToBottom } = useViewScrollController();
 
     return (
-        <AppLayout root={{ ref: rootRef, onScroll: handleRootScroll }}>
+        <AppLayout>
             <Navbar
                 breadcrumb={[
                     {

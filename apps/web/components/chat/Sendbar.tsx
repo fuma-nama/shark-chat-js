@@ -1,12 +1,7 @@
-import {
-    FilePlusIcon,
-    PaperPlaneIcon,
-    TextIcon,
-    TrashIcon,
-} from "@radix-ui/react-icons";
+import { FilePlusIcon, SendIcon, TextIcon, TrashIcon } from "lucide-react";
 import { textArea } from "ui/components/textarea";
 import { ReactNode, useRef, useState } from "react";
-import { IconButton, iconButton } from "ui/components/button";
+import { IconButton, button } from "ui/components/button";
 import clsx from "clsx";
 import React from "react";
 import { contentSchema } from "shared/schema/chat";
@@ -61,7 +56,7 @@ export function Sendbar({
         <div className="sticky px-4 pb-4 bottom-0 bg-light-100 dark:bg-dark-900">
             <div
                 className={clsx(
-                    "flex flex-col gap-3 bg-light-50 shadow-xl shadow-brand-500/10 p-3 rounded-3xl max-w-[calc(1504px)] mx-auto",
+                    "flex flex-col gap-3 bg-light-50 shadow-xl shadow-brand-500/10 p-2 rounded-3xl max-w-[calc(1504px)] mx-auto",
                     "max-sm:-mx-4 max-sm:-mb-4 max-sm:rounded-none max-sm:gap-2",
                     "dark:shadow-none dark:bg-dark-800"
                 )}
@@ -82,19 +77,18 @@ export function Sendbar({
                 )}
                 {children}
                 <AttachmentPicker control={control} />
-                <div className="flex flex-row gap-3">
+                <div className="flex flex-row">
                     <label
                         htmlFor="attachment"
-                        className={iconButton({
+                        className={button({
                             className:
-                                "aspect-square h-[41.6px] cursor-pointer",
-                            color: "secondary",
+                                "aspect-square h-9 p-2.5 mt-0.5 cursor-pointer",
                         })}
                     >
                         <FilePlusIcon />
                     </label>
                     <IconButton
-                        className="aspect-square h-[41.6px] max-sm:hidden"
+                        className="aspect-square h-9 p-2.5 mt-0.5 max-sm:hidden"
                         onClick={() => setOpenModal(true)}
                     >
                         <TextIcon />
@@ -106,10 +100,11 @@ export function Sendbar({
                     />
                     <IconButton
                         disabled={!formState.isValid}
-                        className="aspect-square h-[41.6px]"
+                        color="primary"
+                        className="rounded-full aspect-square h-9 p-2.5 mt-0.5"
                         onClick={onSend}
                     >
-                        <PaperPlaneIcon />
+                        <SendIcon />
                     </IconButton>
                 </div>
             </div>
@@ -138,14 +133,15 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
             />
             {value != null && (
                 <div className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center">
-                    <p className="font-medium text-base text-foreground">
+                    <p className="font-medium text-sm text-foreground">
                         {value.name}
                     </p>
                     <IconButton
+                        size="small"
                         color="danger"
                         onClick={() => field.onChange(null)}
                     >
-                        <TrashIcon />
+                        <TrashIcon className="w-4 h-4" />
                     </IconButton>
                 </div>
             )}

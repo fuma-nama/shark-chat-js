@@ -15,7 +15,6 @@
         "@ably-labs/react-hooks": "^2.1.0",
         "@hookform/resolvers": "^2.9.11",
         "@inworld/nodejs-sdk": "1.4.0",
-        "@radix-ui/react-icons": "^1.1.1",
         "@tanstack/react-query": "^4.24.4",
         "@trpc/client": "^10.10.0",
         "@trpc/next": "^10.10.0",

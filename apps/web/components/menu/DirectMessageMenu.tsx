@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import * as ContextMenu from "ui/components/context-menu";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { XIcon } from "lucide-react";
 import { trpc } from "@/utils/trpc";
 
 export function DirectMessageContextMenu({
@@ -24,7 +24,7 @@ export function DirectMessageContextMenu({
             <ContextMenu.Content>
                 <ContextMenu.Item
                     color="danger"
-                    icon={<Cross1Icon className="w-4 h-4" />}
+                    icon={<XIcon className="w-4 h-4" />}
                     onClick={onClose}
                 >
                     Close

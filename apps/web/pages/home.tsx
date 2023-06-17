@@ -9,12 +9,13 @@ import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { GroupWithNotifications, DMChannel } from "@/utils/types";
 import { Spinner } from "ui/components/spinner";
-import { BoxModelIcon } from "@radix-ui/react-icons";
+import { BoxIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
 import { useRouter } from "next/router";
 import { Navbar } from "@/components/layout/Navbar";
+import { tv } from "tailwind-variants";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
@@ -131,22 +132,22 @@ const Home: NextPageWithLayout = () => {
     );
 };
 
+const card = tv({
+    base: [
+        "relative rounded-xl bg-card p-4 flex flex-row gap-3 transition duration-100 hover:bg-accent/50",
+        "shadow-2xl shadow-brand-500/10 dark:shadow-none",
+    ],
+});
+
 function GroupItem({ group }: { group: GroupWithNotifications }) {
     return (
-        <Link
-            href={`/chat/${group.id}`}
-            className={clsx(
-                "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-3",
-                "shadow-2xl dark:shadow-none shadow-brand-500/10"
-            )}
-        >
+        <Link href={`/chat/${group.id}`} className={card()}>
             <Avatar
                 src={groupIcon.url([group.id], group.icon_hash)}
-                alt="icon"
                 fallback={group.name}
             />
             <div className="w-0 flex-1">
-                <p className="font-semibold text-lg overflow-hidden text-ellipsis whitespace-nowrap">
+                <p className="font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
                     {group.name}
                 </p>
                 <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
@@ -168,14 +169,8 @@ function ChatItem({ chat }: { chat: DMChannel }) {
 
     return (
         <DirectMessageContextMenu channelId={chat.id}>
-            <Link
-                href={`/dm/${chat.id}`}
-                className={clsx(
-                    "relative rounded-xl bg-light-50 dark:bg-dark-800 p-4 flex flex-row gap-2",
-                    "shadow-2xl dark:shadow-none shadow-brand-500/10"
-                )}
-            >
-                <Avatar src={user.image} fallback={user.name} size="2sm" />
+            <Link href={`/dm/${chat.id}`} className={card()}>
+                <Avatar src={user.image} fallback={user.name} />
                 <div className="flex-1 w-0">
                     <p className="text-base font-medium text-foreground">
                         {user.name}
@@ -197,7 +192,7 @@ function ChatItem({ chat }: { chat: DMChannel }) {
 function Placeholder() {
     return (
         <div className="flex flex-col items-center justify-center my-auto">
-            <BoxModelIcon className="w-20 h-20 text-brand-500 dark:text-brand-400 max-md:hidden" />
+            <BoxIcon className="w-20 h-20 text-brand-500 dark:text-brand-400 max-md:hidden" />
             <p className="font-medium text-base text-foreground">
                 Nothing here
             </p>

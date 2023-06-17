@@ -1,7 +1,7 @@
 import { uploadAttachment } from "@/utils/hooks/mutations/upload-attachment";
 import { useMessageStore } from "@/utils/stores/chat";
 import { RouterInput, trpc } from "@/utils/trpc";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { XIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
 import { SendData, Sendbar } from "./Sendbar";
@@ -67,18 +67,18 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
             onType={() => typeMutation.mutate({ channelId: channelId })}
         >
             {info?.reply_to != null && (
-                <div className="flex flex-row">
-                    <p className="text-muted-foreground text-sm flex-1">
+                <div className="flex flex-row pt-2 px-2 text-sm text-muted-foreground">
+                    <p className="flex-1">
                         Replying to{" "}
                         <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
                     </p>
                     <button
-                        className="text-muted-foreground"
+                        aria-label="delete"
                         onClick={() =>
                             update(channelId, { reply_to: undefined })
                         }
                     >
-                        <Cross1Icon />
+                        <XIcon className="w-4" />
                     </button>
                 </div>
             )}

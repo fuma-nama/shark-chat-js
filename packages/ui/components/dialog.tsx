@@ -1,5 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { XIcon } from "lucide-react";
 import clsx from "clsx";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
@@ -24,11 +24,9 @@ export function SimpleDialog({
     ...props
 }: SimpleDialogProps) {
     return (
-        <DialogPrimitive.Root {...props}>
+        <Dialog {...props}>
             {trigger != null && (
-                <DialogPrimitive.Trigger asChild>
-                    {trigger}
-                </DialogPrimitive.Trigger>
+                <DialogTrigger asChild>{trigger}</DialogTrigger>
             )}
             <DialogContent {...contentProps}>
                 <DialogPrimitive.Title className="text-lg font-bold text-accent-900 dark:text-accent-50">
@@ -38,17 +36,17 @@ export function SimpleDialog({
                     {description}
                 </DialogPrimitive.Description>
                 {children}
-                <DialogPrimitive.Close
+                <DialogClose
                     className={clsx(
                         "absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 text-accent-700 hover:text-accent-900",
                         "focus-visible:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
                         "dark:text-accent-700 dark:hover:text-accent-600"
                     )}
                 >
-                    <Cross1Icon className="h-4 w-4" />
-                </DialogPrimitive.Close>
+                    <XIcon className="h-4 w-4" />
+                </DialogClose>
             </DialogContent>
-        </DialogPrimitive.Root>
+        </Dialog>
     );
 }
 
@@ -61,20 +59,22 @@ type DialogContentProps = DialogPrimitive.DialogContentProps;
 
 function DialogContent(props: DialogPrimitive.DialogContentProps) {
     return (
-        <DialogPrimitive.Overlay className="fixed inset-0 z-20 bg-black/50 overflow-y-auto flex backdrop-blur-md">
-            <DialogPrimitive.Content
-                {...props}
-                className={twMerge(
-                    "relative m-auto z-50 animate-in fade-in-90 zoom-in-90",
-                    "w-[95vw] max-w-md rounded-lg p-4 md:w-full",
-                    "bg-light-50 dark:bg-dark-900",
-                    "focus:outline-none",
-                    props.className
-                )}
-            >
-                {props.children}
-            </DialogPrimitive.Content>
-        </DialogPrimitive.Overlay>
+        <DialogPrimitive.Portal>
+            <DialogPrimitive.Overlay className="fixed inset-0 z-20 bg-black/50 overflow-y-auto flex backdrop-blur-md">
+                <DialogPrimitive.Content
+                    {...props}
+                    className={twMerge(
+                        "relative m-auto z-50 animate-in fade-in-90 zoom-in-90",
+                        "w-[95vw] max-w-md rounded-lg p-4 md:w-full",
+                        "bg-light-50 dark:bg-dark-900",
+                        "focus:outline-none",
+                        props.className
+                    )}
+                >
+                    {props.children}
+                </DialogPrimitive.Content>
+            </DialogPrimitive.Overlay>
+        </DialogPrimitive.Portal>
     );
 }
 

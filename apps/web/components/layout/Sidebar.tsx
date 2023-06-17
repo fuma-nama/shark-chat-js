@@ -1,40 +1,16 @@
 import { usePageStore } from "@/utils/stores/page";
 import { useProfile } from "@/utils/hooks/use-profile";
-import {
-    ChevronRightIcon,
-    Cross1Icon,
-    GearIcon,
-    HomeIcon,
-} from "@radix-ui/react-icons";
+import { ChevronRightIcon, XIcon, SettingsIcon, HomeIcon } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Avatar } from "ui/components/avatar";
-import { tv } from "tailwind-variants";
 import { trpc } from "@/utils/trpc";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
 import { ReactNode } from "react";
-
-export const siderbarItem = tv({
-    slots: {
-        root: "rounded-xl -mx-2 p-2 flex flex-row gap-2 items-center",
-        text: "text-base",
-    },
-    variants: {
-        active: {
-            true: {
-                root: "bg-brand-200/20 dark:bg-brand-300/10",
-                text: "text-brand-500 dark:text-white font-semibold",
-            },
-            false: {
-                text: "text-accent-900 dark:text-accent-100",
-            },
-        },
-    },
-});
 
 export default function Sidebar() {
     const [isOpen, setOpen] = usePageStore((v) => [
@@ -53,7 +29,7 @@ export default function Sidebar() {
             )}
             <aside
                 className={clsx(
-                    "relative flex flex-col p-4 pb-0 gap-1 bg-background border-r-2 overflow-x-hidden overflow-y-auto h-full",
+                    "sticky top-0 h-screen flex flex-col p-4 pb-0 gap-1 bg-background border-r-2 overflow-x-hidden overflow-y-auto",
                     "max-md:fixed max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
                     "max-md:transition-transform max-md:duration-300",
                     !isOpen && "max-md:-translate-x-full"
@@ -63,7 +39,7 @@ export default function Sidebar() {
                     className="bg-background absolute p-1 top-4 right-4 md:hidden"
                     onClick={onClose}
                 >
-                    <Cross1Icon className="w-4 h-4" />
+                    <XIcon className="w-4 h-4" />
                 </button>
                 <Link href="/info" prefetch={false} className="font-bold mb-2">
                     Shark Chat
@@ -85,12 +61,12 @@ function Items() {
             <LinkItem
                 name="Home"
                 route="/home"
-                icon={<HomeIcon className="w-5 h-5" />}
+                icon={<HomeIcon className="w-4 h-4" />}
             />
             <LinkItem
                 name="Settings"
                 route="/settings"
-                icon={<GearIcon className="w-5 h-5" />}
+                icon={<SettingsIcon className="w-4 h-4" />}
             />
             <Tabs defaultValue="group" className="mt-2">
                 <TabsList>
@@ -152,12 +128,12 @@ function LinkItem({
             href={route}
             className={cn(
                 "flex flex-row gap-3 items-center p-1 rounded-lg",
-                active && "bg-accent"
+                active ? "bg-accent" : "hover:bg-accent/50 transition-colors"
             )}
         >
             <div
                 className={cn(
-                    "rounded-lg p-1.5 border-[1px] shadow-lg",
+                    "rounded-lg p-2 border-[1px] shadow-lg",
                     active &&
                         "border-transparent bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
                     !active && "text-secondary-foreground border-secondary"
@@ -195,11 +171,12 @@ function SidebarItem({
     return (
         <Link
             href={href}
+            scroll={false}
             className={cn(
                 "flex flex-row items-center gap-2 p-1 rounded-lg text-sm",
                 active
                     ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 transition-colors"
             )}
         >
             <Avatar src={image} fallback={name} size="2sm" rounded="sm" />

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { XIcon } from "lucide-react";
 
 import { cn } from "../utils/cn";
 import { tv, type VariantProps } from "tailwind-variants";
@@ -78,7 +78,7 @@ const ToastClose = React.forwardRef<
         toast-close=""
         {...props}
     >
-        <Cross1Icon className="h-4 w-4" />
+        <XIcon className="h-4 w-4" />
     </ToastPrimitives.Close>
 ));
 ToastClose.displayName = ToastPrimitives.Close.displayName;

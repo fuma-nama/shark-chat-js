@@ -3,12 +3,7 @@ import { Button, IconButton } from "ui/components/button";
 import { trpc } from "@/utils/trpc";
 import { useCopyText } from "ui/hooks/use-copy-text";
 import { Group, GroupInvite } from "db/schema";
-import {
-    CheckIcon,
-    CopyIcon,
-    Link1Icon,
-    TrashIcon,
-} from "@radix-ui/react-icons";
+import { CheckIcon, CopyIcon, LinkIcon, TrashIcon } from "lucide-react";
 import { Serialize } from "shared/types";
 import { useSession } from "next-auth/react";
 import { Switch } from "ui/components/switch";
@@ -104,8 +99,16 @@ function PublicInviteItem({ unique_name }: { unique_name: string }) {
                 className={input({ className: "px-4" })}
                 value={url}
             />
-            <Button aria-label="copy" onClick={() => copy.copy(url)}>
-                {copy.isShow ? <CheckIcon /> : <CopyIcon />}
+            <Button
+                aria-label="copy"
+                size="small"
+                onClick={() => copy.copy(url)}
+            >
+                {copy.isShow ? (
+                    <CheckIcon className="w-3" />
+                ) : (
+                    <CopyIcon className="w-3" />
+                )}
             </Button>
         </div>
     );
@@ -131,20 +134,33 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
                 className={input({ className: "px-4" })}
                 value={invite.code}
             />
-            <Button aria-label="copy" onClick={() => copy.copy(invite.code)}>
-                {copy.isShow ? <CheckIcon /> : <CopyIcon />}
+            <Button
+                aria-label="copy"
+                size="small"
+                onClick={() => copy.copy(invite.code)}
+            >
+                {copy.isShow ? (
+                    <CheckIcon className="w-3" />
+                ) : (
+                    <CopyIcon className="w-3" />
+                )}
             </Button>
             <Button
                 aria-label="copy link"
+                size="small"
                 onClick={() => copyLink.copy(getInviteUrl(invite.code))}
             >
-                {copyLink.isShow ? <CheckIcon /> : <Link1Icon />}
+                {copyLink.isShow ? (
+                    <CheckIcon className="w-3" />
+                ) : (
+                    <LinkIcon className="w-3" />
+                )}
             </Button>
             <IconButton
                 aria-label="delete"
                 color="danger"
+                size="small"
                 isLoading={deleteMutation.isLoading}
-                className="w-14"
                 onClick={() =>
                     deleteMutation.mutate({
                         groupId: invite.group_id,
@@ -152,7 +168,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
                     })
                 }
             >
-                <TrashIcon />
+                <TrashIcon className="w-3" />
             </IconButton>
         </div>
     );
