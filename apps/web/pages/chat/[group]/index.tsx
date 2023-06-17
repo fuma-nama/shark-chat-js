@@ -42,9 +42,7 @@ function Welcome() {
 
 GroupChat.useLayout = (children) => {
     const router = useRouter();
-    const { rootRef, scrollToBottom } = useViewScrollController([
-        router.pathname,
-    ]);
+    const conroller = useViewScrollController([router.pathname]);
 
     return (
         <AppLayout>
@@ -71,7 +69,7 @@ GroupChat.useLayout = (children) => {
             </Navbar>
 
             <Content>
-                <ChatViewProvider value={{ viewRef: rootRef, scrollToBottom }}>
+                <ChatViewProvider value={conroller}>
                     {children}
                 </ChatViewProvider>
             </Content>

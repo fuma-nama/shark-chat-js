@@ -1,17 +1,12 @@
 import { usePageStore } from "@/utils/stores/page";
 import dynamic from "next/dynamic";
-import { ReactNode, RefObject, createContext, useContext } from "react";
+import { ReactNode, createContext, useContext } from "react";
 import useInfiniteScroll, {
     UseInfiniteScrollHookArgs,
 } from "react-infinite-scroll-hook";
 import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
 
-type ContextType = {
-    viewRef: RefObject<Element | null>;
-    scrollToBottom: ReturnType<
-        typeof useViewScrollController
-    >["scrollToBottom"];
-};
+type ContextType = ReturnType<typeof useViewScrollController>;
 
 const ViewContext = createContext<ContextType | undefined>(undefined);
 

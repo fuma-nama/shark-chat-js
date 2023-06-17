@@ -34,7 +34,7 @@ export function MessageList({
     });
 
     const pages = query.data?.pages;
-    const { scrollToBottom, sentryRef } = useChatView({
+    const { sentryRef, updateScrollPosition } = useChatView({
         hasNextPage: query.hasPreviousPage ?? true,
         onLoadMore: () => query.isSuccess && query.fetchPreviousPage(),
         disabled: query.isLoading,
@@ -42,8 +42,8 @@ export function MessageList({
     });
 
     useLayoutEffect(() => {
-        scrollToBottom();
-    }, [pages, sending, scrollToBottom]);
+        updateScrollPosition();
+    }, [pages, sending, updateScrollPosition]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">
