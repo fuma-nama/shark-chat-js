@@ -1,4 +1,9 @@
-import { Dialog, DialogClose, DialogContent } from "ui/components/dialog";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogProps,
+} from "ui/components/dialog";
 import { ReactNode, useState } from "react";
 import { trpc } from "@/utils/trpc";
 import { Avatar } from "ui/components/avatar";
@@ -20,6 +25,24 @@ export function UserProfileModal({
             {children}
             <DialogContent className="max-w-lg">
                 <Content userId={userId} onClose={() => setOpen(false)} />
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+export default function UserProfileModalDefault({
+    userId,
+    ...props
+}: {
+    userId: string;
+} & DialogProps) {
+    return (
+        <Dialog {...props}>
+            <DialogContent className="max-w-lg">
+                <Content
+                    userId={userId}
+                    onClose={() => props.onOpenChange?.(false)}
+                />
             </DialogContent>
         </Dialog>
     );

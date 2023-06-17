@@ -6,7 +6,7 @@ import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
 import { trpc } from "@/utils/trpc";
 import { BreadcrumbItem } from "@/components/layout/group-breadcrumb";
-import { ViewContext } from "@/components/chat/ChatView";
+import { ChatViewProvider } from "@/components/chat/ChatView";
 import { Navbar } from "@/components/layout/Navbar";
 import { AppLayout, Content } from "@/components/layout/app";
 import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
@@ -70,11 +70,9 @@ GroupChat.useLayout = (children) => {
             </Navbar>
 
             <Content>
-                <ViewContext.Provider
-                    value={{ viewRef: rootRef, scrollToBottom }}
-                >
+                <ChatViewProvider value={{ viewRef: rootRef, scrollToBottom }}>
                     {children}
-                </ViewContext.Provider>
+                </ChatViewProvider>
             </Content>
             <Sendbar />
         </AppLayout>

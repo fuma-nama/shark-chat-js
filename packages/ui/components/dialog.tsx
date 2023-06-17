@@ -56,6 +56,9 @@ const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.DialogTrigger;
 const DialogClose = DialogPrimitive.DialogClose;
 
+type DialogProps = DialogPrimitive.DialogProps;
+type DialogContentProps = DialogPrimitive.DialogContentProps;
+
 function DialogContent(props: DialogPrimitive.DialogContentProps) {
     return (
         <DialogPrimitive.Overlay className="fixed inset-0 z-20 bg-black/50 overflow-y-auto flex backdrop-blur-md">
@@ -75,4 +78,11 @@ function DialogContent(props: DialogPrimitive.DialogContentProps) {
     );
 }
 
-export { Dialog, DialogContent, DialogClose, DialogTrigger };
+export {
+    type DialogProps,
+    type DialogContentProps,
+    Dialog,
+    DialogContent,
+    DialogClose,
+    DialogTrigger,
+};

@@ -5,9 +5,8 @@ import * as ContextMenu from "ui/components/context-menu";
 
 import { MessageType } from "@/utils/types";
 import { linkIt, urlRegex } from "react-linkify-it";
-import { UserProfileModal } from "../../modal/UserProfileModal";
-import { DialogTrigger } from "ui/components/dialog";
 import { cn } from "ui/utils/cn";
+import { usePageStore } from "@/utils/stores/page";
 
 type ContentProps = {
     user: MessageType["author"];
@@ -28,6 +27,12 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
         hourCycle: "h24",
     });
 
+    const setModal = usePageStore((s) => s.setModal);
+
+    const onOpenProfile = () => {
+        setModal({ type: "user-profile", user_id: author.id });
+    };
+
     return (
         <ContextMenu.Trigger
             className={cn(
@@ -36,26 +41,28 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
                 props.className
             )}
         >
-            <UserProfileModal userId={author.id}>
-                <DialogTrigger>
-                    <Avatar src={author.image} fallback={author.name} />
-                </DialogTrigger>
-                <div className="flex-1 flex flex-col w-0">
-                    <div className="flex flex-row items-center">
-                        <DialogTrigger asChild>
-                            <p className="font-semibold cursor-pointer">
-                                {author.name}
-                            </p>
-                        </DialogTrigger>
+            <Avatar
+                src={author.image}
+                fallback={author.name}
+                className="cursor-pointer"
+                onClick={onOpenProfile}
+            />
+            <div className="flex-1 flex flex-col w-0">
+                <div className="flex flex-row items-center">
+                    <p
+                        className="font-semibold cursor-pointer"
+                        onClick={onOpenProfile}
+                    >
+                        {author.name}
+                    </p>
 
-                        <p className="text-xs sm:text-xs text-muted-foreground ml-auto sm:ml-2">
-                            {date}
-                        </p>
-                    </div>
-
-                    {children}
+                    <p className="text-xs sm:text-xs text-muted-foreground ml-auto sm:ml-2">
+                        {date}
+                    </p>
                 </div>
-            </UserProfileModal>
+
+                {children}
+            </div>
         </ContextMenu.Trigger>
     );
 }

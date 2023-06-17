@@ -1,7 +1,7 @@
 import { MessageType } from "@/utils/types";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { useRef, useState } from "react";
+import { RefObject, useRef, useState } from "react";
 
 import * as Item from "./atom";
 import { AttachmentItem } from "../AttachmentItem";
@@ -19,39 +19,8 @@ import {
 import Edit from "./edit";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
-    const { group } = useRouter().query;
-
-    const { status, data } = useSession();
     const [editing, setEditing] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
-
-    const query = trpc.group.info.useQuery(
-        { groupId: typeof group === "string" ? Number(group) : NaN },
-        {
-            enabled: status === "authenticated" && typeof group === "string",
-            staleTime: Infinity,
-        }
-    );
-
-    const updateSendbar = useMessageStore((s) => s.updateSendbar);
-
-    const isAuthor =
-        status === "authenticated" && message.author_id === data.user.id;
-
-    const isGroup = typeof group === "string";
-
-    const isAdmin =
-        query.status === "success" &&
-        status === "authenticated" &&
-        query.data.owner_id === data.user.id;
-
-    const deleteMutation = trpc.chat.delete.useMutation();
-
-    const onDelete = () => {
-        deleteMutation.mutate({
-            messageId: message.id,
-        });
-    };
 
     return (
         <Item.Root>
@@ -70,67 +39,117 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
                     <AttachmentItem attachment={message.attachment} />
                 )}
                 {message.embeds?.map((v, i) => (
-                    <div
-                        key={i}
-                        className="bg-card text-card-foreground mt-3 p-2 border-l-2 border-l-primary rounded-lg"
-                    >
-                        <a
-                            href={v.url}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="font-medium text-sm"
-                        >
-                            {v.title}
-                        </a>
-                        <p className="text-muted-foreground text-xs">
-                            {v.description}
-                        </p>
-                        {v.image != null && <EmbedImage image={v.image} />}
-                    </div>
+                    <Embed key={i} embed={v} />
                 ))}
             </Item.Content>
-
-            <ContextMenu.Content
-                onCloseAutoFocus={() => {
-                    inputRef.current?.focus();
-                }}
-            >
-                <ContextMenu.Item
-                    icon={<ThickArrowLeftIcon className="w-4 h-4" />}
-                    onClick={() =>
-                        updateSendbar(message.channel_id, { reply_to: message })
-                    }
-                >
-                    Reply
-                </ContextMenu.Item>
-                <ContextMenu.Item
-                    icon={<CopyIcon className="w-4 h-4" />}
-                    onClick={() =>
-                        navigator.clipboard.writeText(message.content)
-                    }
-                >
-                    Copy
-                </ContextMenu.Item>
-                {isAuthor && (
-                    <ContextMenu.CheckboxItem
-                        icon={<Pencil1Icon className="w-4 h-4" />}
-                        value={editing}
-                        onChange={() => setEditing((prev) => !prev)}
-                    >
-                        {editing ? "Close Edit" : "Edit"}
-                    </ContextMenu.CheckboxItem>
-                )}
-                {((isGroup && isAdmin) || isAuthor) && (
-                    <ContextMenu.Item
-                        icon={<TrashIcon className="w-4 h-4" />}
-                        color="danger"
-                        onClick={onDelete}
-                    >
-                        Delete
-                    </ContextMenu.Item>
-                )}
-            </ContextMenu.Content>
+            <Menu
+                inputRef={inputRef}
+                message={message}
+                editing={editing}
+                setEditing={setEditing}
+            />
         </Item.Root>
+    );
+}
+
+function Menu({
+    message,
+    editing,
+    setEditing,
+    inputRef,
+}: {
+    message: MessageType;
+    editing: boolean;
+    setEditing: (v: boolean) => void;
+    inputRef: RefObject<HTMLTextAreaElement>;
+}) {
+    const { status, data } = useSession();
+    const { group } = useRouter().query;
+
+    const query = trpc.group.info.useQuery(
+        { groupId: typeof group === "string" ? Number(group) : NaN },
+        {
+            enabled: status === "authenticated" && typeof group === "string",
+            staleTime: Infinity,
+        }
+    );
+
+    const deleteMutation = trpc.chat.delete.useMutation();
+
+    const updateSendbar = useMessageStore((s) => s.updateSendbar);
+
+    const isAuthor =
+        status === "authenticated" && message.author_id === data.user.id;
+
+    const isGroup = typeof group === "string";
+
+    const isAdmin =
+        query.status === "success" &&
+        status === "authenticated" &&
+        query.data.owner_id === data.user.id;
+
+    const onDelete = () => {
+        deleteMutation.mutate({
+            messageId: message.id,
+        });
+    };
+
+    return (
+        <ContextMenu.Content
+            onCloseAutoFocus={() => {
+                inputRef.current?.focus();
+            }}
+        >
+            <ContextMenu.Item
+                icon={<ThickArrowLeftIcon className="w-4 h-4" />}
+                onClick={() =>
+                    updateSendbar(message.channel_id, { reply_to: message })
+                }
+            >
+                Reply
+            </ContextMenu.Item>
+            <ContextMenu.Item
+                icon={<CopyIcon className="w-4 h-4" />}
+                onClick={() => navigator.clipboard.writeText(message.content)}
+            >
+                Copy
+            </ContextMenu.Item>
+            {isAuthor && (
+                <ContextMenu.CheckboxItem
+                    icon={<Pencil1Icon className="w-4 h-4" />}
+                    value={editing}
+                    onChange={() => setEditing(!editing)}
+                >
+                    {editing ? "Close Edit" : "Edit"}
+                </ContextMenu.CheckboxItem>
+            )}
+            {((isGroup && isAdmin) || isAuthor) && (
+                <ContextMenu.Item
+                    icon={<TrashIcon className="w-4 h-4" />}
+                    color="danger"
+                    onClick={onDelete}
+                >
+                    Delete
+                </ContextMenu.Item>
+            )}
+        </ContextMenu.Content>
+    );
+}
+
+function Embed({ embed }: { embed: Embed }) {
+    return (
+        <div className="bg-card text-card-foreground mt-3 p-2 border-l-2 border-l-primary rounded-lg">
+            <a
+                href={embed.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="font-medium text-sm"
+            >
+                {embed.title}
+            </a>
+            <p className="text-muted-foreground text-xs">{embed.description}</p>
+            {embed.image != null && <EmbedImage image={embed.image} />}
+        </div>
     );
 }
 

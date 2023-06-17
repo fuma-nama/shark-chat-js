@@ -1,6 +1,9 @@
 import { create } from "zustand";
 
-type ModalType = "create-group" | "join-group" | "boarding";
+type ModalType = {
+    type: "user-profile";
+    user_id: string;
+};
 type ToastError = { title: string; description: string };
 type ToastMessage = {
     id: number;

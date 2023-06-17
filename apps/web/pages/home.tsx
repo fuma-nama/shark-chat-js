@@ -11,8 +11,7 @@ import { GroupWithNotifications, DMChannel } from "@/utils/types";
 import { Spinner } from "ui/components/spinner";
 import { BoxModelIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
-import { usePageStore } from "@/utils/stores/page";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
 import { useRouter } from "next/router";
 import { Navbar } from "@/components/layout/Navbar";
@@ -25,10 +24,40 @@ const JoinGroupModal = dynamic(
     () => import("@/components/modal/JoinGroupModal")
 );
 
-function Modals() {
+type Modal = "create-group" | "join-group" | "boarding";
+
+function Modals({
+    modal,
+    setModal,
+}: {
+    modal?: Modal;
+    setModal: (v?: Modal) => void;
+}) {
+    if (modal === "create-group")
+        return (
+            <CreateGroupModal
+                open
+                setOpen={(open) => setModal(open ? "create-group" : undefined)}
+            />
+        );
+    if (modal === "join-group")
+        return (
+            <JoinGroupModal
+                open
+                setOpen={(open) => setModal(open ? "join-group" : undefined)}
+            />
+        );
+
+    if (modal === "boarding")
+        return <BoardingModal onCreateGroup={() => setModal("create-group")} />;
+
+    return <></>;
+}
+
+const Home: NextPageWithLayout = () => {
     const router = useRouter();
+    const [modal, setModal] = useState<Modal>();
     const { modal: initialModal } = router.query;
-    const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
 
     useEffect(() => {
         if (initialModal === "new") {
@@ -38,33 +67,6 @@ function Modals() {
         }
     }, [initialModal, router, setModal]);
 
-    return (
-        <>
-            {modal === "create-group" && (
-                <CreateGroupModal
-                    open
-                    setOpen={(open) =>
-                        setModal(open ? "create-group" : undefined)
-                    }
-                />
-            )}
-            {modal === "join-group" && (
-                <JoinGroupModal
-                    open
-                    setOpen={(open) =>
-                        setModal(open ? "join-group" : undefined)
-                    }
-                />
-            )}
-            {modal === "boarding" && (
-                <BoardingModal onCreateGroup={() => setModal("create-group")} />
-            )}
-        </>
-    );
-}
-
-const Home: NextPageWithLayout = () => {
-    const setModal = usePageStore((s) => s.setModal);
     const dmQuery = trpc.dm.channels.useQuery(undefined, {
         enabled: false,
     });
@@ -79,7 +81,7 @@ const Home: NextPageWithLayout = () => {
 
     return (
         <>
-            <Modals />
+            <Modals modal={modal} setModal={setModal} />
             <h1 className="text-4xl font-bold">Recent Chat</h1>
             <div className="flex flex-row gap-3 mt-3">
                 <Button
@@ -224,4 +226,5 @@ Home.useLayout = (children) => (
         <Content>{children}</Content>
     </AppLayout>
 );
+
 export default Home;

@@ -1,6 +1,6 @@
 "use client";
 import * as AvatarBase from "@radix-ui/react-avatar";
-import { forwardRef, useMemo } from "react";
+import { ComponentPropsWithoutRef, forwardRef, useMemo } from "react";
 import { tv, VariantProps } from "tailwind-variants";
 
 const avatar = tv({
@@ -51,11 +51,11 @@ export type AvatarProps = {
     src?: string | null;
     fallback?: string;
     alt?: string;
-    className?: string;
-} & VariantProps<typeof avatar>;
+} & VariantProps<typeof avatar> &
+    ComponentPropsWithoutRef<"span">;
 
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
-    const { size, fallback, src, alt, rounded, className } = props;
+    const { size, fallback, src, alt, rounded, ...rest } = props;
     const styles = avatar({ size, rounded });
 
     const fallbackText = useMemo(() => {
@@ -72,7 +72,8 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
         <AvatarBase.Root
             key={src}
             ref={ref}
-            className={styles.root({ className: className })}
+            {...rest}
+            className={styles.root({ className: rest.className })}
         >
             {src != null && (
                 <AvatarBase.Image

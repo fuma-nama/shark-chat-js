@@ -8,7 +8,7 @@ import { Avatar } from "ui/components/avatar";
 import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
 import { Navbar } from "./Navbar";
 import { ChannelSendbar } from "../chat/ChannelSendbar";
-import { ViewContext } from "../chat/ChatView";
+import { ChatViewProvider } from "../chat/ChatView";
 
 export function useDirectMessageLayout(children: ReactNode) {
     const { rootRef, handleRootScroll, scrollToBottom } =
@@ -27,11 +27,9 @@ export function useDirectMessageLayout(children: ReactNode) {
             />
 
             <Content>
-                <ViewContext.Provider
-                    value={{ viewRef: rootRef, scrollToBottom }}
-                >
+                <ChatViewProvider value={{ viewRef: rootRef, scrollToBottom }}>
                     {children}
-                </ViewContext.Provider>
+                </ChatViewProvider>
             </Content>
             <ChannelSendbar channelId={router.query.channel as string} />
         </AppLayout>

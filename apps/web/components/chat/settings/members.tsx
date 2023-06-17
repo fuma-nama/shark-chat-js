@@ -6,6 +6,7 @@ import { Serialize } from "shared/types";
 import { Member } from "db/schema";
 import { useSession } from "next-auth/react";
 import { UserProfileModal } from "@/components/modal/UserProfileModal";
+import { DialogTrigger } from "ui/components/dialog";
 
 export default function Members({
     group,
@@ -64,31 +65,38 @@ function MemberItem({
     });
 
     return (
-        <div className="flex flex-row items-center gap-3">
-            <Avatar
-                alt="avatar"
-                size="medium"
-                src={member.user.image}
-                fallback={member.user.name}
-            />
-            <UserProfileModal userId={member.user_id}>
-                <p>{member.user.name}</p>
-            </UserProfileModal>
-            {canKick && (
-                <Button
-                    color="danger"
-                    className="ml-auto"
-                    isLoading={kick.isLoading}
-                    onClick={() =>
-                        kick.mutate({
-                            groupId: member.group_id,
-                            userId: member.user_id,
-                        })
-                    }
-                >
-                    Kick
-                </Button>
-            )}
-        </div>
+        <UserProfileModal userId={member.user_id}>
+            <div className="flex flex-row items-center gap-3 border-[1px] p-2 rounded-md hover:bg-accent">
+                <DialogTrigger className="flex flex-row items-center">
+                    <Avatar
+                        alt="avatar"
+                        size="2sm"
+                        src={member.user.image}
+                        fallback={member.user.name}
+                    />
+                </DialogTrigger>
+
+                <DialogTrigger asChild>
+                    <p className="cursor-pointer font-medium">
+                        {member.user.name}
+                    </p>
+                </DialogTrigger>
+                {canKick && (
+                    <Button
+                        color="danger"
+                        className="ml-auto"
+                        isLoading={kick.isLoading}
+                        onClick={() =>
+                            kick.mutate({
+                                groupId: member.group_id,
+                                userId: member.user_id,
+                            })
+                        }
+                    >
+                        Kick
+                    </Button>
+                )}
+            </div>
+        </UserProfileModal>
     );
 }
