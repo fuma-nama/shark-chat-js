@@ -2,7 +2,7 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode, useLayoutEffect } from "react";
+import { Fragment, ReactNode, useEffect, useLayoutEffect } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./item";
@@ -42,7 +42,7 @@ export function MessageList({
         loading: query.isFetchingPreviousPage,
     });
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         console.log("scroll a");
         scrollToBottom();
     }, [pages, sending, scrollToBottom]);

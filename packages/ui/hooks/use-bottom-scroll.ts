@@ -30,10 +30,14 @@ export function useViewScrollController() {
                 lastScrollDistanceToBottomRef.current ?? 0;
 
             if (scrollableRoot == null) return;
-            scrollableRoot.scrollTop =
-                type === "last_distance"
-                    ? scrollableRoot.scrollHeight - lastScrollDistanceToBottom
-                    : scrollableRoot.scrollHeight;
+
+            if (type === "force") {
+                scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
+                lastScrollDistanceToBottomRef.current = 0;
+            } else {
+                scrollableRoot.scrollTop =
+                    scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
+            }
         },
         []
     );

@@ -1,12 +1,6 @@
 import { usePageStore } from "@/utils/stores/page";
 import dynamic from "next/dynamic";
-import {
-    ReactNode,
-    RefObject,
-    createContext,
-    useContext,
-    useEffect,
-} from "react";
+import { ReactNode, RefObject, createContext, useContext } from "react";
 import useInfiniteScroll, {
     UseInfiniteScrollHookArgs,
 } from "react-infinite-scroll-hook";
