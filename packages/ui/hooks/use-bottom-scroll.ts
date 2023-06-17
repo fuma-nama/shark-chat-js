@@ -13,6 +13,7 @@ export function useViewScrollController(dependency: DependencyList) {
     useLayoutEffect(() => {
         rootRef.current = document.scrollingElement;
         lastScrollDistanceToBottomRef.current = undefined;
+        console.log("reset");
     }, [dependency]);
 
     const handleRootScroll = useCallback(() => {
@@ -26,6 +27,7 @@ export function useViewScrollController(dependency: DependencyList) {
     }, [rootRef.current]);
 
     useEffect(() => {
+        console.log("listeners");
         document.addEventListener("scroll", handleRootScroll);
 
         return () => {
@@ -43,9 +45,14 @@ export function useViewScrollController(dependency: DependencyList) {
 
             if (type === "force") {
                 scrollableRoot.scrollTop = scrollableRoot.scrollHeight;
+                console.log("scroll", scrollableRoot.scrollHeight);
             } else {
                 scrollableRoot.scrollTop =
                     scrollableRoot.scrollHeight - lastScrollDistanceToBottom;
+                console.log(
+                    "scroll",
+                    scrollableRoot.scrollHeight - lastScrollDistanceToBottom
+                );
             }
         },
         []
