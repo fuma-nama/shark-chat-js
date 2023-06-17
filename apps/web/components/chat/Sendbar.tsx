@@ -81,14 +81,13 @@ export function Sendbar({
                     <label
                         htmlFor="attachment"
                         className={button({
-                            className:
-                                "aspect-square h-9 p-2.5 mt-0.5 cursor-pointer",
+                            className: "w-9 h-9 p-2.5 mt-0.5 cursor-pointer",
                         })}
                     >
                         <FilePlusIcon />
                     </label>
                     <IconButton
-                        className="aspect-square h-9 p-2.5 mt-0.5 max-sm:hidden"
+                        className="w-9 h-9 p-2.5 mt-0.5 max-sm:hidden"
                         onClick={() => setOpenModal(true)}
                     >
                         <TextIcon />
@@ -101,7 +100,7 @@ export function Sendbar({
                     <IconButton
                         disabled={!formState.isValid}
                         color="primary"
-                        className="rounded-full aspect-square h-9 p-2.5 mt-0.5"
+                        className="rounded-full w-9 h-9 p-2.5 mt-0.5"
                         onClick={onSend}
                     >
                         <SendIcon />

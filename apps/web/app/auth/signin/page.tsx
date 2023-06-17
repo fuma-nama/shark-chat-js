@@ -20,7 +20,7 @@ export default async function SignInPage() {
     );
 
     return (
-        <div className="flex flex-col items-center justify-center bg-gradient-to-b from-light-50 to-light-400  dark:from-dark-800 dark:to-dark-950  min-h-full p-4">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-light-50 to-light-400 dark:from-dark-600 dark:to-dark-950 p-4">
             <div
                 className={clsx(
                     "flex flex-col gap-2 sm:gap-4 text-center p-6 max-w-lg border-[1px] rounded-xl bg-card/50 shadow-lg"

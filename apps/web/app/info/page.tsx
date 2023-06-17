@@ -14,8 +14,8 @@ import Link from "next/link";
 
 export default function InfoPage() {
     return (
-        <div className="relative flex flex-col w-full max-w-screen-2xl mx-auto px-6 py-4 md:px-8 gap-3">
-            <div className="sticky top-0 w-full py-2 flex flex-row items-center z-50 rounded-xl bg-light-100/30 dark:bg-dark-900/30 -mx-2 px-2 backdrop-blur-xl">
+        <div className="relative flex flex-col w-full max-w-screen-2xl mx-auto px-6 py-4 md:px-8 gap-3 min-h-screen">
+            <div className="sticky top-0 left-0 right-0 py-2 flex flex-row items-center z-50 rounded-xl bg-light-100/30 dark:bg-dark-900/30 -mx-2 px-2 backdrop-blur-xl">
                 <div className="w-8 h-8 mr-2 bg-brand rounded-full" />
                 <p className="font-semibold text-xl">Shark Chat</p>
 
