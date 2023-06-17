@@ -13,6 +13,12 @@ export function useViewScrollController(dependency: DependencyList) {
     useLayoutEffect(() => {
         rootRef.current = document.scrollingElement;
         lastScrollDistanceToBottomRef.current = undefined;
+
+        if (document.scrollingElement) {
+            document.scrollingElement.scrollTop =
+                document.scrollingElement.scrollHeight;
+        }
+
         console.log("reset");
     }, [dependency]);
 

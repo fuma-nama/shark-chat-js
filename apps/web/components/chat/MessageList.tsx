@@ -45,10 +45,6 @@ export function MessageList({
         scrollToBottom();
     }, [pages, sending, scrollToBottom]);
 
-    useLayoutEffect(() => {
-        scrollToBottom("force");
-    }, [channelId, scrollToBottom]);
-
     return (
         <div className="flex flex-col gap-3 mb-8">
             {query.isLoading || query.hasPreviousPage ? (
