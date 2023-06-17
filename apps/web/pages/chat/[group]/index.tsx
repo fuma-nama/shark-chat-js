@@ -42,7 +42,9 @@ function Welcome() {
 
 GroupChat.useLayout = (children) => {
     const router = useRouter();
-    const { rootRef, scrollToBottom } = useViewScrollController();
+    const { rootRef, scrollToBottom } = useViewScrollController([
+        router.pathname,
+    ]);
 
     return (
         <AppLayout>

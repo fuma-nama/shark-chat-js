@@ -1,8 +1,19 @@
-import { useRef, useCallback, useEffect } from "react";
+import {
+    useRef,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    DependencyList,
+} from "react";
 
-export function useViewScrollController() {
+export function useViewScrollController(dependency: DependencyList) {
     const rootRef = useRef<Element | null>(null);
     const lastScrollDistanceToBottomRef = useRef<number>();
+
+    useLayoutEffect(() => {
+        rootRef.current = document.scrollingElement;
+        lastScrollDistanceToBottomRef.current = undefined;
+    }, [dependency]);
 
     const handleRootScroll = useCallback(() => {
         const rootNode = rootRef.current;
@@ -15,7 +26,6 @@ export function useViewScrollController() {
     }, [rootRef.current]);
 
     useEffect(() => {
-        rootRef.current = document.scrollingElement;
         document.addEventListener("scroll", handleRootScroll);
 
         return () => {

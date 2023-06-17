@@ -12,7 +12,9 @@ import { ChatViewProvider } from "../chat/ChatView";
 
 export function useDirectMessageLayout(children: ReactNode) {
     const router = useRouter();
-    const { rootRef, scrollToBottom } = useViewScrollController();
+    const { rootRef, scrollToBottom } = useViewScrollController([
+        router.pathname,
+    ]);
 
     return (
         <AppLayout>
