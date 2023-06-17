@@ -8,6 +8,7 @@ import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./item";
 import { LocalMessageItem } from "./item/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
+import { useRouter } from "next/router";
 
 export function MessageList({
     channelId,
@@ -42,12 +43,14 @@ export function MessageList({
     });
 
     useLayoutEffect(() => {
+        console.log("scroll a");
         scrollToBottom();
     }, [pages, sending, scrollToBottom]);
 
     useLayoutEffect(() => {
+        console.log("scroll");
         scrollToBottom("force");
-    }, [channelId, scrollToBottom]);
+    }, [useRouter().pathname, scrollToBottom]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">
