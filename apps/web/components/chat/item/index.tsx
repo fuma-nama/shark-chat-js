@@ -133,7 +133,7 @@ function Menu({
 
 function Embed({ embed }: { embed: Embed }) {
     return (
-        <div className="bg-card text-card-foreground mt-3 p-2 border-l-2 border-l-primary rounded-lg">
+        <div className="bg-card text-card-foreground overflow-hidden mt-3 p-2 border-l-2 border-l-primary rounded-lg">
             <a
                 href={embed.url}
                 target="_blank"
@@ -153,10 +153,8 @@ function EmbedImage({ image }: { image: Exclude<Embed["image"], undefined> }) {
 
     return (
         <div
-            className="w-auto relative mt-3 rounded-xl overflow-hidden"
+            className="w-auto relative mt-3 rounded-xl overflow-hidden max-w-[400px] max-h-[400px]"
             style={{
-                maxWidth: `${Math.min(image.width, 400)}px`,
-                maxHeight: `${Math.min(image.height, 400)}px`,
                 aspectRatio: image.width / image.height,
             }}
         >

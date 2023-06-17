@@ -43,8 +43,6 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
 
 function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
     const [state, setState] = useState<"loading" | "loaded">("loading");
-    const maxW = Math.min(500, attachment.width!!);
-    const maxH = Math.min(400, attachment.height!!);
     const url = decodeURIComponent(attachment.url).slice(
         cloudinary_prefix.length
     );
@@ -52,18 +50,16 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
     return (
         <div>
             <div
-                className="relative w-auto mt-3 rounded-xl overflow-hidden"
+                className="relative w-auto mt-3 rounded-xl overflow-hidden max-w-[500px] max-h-[400px]"
                 style={{
                     aspectRatio: attachment.width!! / attachment.height!!,
-                    maxWidth: `${maxW}px`,
-                    maxHeight: `${maxH}px`,
                 }}
             >
                 <Image
                     alt={attachment.name}
                     src={url}
                     fill
-                    sizes={`(max-width: ${maxW}px) 90vw, ${maxW}px`}
+                    sizes={`(max-width: 500px) 90vw, 500px`}
                     loader={({ src, width, quality }) => {
                         const params = [
                             "c_limit",
