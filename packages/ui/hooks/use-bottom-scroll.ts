@@ -1,15 +1,9 @@
-import {
-    useRef,
-    useCallback,
-    useEffect,
-    useLayoutEffect,
-    DependencyList,
-} from "react";
+import { useRef, useCallback, useEffect, DependencyList } from "react";
 
 export function useViewScrollController(dependency: DependencyList) {
     const lastScrollDistanceToBottomRef = useRef<number>();
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         lastScrollDistanceToBottomRef.current = undefined;
 
         if (document.scrollingElement) {

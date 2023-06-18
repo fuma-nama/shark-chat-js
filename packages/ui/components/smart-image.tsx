@@ -18,7 +18,10 @@ export function SmartImage({
     maxHeight,
     children,
 }: SmartImageProps) {
-    const ratio = width > height ? maxWidth / width : maxHeight / height;
+    const ratio = Math.min(
+        width > height ? maxWidth / width : maxHeight / height,
+        1
+    );
 
     return (
         <div
