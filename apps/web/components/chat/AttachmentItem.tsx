@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AttachmentType } from "shared/schema/chat";
 import { useState } from "react";
-import { Spinner } from "ui/components/spinner";
+import { SmartImage } from "ui/components/smart-image";
 import Image from "next/image";
 
 export function UploadingAttachmentItem({ file }: { file: File }) {
@@ -49,11 +49,12 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
 
     return (
         <div>
-            <div
-                className="relative w-auto mt-3 rounded-xl overflow-hidden max-w-[500px] max-h-[400px]"
-                style={{
-                    aspectRatio: attachment.width!! / attachment.height!!,
-                }}
+            <SmartImage
+                state={state}
+                width={attachment.width!!}
+                height={attachment.height!!}
+                maxWidth={500}
+                maxHeight={400}
             >
                 <Image
                     alt={attachment.name}
@@ -69,17 +70,9 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
 
                         return `${cloudinary_prefix}${params.join(",")}/${src}`;
                     }}
-                    style={{
-                        aspectRatio: attachment.width!! / attachment.height!!,
-                    }}
                     onLoadingComplete={() => setState("loaded")}
                 />
-                {state === "loading" && (
-                    <div className="flex flex-col justify-center items-center absolute inset-0 bg-light-100 dark:bg-dark-700">
-                        <Spinner size="medium" />
-                    </div>
-                )}
-            </div>
+            </SmartImage>
         </div>
     );
 }

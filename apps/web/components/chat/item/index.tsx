@@ -7,11 +7,11 @@ import * as Item from "./atom";
 import { AttachmentItem } from "../AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useRouter } from "next/router";
-import { Spinner } from "ui/components/spinner";
 import { Embed } from "db/schema";
 import * as ContextMenu from "ui/components/context-menu";
 import { CopyIcon, PencilIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
+import { SmartImage } from "ui/components/smart-image";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
     const [editing, setEditing] = useState(false);
@@ -132,6 +132,9 @@ function Menu({
 }
 
 function Embed({ embed }: { embed: Embed }) {
+    const [state, setState] = useState<"loading" | "loaded">("loading");
+    const image = embed.image;
+
     return (
         <div className="bg-card text-card-foreground overflow-hidden mt-3 p-2 border-l-2 border-l-primary rounded-lg">
             <a
@@ -143,31 +146,21 @@ function Embed({ embed }: { embed: Embed }) {
                 {embed.title}
             </a>
             <p className="text-muted-foreground text-xs">{embed.description}</p>
-            {embed.image != null && <EmbedImage image={embed.image} />}
-        </div>
-    );
-}
-
-function EmbedImage({ image }: { image: Exclude<Embed["image"], undefined> }) {
-    const [state, setState] = useState<"loading" | "loaded">("loading");
-
-    return (
-        <div
-            className="w-auto relative mt-3 rounded-xl overflow-hidden max-w-[400px] max-h-[400px]"
-            style={{
-                aspectRatio: image.width / image.height,
-            }}
-        >
-            <img
-                alt="image"
-                src={image.url}
-                onLoad={() => setState("loaded")}
-                className="w-full h-full"
-            />
-            {state === "loading" && (
-                <div className="flex flex-col justify-center items-center absolute inset-0 bg-light-100 dark:bg-dark-700">
-                    <Spinner size="medium" />
-                </div>
+            {image != null && (
+                <SmartImage
+                    state={state}
+                    width={image.width}
+                    height={image.height}
+                    maxWidth={400}
+                    maxHeight={400}
+                >
+                    <img
+                        alt="image"
+                        src={image.url}
+                        onLoad={() => setState("loaded")}
+                        className="w-full h-full"
+                    />
+                </SmartImage>
             )}
         </div>
     );
