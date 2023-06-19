@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
 
 import * as ContextMenu from "ui/components/context-menu";
@@ -6,7 +6,7 @@ import * as ContextMenu from "ui/components/context-menu";
 import { MessageType } from "@/utils/types";
 import { cn } from "ui/utils/cn";
 import { usePageStore } from "@/utils/stores/page";
-import { marked } from "marked";
+import Markdown from "marked-react";
 
 type ContentProps = {
     user: MessageType["author"];
@@ -76,19 +76,15 @@ export function Root({ children }: RootProps) {
 }
 
 export function Text({ children }: { children: string }) {
-    const html = useMemo(
-        () =>
-            marked(children, {
-                breaks: true,
-                sanitize: true,
-            }),
-        [children]
-    );
-
     return (
-        <div
-            className="prose prose-message"
-            dangerouslySetInnerHTML={{ __html: html }}
-        />
+        <div className="prose prose-message break-words overflow-hidden">
+            <Markdown
+                children={children}
+                gfm
+                breaks
+                value={children}
+                openLinksInNewTab
+            />
+        </div>
     );
 }
