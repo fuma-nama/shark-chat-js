@@ -78,13 +78,7 @@ export function Root({ children }: RootProps) {
 export function Text({ children }: { children: string }) {
     return (
         <div className="prose prose-message break-words overflow-hidden">
-            <Markdown
-                children={children}
-                gfm
-                breaks
-                value={children}
-                openLinksInNewTab
-            />
+            <Markdown value={children} gfm breaks openLinksInNewTab />
         </div>
     );
 }
