@@ -4,6 +4,9 @@ importers:
 
   .:
     devDependencies:
+      '@tailwindcss/typography':
+        specifier: ^0.5.9
+        version: 0.5.9(tailwindcss@3.2.4)
       autoprefixer:
         specifier: ^10.4.13
         version: 10.4.13(postcss@8.4.21)
@@ -49,6 +52,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^4.24.4
         version: 4.24.4(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-virtual':
+        specifier: 3.0.0-beta.54
+        version: 3.0.0-beta.54(react@18.2.0)
       '@trpc/client':
         specifier: ^10.10.0
         version: 10.10.0(@trpc/server@10.10.0)
@@ -82,6 +88,9 @@ importers:
       lucide-react:
         specifier: ^0.244.0
         version: 0.244.0(react@18.2.0)
+      marked:
+        specifier: ^5.1.0
+        version: 5.1.0
       next:
         specifier: 13.4.3
         version: 13.4.3(react-dom@18.2.0)(react@18.2.0)
@@ -106,9 +115,6 @@ importers:
       react-infinite-scroll-hook:
         specifier: ^4.0.4
         version: 4.0.4(react@18.2.0)
-      react-linkify-it:
-        specifier: ^1.0.7
-        version: 1.0.7(react@18.2.0)
       server:
         specifier: workspace:*
         version: link:../../packages/server
@@ -128,6 +134,9 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(react@18.2.0)
     devDependencies:
+      '@types/marked':
+        specifier: ^5.0.0
+        version: 5.0.0
       '@types/node':
         specifier: 18.11.18
         version: 18.11.18
@@ -1368,6 +1377,18 @@ packages:
       defer-to-connect: 2.0.1
     dev: false
 
+  /@tailwindcss/typography@0.5.9(tailwindcss@3.2.4):
+    resolution: {integrity: sha512-t8Sg3DyynFysV9f4JDOVISGsjazNb48AeIYQwcL+Bsq5uf4RYL75C1giZ43KISjeDGBaTN3Kxh7Xj/vRSMJUUg==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || insiders'
+    dependencies:
+      lodash.castarray: 4.4.0
+      lodash.isplainobject: 4.0.6
+      lodash.merge: 4.6.2
+      postcss-selector-parser: 6.0.10
+      tailwindcss: 3.2.4(postcss@8.4.21)
+    dev: true
+
   /@tanstack/query-core@4.24.4:
     resolution: {integrity: sha512-9dqjv9eeB6VHN7lD3cLo16ZAjfjCsdXetSAD5+VyKqLUvcKTL0CklGQRJu+bWzdrS69R6Ea4UZo8obHYZnG6aA==}
     dev: false
@@ -1388,6 +1409,19 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/react-virtual@3.0.0-beta.54(react@18.2.0):
+    resolution: {integrity: sha512-D1mDMf4UPbrtHRZZriCly5bXTBMhylslm4dhcHqTtDJ6brQcgGmk8YD9JdWBGWfGSWPKoh2x1H3e7eh+hgPXtQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@tanstack/virtual-core': 3.0.0-beta.54
+      react: 18.2.0
+    dev: false
+
+  /@tanstack/virtual-core@3.0.0-beta.54:
+    resolution: {integrity: sha512-jtkwqdP2rY2iCCDVAFuaNBH3fiEi29aTn2RhtIoky8DTTiCdc48plpHHreLwmv1PICJ4AJUUESaq3xa8fZH8+g==}
     dev: false
 
   /@tootallnate/once@1.1.2:
@@ -1482,6 +1516,10 @@ packages:
   /@types/long@4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
     dev: false
+
+  /@types/marked@5.0.0:
+    resolution: {integrity: sha512-YcZe50jhltsCq7rc9MNZC/4QB/OnA2Pd6hrOSTOFajtabN+38slqgDDCeE/0F83SjkKBQcsZUj7VLWR0H5cKRA==}
+    dev: true
 
   /@types/needle@3.2.0:
     resolution: {integrity: sha512-6XzvzEyJ2ozFNfPajFmqH9JOt0Hp+9TawaYpJT59iIP/zR0U37cfWCRwosyIeEBBZBi021Osq4jGAD3AOju5fg==}
@@ -3878,6 +3916,14 @@ packages:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
     dev: false
 
+  /lodash.castarray@4.4.0:
+    resolution: {integrity: sha512-aVx8ztPv7/2ULbArGJ2Y42bG1mEQ5mGjpdvrbJcJFU3TbYybe+QlLS4pst9zV52ymy2in1KpFPiZnAOATxD4+Q==}
+    dev: true
+
+  /lodash.isplainobject@4.0.6:
+    resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
+    dev: true
+
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
@@ -3933,6 +3979,12 @@ packages:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.2.0
+    dev: false
+
+  /marked@5.1.0:
+    resolution: {integrity: sha512-z3/nBe7aTI8JDszlYLk7dDVNpngjw0o1ZJtrA9kIfkkHcIF+xH7mO23aISl4WxP83elU+MFROgahqdpd05lMEQ==}
+    engines: {node: '>= 18'}
+    hasBin: true
     dev: false
 
   /memoizee@0.4.15:
@@ -4443,6 +4495,14 @@ packages:
       postcss: 8.4.21
       postcss-selector-parser: 6.0.11
 
+  /postcss-selector-parser@6.0.10:
+    resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}
+    engines: {node: '>=4'}
+    dependencies:
+      cssesc: 3.0.0
+      util-deprecate: 1.0.2
+    dev: true
+
   /postcss-selector-parser@6.0.11:
     resolution: {integrity: sha512-zbARubNdogI9j7WY4nQJBiNqQf3sLS3wCP4WfOidu+p28LofJqDH1tcXypGrcmMHhDk2t9wGhCsYe/+szLTy1g==}
     engines: {node: '>=4'}
@@ -4642,14 +4702,6 @@ packages:
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
     dev: true
-
-  /react-linkify-it@1.0.7(react@18.2.0):
-    resolution: {integrity: sha512-B0Vy0KCAdpkT7Ql/bOpPuAP4l20f78Eaq1yD/q9J2RltPSwD900I0GzQPXaH6gnoWX/qmkBXL42Q3jTnWw8KCw==}
-    peerDependencies:
-      react: '*'
-    dependencies:
-      react: 18.2.0
-    dev: false
 
   /react-remove-scroll-bar@2.3.4(@types/react@18.0.27)(react@18.2.0):
     resolution: {integrity: sha512-63C4YQBUt0m6ALadE9XV56hV8BgJWDmmTPY758iIJjfQKt2nYwoUrPk0LXRXcB/yIj82T1/Ixfdpdk68LwIB0A==}

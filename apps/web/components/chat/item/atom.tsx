@@ -4,9 +4,9 @@ import { Avatar } from "ui/components/avatar";
 import * as ContextMenu from "ui/components/context-menu";
 
 import { MessageType } from "@/utils/types";
-import { linkIt, urlRegex } from "react-linkify-it";
 import { cn } from "ui/utils/cn";
 import { usePageStore } from "@/utils/stores/page";
+import { marked } from "marked";
 
 type ContentProps = {
     user: MessageType["author"];
@@ -76,27 +76,19 @@ export function Root({ children }: RootProps) {
 }
 
 export function Text({ children }: { children: string }) {
-    const nodes = useMemo(() => {
-        return linkIt(
-            children,
-            (url, key) => (
-                <a
-                    key={key}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-brand-500 dark:text-brand-200"
-                >
-                    {url}
-                </a>
-            ),
-            urlRegex
-        );
-    }, [children]);
+    const html = useMemo(
+        () =>
+            marked(children, {
+                breaks: true,
+                sanitize: true,
+            }),
+        [children]
+    );
 
     return (
-        <p className="[overflow-wrap:anywhere] [white-space:break-spaces]">
-            {nodes}
-        </p>
+        <div
+            className="prose prose-message"
+            dangerouslySetInnerHTML={{ __html: html }}
+        />
     );
 }

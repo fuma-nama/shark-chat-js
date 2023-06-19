@@ -16,6 +16,7 @@
         "@hookform/resolvers": "^2.9.11",
         "@inworld/nodejs-sdk": "1.4.0",
         "@tanstack/react-query": "^4.24.4",
+        "@tanstack/react-virtual": "3.0.0-beta.54",
         "@trpc/client": "^10.10.0",
         "@trpc/next": "^10.10.0",
         "@trpc/react-query": "^10.10.0",
@@ -27,6 +28,7 @@
         "db": "workspace:*",
         "drizzle-orm": "^0.26.5",
         "lucide-react": "^0.244.0",
+        "marked": "^5.1.0",
         "next": "13.4.3",
         "next-auth": "^4.22.1",
         "next-themes": "^0.2.1",
@@ -35,7 +37,6 @@
         "react-dom": "18.2.0",
         "react-hook-form": "^7.43.5",
         "react-infinite-scroll-hook": "^4.0.4",
-        "react-linkify-it": "^1.0.7",
         "server": "workspace:*",
         "shared": "workspace:*",
         "tailwind-variants": "^0.0.30",
@@ -44,6 +45,7 @@
         "zustand": "^4.3.2"
     },
     "devDependencies": {
+        "@types/marked": "^5.0.0",
         "@types/node": "18.11.18",
         "@types/react": "18.0.27",
         "@types/react-dom": "18.0.10",
