@@ -2,13 +2,14 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode, useLayoutEffect } from "react";
+import { ReactNode, useLayoutEffect, useMemo, useState } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./item";
 import { LocalMessageItem } from "./item/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
 
+const BLOCK_SIZE = 15;
 export function MessageList({
     channelId,
     welcome,
@@ -19,6 +20,10 @@ export function MessageList({
     const { status } = useSession();
     const variables = getMessageVariables(channelId);
     const lastRead = useLastRead(channelId);
+    const [range, setRange] = useState<[start: number, end: number]>([
+        0,
+        BLOCK_SIZE,
+    ]);
     const [sending, remove] = useMessageStore((s) => [
         s.sending[channelId],
         s.removeSending,
@@ -33,21 +38,48 @@ export function MessageList({
                 : null,
     });
 
-    const pages = query.data?.pages;
-    const { sentryRef, updateScrollPosition } = useChatView({
-        hasNextPage: query.hasPreviousPage ?? true,
-        onLoadMore: () => query.isSuccess && query.fetchPreviousPage(),
+    const rows = useMemo(
+        () =>
+            query.data?.pages?.flatMap((messages) => [...messages].reverse()) ??
+            [],
+        [query.data?.pages]
+    );
+
+    const showSkeleton =
+        query.isLoading || query.hasPreviousPage || rows.length - 1 > range[1];
+
+    const { sentryRef, resetScroll, updateScrollPosition } = useChatView({
+        hasNextPage:
+            (query.hasPreviousPage ?? true) || rows.length - 1 > range[1],
+        onLoadMore: () => {
+            if (!query.isSuccess || query.isFetchingPreviousPage) return;
+
+            if (rows.length - 1 > range[1]) {
+                setRange((prev) => [prev[0], prev[1] + BLOCK_SIZE]);
+
+                if (rows.length - 1 > range[1] + BLOCK_SIZE) return;
+            }
+
+            if (query.hasPreviousPage) {
+                query.fetchPreviousPage();
+            }
+        },
         disabled: query.isLoading,
         loading: query.isFetchingPreviousPage,
     });
 
     useLayoutEffect(() => {
+        resetScroll();
+        setRange([0, BLOCK_SIZE]);
+    }, [channelId]);
+
+    useLayoutEffect(() => {
         updateScrollPosition();
-    }, [pages, sending, updateScrollPosition]);
+    }, [rows, range, sending, updateScrollPosition]);
 
     return (
         <div className="flex flex-col gap-3 mb-8">
-            {query.isLoading || query.hasPreviousPage ? (
+            {showSkeleton ? (
                 <div ref={sentryRef} className="flex flex-col gap-3">
                     {new Array(40).fill(0).map((_, i) => (
                         <Skeleton key={i} />
@@ -63,23 +95,32 @@ export function MessageList({
             ) : (
                 welcome
             )}
-            {pages
-                ?.flatMap((messages) => [...messages].reverse())
-                .map((message, i, arr) => {
-                    const prev_message = i > 0 ? arr[i - 1] : null;
-                    const newLine =
-                        lastRead != null &&
-                        lastRead < new Date(message.timestamp) &&
-                        (prev_message == null ||
-                            new Date(prev_message.timestamp) <= lastRead);
+            <div>
+                {rows
+                    .slice(
+                        Math.max(0, rows.length - range[1] - 1),
+                        Math.min(
+                            Number.MAX_VALUE,
+                            Math.max(0, rows.length - range[0])
+                        )
+                    )
+                    .map((message, i, arr) => {
+                        const prev_message = i > 0 ? arr[i - 1] : null;
+                        const newLine =
+                            lastRead != null &&
+                            lastRead < new Date(message.timestamp) &&
+                            (prev_message == null ||
+                                new Date(prev_message.timestamp) <= lastRead);
 
-                    return (
-                        <Fragment key={message.id}>
-                            {newLine && <UnreadSeparator />}
-                            <ChatMessageItem message={message} />
-                        </Fragment>
-                    );
-                })}
+                        return (
+                            <div key={message.id} className="pb-3">
+                                {newLine && <UnreadSeparator />}
+                                <ChatMessageItem message={message} />
+                            </div>
+                        );
+                    })}
+            </div>
+
             {sending?.map((message) => (
                 <LocalMessageItem
                     key={message.nonce}
