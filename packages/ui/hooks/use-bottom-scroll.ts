@@ -1,16 +1,16 @@
-import { useRef, useCallback, useEffect, DependencyList } from "react";
+import { useRef, useCallback, useEffect } from "react";
 
-export function useViewScrollController(dependency: DependencyList) {
+export function useViewScrollController() {
     const lastScrollDistanceToBottomRef = useRef<number>();
 
-    useEffect(() => {
+    const resetScroll = useCallback(() => {
         lastScrollDistanceToBottomRef.current = undefined;
 
         if (document.scrollingElement) {
             document.scrollingElement.scrollTop =
                 document.scrollingElement.scrollHeight;
         }
-    }, [dependency]);
+    }, []);
 
     useEffect(() => {
         const handleRootScroll = () => {
@@ -38,5 +38,5 @@ export function useViewScrollController(dependency: DependencyList) {
         root.scrollTop = root.scrollHeight - lastScrollDistanceToBottom;
     }, []);
 
-    return { updateScrollPosition };
+    return { resetScroll, updateScrollPosition };
 }

@@ -78,7 +78,15 @@ export function Root({ children }: RootProps) {
 export function Text({ children }: { children: string }) {
     return (
         <div className="prose prose-message break-words overflow-hidden">
-            <Markdown value={children} gfm breaks openLinksInNewTab />
+            <Markdown
+                value={children}
+                gfm
+                breaks
+                openLinksInNewTab
+                renderer={{
+                    image: (src, alt) => <>{`![${alt}](${src})`}</>,
+                }}
+            />
         </div>
     );
 }

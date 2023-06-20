@@ -30,6 +30,17 @@ module.exports = {
                         "--tw-prose-pre-bg": "hsl(var(--secondary))",
                         "--tw-prose-th-borders": "hsl(var(--border))",
                         "--tw-prose-td-borders": "hsl(var(--border))",
+                        a: {
+                            color: theme("colors.brand[500]"),
+                            "font-weight": "400",
+                            "text-decoration": "none",
+                            "&:hover": {
+                                "text-decoration": "underline",
+                            },
+                        },
+                        ".dark a": {
+                            color: theme("colors.brand[200]"),
+                        },
                     },
                 },
             }),
