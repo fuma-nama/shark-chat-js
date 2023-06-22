@@ -12,6 +12,7 @@ import * as ContextMenu from "ui/components/context-menu";
 import { CopyIcon, PencilIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
 import { SmartImage } from "ui/components/smart-image";
+import clsx from "clsx";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
     const [editing, setEditing] = useState(false);
@@ -133,18 +134,26 @@ function Menu({
 
 function Embed({ embed }: { embed: Embed }) {
     const [state, setState] = useState<"loading" | "loaded">("loading");
+    const imageOnly = !embed.title && !embed.description && embed.image != null;
     const image = embed.image;
 
     return (
-        <div className="bg-card text-card-foreground overflow-hidden mt-3 p-2 border-l-2 border-l-primary rounded-lg">
-            <a
-                href={embed.url}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="font-medium text-sm"
-            >
-                {embed.title}
-            </a>
+        <div
+            className={clsx(
+                "bg-card text-card-foreground overflow-hidden mt-3 border-l-primary rounded-lg",
+                !imageOnly && "p-2 border-l-2"
+            )}
+        >
+            {embed.title && (
+                <a
+                    href={embed.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="font-medium text-sm"
+                >
+                    {embed.title}
+                </a>
+            )}
             <p className="text-muted-foreground text-xs">{embed.description}</p>
             {image != null && (
                 <SmartImage
@@ -152,7 +161,7 @@ function Embed({ embed }: { embed: Embed }) {
                     width={image.width}
                     height={image.height}
                     maxWidth={400}
-                    maxHeight={400}
+                    maxHeight={200}
                 >
                     <img
                         alt="image"

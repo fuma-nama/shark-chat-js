@@ -103,7 +103,7 @@ export const members = mysqlTable(
 
 export type Embed = {
     url: string;
-    title: string;
+    title?: string;
     description?: string;
     image?: {
         url: string;
