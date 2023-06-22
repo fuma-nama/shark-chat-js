@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
 
 import * as ContextMenu from "ui/components/context-menu";
@@ -84,7 +84,9 @@ export function Text({ children }: { children: string }) {
                 breaks
                 openLinksInNewTab
                 renderer={{
-                    image: (src, alt) => <>{`![${alt}](${src})`}</>,
+                    image: (src, alt) => (
+                        <Fragment key={src}>{`![${alt}](${src})`}</Fragment>
+                    ),
                 }}
             />
         </div>
