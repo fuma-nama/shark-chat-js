@@ -126,7 +126,6 @@ function LinkItem({
     return (
         <Link
             href={route}
-            scroll={false}
             className={cn(
                 "flex flex-row gap-3 items-center p-1 rounded-lg",
                 active ? "bg-accent" : "hover:bg-accent/50 transition-colors"
@@ -172,6 +171,7 @@ function SidebarItem({
     return (
         <Link
             href={href}
+            scroll={false}
             className={cn(
                 "flex flex-row items-center gap-2 p-1 rounded-lg text-sm transition-colors",
                 active
