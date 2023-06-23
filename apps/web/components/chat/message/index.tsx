@@ -4,19 +4,22 @@ import { useSession } from "next-auth/react";
 import { RefObject, useRef, useState } from "react";
 
 import * as Item from "./atom";
+import * as ContextMenu from "ui/components/context-menu";
 import { AttachmentItem } from "../AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useRouter } from "next/router";
-import { Embed } from "db/schema";
-import * as ContextMenu from "ui/components/context-menu";
 import { CopyIcon, PencilIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
-import { SmartImage } from "ui/components/smart-image";
-import clsx from "clsx";
+import { Reference } from "./reference";
+import { Embed } from "./embed";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
     const [editing, setEditing] = useState(false);
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
+    const embedOnly =
+        message.embeds != null &&
+        message.embeds.length === 1 &&
+        message.embeds[0].url === message.content;
 
     return (
         <Item.Root>
@@ -29,7 +32,7 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
                         onCancel={() => setEditing(false)}
                     />
                 ) : (
-                    <Item.Text>{message.content}</Item.Text>
+                    !embedOnly && <Item.Text>{message.content}</Item.Text>
                 )}
                 {message.attachment != null && (
                     <AttachmentItem attachment={message.attachment} />
@@ -92,8 +95,9 @@ function Menu({
 
     return (
         <ContextMenu.Content
-            onCloseAutoFocus={() => {
+            onCloseAutoFocus={(e) => {
                 inputRef.current?.focus();
+                e.preventDefault();
             }}
         >
             <ContextMenu.Item
@@ -129,69 +133,5 @@ function Menu({
                 </ContextMenu.Item>
             )}
         </ContextMenu.Content>
-    );
-}
-
-function Embed({ embed }: { embed: Embed }) {
-    const [state, setState] = useState<"loading" | "loaded">("loading");
-    const imageOnly = !embed.title && !embed.description && embed.image != null;
-    const image = embed.image;
-
-    return (
-        <div
-            className={clsx(
-                "bg-card text-card-foreground overflow-hidden mt-3 border-l-primary rounded-lg",
-                !imageOnly && "p-2 border-l-2"
-            )}
-        >
-            {embed.title && (
-                <a
-                    href={embed.url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="font-medium text-sm"
-                >
-                    {embed.title}
-                </a>
-            )}
-            <p className="text-muted-foreground text-xs">{embed.description}</p>
-            {image != null && (
-                <SmartImage
-                    state={state}
-                    width={image.width}
-                    height={image.height}
-                    maxWidth={400}
-                    maxHeight={200}
-                >
-                    <img
-                        alt="image"
-                        src={image.url}
-                        onLoad={() => setState("loaded")}
-                        className="w-full h-full"
-                    />
-                </SmartImage>
-            )}
-        </div>
-    );
-}
-
-function Reference({ data }: { data: MessageType }) {
-    if (data.reply_message == null) {
-        return (
-            <div className="border-l-2 border-slate-500 p-2 rounded-md">
-                <p className="text-sm text-muted-foreground">Message Deleted</p>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex flex-row gap-2 items-center overflow-hidden max-w-full border-l-2 border-slate-500 p-2 rounded-md">
-            <p className="font-medium text-sm text-muted-foreground">
-                {data.reply_user?.name ?? "Unknown User"}
-            </p>
-            <p className="whitespace-nowrap text-sm text-muted-foreground">
-                {data.reply_message.content}
-            </p>
-        </div>
     );
 }

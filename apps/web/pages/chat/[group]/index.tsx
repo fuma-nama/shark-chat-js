@@ -18,7 +18,13 @@ const GroupChat: NextPageWithLayout = () => {
 
     if (channel_id == null) return <></>;
 
-    return <MessageList channelId={channel_id} welcome={<Welcome />} />;
+    return (
+        <MessageList
+            key={channel_id}
+            channelId={channel_id}
+            welcome={<Welcome />}
+        />
+    );
 };
 
 function Welcome() {
