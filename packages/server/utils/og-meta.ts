@@ -5,6 +5,7 @@ import { Readable } from "node:stream";
 import { ReadableStream as WebReadableStream } from "node:stream/web";
 
 const timeout = 10 * 1000;
+
 /**
  * Fetch url info and open-graph images, timeout: ~10 seconds
  *
@@ -27,7 +28,7 @@ export async function info(url: string): Promise<Embed | undefined> {
     const contentType = response.headers.get("content-type");
     if (contentType == null || !response.ok) return;
 
-    if (contentType === "text/html") {
+    if (contentType.startsWith("text/html")) {
         const { result, error } = await ogs({
             html: await response.text(),
             url: undefined as unknown as string,
@@ -38,7 +39,7 @@ export async function info(url: string): Promise<Embed | undefined> {
 
         const embed: Embed = {
             title: result.ogTitle,
-            url: result.ogUrl ?? url,
+            url: url,
             description: result.ogDescription?.slice(0, 100),
         };
 
@@ -65,7 +66,6 @@ export async function info(url: string): Promise<Embed | undefined> {
             Readable.from(blob.stream() as WebReadableStream),
             false
         );
-        console.log(data);
 
         return {
             url: url,
