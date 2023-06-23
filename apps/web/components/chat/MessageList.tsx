@@ -2,24 +2,15 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import {
-    ReactNode,
-    useCallback,
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useRef,
-} from "react";
+import { ReactNode, useLayoutEffect, useMemo, useState } from "react";
 import { Button } from "ui/components/button";
+import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
-import { Virtualizer, useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useRouter } from "next/router";
 
-const useIsomorphicLayoutEffect =
-    typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
+const BLOCK_SIZE = 15;
 export function MessageList({
     channelId,
     welcome,
@@ -30,9 +21,12 @@ export function MessageList({
     const { status } = useSession();
     const variables = getMessageVariables(channelId);
     const lastRead = useLastRead(channelId);
-    const itemSize = 76;
+    const [range, setRange] = useState<[start: number, end: number]>([
+        0,
+        BLOCK_SIZE,
+    ]);
     const [sending, remove] = useMessageStore((s) => [
-        s.sending[channelId] ?? [],
+        s.sending[channelId],
         s.removeSending,
     ]);
 
@@ -45,161 +39,96 @@ export function MessageList({
                 : null,
     });
 
-    const pages = query.data?.pages;
-
     const rows = useMemo(
-        () => pages?.flatMap((messages) => [...messages].reverse()) ?? [],
-        [pages]
+        () =>
+            query.data?.pages?.flatMap((messages) => [...messages].reverse()) ??
+            [],
+        [query.data?.pages]
     );
 
-    const virtualizerRef = useRef<Virtualizer<Window, Element> | null>(null);
-    const count = rows.length + sending.length;
+    const showSkeleton =
+        query.isLoading || query.hasPreviousPage || rows.length - 1 > range[1];
 
-    if (
-        virtualizerRef.current &&
-        count !== virtualizerRef.current.options.count
-    ) {
-        const delta = count - virtualizerRef.current.options.count;
-        const nextOffset =
-            virtualizerRef.current.scrollOffset + delta * itemSize;
+    const { sentryRef, resetScroll, updateScrollPosition } = useChatView({
+        hasNextPage:
+            (query.hasPreviousPage ?? true) || rows.length - 1 > range[1],
+        onLoadMore: () => {
+            if (!query.isSuccess || query.isFetchingPreviousPage) return;
 
-        virtualizerRef.current.scrollOffset = nextOffset;
-        virtualizerRef.current.scrollToOffset(nextOffset, {
-            align: "start",
-        });
-    }
+            if (rows.length - 1 > range[1]) {
+                setRange((prev) => [prev[0], prev[1] + BLOCK_SIZE]);
 
-    useIsomorphicLayoutEffect(() => {
-        virtualizerRef.current?.scrollToOffset(
-            document.scrollingElement!!.scrollHeight,
-            {
-                align: "start",
+                if (rows.length - 1 > range[1] + BLOCK_SIZE) return;
             }
-        );
-    }, [useRouter()]);
 
-    const virtualizer = useWindowVirtualizer({
-        count,
-        estimateSize: () => itemSize,
-        getItemKey: useCallback(
-            (index: number) =>
-                index >= rows.length
-                    ? sending[index - rows.length].nonce
-                    : rows[index].id,
-            [rows, sending]
-        ),
-        scrollMargin: 200,
-        overscan: 5,
-    });
-
-    useIsomorphicLayoutEffect(() => {
-        virtualizerRef.current = virtualizer;
-    });
-
-    const items = virtualizer.getVirtualItems();
-
-    const [paddingTop, paddingBottom] =
-        items.length > 0
-            ? [
-                  Math.max(
-                      0,
-                      items[0].start - virtualizer.options.scrollMargin
-                  ),
-                  Math.max(
-                      0,
-                      virtualizer.getTotalSize() - items[items.length - 1].end
-                  ),
-              ]
-            : [0, 0];
-
-    useIsomorphicLayoutEffect(() => {
-        if (items.length > 0 && items[0].index === 0) {
-            if (
-                !query.isFetchingPreviousPage &&
-                !query.isLoading &&
-                query.isSuccess &&
-                (query.hasPreviousPage ?? true)
-            ) {
+            if (query.hasPreviousPage) {
                 query.fetchPreviousPage();
             }
-        }
-    }, [items]);
+        },
+        disabled: query.isLoading,
+        loading: query.isFetchingPreviousPage,
+    });
 
-    if (query.isLoading) {
-        return <></>;
-    }
+    useLayoutEffect(() => {
+        resetScroll();
+        setRange([0, BLOCK_SIZE]);
+    }, [useRouter()]);
+
+    useLayoutEffect(() => {
+        updateScrollPosition();
+    }, [rows, range, sending, updateScrollPosition]);
+
     return (
-        <div>
-            <div className="overflow-hidden h-[200px]">
-                {(query.isLoading || query.hasPreviousPage) && (
-                    <div className="flex flex-col gap-3">
-                        {new Array(40).fill(0).map((_, i) => (
-                            <Skeleton key={i} />
-                        ))}
-                    </div>
-                )}
-                {query.isError && (
-                    <div>
-                        <p>{query.error.message}</p>
-                        <Button color="danger" onClick={() => query.refetch()}>
-                            Retry
-                        </Button>
-                    </div>
-                )}
-                {!query.hasPreviousPage && !query.isError && welcome}
-            </div>
-
-            <div
-                style={{
-                    overflowAnchor: "none",
-                    paddingTop,
-                    paddingBottom,
-                }}
-            >
-                {items.map((item) => {
-                    const i = item.index;
-
-                    if (i >= rows.length) {
-                        const info = sending[i - rows.length];
+        <div className="flex flex-col gap-3 mb-8">
+            {showSkeleton ? (
+                <div ref={sentryRef} className="flex flex-col gap-3">
+                    {new Array(40).fill(0).map((_, i) => (
+                        <Skeleton key={i} />
+                    ))}
+                </div>
+            ) : query.isError ? (
+                <>
+                    <p>{query.error.message}</p>
+                    <Button color="danger" onClick={() => query.refetch()}>
+                        Retry
+                    </Button>
+                </>
+            ) : (
+                welcome
+            )}
+            <div>
+                {rows
+                    .slice(
+                        Math.max(0, rows.length - range[1] - 1),
+                        Math.min(
+                            Number.MAX_VALUE,
+                            Math.max(0, rows.length - range[0])
+                        )
+                    )
+                    .map((message, i, arr) => {
+                        const prev_message = i > 0 ? arr[i - 1] : null;
+                        const newLine =
+                            lastRead != null &&
+                            lastRead < new Date(message.timestamp) &&
+                            (prev_message == null ||
+                                new Date(prev_message.timestamp) <= lastRead);
 
                         return (
-                            <div
-                                key={item.key}
-                                data-index={item.index}
-                                ref={virtualizer.measureElement}
-                                className="pt-3"
-                            >
-                                <LocalMessageItem
-                                    item={info}
-                                    onDelete={() =>
-                                        remove(channelId, info.nonce)
-                                    }
-                                />
+                            <div key={message.id} className="pb-3">
+                                {newLine && <UnreadSeparator />}
+                                <ChatMessageItem message={message} />
                             </div>
                         );
-                    }
-
-                    const message = rows[i];
-                    const prev_message = i > 0 ? rows[i - 1] : null;
-                    const newLine =
-                        lastRead != null &&
-                        lastRead < new Date(message.timestamp) &&
-                        (prev_message == null ||
-                            new Date(prev_message.timestamp) <= lastRead);
-
-                    return (
-                        <div
-                            key={item.key}
-                            data-index={item.index}
-                            ref={virtualizer.measureElement}
-                            className="pb-3"
-                        >
-                            {newLine && <UnreadSeparator />}
-                            <ChatMessageItem message={message} />
-                        </div>
-                    );
-                })}
+                    })}
             </div>
+
+            {sending?.map((message) => (
+                <LocalMessageItem
+                    key={message.nonce}
+                    item={message}
+                    onDelete={() => remove(channelId, message.nonce)}
+                />
+            ))}
         </div>
     );
 }
