@@ -126,6 +126,7 @@ function LinkItem({
     return (
         <Link
             href={route}
+            scroll={false}
             className={cn(
                 "flex flex-row gap-3 items-center p-1 rounded-lg",
                 active ? "bg-accent" : "hover:bg-accent/50 transition-colors"
