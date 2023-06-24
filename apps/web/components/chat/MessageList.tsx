@@ -2,7 +2,7 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { ReactNode, useLayoutEffect, useMemo, useState } from "react";
+import { Fragment, ReactNode, useLayoutEffect, useMemo, useState } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
@@ -96,31 +96,29 @@ export function MessageList({
             ) : (
                 welcome
             )}
-            <div>
-                {rows
-                    .slice(
-                        Math.max(0, rows.length - range[1] - 1),
-                        Math.min(
-                            Number.MAX_VALUE,
-                            Math.max(0, rows.length - range[0])
-                        )
+            {rows
+                .slice(
+                    Math.max(0, rows.length - range[1] - 1),
+                    Math.min(
+                        Number.MAX_VALUE,
+                        Math.max(0, rows.length - range[0])
                     )
-                    .map((message, i, arr) => {
-                        const prev_message = i > 0 ? arr[i - 1] : null;
-                        const newLine =
-                            lastRead != null &&
-                            lastRead < new Date(message.timestamp) &&
-                            (prev_message == null ||
-                                new Date(prev_message.timestamp) <= lastRead);
+                )
+                .map((message, i, arr) => {
+                    const prev_message = i > 0 ? arr[i - 1] : null;
+                    const newLine =
+                        lastRead != null &&
+                        lastRead < new Date(message.timestamp) &&
+                        (prev_message == null ||
+                            new Date(prev_message.timestamp) <= lastRead);
 
-                        return (
-                            <div key={message.id} className="pb-3">
-                                {newLine && <UnreadSeparator />}
-                                <ChatMessageItem message={message} />
-                            </div>
-                        );
-                    })}
-            </div>
+                    return (
+                        <Fragment key={message.id}>
+                            {newLine && <UnreadSeparator />}
+                            <ChatMessageItem message={message} />
+                        </Fragment>
+                    );
+                })}
 
             {sending?.map((message) => (
                 <LocalMessageItem
