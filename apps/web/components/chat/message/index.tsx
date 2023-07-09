@@ -19,6 +19,8 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
     const embedOnly =
         message.embeds != null &&
         message.embeds.length === 1 &&
+        !message.embeds[0].title &&
+        !message.embeds[0].description &&
         message.embeds[0].url === message.content;
 
     return (
