@@ -10,13 +10,13 @@ This repository is a monorepo ([Turborepo](https://turbo.build/)).
 
 -   Create, Update, Delete Chat Group
 -   Send, Update, Delete Message
+-   Markdown (gfm, tables supported) in Messages
 -   Reference Messages
--   Message Embeds (Display url open-graph data in message)
--   Send Multiple Images/Files via Message
+-   Message Embeds (Display open-graph data of links in message)
+-   Send Images/Files via Message
 -   Direct Message with anyone
 -   View & Kick Group members
 -   Invite Group members via Invite code or Url
--   Embed Links in Messages
 -   Upload profile images
 -   Show notification when new Message received
 -   AI-Powered Message Writer
