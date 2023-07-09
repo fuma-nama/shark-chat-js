@@ -1,6 +1,6 @@
 import { FilePlusIcon, SendIcon, TextIcon, TrashIcon } from "lucide-react";
 import { textArea } from "ui/components/textarea";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { IconButton, button } from "ui/components/button";
 import clsx from "clsx";
 import React from "react";
@@ -9,6 +9,7 @@ import { Control, useController, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import dynamic from "next/dynamic";
+import { ChevronDownIcon } from "lucide-react";
 
 const GenerateTextModal = dynamic(() => import("../modal/GenerateTextModal"));
 
@@ -54,6 +55,7 @@ export function Sendbar({
 
     return (
         <div className="sticky bottom-0 bg-background w-full mx-auto max-w-screen-2xl sm:px-4 sm:pb-4">
+            <RollbackButton />
             <div
                 className={clsx(
                     "flex flex-col gap-3 bg-light-50 shadow-xl shadow-brand-500/10 p-2 rounded-3xl dark:bg-dark-800 dark:shadow-none",
@@ -107,6 +109,43 @@ export function Sendbar({
                 </div>
             </div>
         </div>
+    );
+}
+
+function RollbackButton() {
+    const [canRollback, setCanRollback] = useState(false);
+
+    useEffect(() => {
+        const listener = () => {
+            const node = document.scrollingElement!!;
+            const diff =
+                node.scrollHeight - (node.scrollTop + node.clientHeight);
+
+            setCanRollback(diff > 500);
+        };
+
+        window.addEventListener("scroll", listener);
+        return () => {
+            window.removeEventListener("scroll", listener);
+        };
+    }, []);
+
+    const onClick = () => {
+        const node = document.scrollingElement!!;
+
+        node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
+    };
+
+    return (
+        <button
+            className={clsx(
+                "absolute top-0 right-4 -mt-12 bg-secondary text-secondary-foreground p-2 rounded-full transition-all",
+                !canRollback && "opacity-0 translate-y-20"
+            )}
+            onClick={onClick}
+        >
+            <ChevronDownIcon className="w-5 h-5" />
+        </button>
     );
 }
 
