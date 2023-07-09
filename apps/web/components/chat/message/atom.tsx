@@ -36,8 +36,7 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
     return (
         <ContextMenu.Trigger
             className={cn(
-                "p-3 rounded-xl bg-light-50 flex flex-row items-start gap-2",
-                "dark:bg-dark-800",
+                "p-3 rounded-xl flex flex-row items-start gap-2 bg-card",
                 props.className
             )}
         >

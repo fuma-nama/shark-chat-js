@@ -23,9 +23,7 @@ export function BreadcrumbItem() {
     );
 
     if (info.data == null) {
-        return (
-            <div className="w-28 h-5 rounded-lg bg-light-300 dark:bg-dark-700" />
-        );
+        return <div className="w-28 h-5 rounded-lg bg-muted" />;
     }
 
     return (

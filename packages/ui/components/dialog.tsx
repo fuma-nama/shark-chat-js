@@ -65,8 +65,7 @@ function DialogContent(props: DialogPrimitive.DialogContentProps) {
                     {...props}
                     className={twMerge(
                         "relative m-auto z-50 animate-in fade-in-90 zoom-in-90",
-                        "w-[95vw] max-w-md rounded-lg p-4 md:w-full",
-                        "bg-light-50 dark:bg-dark-900",
+                        "w-[95vw] max-w-md rounded-lg p-4 bg-popover md:w-full",
                         "focus:outline-none",
                         props.className
                     )}

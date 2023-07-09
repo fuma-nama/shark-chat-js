@@ -66,11 +66,10 @@ GroupChat.useLayout = (children) => {
                         query: router.query,
                     }}
                     className={button({
-                        color: "secondary",
-                        className: "gap-2",
+                        color: "ghost",
                     })}
                 >
-                    <SettingsIcon className="w-5 h-5" /> Settings
+                    <SettingsIcon className="w-5 h-5" />
                 </Link>
             </Navbar>
 

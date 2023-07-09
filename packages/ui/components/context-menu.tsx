@@ -4,10 +4,8 @@ import { tv, VariantProps } from "tailwind-variants";
 
 export const contextMenu = tv({
     slots: {
-        content: [
-            "bg-white shadow-xl shadow-brand-500/10 rounded-2xl p-2 z-[100]",
-            "dark:bg-dark-900 dark:shadow-black/20",
-        ],
+        content:
+            "bg-popover shadow-xl shadow-brand-500/10 rounded-2xl p-2 z-[100] dark:shadow-black/20",
     },
 });
 
@@ -15,26 +13,21 @@ export type MenuItemVariants = VariantProps<typeof menuItem>;
 export const menuItem = tv({
     slots: {
         root: [
-            "flex flex-row items-center gap-12 pl-6 pr-2 py-1 rounded-md cursor-pointer group",
+            "flex flex-row items-center gap-12 pl-6 pr-2 py-1 rounded-md cursor-pointer transition-colors",
             "radix-disabled:cursor-not-allowed radix-disabled:opacity-50",
         ],
-        label: ["flex flex-row gap-2 items-center -ml-5"],
-        right: ["ml-auto text-accent-600 group-radix-highlighted:text-white"],
+        label: "flex flex-row gap-2 items-center -ml-5",
+        right: "ml-auto text-accent-600 group-radix-highlighted:text-white",
     },
     variants: {
         color: {
             secondary: {
-                root: [
-                    "text-accent-900",
-                    "dark:text-accent-400",
-                    "radix-highlighted:text-white radix-highlighted:bg-brand-500 radix-highlighted:outline-none",
-                ],
+                root: "radix-highlighted:text-accent-foreground radix-highlighted:bg-accent radix-highlighted:outline-none",
             },
             danger: {
                 root: [
-                    "text-red-500",
-                    "dark:text-red-400 dark:radix-highlighted:text-white",
-                    "radix-highlighted:text-white radix-highlighted:bg-red-500 radix-highlighted:outline-none",
+                    "text-destructive",
+                    "radix-highlighted:text-destructive-foreground radix-highlighted:bg-destructive radix-highlighted:outline-none",
                 ],
             },
         },

@@ -58,7 +58,7 @@ export function Sendbar({
             <RollbackButton />
             <div
                 className={clsx(
-                    "flex flex-col gap-3 bg-light-50 shadow-xl shadow-brand-500/10 p-2 rounded-3xl dark:bg-dark-800 dark:shadow-none",
+                    "flex flex-col gap-3 shadow-xl shadow-brand-500/10 p-2 rounded-3xl bg-secondary dark:shadow-none",
                     "max-sm:rounded-none max-sm:gap-1 max-sm:pb-7 max-sm:px-3.5"
                 )}
             >
@@ -83,12 +83,14 @@ export function Sendbar({
                         htmlFor="attachment"
                         className={button({
                             className: "w-9 h-9 p-2.5 mt-0.5 cursor-pointer",
+                            color: "ghost",
                         })}
                     >
                         <FilePlusIcon />
                     </label>
                     <IconButton
                         className="w-9 h-9 p-2.5 mt-0.5 max-sm:hidden"
+                        color="ghost"
                         onClick={() => setOpenModal(true)}
                     >
                         <TextIcon />

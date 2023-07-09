@@ -41,9 +41,9 @@ export default function Members({
 function Skeleton() {
     return (
         <>
-            <div className="h-[44px] rounded-md bg-light-200 dark:bg-dark-800" />
-            <div className="h-[44px] rounded-md bg-light-200 dark:bg-dark-800" />
-            <div className="h-[44px] rounded-md bg-light-200 dark:bg-dark-800" />
+            <div className="h-[44px] rounded-md bg-muted/50" />
+            <div className="h-[44px] rounded-md bg-muted/50" />
+            <div className="h-[44px] rounded-md bg-muted/50" />
         </>
     );
 }
@@ -66,7 +66,7 @@ function MemberItem({
 
     return (
         <UserProfileModal userId={member.user_id}>
-            <div className="flex flex-row items-center gap-3 border-[1px] p-2 rounded-md hover:bg-accent">
+            <div className="flex flex-row items-center gap-3 p-2 rounded-md bg-muted/50 hover:bg-accent">
                 <DialogTrigger className="flex flex-row items-center">
                     <Avatar
                         alt="avatar"
