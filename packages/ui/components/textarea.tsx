@@ -2,7 +2,7 @@ import { tv } from "tailwind-variants";
 
 export const textArea = tv({
     base: [
-        "block w-full text-base text-foreground bg-background",
+        "block w-full text-base text-foreground",
         "placeholder:text-muted-foreground/70",
         "focus:outline-none",
     ],
@@ -10,9 +10,9 @@ export const textArea = tv({
         color: {
             primary: [
                 "rounded-md p-1.5 bg-transparent",
-                "max-sm:bg-background max-sm:mx-2 max-sm:px-3 max-sm:py-1.5 max-sm:rounded-2xl",
+                "max-sm:bg-muted max-sm:mx-2 max-sm:px-3 max-sm:py-1.5 max-sm:rounded-2xl",
             ],
-            long: "rounded-md px-2 py-1 border dark:bg-dark-900",
+            long: "bg-muted rounded-md px-2 py-1 border",
         },
     },
     defaultVariants: {
