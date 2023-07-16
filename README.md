@@ -30,7 +30,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build/)).
 
 ## Play with it Locally
 
-Shark Chat integrated with many third-party services for supporting wide spectrum of features and work perfectly on serverless environment.
+Shark Chat integrated with many third-party service for supporting wide spectrum of features and work perfectly on serverless environment.
 
 Thus, you have to register an account for each services in order to setup the project correctly before playing with it locally.
 Please fill all environment variables in the [.env.example](/.env.example).
