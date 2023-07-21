@@ -1,9 +1,8 @@
 "use client";
 import { trpc } from "@/utils/trpc/app-router";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Button, button } from "ui/components/button";
+import { useRouter } from "next/navigation";
+import { Button } from "ui/components/button";
 
 export function InviteButton({
     query,
@@ -42,7 +41,11 @@ export function InviteButton({
 
 export function LoginButton() {
     return (
-        <Button color="primary" className="w-full mt-3" onClick={signIn}>
+        <Button
+            color="primary"
+            className="w-full mt-3"
+            onClick={() => signIn()}
+        >
             Login
         </Button>
     );
