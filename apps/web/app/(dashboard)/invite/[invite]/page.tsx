@@ -4,8 +4,9 @@ import { groupIcon } from "shared/media/format";
 import db from "db/client";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { InviteButton } from "./invite_button";
+import { InviteButton, LoginButton } from "./buttons";
 import { Metadata } from "next";
+import { getServerSession } from "next-auth";
 
 type Data = {
     group: Group;
@@ -18,12 +19,13 @@ export default async function InvitePage({
 }: {
     params: { invite: string };
 }) {
-    const info = await getGroupInfo(decodeURIComponent(params.invite));
+    const info = await getGroupInfo(params.invite);
 
     if (info == null) {
         notFound();
     }
 
+    const session = await getServerSession();
     const { group, query, type } = info;
 
     return (
@@ -45,7 +47,11 @@ export default async function InvitePage({
                         {group.name}
                     </h1>
                 </div>
-                <InviteButton type={type} query={query} />
+                {session == null ? (
+                    <LoginButton />
+                ) : (
+                    <InviteButton type={type} query={query} />
+                )}
             </div>
         </main>
     );
@@ -56,7 +62,7 @@ export async function generateMetadata({
 }: {
     params: { invite: string };
 }): Promise<Metadata | undefined> {
-    const info = await getGroupInfo(decodeURIComponent(params.invite));
+    const info = await getGroupInfo(params.invite);
 
     if (info != null) {
         const title = `Invite to ${info.group.name}`;
@@ -77,7 +83,9 @@ export async function generateMetadata({
     }
 }
 
-async function getGroupInfo(code: string): Promise<Data | null> {
+async function getGroupInfo(query: string): Promise<Data | null> {
+    const code = decodeURIComponent(query);
+
     if (code.startsWith("@")) {
         const name = code.slice(1);
         const groupResult = await db
