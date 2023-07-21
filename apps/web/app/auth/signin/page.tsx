@@ -5,14 +5,15 @@ import clsx from "clsx";
 import { redirect } from "next/navigation";
 import { LoginButton } from "./login_bn";
 
-export default async function SignInPage() {
+export default async function SignInPage({
+    searchParams,
+}: {
+    searchParams: Record<string, string>;
+}) {
     const session = await getServerSession(authOptions);
 
-    // If the user is already logged in, redirect.
-    // Note: Make sure not to redirect to the same page
-    // To avoid an infinite loop!
     if (session) {
-        redirect("/home");
+        redirect(searchParams.callbackUrl ?? "/home");
     }
 
     const providers = await getProviders().then((res) =>
@@ -32,7 +33,11 @@ export default async function SignInPage() {
                     Chat
                 </p>
                 {providers?.map((provider) => (
-                    <LoginButton key={provider.id} provider={provider} />
+                    <LoginButton
+                        key={provider.id}
+                        provider={provider}
+                        callbackUrl={searchParams.callbackUrl}
+                    />
                 ))}
             </div>
         </div>
