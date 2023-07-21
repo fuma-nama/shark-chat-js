@@ -13,8 +13,6 @@ type Data = {
     query: string;
 };
 
-export const revalidate = 600;
-
 export default async function InvitePage({
     params,
 }: {
@@ -61,9 +59,20 @@ export async function generateMetadata({
     const info = await getGroupInfo(decodeURIComponent(params.invite));
 
     if (info != null) {
+        const title = `Invite to ${info.group.name}`;
+        const description = `Join ${info.group.name} (@${info.group.unique_name}) on Shark Chat`;
+
         return {
-            title: `Invite to ${info.group.name}`,
-            description: `Join ${info.group.name} (@${info.group.unique_name}) on Shark Chat`,
+            title,
+            description,
+            openGraph: {
+                title,
+                description,
+            },
+            twitter: {
+                title,
+                description,
+            },
         };
     }
 }
