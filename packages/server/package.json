@@ -13,7 +13,7 @@
         "cloudinary": "^1.37.0",
         "db": "workspace:*",
         "drizzle-orm": "^0.26.5",
-        "next": "13.4.10",
+        "next": "13.4.11",
         "next-auth": "^4.22.1",
         "open-graph-scraper": "^6.1.0",
         "probe-image-size": "^7.2.3",
