@@ -34,8 +34,7 @@ export default function InfoPage() {
         <div className="bg-gradient-to-br from-black via-black to-orange-900 px-7 py-6 rounded-xl flex flex-col gap-3">
           <h2 className="font-bold text-2xl">Lighting Fast</h2>
           <p className="text-accent-600">
-            Using Redis, PlanetScale with Drizzle ORM to provide incredible
-            loading speed
+            Using Redis, Drizzle ORM to provide incredible loading speed
           </p>
           <div className="flex flex-row gap-3 mt-auto">
             <Link
