@@ -7,7 +7,7 @@
         "@radix-ui/react-context-menu": "^2.1.5",
         "@radix-ui/react-dialog": "^1.0.5",
         "@radix-ui/react-popover": "^1.0.7",
-        "@radix-ui/react-select": "^1.2.0",
+        "@radix-ui/react-select": "^2.0.0",
         "@radix-ui/react-switch": "^1.0.3",
         "@radix-ui/react-tabs": "^1.0.4",
         "@radix-ui/react-toast": "^1.1.5",
@@ -18,8 +18,8 @@
     },
     "devDependencies": {
         "@types/node": "18.11.18",
-        "@types/react": "18.0.27",
-        "@types/react-dom": "18.0.10",
+        "@types/react": "18.2.79",
+        "@types/react-dom": "18.2.25",
         "config": "workspace:*"
     }
 }

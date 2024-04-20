@@ -11,16 +11,16 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.9",
-    "autoprefixer": "^10.4.13",
-    "dotenv-cli": "^7.2.1",
+    "autoprefixer": "^10.4.19",
+    "dotenv-cli": "^7.4.1",
     "drizzle-kit": "^0.20.16",
-    "eslint": "8.33.0",
-    "eslint-config-next": "13.1.6",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.2",
     "pg": "^8.11.5",
     "postcss": "^8.4.21",
-    "tailwindcss": "^3.3.2",
-    "tailwindcss-animate": "^1.0.6",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-animate": "^1.0.7",
     "tailwindcss-radix": "^2.7.0",
-    "turbo": "^1.10.2"
+    "turbo": "^1.13.2"
   }
 }
