@@ -22,6 +22,6 @@
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-radix": "^2.7.0",
-    "turbo": "^1.13.2"
+    "turbo": "^1.12.3"
   }
 }
