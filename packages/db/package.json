@@ -4,11 +4,11 @@
     "main": "./client.ts",
     "types": "./client.ts",
     "dependencies": {
-        "drizzle-orm": "^0.26.5",
-        "@planetscale/database": "^1.7.0"
+        "@neondatabase/serverless": "^0.9.1",
+        "drizzle-orm": "^0.30.8"
     },
     "devDependencies": {
-        "config": "workspace:*",
-        "@types/node": "18.11.18"
+        "@types/node": "18.11.18",
+        "config": "workspace:*"
     }
 }
