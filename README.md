@@ -8,21 +8,21 @@ This repository is a monorepo ([Turborepo](https://turbo.build/)).
 
 ## Features
 
--   Create, Update, Delete Chat Group
--   Send, Update, Delete Message
--   Markdown (gfm, tables supported) in Messages
--   Reference Messages
--   Message Embeds (Display open-graph data of links in message)
--   Send Images/Files via Message
--   Direct Message with anyone
--   View & Kick Group members
--   Invite Group members via Invite code or Url
--   Upload profile images
--   Show notification when new Message received
--   AI-Powered Message Writer
--   Built-in AI Chatbot (Powered by Inworld)
--   Light & Dark Mode
--   100% Typescript
+- Create, Update, Delete Chat Group
+- Send, Update, Delete Message
+- Markdown (gfm, tables supported) in Messages
+- Reference Messages
+- Message Embeds (Display open-graph data of links in message)
+- Send Images/Files via Message
+- Direct Message with anyone
+- View & Kick Group members
+- Invite Group members via Invite code or Url
+- Upload profile images
+- Show notification when new Message received
+- AI-Powered Message Writer
+- Built-in AI Chatbot (Powered by Inworld)
+- Light & Dark Mode
+- 100% Typescript
 
 **Play with it:** https://shark-chat.vercel.app
 <br />
@@ -43,11 +43,11 @@ Create a Redis database at their [website](https://upstash.com) and get `REDIS_U
 
 Create a new project on https://ably.com, paste `ABLY_API_KEY` into environment varibles.
 
-### PlanetScale
+### Database
 
-By default, it uses Drizzle ORM with PlanetScale for database. You may use other providers if you prefer.
+By default, it uses Drizzle ORM with Neon Serverless Postresql for database. You may use other providers if you prefer.
 
-Create a MySQL database at their [dashboard](https://planetscale.com) and get your `DATABASE_URL` and `DATABASE_PUSH_URL`.
+Create a Postresql database and get your `DATABASE_URL` and `DATABASE_PUSH_URL`.
 
 > Note
 >
