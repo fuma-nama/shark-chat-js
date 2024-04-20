@@ -1,7 +1,7 @@
 "use client";
-import { ComponentProps, HTMLAttributes, forwardRef } from "react";
+import { ButtonHTMLAttributes, ComponentProps, forwardRef } from "react";
 
-import { tv, type VariantProps } from "tailwind-variants";
+import { tv } from "tailwind-variants";
 import { Spinner } from "./spinner";
 
 export const button = tv({
@@ -43,7 +43,7 @@ export const button = tv({
   },
 });
 
-export interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   color?: "primary" | "secondary" | "ghost" | "danger";
   size?: "large" | "medium" | "small";
   isLoading?: boolean;
@@ -69,10 +69,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button";
 
-type IconButtonProps = ComponentProps<"button"> &
-  VariantProps<typeof button> & {
-    isLoading?: boolean;
-  };
+export interface IconButtonProps extends ComponentProps<"button"> {
+  color?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "large" | "medium" | "small";
+  isLoading?: boolean;
+}
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ children, isLoading, color, size, ...props }, ref) => (
