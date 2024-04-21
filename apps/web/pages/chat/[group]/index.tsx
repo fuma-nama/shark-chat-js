@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
 import { trpc } from "@/utils/trpc";
-import { BreadcrumbItem } from "@/components/layout/group-breadcrumb";
+import { BreadcrumbItem } from "@/components/layout/GroupBreadcrumb";
 import { ChatViewProvider } from "@/components/chat/ChatView";
 import { Navbar } from "@/components/layout/Navbar";
 import { AppLayout, Content } from "@/components/layout/app";

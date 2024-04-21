@@ -20,7 +20,7 @@ const avatar = tv({
         fallback: "text-sm",
       },
       medium: {
-        root: "w-11 h-11",
+        root: "size-10",
         fallback: "text-md",
       },
       large: {

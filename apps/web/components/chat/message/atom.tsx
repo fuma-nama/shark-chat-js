@@ -2,7 +2,7 @@ import { Fragment, ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
 
 import * as ContextMenu from "ui/components/context-menu";
-
+import { getTimeString } from "ui/utils/time";
 import { MessageType } from "@/utils/types";
 import { cn } from "ui/utils/cn";
 import { usePageStore } from "@/utils/stores/page";
@@ -21,12 +21,8 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
     image: null,
     name: "Deleted User",
   };
-  const date = new Date(timestamp).toLocaleString(undefined, {
-    dateStyle: "short",
-    timeStyle: "short",
-    hourCycle: "h24",
-  });
 
+  const date = new Date(timestamp);
   const setModal = usePageStore((s) => s.setModal);
 
   const onOpenProfile = () => {
@@ -36,8 +32,8 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
   return (
     <ContextMenu.Trigger
       className={cn(
-        "p-3 rounded-xl flex flex-row items-start gap-2 bg-card",
-        props.className,
+        "p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
+        props.className
       )}
     >
       <Avatar
@@ -47,13 +43,13 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
         onClick={onOpenProfile}
       />
       <div className="flex-1 flex flex-col w-0">
-        <div className="flex flex-row items-center">
-          <p className="font-semibold cursor-pointer" onClick={onOpenProfile}>
+        <div className="flex flex-row items-center mb-1">
+          <p className="font-medium cursor-pointer" onClick={onOpenProfile}>
             {author.name}
           </p>
 
-          <p className="text-xs sm:text-xs text-muted-foreground ml-auto sm:ml-2">
-            {date}
+          <p className="text-xs text-muted-foreground ml-auto sm:ml-2">
+            {getTimeString(date)}
           </p>
         </div>
 
@@ -73,7 +69,7 @@ export function Root({ children }: RootProps) {
 
 export function Text({ children }: { children: string }) {
   return (
-    <div className="prose prose-message break-words overflow-hidden">
+    <div className="prose prose-message text-[15px] break-words overflow-hidden">
       <Markdown
         value={children}
         gfm

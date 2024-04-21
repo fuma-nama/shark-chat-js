@@ -1,4 +1,4 @@
-import { BreadcrumbItem } from "@/components/layout/group-breadcrumb";
+import { BreadcrumbItem } from "@/components/layout/GroupBreadcrumb";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useRouter } from "next/router";
 import Info from "@/components/chat/settings/info";

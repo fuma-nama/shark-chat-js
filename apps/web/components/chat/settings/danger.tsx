@@ -9,7 +9,7 @@ export default function Danger({ group }: { group: number }) {
   return (
     <div className="flex flex-col gap-3">
       <LeaveGroup group={group} />
-      <div className="mt-3">
+      <div className="mt-4">
         <h3 className="text-foreground font-medium text-base">Delete Group</h3>
         <p className="text-sm text-muted-foreground">{`This action is irreversible and can not be undone`}</p>
         <DeleteGroupButton group={group} />
