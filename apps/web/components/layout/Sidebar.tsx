@@ -215,10 +215,10 @@ function BottomCard() {
           />
         </div>
         <div className="flex-1 overflow-hidden flex flex-col">
-          <p className="font-semibold text-sm">{profile.name}</p>
+          <p className="font-medium text-sm">{profile.name}</p>
           <p className="text-muted-foreground text-xs">View Profile</p>
         </div>
-        <ChevronRightIcon className="w-4 h-4 my-auto text-muted-foreground" />
+        <ChevronRightIcon className="size-4 my-auto text-muted-foreground" />
       </Link>
     </div>
   );
