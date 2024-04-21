@@ -19,10 +19,10 @@ import { tv } from "tailwind-variants";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
-  () => import("@/components/modal/CreateGroupModal"),
+  () => import("@/components/modal/CreateGroupModal")
 );
 const JoinGroupModal = dynamic(
-  () => import("@/components/modal/JoinGroupModal"),
+  () => import("@/components/modal/JoinGroupModal")
 );
 
 type Modal = "create-group" | "join-group" | "boarding";
@@ -140,7 +140,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
         fallback={group.name}
       />
       <div className="w-0 flex-1">
-        <p className="font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
+        <p className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
           {group.name}
         </p>
         <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
