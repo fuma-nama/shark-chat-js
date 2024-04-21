@@ -2,7 +2,7 @@
   "name": "server",
   "private": false,
   "dependencies": {
-    "@inworld/nodejs-sdk": "1.4.0",
+    "@inworld/nodejs-sdk": "1.11.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@trpc-limiter/core": "^0.0.8",
     "@trpc/server": "^10.45.2",

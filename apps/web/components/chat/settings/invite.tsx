@@ -10,13 +10,13 @@ import { Switch } from "ui/components/switch";
 
 export default function Invite({ group }: { group: Group }) {
   const { status } = useSession();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
 
   const invitesQuery = trpc.group.invite.get.useQuery(
     {
       groupId: group.id,
     },
-    { enabled: status === "authenticated" },
+    { enabled: status === "authenticated" }
   );
   const updateMutation = trpc.group.update.useMutation({
     onSuccess: (data, { groupId }) => {
@@ -26,7 +26,7 @@ export default function Invite({ group }: { group: Group }) {
   const createMutation = trpc.group.invite.create.useMutation({
     onSuccess: (data, { groupId }) => {
       return utils.group.invite.get.setData({ groupId }, (prev) =>
-        prev != null ? [...prev, data] : prev,
+        prev != null ? [...prev, data] : prev
       );
     },
   });
@@ -43,7 +43,7 @@ export default function Invite({ group }: { group: Group }) {
     <div className="flex flex-col gap-3">
       <div className="flex flex-row gap-3 justify-between">
         <label htmlFor="public">
-          <h3 className="text-base font-medium text-foreground">Pubilc</h3>
+          <h3 className="font-medium text-foreground">Pubilc</h3>
           <p className="text-sm text-muted-foreground">
             Anyone can join your group with an invite url
           </p>
@@ -56,8 +56,8 @@ export default function Invite({ group }: { group: Group }) {
         />
       </div>
       {group.public && <PublicInviteItem unique_name={group.unique_name} />}
-      <div className="mt-3">
-        <h3 className="font-medium text-base text-foreground">Private</h3>
+      <div className="mt-4">
+        <h3 className="font-medium text-foreground">Private</h3>
         <p className="text-sm text-muted-foreground">
           Peoples with the invite code can join your group
         </p>
@@ -108,7 +108,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
   const deleteMutation = trpc.group.invite.delete.useMutation({
     onSuccess: (_, { groupId, code }) => {
       utils.group.invite.get.setData({ groupId }, (prev) =>
-        prev?.filter((invite) => invite.code !== code),
+        prev?.filter((invite) => invite.code !== code)
       );
     },
   });

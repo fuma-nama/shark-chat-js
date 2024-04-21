@@ -41,19 +41,19 @@ const Settings: NextPageWithLayout = () => {
               </TabsList>
               <TabsContent
                 value="invite"
-                className="border border-border rounded-xl p-2"
+                className="border border-border rounded-xl p-3"
               >
                 <Invite group={query.data} />
               </TabsContent>
               <TabsContent
                 value="member"
-                className="border border-border rounded-xl p-2"
+                className="border border-border rounded-xl p-3"
               >
                 <Members group={groupId} isAdmin />
               </TabsContent>
               <TabsContent
                 value="danger"
-                className="border border-border rounded-xl p-2"
+                className="border border-border rounded-xl p-3"
               >
                 <Danger group={groupId} />
               </TabsContent>

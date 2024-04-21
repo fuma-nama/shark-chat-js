@@ -21,6 +21,11 @@ import {
 
 import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   useLayout?: (page: ReactElement) => ReactElement;
@@ -43,7 +48,9 @@ function App({
       <ToastManager />
 
       <ThemeProvider attribute="class" disableTransitionOnChange>
-        <Content Component={Component} pageProps={pageProps} />
+        <div className={inter.className}>
+          <Content Component={Component} pageProps={pageProps} />
+        </div>
       </ThemeProvider>
     </SessionProvider>
   );
