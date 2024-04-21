@@ -8,41 +8,41 @@ import { Group } from "db/schema";
 import { deleteGroup } from "./shared";
 
 export function GroupEventManager() {
-    const { status, data } = useSession();
-    const utils = trpc.useContext();
+  const { status, data } = useSession();
+  const utils = trpc.useContext();
 
-    const onEvent = channels.group.useCallback(
-        ({ name, data: message }) => {
-            if (name === "group_deleted") {
-                return deleteGroup(utils, message.id);
-            }
+  const onEvent = channels.group.useCallback(
+    ({ name, data: message }) => {
+      if (name === "group_deleted") {
+        return deleteGroup(utils, message.id);
+      }
 
-            if (name === "group_updated") {
-                return updateGroup(utils, message);
-            }
-        },
-        [data, utils]
-    );
+      if (name === "group_updated") {
+        return updateGroup(utils, message);
+      }
+    },
+    [data, utils],
+  );
 
-    const groups = trpc.group.all.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
-    });
+  const groups = trpc.group.all.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: Infinity,
+  });
 
-    const channelList = useMemo(() => {
-        if (groups.data == null) return [];
+  const channelList = useMemo(() => {
+    if (groups.data == null) return [];
 
-        return groups.data.map((group) => channels.group.get([group.id]));
-    }, [groups.data]);
+    return groups.data.map((group) => channels.group.get([group.id]));
+  }, [groups.data]);
 
-    useChannels(channelList, onEvent);
+  useChannels(channelList, onEvent);
 
-    return <></>;
+  return <></>;
 }
 
 function updateGroup(utils: RouterUtils, group: Serialize<Group>) {
-    utils.group.info.setData({ groupId: group.id }, group);
-    utils.group.all.setData(undefined, (groups) =>
-        groups?.map((g) => (g.id === group.id ? { ...g, ...group } : g))
-    );
+  utils.group.info.setData({ groupId: group.id }, group);
+  utils.group.all.setData(undefined, (groups) =>
+    groups?.map((g) => (g.id === group.id ? { ...g, ...group } : g)),
+  );
 }

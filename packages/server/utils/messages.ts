@@ -40,7 +40,7 @@ export async function fetchMessages(
   channel: string,
   count: number,
   after?: Date,
-  before?: Date
+  before?: Date,
 ): Promise<ComplexMessage[]> {
   const reply_message = alias(messages, "reply_message");
   const reply_user = alias(users, "reply_user");
@@ -58,8 +58,8 @@ export async function fetchMessages(
       and(
         eq(messages.channel_id, channel),
         after != null ? gt(messages.timestamp, after) : undefined,
-        before != null ? lt(messages.timestamp, before) : undefined
-      )
+        before != null ? lt(messages.timestamp, before) : undefined,
+      ),
     )
     .leftJoin(users, eq(users.id, messages.author_id))
     .leftJoin(attachments, eq(attachments.id, messages.attachment_id))
@@ -79,13 +79,13 @@ export const messageSchema = z
   })
   .refine(
     ({ content, attachment }) => content.length !== 0 || attachment != null,
-    "Message is empty"
+    "Message is empty",
   );
 
 export async function createMessage(
   input: z.infer<typeof messageSchema>,
   author_id: string,
-  embeds: Embed[]
+  embeds: Embed[],
 ) {
   const attachment = insertAttachment(input.attachment);
 
@@ -142,8 +142,8 @@ export async function getEmbeds(content: string): Promise<Embed[]> {
             .then((res) => {
               if (res != null) embeds.push(res);
             })
-            .catch(() => {})
-        )
+            .catch(() => {}),
+        ),
     );
   }
 
@@ -151,7 +151,7 @@ export async function getEmbeds(content: string): Promise<Embed[]> {
 }
 
 function insertAttachment(
-  attachment: UploadAttachment | null | undefined
+  attachment: UploadAttachment | null | undefined,
 ): AttachmentType | null {
   if (attachment == null) return null;
 

@@ -10,158 +10,145 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { MessageType } from "@/utils/types";
 
 export function MessageEventManager() {
-    const { status, data } = useSession();
-    const utils = trpc.useContext();
+  const { status, data } = useSession();
+  const utils = trpc.useContext();
 
-    const onEvent = channels.chat.useCallback(
-        ({ name, data: message }) => {
-            if (name === "typing") return;
+  const onEvent = channels.chat.useCallback(
+    ({ name, data: message }) => {
+      if (name === "typing") return;
 
-            const variables = getMessageVariables(message.channel_id);
-            const channel_id =
-                Router.query.group != null
-                    ? utils.group.all
-                          .getData(undefined)
-                          ?.find(
-                              (group) => group.id === Number(Router.query.group)
-                          )?.channel_id
-                    : Router.query.channel;
-            const active = channel_id === message.channel_id;
+      const variables = getMessageVariables(message.channel_id);
+      const channel_id =
+        Router.query.group != null
+          ? utils.group.all
+              .getData(undefined)
+              ?.find((group) => group.id === Number(Router.query.group))
+              ?.channel_id
+          : Router.query.channel;
+      const active = channel_id === message.channel_id;
 
-            if (name === "message_sent") {
-                const self = message.author_id === data?.user.id;
+      if (name === "message_sent") {
+        const self = message.author_id === data?.user.id;
 
-                if (active || self) {
-                    utils.chat.checkout.setData(
-                        { channelId: message.channel_id },
-                        { last_read: message.timestamp }
-                    );
-                } else {
-                    setChannelUnread(
-                        utils,
-                        message.channel_id,
-                        (prev) => prev + 1
-                    );
-                }
+        if (active || self) {
+          utils.chat.checkout.setData(
+            { channelId: message.channel_id },
+            { last_read: message.timestamp },
+          );
+        } else {
+          setChannelUnread(utils, message.channel_id, (prev) => prev + 1);
+        }
 
-                if (active && !self) {
-                    utils.client.chat.read.mutate({
-                        channelId: message.channel_id,
-                    });
-                }
+        if (active && !self) {
+          utils.client.chat.read.mutate({
+            channelId: message.channel_id,
+          });
+        }
 
-                if (message.nonce != null && removeNonce(message.nonce)) {
-                    useMessageStore
-                        .getState()
-                        .removeSending(message.channel_id, message.nonce);
-                }
+        if (message.nonce != null && removeNonce(message.nonce)) {
+          useMessageStore
+            .getState()
+            .removeSending(message.channel_id, message.nonce);
+        }
 
-                return addMessage(utils, variables, message);
-            }
+        return addMessage(utils, variables, message);
+      }
 
-            if (name === "message_updated") {
-                return utils.chat.messages.setInfiniteData(
-                    variables,
-                    (prev) => {
-                        if (prev == null) return prev;
+      if (name === "message_updated") {
+        return utils.chat.messages.setInfiniteData(variables, (prev) => {
+          if (prev == null) return prev;
 
-                        const pages = prev.pages.map((page) =>
-                            page.map((msg) => {
-                                if (msg.id === message.id) {
-                                    return {
-                                        ...msg,
-                                        ...message,
-                                    };
-                                }
+          const pages = prev.pages.map((page) =>
+            page.map((msg) => {
+              if (msg.id === message.id) {
+                return {
+                  ...msg,
+                  ...message,
+                };
+              }
 
-                                return msg;
-                            })
-                        );
+              return msg;
+            }),
+          );
 
-                        return {
-                            ...prev,
-                            pages,
-                        };
-                    }
-                );
-            }
+          return {
+            ...prev,
+            pages,
+          };
+        });
+      }
 
-            if (name === "message_deleted") {
-                return utils.chat.messages.setInfiniteData(
-                    variables,
-                    (prev) => {
-                        if (prev == null) return prev;
+      if (name === "message_deleted") {
+        return utils.chat.messages.setInfiniteData(variables, (prev) => {
+          if (prev == null) return prev;
 
-                        const pages = prev.pages.map((page) => {
-                            return page.filter((msg) => msg.id !== message.id);
-                        });
+          const pages = prev.pages.map((page) => {
+            return page.filter((msg) => msg.id !== message.id);
+          });
 
-                        return {
-                            ...prev,
-                            pages,
-                        };
-                    }
-                );
-            }
-        },
-        [data, utils]
-    );
+          return {
+            ...prev,
+            pages,
+          };
+        });
+      }
+    },
+    [data, utils],
+  );
 
-    const groups = trpc.group.all.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
-    });
+  const groups = trpc.group.all.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: Infinity,
+  });
 
-    const dm = trpc.dm.channels.useQuery(undefined, {
-        enabled: status === "authenticated",
-        staleTime: Infinity,
-    });
+  const dm = trpc.dm.channels.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: Infinity,
+  });
 
-    const channelList = useMemo(() => {
-        return [
-            ...(groups.data?.map((group) =>
-                channels.chat.get([group.channel_id])
-            ) ?? []),
-            ...(dm.data?.map((channel) => channels.chat.get([channel.id])) ??
-                []),
-        ];
-    }, [groups.data, dm.data]);
+  const channelList = useMemo(() => {
+    return [
+      ...(groups.data?.map((group) => channels.chat.get([group.channel_id])) ??
+        []),
+      ...(dm.data?.map((channel) => channels.chat.get([channel.id])) ?? []),
+    ];
+  }, [groups.data, dm.data]);
 
-    useChannels(channelList, onEvent);
+  useChannels(channelList, onEvent);
 
-    return <></>;
+  return <></>;
 }
 
 function addMessage(
-    utils: RouterUtils,
-    variables: RouterInput["chat"]["messages"],
-    message: MessageType
+  utils: RouterUtils,
+  variables: RouterInput["chat"]["messages"],
+  message: MessageType,
 ) {
-    utils.chat.messages.setInfiniteData(variables, (prev) => {
-        if (prev == null) return prev;
+  utils.chat.messages.setInfiniteData(variables, (prev) => {
+    if (prev == null) return prev;
 
-        return {
-            ...prev,
-            pages: [...prev.pages, [message]],
-        };
-    });
+    return {
+      ...prev,
+      pages: [...prev.pages, [message]],
+    };
+  });
 
-    utils.dm.channels.setData(undefined, (prev) => {
-        if (prev == null) return prev;
+  utils.dm.channels.setData(undefined, (prev) => {
+    if (prev == null) return prev;
 
-        return prev.map((channel) =>
-            channel.id === message.channel_id
-                ? { ...channel, last_message: message }
-                : channel
-        );
-    });
+    return prev.map((channel) =>
+      channel.id === message.channel_id
+        ? { ...channel, last_message: message }
+        : channel,
+    );
+  });
 
-    utils.group.all.setData(undefined, (prev) => {
-        if (prev == null) return prev;
-        return prev.map((group) =>
-            group.channel_id === message.channel_id
-                ? { ...group, last_message: message }
-                : group
-        );
-    });
+  utils.group.all.setData(undefined, (prev) => {
+    if (prev == null) return prev;
+    return prev.map((group) =>
+      group.channel_id === message.channel_id
+        ? { ...group, last_message: message }
+        : group,
+    );
+  });
 }

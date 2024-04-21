@@ -1,15 +1,15 @@
 {
-    "name": "ably-builder",
-    "private": true,
-    "dependencies": {
-        "@ably-labs/react-hooks": "^2.1.0",
-        "ably": "^1.2.35",
-        "shared": "workspace:*",
-        "zod": "^3.20.2"
-    },
-    "devDependencies": {
-        "@types/react": "18.2.79",
-        "@types/react-dom": "18.2.25",
-        "config": "workspace:*"
-    }
+  "name": "ably-builder",
+  "private": true,
+  "dependencies": {
+    "@ably-labs/react-hooks": "^2.1.0",
+    "ably": "^1.2.35",
+    "shared": "workspace:*",
+    "zod": "^3.20.2"
+  },
+  "devDependencies": {
+    "@types/react": "18.2.79",
+    "@types/react-dom": "18.2.25",
+    "config": "workspace:*"
+  }
 }

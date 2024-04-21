@@ -18,7 +18,7 @@ export default function Members({
   const { status, data } = useSession();
   const query = trpc.group.member.get.useQuery(
     { groupId: group },
-    { enabled: status === "authenticated" }
+    { enabled: status === "authenticated" },
   );
 
   return (
@@ -59,7 +59,7 @@ function MemberItem({
   const kick = trpc.group.member.kick.useMutation({
     onSuccess(_, { groupId, userId }) {
       utils.group.member.get.setData({ groupId }, (prev) =>
-        prev?.filter((member) => member.user_id !== userId)
+        prev?.filter((member) => member.user_id !== userId),
       );
     },
   });

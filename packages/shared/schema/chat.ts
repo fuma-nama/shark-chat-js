@@ -8,12 +8,12 @@ export type UploadAttachment = z.infer<typeof uploadAttachmentSchema>;
 export type AttachmentType = Attachment;
 
 export const uploadAttachmentSchema = z.object({
-    name: z.string(),
-    url: z.string(),
-    type: z.enum(["image", "video", "raw"]),
-    bytes: z.number(),
-    width: z.number().optional(),
-    height: z.number().optional(),
+  name: z.string(),
+  url: z.string(),
+  type: z.enum(["image", "video", "raw"]),
+  bytes: z.number(),
+  width: z.number().optional(),
+  height: z.number().optional(),
 });
 
 export const contentSchema = z.string().max(2000).trim();

@@ -11,73 +11,71 @@ import type { AppProps } from "next/app";
 import type { NextPage } from "next";
 import { usePageStore } from "@/utils/stores/page";
 import {
-    Toast,
-    ToastClose,
-    ToastDescription,
-    ToastProvider,
-    ToastTitle,
-    ToastViewport,
+  Toast,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
 } from "ui/components/toast";
 
 import "cropperjs/dist/cropper.css";
 import "@/styles/globals.css";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-    useLayout?: (page: ReactElement) => ReactElement;
+  useLayout?: (page: ReactElement) => ReactElement;
 };
 
 type AppPropsWithLayout = AppProps & {
-    Component: NextPageWithLayout;
+  Component: NextPageWithLayout;
 };
 
 function App({
-    Component,
-    pageProps: { session, ...pageProps },
+  Component,
+  pageProps: { session, ...pageProps },
 }: AppPropsWithLayout) {
-    return (
-        <SessionProvider session={session}>
-            <AblyClientProvider />
-            <PrivateEventManager />
-            <GroupEventManager />
-            <MessageEventManager />
-            <ToastManager />
+  return (
+    <SessionProvider session={session}>
+      <AblyClientProvider />
+      <PrivateEventManager />
+      <GroupEventManager />
+      <MessageEventManager />
+      <ToastManager />
 
-            <ThemeProvider attribute="class" disableTransitionOnChange>
-                <Content Component={Component} pageProps={pageProps} />
-            </ThemeProvider>
-        </SessionProvider>
-    );
+      <ThemeProvider attribute="class" disableTransitionOnChange>
+        <Content Component={Component} pageProps={pageProps} />
+      </ThemeProvider>
+    </SessionProvider>
+  );
 }
 
 function ToastManager() {
-    const messages = usePageStore((s) => s.messages);
+  const messages = usePageStore((s) => s.messages);
 
-    return (
-        <ToastProvider>
-            {messages.map((message) => (
-                <Toast key={message.id} variant="destructive">
-                    <div className="grid gap-1">
-                        <ToastTitle>{message.title}</ToastTitle>
-                        <ToastDescription>
-                            {message.description}
-                        </ToastDescription>
-                    </div>
-                    <ToastClose />
-                </Toast>
-            ))}
-            <ToastViewport className="gap-4" />
-        </ToastProvider>
-    );
+  return (
+    <ToastProvider>
+      {messages.map((message) => (
+        <Toast key={message.id} variant="destructive">
+          <div className="grid gap-1">
+            <ToastTitle>{message.title}</ToastTitle>
+            <ToastDescription>{message.description}</ToastDescription>
+          </div>
+          <ToastClose />
+        </Toast>
+      ))}
+      <ToastViewport className="gap-4" />
+    </ToastProvider>
+  );
 }
 
 function Content({
-    Component,
-    pageProps,
+  Component,
+  pageProps,
 }: Pick<AppPropsWithLayout, "Component" | "pageProps">) {
-    const useLayout = Component.useLayout ?? ((page) => page);
-    const layout = useLayout(<Component {...pageProps} />);
+  const useLayout = Component.useLayout ?? ((page) => page);
+  const layout = useLayout(<Component {...pageProps} />);
 
-    return layout;
+  return layout;
 }
 
 export default trpc.withTRPC(App);

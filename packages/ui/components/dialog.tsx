@@ -38,7 +38,7 @@ export function SimpleDialog({
           className={clsx(
             "absolute top-3.5 right-3.5 inline-flex items-center justify-center rounded-full p-1 text-accent-700 hover:text-accent-900",
             "focus-visible:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75",
-            "dark:text-accent-700 dark:hover:text-accent-600"
+            "dark:text-accent-700 dark:hover:text-accent-600",
           )}
         >
           <XIcon className="h-4 w-4" />
@@ -63,7 +63,7 @@ function DialogContent(props: DialogPrimitive.DialogContentProps) {
         {...props}
         className={twMerge(
           "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-md rounded-lg p-4 bg-popover md:w-full m-auto z-50 animate-dialog-in radix-state-closed:animate-dialog-out focus:outline-none",
-          props.className
+          props.className,
         )}
       >
         {props.children}

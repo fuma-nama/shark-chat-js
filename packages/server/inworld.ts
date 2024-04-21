@@ -57,7 +57,7 @@ export async function onReceiveMessage(message: Message) {
     .setOnMessage((packet) => {
       if (packet.isInteractionEnd()) {
         sendMessage(channel_id, lines.join("\n")).catch((e) =>
-          sendErrorMessage(channel_id, e?.toString())
+          sendErrorMessage(channel_id, e?.toString()),
         );
         connection.close();
         return;
@@ -100,7 +100,7 @@ function sendErrorMessage(channel_id: string, message?: string) {
     channel_id,
     message != null
       ? `Oops! something went wrong: ${message}`
-      : `Oops! something went wrong`
+      : `Oops! something went wrong`,
   );
 }
 

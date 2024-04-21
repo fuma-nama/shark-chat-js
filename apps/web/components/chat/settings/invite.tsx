@@ -16,7 +16,7 @@ export default function Invite({ group }: { group: Group }) {
     {
       groupId: group.id,
     },
-    { enabled: status === "authenticated" }
+    { enabled: status === "authenticated" },
   );
   const updateMutation = trpc.group.update.useMutation({
     onSuccess: (data, { groupId }) => {
@@ -26,7 +26,7 @@ export default function Invite({ group }: { group: Group }) {
   const createMutation = trpc.group.invite.create.useMutation({
     onSuccess: (data, { groupId }) => {
       return utils.group.invite.get.setData({ groupId }, (prev) =>
-        prev != null ? [...prev, data] : prev
+        prev != null ? [...prev, data] : prev,
       );
     },
   });
@@ -108,7 +108,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
   const deleteMutation = trpc.group.invite.delete.useMutation({
     onSuccess: (_, { groupId, code }) => {
       utils.group.invite.get.setData({ groupId }, (prev) =>
-        prev?.filter((invite) => invite.code !== code)
+        prev?.filter((invite) => invite.code !== code),
       );
     },
   });

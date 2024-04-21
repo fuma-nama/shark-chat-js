@@ -64,7 +64,7 @@ function JoinGroupByCode({ onClose }: { onClose: () => void }) {
   const onJoin = handleSubmit(({ code }) =>
     joinMutation.mutate({
       code,
-    })
+    }),
   );
 
   return (
@@ -119,7 +119,7 @@ function JoinGroupByName({ onClose }: { onClose: () => void }) {
   const onJoin = handleSubmit(({ unique_name }) =>
     joinMutation.mutate({
       uniqueName: unique_name,
-    })
+    }),
   );
 
   return (

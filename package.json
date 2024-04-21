@@ -7,7 +7,8 @@
     "dev": "dotenv -- turbo dev",
     "build": "dotenv -- turbo build",
     "lint": "turbo lint",
-    "db:push": "dotenv -- drizzle-kit push:pg"
+    "db:push": "dotenv -- drizzle-kit push:pg",
+    "prettier": "prettier . -w -l"
   },
   "packageManager": "pnpm@8.2.0",
   "devDependencies": {
@@ -19,6 +20,7 @@
     "eslint-config-next": "14.2.2",
     "pg": "^8.11.5",
     "postcss": "^8.4.21",
+    "prettier": "^3.2.5",
     "tailwindcss": "^3.4.3",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-radix": "^2.7.0",

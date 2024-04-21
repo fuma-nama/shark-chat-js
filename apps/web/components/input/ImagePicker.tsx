@@ -90,7 +90,7 @@ export function ImagePicker({
           htmlFor={id}
           className={clsx(
             "flex flex-col gap-3 items-center justify-center p-2 w-full h-full rounded-xl cursor-pointer",
-            "bg-muted/50 border text-center text-muted-foreground/70"
+            "bg-muted/50 border text-center text-muted-foreground/70",
           )}
         >
           <svg

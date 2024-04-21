@@ -86,7 +86,7 @@ function EditGroupPanel({
       { groupId: group.id, ...values },
       {
         onSuccess: onCancel,
-      }
+      },
     );
   });
 

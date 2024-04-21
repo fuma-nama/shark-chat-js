@@ -7,8 +7,8 @@ import { authOptions } from "./auth";
  * @link https://trpc.io/docs/context
  */
 export async function createContext(opts: CreateNextContextOptions) {
-    return {
-        req: opts.req,
-        session: await getServerSession(opts.req, opts.res, authOptions),
-    };
+  return {
+    req: opts.req,
+    session: await getServerSession(opts.req, opts.res, authOptions),
+  };
 }

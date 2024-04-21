@@ -10,97 +10,94 @@ import { useSession } from "next-auth/react";
 import { useTypingStatus, TypingIndicator } from "./TypingIndicator";
 
 type SendMutationInput = Omit<RouterInput["chat"]["send"], "attachment"> & {
-    attachment: SendData["attachment"];
+  attachment: SendData["attachment"];
 };
 
 export function ChannelSendbar({ channelId }: { channelId: string }) {
-    const utils = trpc.useContext();
-    const [info, update, add, addError] = useMessageStore((s) => [
-        s.sendbar[channelId],
-        s.updateSendbar,
-        s.addSending,
-        s.errorSending,
-    ]);
+  const utils = trpc.useContext();
+  const [info, update, add, addError] = useMessageStore((s) => [
+    s.sendbar[channelId],
+    s.updateSendbar,
+    s.addSending,
+    s.errorSending,
+  ]);
 
-    const typeMutation = trpc.useContext().client.chat.type;
-    const sendMutation = useMutation(
-        async ({ attachment, ...data }: SendMutationInput) => {
-            await utils.client.chat.send.mutate({
-                ...data,
-                attachment:
-                    attachment != null
-                        ? await uploadAttachment(utils, attachment)
-                        : undefined,
-            });
-        },
-        {
-            onError(error, { nonce, channelId }) {
-                if (nonce == null) return;
+  const typeMutation = trpc.useContext().client.chat.type;
+  const sendMutation = useMutation(
+    async ({ attachment, ...data }: SendMutationInput) => {
+      await utils.client.chat.send.mutate({
+        ...data,
+        attachment:
+          attachment != null
+            ? await uploadAttachment(utils, attachment)
+            : undefined,
+      });
+    },
+    {
+      onError(error, { nonce, channelId }) {
+        if (nonce == null) return;
 
-                addError(
-                    channelId,
-                    nonce,
-                    error instanceof TRPCClientError
-                        ? error.message
-                        : "Something went wrong"
-                );
-            },
-        }
-    );
+        addError(
+          channelId,
+          nonce,
+          error instanceof TRPCClientError
+            ? error.message
+            : "Something went wrong",
+        );
+      },
+    },
+  );
 
-    const onSend = (data: SendData) => {
-        sendMutation.mutate({
-            ...data,
-            channelId: channelId,
-            reply: info?.reply_to?.id ?? undefined,
-            nonce: add(channelId, data).nonce,
-        });
+  const onSend = (data: SendData) => {
+    sendMutation.mutate({
+      ...data,
+      channelId: channelId,
+      reply: info?.reply_to?.id ?? undefined,
+      nonce: add(channelId, data).nonce,
+    });
 
-        update(channelId, {
-            reply_to: undefined,
-        });
-    };
+    update(channelId, {
+      reply_to: undefined,
+    });
+  };
 
-    return (
-        <Sendbar
-            onSend={onSend}
-            onType={() => typeMutation.mutate({ channelId: channelId })}
-        >
-            {info?.reply_to != null && (
-                <div className="flex flex-row pt-2 px-2 text-sm text-muted-foreground">
-                    <p className="flex-1">
-                        Replying to{" "}
-                        <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
-                    </p>
-                    <button
-                        aria-label="delete"
-                        onClick={() =>
-                            update(channelId, { reply_to: undefined })
-                        }
-                    >
-                        <XIcon className="w-4" />
-                    </button>
-                </div>
-            )}
+  return (
+    <Sendbar
+      onSend={onSend}
+      onType={() => typeMutation.mutate({ channelId: channelId })}
+    >
+      {info?.reply_to != null && (
+        <div className="flex flex-row pt-2 px-2 text-sm text-muted-foreground">
+          <p className="flex-1">
+            Replying to <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
+          </p>
+          <button
+            aria-label="delete"
+            onClick={() => update(channelId, { reply_to: undefined })}
+          >
+            <XIcon className="w-4" />
+          </button>
+        </div>
+      )}
 
-            <TypingUsers channelId={channelId} />
-        </Sendbar>
-    );
+      <TypingUsers channelId={channelId} />
+    </Sendbar>
+  );
 }
 
 function TypingUsers({ channelId }: { channelId: string }) {
-    const { status, data: session } = useSession();
-    const { typing, add } = useTypingStatus();
+  const { status, data: session } = useSession();
+  const { typing, add } = useTypingStatus();
 
-    channels.chat.typing.useChannel(
-        [channelId],
-        { enabled: status === "authenticated" },
-        (message) => {
-            if (message.data.user.id === session?.user.id) return;
+  channels.chat.typing.useChannel(
+    [channelId],
+    { enabled: status === "authenticated" },
+    (message) => {
+      if (message.data.user.id === session?.user.id) return;
 
-            add(message.data.user);
-        }
-    );
+      add(message.data.user);
+    },
+  );
 
-    return <TypingIndicator typing={typing} />;
+  return <TypingIndicator typing={typing} />;
 }

@@ -26,7 +26,7 @@ export const chatRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { type, data } = await checkChannelPermissions(
         input.channelId,
-        ctx.session
+        ctx.session,
       );
 
       const embeds = await getEmbeds(input.content);
@@ -44,8 +44,8 @@ export const chatRouter = router({
             .where(
               and(
                 eq(directMessageInfos.channel_id, input.channelId),
-                eq(directMessageInfos.open, false)
-              )
+                eq(directMessageInfos.open, false),
+              ),
             );
           is_new_dm = result.rowCount !== 0;
         }
@@ -89,7 +89,7 @@ export const chatRouter = router({
         count: z.number().min(0).max(50).default(50),
         cursorType: z.enum(["after", "before"]).default("before"),
         cursor: z.string().datetime().optional(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       await checkChannelPermissions(input.channelId, ctx.session);
@@ -102,7 +102,7 @@ export const chatRouter = router({
           : undefined,
         input.cursor != null && input.cursorType === "before"
           ? new Date(input.cursor)
-          : undefined
+          : undefined,
       );
     }),
   update: protectedProcedure
@@ -111,7 +111,7 @@ export const chatRouter = router({
         messageId: z.number(),
         channelId: z.string(),
         content: contentSchema.min(1),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const embeds = await getEmbeds(input.content);
@@ -126,8 +126,8 @@ export const chatRouter = router({
           and(
             eq(messages.id, input.messageId),
             eq(messages.author_id, ctx.session.user.id),
-            eq(messages.channel_id, input.channelId)
-          )
+            eq(messages.channel_id, input.channelId),
+          ),
         );
 
       if (rows.rowCount === 0)
@@ -147,12 +147,12 @@ export const chatRouter = router({
     .input(
       z.object({
         messageId: z.number(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { channel_id } = await checkDeleteMessage(
         input.messageId,
-        ctx.session.user.id
+        ctx.session.user.id,
       );
 
       await db.delete(messages).where(eq(messages.id, input.messageId));
@@ -167,14 +167,14 @@ export const chatRouter = router({
       await setLastRead(
         input.channelId,
         ctx.session.user.id,
-        new Date(Date.now())
+        new Date(Date.now()),
       );
     }),
   checkout: protectedProcedure
     .input(
       z.object({
         channelId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const old = await getLastRead(input.channelId, ctx.session.user.id);
@@ -182,7 +182,7 @@ export const chatRouter = router({
       await setLastRead(
         input.channelId,
         ctx.session.user.id,
-        new Date(Date.now())
+        new Date(Date.now()),
       );
 
       return { last_read: old };
@@ -191,7 +191,7 @@ export const chatRouter = router({
     .input(
       z.object({
         channelId: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const user = await db

@@ -55,7 +55,7 @@ export const groupRouter = router({
     .input(
       z.object({
         groupId: z.number(),
-      })
+      }),
     )
     .query(async ({ input, ctx }) => {
       const member = await db
@@ -64,8 +64,8 @@ export const groupRouter = router({
         .where(
           and(
             eq(members.group_id, input.groupId),
-            eq(members.user_id, ctx.session.user.id)
-          )
+            eq(members.user_id, ctx.session.user.id),
+          ),
         )
         .innerJoin(groups, eq(members.group_id, groups.id))
         .then((res) => res[0]);
@@ -83,7 +83,7 @@ export const groupRouter = router({
     .input(
       z.object({
         code: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const invites = await db
@@ -103,7 +103,7 @@ export const groupRouter = router({
     .input(
       z.object({
         uniqueName: z.string(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const group = await db
@@ -176,7 +176,7 @@ export const groupRouter = router({
     .input(
       z.object({
         groupId: z.number(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const group = await db
@@ -202,8 +202,8 @@ export const groupRouter = router({
         .where(
           and(
             eq(members.group_id, input.groupId),
-            eq(members.user_id, ctx.session.user.id)
-          )
+            eq(members.user_id, ctx.session.user.id),
+          ),
         );
 
       await channels.private.group_removed.publish([ctx.session.user.id], {
@@ -252,7 +252,7 @@ async function getGroupsWithNotifications(userId: string) {
   if (result.length === 0) return [];
 
   const last_reads = await getLastReads(
-    result.map((row) => [row.group.channel_id, userId])
+    result.map((row) => [row.group.channel_id, userId]),
   );
 
   return await db.transaction(
@@ -267,8 +267,8 @@ async function getGroupsWithNotifications(userId: string) {
           .where(
             and(
               eq(messages.channel_id, group.channel_id),
-              last_read != null ? gt(messages.timestamp, last_read) : undefined
-            )
+              last_read != null ? gt(messages.timestamp, last_read) : undefined,
+            ),
           )
           .then((res) => requireOne(res));
 
@@ -284,6 +284,6 @@ async function getGroupsWithNotifications(userId: string) {
     {
       isolationLevel: "read committed",
       accessMode: "read only",
-    }
+    },
   );
 }

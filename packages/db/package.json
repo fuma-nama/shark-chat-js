@@ -1,14 +1,14 @@
 {
-    "name": "db",
-    "private": true,
-    "main": "./client.ts",
-    "types": "./client.ts",
-    "dependencies": {
-        "@neondatabase/serverless": "^0.9.1",
-        "drizzle-orm": "^0.30.8"
-    },
-    "devDependencies": {
-        "@types/node": "18.11.18",
-        "config": "workspace:*"
-    }
+  "name": "db",
+  "private": true,
+  "main": "./client.ts",
+  "types": "./client.ts",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.1",
+    "drizzle-orm": "^0.30.8"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.18",
+    "config": "workspace:*"
+  }
 }

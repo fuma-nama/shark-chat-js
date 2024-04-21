@@ -6,11 +6,11 @@ import { uploadRouter } from "./upload";
 import { dmRouter } from "./dm";
 
 export const appRouter = router({
-    chat: chatRouter,
-    group: groupRouter,
-    account: accountRouter,
-    upload: uploadRouter,
-    dm: dmRouter,
+  chat: chatRouter,
+  group: groupRouter,
+  account: accountRouter,
+  upload: uploadRouter,
+  dm: dmRouter,
 });
 
 // export type definition of API

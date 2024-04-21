@@ -42,7 +42,7 @@ export function MessageList({
   const rows = useMemo(
     () =>
       query.data?.pages?.flatMap((messages) => [...messages].reverse()) ?? [],
-    [query.data?.pages]
+    [query.data?.pages],
   );
 
   const showSkeleton =
@@ -97,7 +97,7 @@ export function MessageList({
       {rows
         .slice(
           Math.max(0, rows.length - range[1] - 1),
-          Math.min(Number.MAX_VALUE, Math.max(0, rows.length - range[0]))
+          Math.min(Number.MAX_VALUE, Math.max(0, rows.length - range[0])),
         )
         .map((message, i, arr) => {
           const prev_message = i > 0 ? arr[i - 1] : null;
@@ -164,7 +164,7 @@ function useLastRead(channelId: string) {
       enabled: status === "authenticated",
       refetchOnWindowFocus: false,
       onSuccess: () => setChannelUnread(utils, channelId, () => 0),
-    }
+    },
   );
 
   return checkoutQuery.data?.last_read != null

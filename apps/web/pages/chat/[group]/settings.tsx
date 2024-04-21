@@ -17,74 +17,74 @@ const Invite = dynamic(() => import("@/components/chat/settings/invite"));
 const Danger = dynamic(() => import("@/components/chat/settings/danger"));
 
 const Settings: NextPageWithLayout = () => {
-    const { groupId } = getGroupQuery(useRouter());
-    const { status, data } = useSession();
-    const query = trpc.group.info.useQuery(
-        { groupId },
-        { enabled: status === "authenticated" }
-    );
-    const isAdmin =
-        query.status === "success" && query.data.owner_id === data!!.user.id;
+  const { groupId } = getGroupQuery(useRouter());
+  const { status, data } = useSession();
+  const query = trpc.group.info.useQuery(
+    { groupId },
+    { enabled: status === "authenticated" },
+  );
+  const isAdmin =
+    query.status === "success" && query.data.owner_id === data!!.user.id;
 
-    return (
-        <div className="flex flex-col gap-10 max-w-3xl min-h-full">
-            {query.isLoading || query.isError ? (
-                <div className="m-auto">
-                    <Spinner size="large" />
-                </div>
-            ) : (
-                <>
-                    <Info group={query.data} isAdmin={isAdmin} />
-                    {isAdmin && (
-                        <Tabs defaultValue="invite">
-                            <TabsList className="mb-4">
-                                <TabsTrigger value="invite">Invite</TabsTrigger>
-                                <TabsTrigger value="member">Member</TabsTrigger>
-                                <TabsTrigger value="danger">Danger</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="invite">
-                                <Invite group={query.data} />
-                            </TabsContent>
-                            <TabsContent value="member">
-                                <Members group={groupId} isAdmin />
-                            </TabsContent>
-                            <TabsContent value="danger">
-                                <Danger group={groupId} />
-                            </TabsContent>
-                        </Tabs>
-                    )}
-                    {!isAdmin && (
-                        <>
-                            <div>
-                                <h2 className="font-medium text-base mb-3 text-foreground">
-                                    Members
-                                </h2>
-                                <Members group={groupId} isAdmin={false} />
-                            </div>
-
-                            <LeaveGroup group={groupId} />
-                        </>
-                    )}
-                </>
-            )}
+  return (
+    <div className="flex flex-col gap-10 max-w-3xl min-h-full">
+      {query.isLoading || query.isError ? (
+        <div className="m-auto">
+          <Spinner size="large" />
         </div>
-    );
+      ) : (
+        <>
+          <Info group={query.data} isAdmin={isAdmin} />
+          {isAdmin && (
+            <Tabs defaultValue="invite">
+              <TabsList className="mb-4">
+                <TabsTrigger value="invite">Invite</TabsTrigger>
+                <TabsTrigger value="member">Member</TabsTrigger>
+                <TabsTrigger value="danger">Danger</TabsTrigger>
+              </TabsList>
+              <TabsContent value="invite">
+                <Invite group={query.data} />
+              </TabsContent>
+              <TabsContent value="member">
+                <Members group={groupId} isAdmin />
+              </TabsContent>
+              <TabsContent value="danger">
+                <Danger group={groupId} />
+              </TabsContent>
+            </Tabs>
+          )}
+          {!isAdmin && (
+            <>
+              <div>
+                <h2 className="font-medium text-base mb-3 text-foreground">
+                  Members
+                </h2>
+                <Members group={groupId} isAdmin={false} />
+              </div>
+
+              <LeaveGroup group={groupId} />
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
 };
 
 Settings.useLayout = (children) => (
-    <AppLayout>
-        <Navbar
-            breadcrumb={[
-                {
-                    text: <BreadcrumbItem />,
-                    href: `/chat/[group]`,
-                },
-                { href: `/chat/[group]/settings`, text: "Settings" },
-            ]}
-        />
+  <AppLayout>
+    <Navbar
+      breadcrumb={[
+        {
+          text: <BreadcrumbItem />,
+          href: `/chat/[group]`,
+        },
+        { href: `/chat/[group]/settings`, text: "Settings" },
+      ]}
+    />
 
-        <Content>{children}</Content>
-    </AppLayout>
+    <Content>{children}</Content>
+  </AppLayout>
 );
 
 export default Settings;

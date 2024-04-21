@@ -80,7 +80,7 @@ function UpdateProfile({
           utils.account.get.setData(undefined, () => data);
           onCancel();
         },
-      }
+      },
     );
   };
 

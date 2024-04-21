@@ -3,14 +3,14 @@ import { appRouter } from "server/routers/_app";
 import { createContext } from "server/context";
 
 export default createNextApiHandler({
-    router: appRouter,
-    createContext,
+  router: appRouter,
+  createContext,
 });
 
 export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: "5mb",
-        },
+  api: {
+    bodyParser: {
+      sizeLimit: "5mb",
     },
+  },
 };

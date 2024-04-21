@@ -29,8 +29,8 @@ export const dmRouter = router({
           and(
             eq(directMessageInfos.channel_id, input.channelId),
             eq(directMessageInfos.user_id, ctx.session.user.id),
-            eq(directMessageInfos.open, true)
-          )
+            eq(directMessageInfos.open, true),
+          ),
         )
         .innerJoin(users, eq(users.id, directMessageInfos.to_user_id));
 
@@ -53,19 +53,19 @@ export const dmRouter = router({
       .where(
         and(
           eq(directMessageInfos.user_id, ctx.session.user.id),
-          eq(directMessageInfos.open, true)
-        )
+          eq(directMessageInfos.open, true),
+        ),
       )
       .innerJoin(users, eq(directMessageInfos.to_user_id, users.id))
       .innerJoin(
         messageChannels,
-        eq(messageChannels.id, directMessageInfos.channel_id)
+        eq(messageChannels.id, directMessageInfos.channel_id),
       )
       .leftJoin(messages, eq(messages.id, messageChannels.last_message_id));
 
     if (channels.length === 0) return [];
     const lastReads = await getLastReads(
-      channels.map((c) => [c.id, ctx.session.user.id])
+      channels.map((c) => [c.id, ctx.session.user.id]),
     );
 
     return await db.transaction(
@@ -83,8 +83,8 @@ export const dmRouter = router({
                 eq(messages.channel_id, channel.id),
                 last_read != null
                   ? gt(messages.timestamp, last_read)
-                  : undefined
-              )
+                  : undefined,
+              ),
             );
 
           return {
@@ -98,7 +98,7 @@ export const dmRouter = router({
       {
         accessMode: "read only",
         isolationLevel: "read committed",
-      }
+      },
     );
   }),
   open: protectedProcedure
@@ -112,8 +112,8 @@ export const dmRouter = router({
             .where(
               and(
                 eq(directMessageInfos.to_user_id, input.userId),
-                eq(directMessageInfos.user_id, ctx.session.user.id)
-              )
+                eq(directMessageInfos.user_id, ctx.session.user.id),
+              ),
             );
 
           if (updated.rowCount === 0) {
@@ -154,8 +154,8 @@ export const dmRouter = router({
             .where(
               and(
                 eq(directMessageInfos.to_user_id, input.userId),
-                eq(directMessageInfos.user_id, ctx.session.user.id)
-              )
+                eq(directMessageInfos.user_id, ctx.session.user.id),
+              ),
             )
             .innerJoin(users, eq(users.id, directMessageInfos.to_user_id))
             .limit(1);
@@ -179,8 +179,8 @@ export const dmRouter = router({
         .where(
           and(
             eq(directMessageInfos.user_id, ctx.session.user.id),
-            eq(directMessageInfos.channel_id, input.channelId)
-          )
+            eq(directMessageInfos.channel_id, input.channelId),
+          ),
         );
 
       await channels.private.close_dm.publish([ctx.session.user.id], {

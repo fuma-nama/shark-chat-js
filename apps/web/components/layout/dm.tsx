@@ -11,48 +11,46 @@ import { ChannelSendbar } from "../chat/ChannelSendbar";
 import { ChatViewProvider } from "../chat/ChatView";
 
 export function useDirectMessageLayout(children: ReactNode) {
-    const router = useRouter();
-    const controller = useViewScrollController();
+  const router = useRouter();
+  const controller = useViewScrollController();
 
-    return (
-        <AppLayout>
-            <Navbar
-                breadcrumb={[
-                    {
-                        text: <BreadcrumbItem />,
-                        href: router.asPath,
-                    },
-                ]}
-            />
+  return (
+    <AppLayout>
+      <Navbar
+        breadcrumb={[
+          {
+            text: <BreadcrumbItem />,
+            href: router.asPath,
+          },
+        ]}
+      />
 
-            <Content>
-                <ChatViewProvider value={controller}>
-                    {children}
-                </ChatViewProvider>
-            </Content>
-            <ChannelSendbar channelId={router.query.channel as string} />
-        </AppLayout>
-    );
+      <Content>
+        <ChatViewProvider value={controller}>{children}</ChatViewProvider>
+      </Content>
+      <ChannelSendbar channelId={router.query.channel as string} />
+    </AppLayout>
+  );
 }
 
 function BreadcrumbItem() {
-    const { channel } = useRouter().query as { channel: string };
-    const { status } = useSession();
-    const query = trpc.dm.info.useQuery(
-        { channelId: channel },
-        { enabled: status === "authenticated", staleTime: Infinity }
-    );
+  const { channel } = useRouter().query as { channel: string };
+  const { status } = useSession();
+  const query = trpc.dm.info.useQuery(
+    { channelId: channel },
+    { enabled: status === "authenticated", staleTime: Infinity },
+  );
 
-    return query.data == null ? (
-        <div className={skeleton()} />
-    ) : (
-        <div className="flex flex-row gap-2 items-center">
-            <Avatar
-                src={query.data.user.image}
-                fallback={query.data.user.name}
-                size="small"
-            />
-            <span>{query.data.user.name}</span>
-        </div>
-    );
+  return query.data == null ? (
+    <div className={skeleton()} />
+  ) : (
+    <div className="flex flex-row gap-2 items-center">
+      <Avatar
+        src={query.data.user.image}
+        fallback={query.data.user.name}
+        size="small"
+      />
+      <span>{query.data.user.name}</span>
+    </div>
+  );
 }

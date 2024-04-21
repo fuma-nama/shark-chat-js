@@ -1,36 +1,36 @@
 {
-    "folders": [
-        {
-            "path": "../apps/web"
-        },
-        {
-            "path": "../packages/db"
-        },
-        {
-            "path": "../packages/ably-builder"
-        },
-        {
-            "path": "../packages/ui"
-        },
-        {
-            "path": "../packages/server"
-        },
-        {
-            "path": "../packages/shared"
-        },
-        {
-            "path": "../"
-        }
+  "folders": [
+    {
+      "path": "../apps/web",
+    },
+    {
+      "path": "../packages/db",
+    },
+    {
+      "path": "../packages/ably-builder",
+    },
+    {
+      "path": "../packages/ui",
+    },
+    {
+      "path": "../packages/server",
+    },
+    {
+      "path": "../packages/shared",
+    },
+    {
+      "path": "../",
+    },
+  ],
+  "settings": {
+    "tailwindCSS.experimental.classRegex": [
+      ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ],
-    "settings": {
-        "tailwindCSS.experimental.classRegex": [
-            ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-        ],
-        "files.exclude": {
-            ".turbo": true,
-            "node_modules": true
-        },
-        "search.useParentIgnoreFiles": true,
-        "eslint.enable": false
-    }
+    "files.exclude": {
+      ".turbo": true,
+      "node_modules": true,
+    },
+    "search.useParentIgnoreFiles": true,
+    "eslint.enable": false,
+  },
 }

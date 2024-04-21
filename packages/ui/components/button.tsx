@@ -64,7 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       )}
       {children}
     </button>
-  )
+  ),
 );
 
 Button.displayName = "Button";
@@ -90,7 +90,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         children
       )}
     </button>
-  )
+  ),
 );
 
 IconButton.displayName = "IconButton";

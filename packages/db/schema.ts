@@ -34,10 +34,10 @@ export const accounts = pgTable(
   },
   (table) => ({
     Account_provider_providerAccountId_key: uniqueIndex(
-      `Account_provider_providerAccountId_key`
+      `Account_provider_providerAccountId_key`,
     ).on(table.provider, table.providerAccountId),
     Account_userId_idx: index("Account_userId_idx").on(table.userId),
-  })
+  }),
 );
 
 export const directMessageInfos = pgTable(
@@ -50,7 +50,7 @@ export const directMessageInfos = pgTable(
   },
   (table) => ({
     cpk: primaryKey(table.user_id, table.to_user_id),
-  })
+  }),
 );
 
 export const messageChannels = pgTable("MessageChannel", {
@@ -71,10 +71,10 @@ export const groups = pgTable(
   },
   (table) => ({
     Group_unique_name_key: uniqueIndex(`Group_unique_name_key`).on(
-      table.unique_name
+      table.unique_name,
     ),
     Group_channel_idx: index(`Group_channel_idx`).on(table.channel_id),
-  })
+  }),
 );
 
 export const groupInvites = pgTable(
@@ -85,7 +85,7 @@ export const groupInvites = pgTable(
   },
   (table) => ({
     group_idx: index("GroupInvite_group_id_idx").on(table.group_id),
-  })
+  }),
 );
 
 export const members = pgTable(
@@ -98,7 +98,7 @@ export const members = pgTable(
     cpk: primaryKey({ columns: [table.group_id, table.user_id] }),
     Member_group_id_idx: index(`Member_group_id_idx`).on(table.group_id),
     Member_user_id_idx: index(`Member_user_id_idx`).on(table.user_id),
-  })
+  }),
 );
 
 export type Embed = {
@@ -126,10 +126,10 @@ export const messages = pgTable(
   },
   (table) => ({
     Message_channel_id_idx: index("Message_channel_id_idx").on(
-      table.channel_id
+      table.channel_id,
     ),
     Message_timestamp_idx: index("Message_timestamp_idx").on(table.timestamp),
-  })
+  }),
 );
 
 export const sessions = pgTable(
@@ -142,10 +142,10 @@ export const sessions = pgTable(
   },
   (table) => ({
     Session_sessionToken_key: uniqueIndex(`Session_sessionToken_key`).on(
-      table.sessionToken
+      table.sessionToken,
     ),
     Session_userId_idx: index(`Session_userId_idx`).on(table.userId),
-  })
+  }),
 );
 
 export const users = pgTable(
@@ -160,7 +160,7 @@ export const users = pgTable(
   },
   (table) => ({
     User_email_key: uniqueIndex(`User_email_key`).on(table.email),
-  })
+  }),
 );
 
 export const attachmentType = pgEnum("attachment_type", [

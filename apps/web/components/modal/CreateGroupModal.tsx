@@ -108,6 +108,6 @@ function useCreateMutation(onClose: () => void) {
       onSuccess() {
         onClose();
       },
-    }
+    },
   );
 }

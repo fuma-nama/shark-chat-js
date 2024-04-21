@@ -3,20 +3,20 @@
  */
 
 export type FilterKeys<TObj extends object, TFilter> = {
-    [TKey in keyof TObj]: TObj[TKey] extends TFilter ? TKey : never;
+  [TKey in keyof TObj]: TObj[TKey] extends TFilter ? TKey : never;
 }[keyof TObj];
 
 /**
  * @link https://github.com/remix-run/remix/blob/2248669ed59fd716e267ea41df5d665d4781f4a9/packages/remix-server-runtime/serialize.ts
  */
 type JsonPrimitive =
-    | string
-    | number
-    | boolean
-    | String
-    | Number
-    | Boolean
-    | null;
+  | string
+  | number
+  | boolean
+  | String
+  | Number
+  | Boolean
+  | null;
 type NonJsonPrimitive = undefined | Function | symbol;
 
 /*
@@ -40,19 +40,19 @@ export type Serialize<T> =
 
 /** JSON serialize [tuples](https://www.typescriptlang.org/docs/handbook/2/objects.html#tuple-types) */
 type SerializeTuple<T extends [unknown, ...unknown[]]> = {
-    [k in keyof T]: T[k] extends NonJsonPrimitive ? null : Serialize<T[k]>;
+  [k in keyof T]: T[k] extends NonJsonPrimitive ? null : Serialize<T[k]>;
 };
 
 /** JSON serialize objects (not including arrays) and classes */
 type SerializeObject<T extends object> = {
-    [k in keyof Omit<T, FilterKeys<T, NonJsonPrimitive>>]: Serialize<T[k]>;
+  [k in keyof Omit<T, FilterKeys<T, NonJsonPrimitive>>]: Serialize<T[k]>;
 };
 
 type FilterDefinedKeys<TObj extends object> = Exclude<
-    {
-        [TKey in keyof TObj]: undefined extends TObj[TKey] ? never : TKey;
-    }[keyof TObj],
-    undefined
+  {
+    [TKey in keyof TObj]: undefined extends TObj[TKey] ? never : TKey;
+  }[keyof TObj],
+  undefined
 >;
 
 /*
@@ -62,8 +62,8 @@ type FilterDefinedKeys<TObj extends object> = Exclude<
  * Example: { a: string | undefined} --> { a?: string}
  */
 export type UndefinedToOptional<T extends object> =
-    // Property is not a union with `undefined`, keep as-is
-    Pick<T, FilterDefinedKeys<T>> & {
-        // Property _is_ a union with `defined`. Set as optional (via `?`) and remove `undefined` from the union
-        [k in keyof Omit<T, FilterDefinedKeys<T>>]?: Exclude<T[k], undefined>;
-    };
+  // Property is not a union with `undefined`, keep as-is
+  Pick<T, FilterDefinedKeys<T>> & {
+    // Property _is_ a union with `defined`. Set as optional (via `?`) and remove `undefined` from the union
+    [k in keyof Omit<T, FilterDefinedKeys<T>>]?: Exclude<T[k], undefined>;
+  };

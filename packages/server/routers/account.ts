@@ -7,63 +7,63 @@ import { eq } from "drizzle-orm";
 import { pick } from "shared/common";
 
 export const accountRouter = router({
-    get: protectedProcedure.query(async ({ ctx }) => {
-        const profile = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, ctx.session.user.id))
-            .then((res) => res?.[0]);
+  get: protectedProcedure.query(async ({ ctx }) => {
+    const profile = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, ctx.session.user.id))
+      .then((res) => res?.[0]);
 
-        if (profile == null) {
-            throw new TRPCError({
-                code: "UNAUTHORIZED",
-                message: "User not found",
-            });
-        }
+    if (profile == null) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not found",
+      });
+    }
 
-        return profile;
+    return profile;
+  }),
+  profile: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ input }) => {
+      const res = await db
+        .select({
+          ...pick(users, "name", "image", "id"),
+        })
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .then((res) => res[0]);
+
+      if (res == null)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User doesn't exist",
+        });
+
+      return res;
     }),
-    profile: protectedProcedure
-        .input(z.object({ userId: z.string() }))
-        .query(async ({ input }) => {
-            const res = await db
-                .select({
-                    ...pick(users, "name", "image", "id"),
-                })
-                .from(users)
-                .where(eq(users.id, input.userId))
-                .then((res) => res[0]);
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().optional(),
+        avatar_url: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
 
-            if (res == null)
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: "User doesn't exist",
-                });
+      await db
+        .update(users)
+        .set({
+          name: input.name ?? undefined,
+          image: input.avatar_url ?? undefined,
+        })
+        .where(eq(users.id, userId));
 
-            return res;
-        }),
-    updateProfile: protectedProcedure
-        .input(
-            z.object({
-                name: z.string().optional(),
-                avatar_url: z.string().optional(),
-            })
-        )
-        .mutation(async ({ input, ctx }) => {
-            const userId = ctx.session.user.id;
-
-            await db
-                .update(users)
-                .set({
-                    name: input.name ?? undefined,
-                    image: input.avatar_url ?? undefined,
-                })
-                .where(eq(users.id, userId));
-
-            return await db
-                .select()
-                .from(users)
-                .where(eq(users.id, userId))
-                .then((res) => res?.[0]);
-        }),
+      return await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .then((res) => res?.[0]);
+    }),
 });
