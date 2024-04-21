@@ -5,23 +5,20 @@ import Info from "@/components/chat/settings/info";
 import { Spinner } from "ui/components/spinner";
 import { getGroupQuery } from "@/utils/variables";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
-import dynamic from "next/dynamic";
-import { LeaveGroup } from "@/components/chat/settings/danger";
+import Danger, { LeaveGroup } from "@/components/chat/settings/danger";
 import Members from "@/components/chat/settings/members";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { Navbar } from "@/components/layout/Navbar";
 import { AppLayout, Content } from "@/components/layout/app";
-
-const Invite = dynamic(() => import("@/components/chat/settings/invite"));
-const Danger = dynamic(() => import("@/components/chat/settings/danger"));
+import Invite from "@/components/chat/settings/invite";
 
 const Settings: NextPageWithLayout = () => {
   const { groupId } = getGroupQuery(useRouter());
   const { status, data } = useSession();
   const query = trpc.group.info.useQuery(
     { groupId },
-    { enabled: status === "authenticated" },
+    { enabled: status === "authenticated" }
   );
   const isAdmin =
     query.status === "success" && query.data.owner_id === data!!.user.id;
@@ -37,18 +34,27 @@ const Settings: NextPageWithLayout = () => {
           <Info group={query.data} isAdmin={isAdmin} />
           {isAdmin && (
             <Tabs defaultValue="invite">
-              <TabsList className="mb-4">
+              <TabsList>
                 <TabsTrigger value="invite">Invite</TabsTrigger>
                 <TabsTrigger value="member">Member</TabsTrigger>
                 <TabsTrigger value="danger">Danger</TabsTrigger>
               </TabsList>
-              <TabsContent value="invite">
+              <TabsContent
+                value="invite"
+                className="border border-border rounded-xl p-2"
+              >
                 <Invite group={query.data} />
               </TabsContent>
-              <TabsContent value="member">
+              <TabsContent
+                value="member"
+                className="border border-border rounded-xl p-2"
+              >
                 <Members group={groupId} isAdmin />
               </TabsContent>
-              <TabsContent value="danger">
+              <TabsContent
+                value="danger"
+                className="border border-border rounded-xl p-2"
+              >
                 <Danger group={groupId} />
               </TabsContent>
             </Tabs>

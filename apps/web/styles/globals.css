@@ -39,21 +39,21 @@
     --primary: 252 100% 66%;
 
     --secondary-foreground: 210 20% 98%;
-    --secondary: 228 59% 12%;
+    --secondary: 227 49% 13%;
 
-    --accent: 227 60% 12%;
+    --accent: 227 49% 13%;
 
     --destructive: 0 91% 61%;
     --destructive-foreground: 210 20% 98%;
 
-    --card: 227 60% 8%;
+    --card: 227 50% 9%;
     --card-foreground: 210 20% 98%;
 
     --popover: 228 67% 6%;
     --popover-foreground: 225 32% 73%;
 
     --foreground: 210 20% 98%;
-    --background: 228 67% 3%;
+    --background: 228 50% 6%;
 
     --brand: 252 100% 66%;
     --border: 228 47% 10%;

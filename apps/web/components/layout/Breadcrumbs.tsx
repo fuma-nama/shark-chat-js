@@ -32,7 +32,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
           {i !== 0 && <Separator />}
           <Link
             href={{ pathname: item.href, query }}
-            className="font-semibold text-base"
+            className="font-medium text-sm"
           >
             {item.text}
           </Link>

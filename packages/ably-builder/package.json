@@ -5,7 +5,7 @@
     "@ably-labs/react-hooks": "^2.1.0",
     "ably": "^1.2.35",
     "shared": "workspace:*",
-    "zod": "^3.20.2"
+    "zod": "^3.22.5"
   },
   "devDependencies": {
     "@types/react": "18.2.79",

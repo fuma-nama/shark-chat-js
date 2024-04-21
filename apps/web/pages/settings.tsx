@@ -13,16 +13,13 @@ import { useUpdateProfileMutation } from "@/utils/hooks/mutations/update-profile
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { input } from "ui/components/input";
 import { Navbar } from "@/components/layout/Navbar";
+import { SimpleDialog } from "ui/components/dialog";
 
 const Settings: NextPageWithLayout = () => {
   const { status, profile } = useProfile();
   const [edit, setEdit] = useState(false);
 
   if (status !== "authenticated") return <></>;
-
-  if (edit) {
-    return <UpdateProfile profile={profile} onCancel={() => setEdit(false)} />;
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -34,9 +31,15 @@ const Settings: NextPageWithLayout = () => {
         </p>
       </div>
       <div className="flex flex-row gap-3">
-        <Button color="primary" onClick={() => setEdit(true)}>
-          Edit Profile
-        </Button>
+        <SimpleDialog
+          open={edit}
+          onOpenChange={setEdit}
+          title="Update Profile"
+          trigger={<Button color="primary">Edit Profile</Button>}
+        >
+          <UpdateProfile profile={profile} onCancel={() => setEdit(false)} />
+        </SimpleDialog>
+
         <Button color="danger" onClick={() => signOut()}>
           Logout
         </Button>
@@ -69,7 +72,7 @@ function UpdateProfile({
 }) {
   const [name, setName] = useState<string>(profile.name);
   const [avatar, setAvatar] = useState<string | undefined>();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
   const mutation = useUpdateProfileMutation();
 
   const onSave = () => {
@@ -80,12 +83,12 @@ function UpdateProfile({
           utils.account.get.setData(undefined, () => data);
           onCancel();
         },
-      },
+      }
     );
   };
 
   return (
-    <div className="flex flex-col gap-3 max-w-3xl">
+    <div className="flex flex-col gap-3">
       <ImagePicker
         previewClassName="max-w-[150px] max-h-[150px]"
         value={avatar ?? profile.image}

@@ -1,16 +1,16 @@
 import { usePageStore } from "@/utils/stores/page";
 import { useProfile } from "@/utils/hooks/use-profile";
-import { ChevronRightIcon, XIcon, SettingsIcon, HomeIcon } from "lucide-react";
+import { ChevronRightIcon, XIcon, HomeIcon } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
 import { ReactNode } from "react";
+import { Spinner } from "ui/components/spinner";
 
 export default function Sidebar() {
   const [isOpen, setOpen] = usePageStore((v) => [
@@ -29,10 +29,10 @@ export default function Sidebar() {
       )}
       <aside
         className={clsx(
-          "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-gradient-to-b from-card to-background border-r-2 overflow-x-hidden overflow-y-auto md:h-screen",
+          "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-card border-r overflow-x-hidden overflow-y-auto md:h-screen",
           "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
           "max-md:transition-transform max-md:duration-300",
-          !isOpen && "max-md:-translate-x-full",
+          !isOpen && "max-md:-translate-x-full"
         )}
       >
         <button
@@ -44,68 +44,75 @@ export default function Sidebar() {
         <Link href="/info" prefetch={false} className="font-bold mb-2">
           Shark Chat
         </Link>
-        <Items />
+        <LinkItem
+          name="Home"
+          route="/home"
+          icon={<HomeIcon className="w-4 h-4" />}
+        />
+        <Nav />
         <BottomCard />
       </aside>
     </>
   );
 }
 
-function Items() {
+function Nav() {
   const router = useRouter();
   const query = trpc.group.all.useQuery(undefined, { enabled: false });
   const dm = trpc.dm.channels.useQuery(undefined, { enabled: false });
 
+  if (!query.data || !dm.data)
+    return (
+      <div className="flex items-center justify-center p-2 h-20 bg-accent rounded-xl mt-4">
+        <Spinner />
+      </div>
+    );
+
   return (
-    <>
-      <LinkItem
-        name="Home"
-        route="/home"
-        icon={<HomeIcon className="w-4 h-4" />}
-      />
-      <LinkItem
-        name="Settings"
-        route="/settings"
-        icon={<SettingsIcon className="w-4 h-4" />}
-      />
-      <Tabs defaultValue="group" className="mt-2">
-        <TabsList>
-          <TabsTrigger value="group">Group</TabsTrigger>
-          <TabsTrigger value="friend">User</TabsTrigger>
-        </TabsList>
-        <TabsContent value="group" className="flex flex-col gap-1">
-          {query.data?.map((group) => (
-            <SidebarItem
-              key={group.id}
-              href={`/chat/${group.id}`}
-              description={group.last_message?.content}
-              active={router.query.group === group.id.toString()}
-              image={groupIcon.url([group.id], group.icon_hash)}
-              notifications={group.unread_messages}
-            >
-              {group.name}
-            </SidebarItem>
-          ))}
-        </TabsContent>
-        <TabsContent value="friend">
-          {dm.data?.map((item) => (
-            <DirectMessageContextMenu key={item.id} channelId={item.id}>
-              <div>
-                <SidebarItem
-                  href={`/dm/${item.id}`}
-                  description={item.last_message?.content}
-                  active={router.query.channel === item.id}
-                  image={item.user.image}
-                  notifications={item.unread_messages}
-                >
-                  {item.user.name}
-                </SidebarItem>
-              </div>
-            </DirectMessageContextMenu>
-          ))}
-        </TabsContent>
-      </Tabs>
-    </>
+    <div className="mt-4">
+      <p className="text-sm mb-2 font-medium px-1">Groups</p>
+      {query.data.length === 0 ? (
+        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground">
+          no messages
+        </div>
+      ) : (
+        query.data.map((group) => (
+          <SidebarItem
+            key={group.id}
+            href={`/chat/${group.id}`}
+            description={group.last_message?.content}
+            active={router.query.group === group.id.toString()}
+            image={groupIcon.url([group.id], group.icon_hash)}
+            notifications={group.unread_messages}
+          >
+            {group.name}
+          </SidebarItem>
+        ))
+      )}
+
+      <p className="text-sm mt-4 mb-2 font-medium px-1">Users</p>
+      {dm.data.length === 0 ? (
+        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground">
+          no direct messages
+        </div>
+      ) : (
+        dm.data.map((item) => (
+          <DirectMessageContextMenu key={item.id} channelId={item.id}>
+            <div className="select-none">
+              <SidebarItem
+                href={`/dm/${item.id}`}
+                description={item.last_message?.content}
+                active={router.query.channel === item.id}
+                image={item.user.image}
+                notifications={item.unread_messages}
+              >
+                {item.user.name}
+              </SidebarItem>
+            </div>
+          </DirectMessageContextMenu>
+        ))
+      )}
+    </div>
   );
 }
 
@@ -124,24 +131,17 @@ function LinkItem({
     <Link
       href={route}
       className={cn(
-        "flex flex-row gap-3 items-center p-1 rounded-lg",
-        active ? "bg-accent" : "hover:bg-accent/50 transition-colors",
+        "flex flex-row gap-2 items-center p-1 rounded-lg",
+        active ? "bg-accent" : "hover:bg-accent/50 transition-colors"
       )}
     >
-      <div
-        className={cn(
-          "rounded-lg p-2 border border-foreground/50 shadow-lg",
-          active &&
-            "border-transparent bg-gradient-to-br from-brand-400 to-brand-500 text-accent-50",
-          !active && "text-secondary-foreground",
-        )}
-      >
+      <div className="p-2 border border-border dark:border-dark-700 bg-accent text-brand rounded-lg">
         {icon}
       </div>
       <p
         className={cn(
-          "text-sm text-foreground",
-          active ? "font-medium" : "text-muted-foreground",
+          "text-sm text-foreground font-medium",
+          !active && "text-muted-foreground"
         )}
       >
         {name}
@@ -173,7 +173,7 @@ function SidebarItem({
         "flex flex-row items-center gap-2 p-1 rounded-lg text-sm transition-colors",
         active
           ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/50",
+          : "text-muted-foreground hover:bg-accent/50"
       )}
     >
       <Avatar src={image} fallback={name} size="2sm" rounded="sm" />
@@ -199,12 +199,12 @@ function BottomCard() {
   if (status !== "authenticated") return <></>;
 
   return (
-    <div className="sticky bottom-0 bg-background mt-auto -mx-2 py-2">
+    <div className="sticky bottom-0 bg-card mt-auto -mx-2 py-2">
       <Link
         href="/settings"
         className={clsx(
           "p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors",
-          "hover:bg-accent",
+          "hover:bg-accent"
         )}
       >
         <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">

@@ -1,7 +1,7 @@
 import { ImagePicker } from "@/components/input/ImagePicker";
 import { input } from "ui/components/input";
 import { Avatar } from "ui/components/avatar";
-import { Button } from "ui/components/button";
+import { Button, button } from "ui/components/button";
 import { groupIcon } from "shared/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/hooks/mutations/update-group-info";
 import { Group } from "db/schema";
@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { updateGroupSchema } from "shared/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
+import { SimpleDialog } from "ui/components/dialog";
 
 export default function Info({
   group,
@@ -22,12 +23,9 @@ export default function Info({
 }) {
   const [edit, setEdit] = useState(false);
 
-  if (edit)
-    return <EditGroupPanel group={group} onCancel={() => setEdit(false)} />;
-
   return (
     <div className="flex flex-col">
-      <div className="h-auto aspect-[3/1] xl:rounded-lg bg-brand-500 dark:bg-brand-400 -mx-4" />
+      <div className="h-auto aspect-[3/1] xl:rounded-lg bg-gradient-to-b from-brand to-brand-300 -mx-4" />
       <div className="flex flex-col gap-3 -mt-[4rem]">
         <div className="w-full flex flex-row justify-between items-end">
           <Avatar
@@ -38,9 +36,14 @@ export default function Info({
           />
           {isAdmin && (
             <div className="flex flex-row gap-3">
-              <Button color="primary" onClick={() => setEdit(true)}>
-                Edit Info
-              </Button>
+              <SimpleDialog
+                open={edit}
+                onOpenChange={setEdit}
+                title="Edit Group"
+                trigger={<button className={button()}>Edit Info</button>}
+              >
+                <EditGroupPanel group={group} onCancel={() => setEdit(false)} />
+              </SimpleDialog>
             </div>
           )}
         </div>
@@ -72,7 +75,7 @@ function EditGroupPanel({
   onCancel: () => void;
 }) {
   const mutation = useUpdateGroupInfoMutation();
-  const { register, handleSubmit, control } = useForm<z.infer<typeof schema>>({
+  const { register, handleSubmit, control } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       unique_name: group.unique_name,
@@ -86,7 +89,7 @@ function EditGroupPanel({
       { groupId: group.id, ...values },
       {
         onSuccess: onCancel,
-      },
+      }
     );
   });
 
@@ -100,7 +103,7 @@ function EditGroupPanel({
             input={{ id: "icon", ...field }}
             value={value ?? groupIcon.url([group.id], group.icon_hash)}
             onChange={onChange}
-            previewClassName="w-[150px] h-[150px] max-w-full"
+            previewClassName="size-[150px] max-w-full"
           />
         )}
       />

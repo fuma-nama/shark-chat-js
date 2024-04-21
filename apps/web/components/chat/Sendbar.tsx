@@ -24,7 +24,7 @@ const schema = z
     {
       path: ["content"],
       message: "Message is empty",
-    },
+    }
   );
 
 export type SendData = z.infer<typeof schema>;
@@ -59,7 +59,7 @@ export function Sendbar({
       <div
         className={clsx(
           "flex flex-col gap-3 shadow-xl shadow-brand-500/10 p-2 rounded-3xl bg-secondary dark:shadow-none",
-          "max-sm:rounded-none max-sm:gap-1 max-sm:pb-7 max-sm:px-3.5",
+          "max-sm:rounded-none max-sm:bg-transparent max-sm:gap-1 max-sm:pb-7 max-sm:px-3.5"
         )}
       >
         {openModal !== undefined && (
@@ -137,7 +137,7 @@ function RollbackButton() {
     <button
       className={clsx(
         "absolute top-0 right-4 -mt-12 bg-secondary text-secondary-foreground p-2 rounded-full transition-all",
-        !canRollback && "opacity-0 translate-y-20",
+        !canRollback && "opacity-0 translate-y-20"
       )}
       onClick={onClick}
     >
@@ -166,7 +166,7 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
         }}
       />
       {value != null && (
-        <div className="rounded-xl bg-light-100 dark:bg-dark-700 p-3 flex flex-row justify-between items-center">
+        <div className="rounded-xl bg-background p-3 flex flex-row justify-between items-center">
           <p className="font-medium text-sm text-foreground">{value.name}</p>
           <IconButton
             size="small"

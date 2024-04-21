@@ -33,7 +33,7 @@ function Welcome() {
       <BookmarkIcon
         className={clsx(
           "w-10 h-10 md:w-20 md:h-20 bg-brand-500 p-2 rounded-xl text-accent-400",
-          "dark:bg-brand-400 dark:text-accent-50",
+          "dark:bg-brand-400 dark:text-accent-50"
         )}
       />
       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
@@ -66,6 +66,7 @@ GroupChat.useLayout = (children) => {
             query: router.query,
           }}
           className={button({
+            size: "icon",
             color: "ghost",
           })}
         >

@@ -6,8 +6,7 @@ import { Spinner } from "./spinner";
 
 export const button = tv({
   base: [
-    "inline-flex select-none items-center justify-center text-start",
-    "focus:outline-none focus-visible:ring",
+    "inline-flex select-none items-center justify-center text-start font-medium focus:outline-none focus-visible:ring",
     "disabled:opacity-50 disabled:cursor-not-allowed",
   ],
   variants: {
@@ -32,9 +31,10 @@ export const button = tv({
       ],
     },
     size: {
-      large: "px-6 py-3 text-base font-semibold",
-      medium: "px-4 py-2 text-sm font-semibold",
-      small: "px-3 py-1.5 text-sm font-semibold",
+      icon: "p-1.5",
+      large: "px-6 py-3 text-base",
+      medium: "px-4 py-2 text-sm",
+      small: "px-3 py-1.5 text-sm",
     },
   },
   defaultVariants: {
@@ -64,7 +64,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       )}
       {children}
     </button>
-  ),
+  )
 );
 
 Button.displayName = "Button";
@@ -90,7 +90,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         children
       )}
     </button>
-  ),
+  )
 );
 
 IconButton.displayName = "IconButton";
