@@ -1,9 +1,12 @@
 export function getTimeString(date: Date) {
   const now = new Date(Date.now());
-  const today =
+  const isToday =
     now.getDate() === date.getDate() &&
     now.getMonth() === date.getMonth() &&
     now.getFullYear() === date.getFullYear();
+  const day = isToday
+    ? "Today"
+    : `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 
-  return `${today ? "Today" : `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`} ${date.getHours()}:${date.getMinutes()}`;
+  return `${day} ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
 }
