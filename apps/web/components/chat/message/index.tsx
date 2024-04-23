@@ -70,7 +70,7 @@ function Menu({
     {
       enabled: status === "authenticated" && typeof group === "string",
       staleTime: Infinity,
-    },
+    }
   );
 
   const deleteMutation = trpc.chat.delete.useMutation();
@@ -96,7 +96,8 @@ function Menu({
   return (
     <ContextMenu.Content
       onCloseAutoFocus={(e) => {
-        inputRef.current?.focus();
+        if (editing) inputRef.current?.focus();
+        else document.getElementById("text")?.focus();
         e.preventDefault();
       }}
     >

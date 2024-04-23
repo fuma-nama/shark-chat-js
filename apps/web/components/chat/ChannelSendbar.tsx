@@ -14,7 +14,7 @@ type SendMutationInput = Omit<RouterInput["chat"]["send"], "attachment"> & {
 };
 
 export function ChannelSendbar({ channelId }: { channelId: string }) {
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
   const [info, update, add, addError] = useMessageStore((s) => [
     s.sendbar[channelId],
     s.updateSendbar,
@@ -22,7 +22,7 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
     s.errorSending,
   ]);
 
-  const typeMutation = trpc.useContext().client.chat.type;
+  const typeMutation = utils.client.chat.type;
   const sendMutation = useMutation(
     async ({ attachment, ...data }: SendMutationInput) => {
       await utils.client.chat.send.mutate({
@@ -42,10 +42,10 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
           nonce,
           error instanceof TRPCClientError
             ? error.message
-            : "Something went wrong",
+            : "Something went wrong"
         );
       },
-    },
+    }
   );
 
   const onSend = (data: SendData) => {
@@ -75,7 +75,7 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
             aria-label="delete"
             onClick={() => update(channelId, { reply_to: undefined })}
           >
-            <XIcon className="w-4" />
+            <XIcon className="size-4" />
           </button>
         </div>
       )}
@@ -96,7 +96,7 @@ function TypingUsers({ channelId }: { channelId: string }) {
       if (message.data.user.id === session?.user.id) return;
 
       add(message.data.user);
-    },
+    }
   );
 
   return <TypingIndicator typing={typing} />;

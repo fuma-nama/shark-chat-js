@@ -1,7 +1,6 @@
 import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
-import { skeleton } from "ui/components/skeleton";
 
 import type { NextPageWithLayout } from "../../_app";
 import { useDirectMessageLayout } from "@/components/layout/dm";
