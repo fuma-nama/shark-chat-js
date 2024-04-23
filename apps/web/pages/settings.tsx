@@ -14,6 +14,7 @@ import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { input } from "ui/components/input";
 import { Navbar } from "@/components/layout/Navbar";
 import { SimpleDialog } from "ui/components/dialog";
+import { AlertDialog } from "ui/components/alert-dialog";
 
 const Settings: NextPageWithLayout = () => {
   const { status, profile } = useProfile();
@@ -59,9 +60,47 @@ const Settings: NextPageWithLayout = () => {
         </div>
         <ThemeSwitch id="theme" />
       </fieldset>
+      <DangerZone />
     </div>
   );
 };
+
+function DangerZone() {
+  const mutation = trpc.account.delete.useMutation({
+    onSuccess() {
+      return signOut();
+    },
+  });
+
+  return (
+    <fieldset className="flex flex-col items-start gap-3">
+      <div>
+        <label
+          htmlFor="delete_bn"
+          className="font-medium text-base text-foreground"
+        >
+          Delete Account
+        </label>
+        <p className="text-sm text-muted-foreground">
+          Clear all associated data and profile info.
+        </p>
+      </div>
+      <AlertDialog
+        title="Do you sure to delete account?"
+        description="This action cannot be reversed."
+        action={
+          <Button color="danger" onClick={() => mutation.mutate()}>
+            Delete
+          </Button>
+        }
+      >
+        <Button id="delete_bn" isLoading={mutation.isLoading} color="danger">
+          Delete
+        </Button>
+      </AlertDialog>
+    </fieldset>
+  );
+}
 
 function UpdateProfile({
   profile,

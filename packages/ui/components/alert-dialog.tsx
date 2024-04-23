@@ -24,13 +24,11 @@ export function AlertDialog({
         <Base.Overlay className="fixed inset-0 z-20 bg-black/50 backdrop-blur-md radix-state-open:animate-in radix-state-open:fade-in radix-state-closed:animate-out radix-state-closed:fade-out" />
         <Base.Content
           className={twMerge(
-            "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-md rounded-lg p-4 bg-popover md:w-full m-auto z-50 animate-dialog-in radix-state-closed:animate-dialog-out focus:outline-none",
+            "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-md rounded-lg p-4 bg-popover md:w-full m-auto z-50 animate-dialog-in radix-state-closed:animate-dialog-out focus:outline-none"
           )}
         >
-          <Base.Title className="text-lg font-bold text-accent-900 dark:text-accent-50">
-            {title}
-          </Base.Title>
-          <Base.Description className="mt-2 text-sm font-normal text-accent-800 dark:text-accent-600">
+          <Base.Title className="text-lg font-medium">{title}</Base.Title>
+          <Base.Description className="mt-2 text-sm text-muted-foreground">
             {description}
           </Base.Description>
           <div className="flex flex-row gap-3 justify-end mt-6">

@@ -46,8 +46,8 @@ export const authAdapter: Adapter = {
       .where(
         and(
           eq(accounts.provider, options.provider),
-          eq(accounts.providerAccountId, options.providerAccountId),
-        ),
+          eq(accounts.providerAccountId, options.providerAccountId)
+        )
       )
       .innerJoin(users, eq(users.id, accounts.userId));
     if (rows.length === 0) return null;
@@ -98,8 +98,8 @@ export const authAdapter: Adapter = {
       .where(
         and(
           eq(accounts.provider, provider),
-          eq(accounts.providerAccountId, providerAccountId),
-        ),
+          eq(accounts.providerAccountId, providerAccountId)
+        )
       );
   },
   async getSessionAndUser(sessionToken) {
@@ -124,18 +124,14 @@ export const authAdapter: Adapter = {
     return { id, ...data };
   },
   async updateSession({ sessionToken, ...data }) {
-    await db
+    return await db
       .update(sessions)
       .set({
         ...data,
       })
-      .where(eq(sessions.sessionToken, sessionToken));
-
-    return await db
-      .select()
-      .from(sessions)
       .where(eq(sessions.sessionToken, sessionToken))
-      .then((res) => requireOne(res));
+      .returning()
+      .then((res) => res[0]);
   },
   async deleteSession(sessionToken) {
     await db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
@@ -146,7 +142,7 @@ export const authAdapter: Adapter = {
         verificationToken.identifier +
         ":" +
         verificationToken.token,
-      verificationToken,
+      verificationToken
     );
 
     return verificationToken;

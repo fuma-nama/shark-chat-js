@@ -21,6 +21,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build/)).
 - Show notification when new Message received
 - AI-Powered Message Writer
 - Built-in AI Chatbot (Powered by Inworld)
+- Delete Accounts
 - Light & Dark Mode
 - 100% Typescript
 

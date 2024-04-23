@@ -5,7 +5,7 @@ import { authOptions } from "server/auth";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   const session = await getServerSession(req, res, authOptions);
   const clientId = session?.user.id;
@@ -13,8 +13,6 @@ export default async function handler(
   if (clientId == null) {
     return res.status(401).json("You must be login before connecting to Ably");
   }
-
-  console.log(`Ably auth called ${clientId}`);
 
   const tokenRequestData = await ably.auth.createTokenRequest({
     clientId: clientId,

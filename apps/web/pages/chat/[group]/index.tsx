@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import { NextPageWithLayout } from "../../_app";
 import { BookmarkIcon, SettingsIcon } from "lucide-react";
-import clsx from "clsx";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
 import { trpc } from "@/utils/trpc";

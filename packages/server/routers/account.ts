@@ -5,6 +5,7 @@ import db from "db/client";
 import { users } from "db/schema";
 import { eq } from "drizzle-orm";
 import { pick } from "shared/common";
+import { authAdapter } from "../auth/nextauth-adapter";
 
 export const accountRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -47,7 +48,7 @@ export const accountRouter = router({
       z.object({
         name: z.string().optional(),
         avatar_url: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id;
@@ -66,4 +67,7 @@ export const accountRouter = router({
         .where(eq(users.id, userId))
         .then((res) => res?.[0]);
     }),
+  delete: protectedProcedure.mutation(async ({ ctx }) => {
+    await authAdapter.deleteUser!(ctx.session.user.id);
+  }),
 });
