@@ -126,8 +126,8 @@ const Home: NextPageWithLayout = () => {
 
 const card = tv({
   base: [
-    "relative rounded-xl bg-card p-4 flex flex-row gap-3 transition duration-100 hover:bg-accent/50",
-    "shadow-2xl shadow-brand-500/10 dark:shadow-none",
+    "relative rounded-xl bg-card p-4 flex flex-row gap-3 transition duration-100 hover:bg-accent",
+    "shadow-lg shadow-brand-500/10 dark:shadow-none",
   ],
 });
 
@@ -139,10 +139,8 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
         fallback={group.name}
       />
       <div className="w-0 flex-1">
-        <p className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
-          {group.name}
-        </p>
-        <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
+        <p className="font-medium text-sm truncate">{group.name}</p>
+        <p className="text-sm text-muted-foreground truncate">
           {group.last_message?.content}
         </p>
       </div>
@@ -164,8 +162,8 @@ function ChatItem({ chat }: { chat: DMChannel }) {
       <Link href={`/dm/${chat.id}`} className={card()}>
         <Avatar src={user.image} fallback={user.name} />
         <div className="flex-1 w-0">
-          <p className="text-base font-medium text-foreground">{user.name}</p>
-          <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis whitespace-nowrap">
+          <p className="text-sm font-medium truncate">{user.name}</p>
+          <p className="text-sm text-muted-foreground truncate">
             {chat.last_message?.content}
           </p>
         </div>
