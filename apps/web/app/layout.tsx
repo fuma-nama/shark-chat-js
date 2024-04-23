@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  metadataBase: new URL(
+    process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000"
+  ),
 };
 
 const inter = Inter({
