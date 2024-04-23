@@ -29,13 +29,13 @@ const GroupChat: NextPageWithLayout = () => {
 
 function Welcome() {
   return (
-    <div className="flex flex-col gap-3 mb-10">
-      <BookmarkIcon className="w-10 h-10 md:w-20 md:h-20 bg-brand p-2 rounded-xl text-accent-400 dark:text-accent-50" />
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-        The beginning of this Story
+    <div className="flex flex-col mb-8 bg-gradient-to-b from-brand-500/10 -mx-4 p-4">
+      <BookmarkIcon className="size-10 bg-brand p-2 mb-2 md:size-14 md:p-3 rounded-full text-accent-50" />
+      <h1 className="text-lg md:text-xl font-bold">
+        The beginning of this story
       </h1>
-      <p className="text-accent-800 dark:text-accent-600 text-lg">
-        Let&apos;s send your first message here
+      <p className="text-accent-800 dark:text-accent-600 text-sm">
+        Let&apos;s send your messages here!
       </p>
     </div>
   );

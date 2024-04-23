@@ -17,31 +17,24 @@ function Welcome() {
   const { channel } = useRouter().query as { channel: string };
   const query = trpc.dm.info.useQuery(
     { channelId: channel },
-    { enabled: false },
+    { enabled: false }
   );
 
   const data = query.data;
+
+  if (!data?.user) return <div></div>;
+
   return (
-    <div className="flex flex-col gap-3 mb-10">
+    <div className="flex flex-col mb-8">
       <Avatar
         src={data?.user?.image}
         fallback={data?.user?.name}
         size="large"
+        className="mb-4"
       />
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-        {data?.user?.name ?? (
-          <span className={skeleton({ className: "w-40 h-[40px]" })} />
-        )}
-      </h1>
-      <p className="text-accent-800 dark:text-accent-600 text-lg">
-        Start your conversations with{" "}
-        {data?.user?.name ?? (
-          <span
-            className={skeleton({
-              className: "align-middle",
-            })}
-          />
-        )}
+      <h1 className="text-lg lg:text-xl font-bold">{data.user.name}</h1>
+      <p className="text-muted-foreground text-sm">
+        Start your conversations with {data.user.name}
       </p>
     </div>
   );
