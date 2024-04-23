@@ -30,12 +30,7 @@ const GroupChat: NextPageWithLayout = () => {
 function Welcome() {
   return (
     <div className="flex flex-col gap-3 mb-10">
-      <BookmarkIcon
-        className={clsx(
-          "w-10 h-10 md:w-20 md:h-20 bg-brand-500 p-2 rounded-xl text-accent-400",
-          "dark:bg-brand-400 dark:text-accent-50"
-        )}
-      />
+      <BookmarkIcon className="w-10 h-10 md:w-20 md:h-20 bg-brand p-2 rounded-xl text-accent-400 dark:text-accent-50" />
       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
         The beginning of this Story
       </h1>

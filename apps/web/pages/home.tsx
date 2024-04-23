@@ -3,7 +3,6 @@ import { Button } from "ui/components/button";
 import { AppLayout, Content } from "@/components/layout/app";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "shared/media/format";
-import clsx from "clsx";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";

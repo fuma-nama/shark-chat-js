@@ -7,10 +7,10 @@ import {
   ImageIcon,
   MailIcon,
 } from "lucide-react";
-import clsx from "clsx";
 import PreviewImage from "@/public/preview-1.png";
 import PreviewLightImage from "@/public/preview-light.png";
 import Link from "next/link";
+import { cn } from "ui/utils/cn";
 
 export default function InfoPage() {
   return (
@@ -73,7 +73,7 @@ function MessageBubble({ className }: { className?: string }) {
       width="162.19084mm"
       height="91.04966mm"
       viewBox="0 0 182.19084 111.04966"
-      className={clsx(className, "drop-shadow-2xl")}
+      className={cn(className, "drop-shadow-2xl")}
     >
       <g id="layer1" transform="translate(-3.7594938,-48.584229)">
         <path
@@ -96,9 +96,9 @@ function Hero() {
         alt="grid"
         src={GridImage}
         priority
-        className={clsx(
+        className={cn(
           "absolute -z-[1] right-0 bottom-[50px] max-h-[700px] w-full max-lg:opacity-50 lg:w-[65%] lg:-top-[100px]",
-          "[mask-image:radial-gradient(circle_at_center,_white,_transparent_80%)]",
+          "[mask-image:radial-gradient(circle_at_center,_white,_transparent_80%)]"
         )}
       />
       <MessageBubble className="absolute -z-[1] right-0 top-0 max-lg:hidden max-xl:max-w-[400px] xl:top-[150px]" />
@@ -161,9 +161,9 @@ function Features() {
             alt="preview"
             src={PreviewLightImage}
             priority
-            className={clsx(
+            className={cn(
               "mx-auto w-[80%] min-w-[800px] max-w-full rounded-xl shadow-2xl",
-              "[mask-image:linear-gradient(to_bottom,_white_50%,_transparent_100%)]",
+              "[mask-image:linear-gradient(to_bottom,_white_50%,_transparent_100%)]"
             )}
           />
         </div>
@@ -172,9 +172,9 @@ function Features() {
             alt="preview"
             src={PreviewImage}
             priority
-            className={clsx(
+            className={cn(
               "mx-auto w-[80%] min-w-[800px] max-w-full rounded-xl shadow-2xl",
-              "[mask-image:linear-gradient(to_bottom,_white_50%,_transparent_100%)]",
+              "[mask-image:linear-gradient(to_bottom,_white_50%,_transparent_100%)]"
             )}
           />
         </div>
@@ -188,12 +188,7 @@ function Features() {
           </h2>
         </div>
       </div>
-      <div
-        className={clsx(
-          "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full xl:w-[80%] gap-4",
-          "relative mx-auto -mt-12 xl:-mt-24 z-[2]",
-        )}
-      >
+      <div className="relative w-full mx-auto -mt-12 xl:-mt-24 z-[2] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:w-[80%] gap-4">
         {[
           {
             name: "Customize Profile & Chat Group",
