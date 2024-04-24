@@ -1,6 +1,6 @@
 import { FilePlusIcon, SendIcon, TextIcon, TrashIcon } from "lucide-react";
 import { textArea } from "ui/components/textarea";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { HTMLAttributes, ReactNode, useEffect, useRef, useState } from "react";
 import { IconButton, button } from "ui/components/button";
 import clsx from "clsx";
 import React from "react";
@@ -32,10 +32,12 @@ export type SendData = z.infer<typeof schema>;
 export function Sendbar({
   onSend: send,
   onType,
+  onEscape,
   children,
 }: {
   onSend: (data: SendData) => void;
   onType: () => void;
+  onEscape: () => void;
   children?: ReactNode;
 }) {
   const [openModal, setOpenModal] = useState<boolean | undefined>(undefined);
@@ -95,7 +97,21 @@ export function Sendbar({
           >
             <TextIcon />
           </IconButton>
-          <TextArea control={control} onSend={onSend} onType={onType} />
+          <TextArea
+            control={control}
+            onType={onType}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                onSend();
+                e.preventDefault();
+              }
+
+              if (e.key === "Escape") {
+                onEscape();
+                e.preventDefault();
+              }
+            }}
+          />
           <IconButton
             disabled={!formState.isValid}
             color="primary"
@@ -183,13 +199,12 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
 
 function TextArea({
   control,
-  onSend,
   onType,
+  ...props
 }: {
   control: Control<SendData>;
-  onSend: () => void;
   onType: () => void;
-}) {
+} & HTMLAttributes<HTMLTextAreaElement>) {
   const { field } = useController({ control, name: "content" });
   const lastType = useRef<Date>();
 
@@ -213,12 +228,7 @@ function TextArea({
       })}
       placeholder="Type message"
       autoComplete="off"
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          onSend();
-          e.preventDefault();
-        }
-      }}
+      {...props}
     />
   );
 }

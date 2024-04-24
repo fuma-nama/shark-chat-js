@@ -8,6 +8,7 @@ import { SendData, Sendbar } from "./Sendbar";
 import { channels } from "@/utils/ably/client";
 import { useSession } from "next-auth/react";
 import { useTypingStatus, TypingIndicator } from "./TypingIndicator";
+import { useCallback } from "react";
 
 type SendMutationInput = Omit<RouterInput["chat"]["send"], "attachment"> & {
   attachment: SendData["attachment"];
@@ -48,6 +49,12 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
     }
   );
 
+  const onEscape = useCallback(() => {
+    update(channelId, {
+      reply_to: undefined,
+    });
+  }, [channelId, update]);
+
   const onSend = (data: SendData) => {
     sendMutation.mutate({
       ...data,
@@ -56,15 +63,14 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
       nonce: add(channelId, data).nonce,
     });
 
-    update(channelId, {
-      reply_to: undefined,
-    });
+    onEscape();
   };
 
   return (
     <Sendbar
       onSend={onSend}
       onType={() => typeMutation.mutate({ channelId: channelId })}
+      onEscape={onEscape}
     >
       {info?.reply_to != null && (
         <div className="flex flex-row pt-2 px-2 text-sm text-muted-foreground">
