@@ -1,10 +1,10 @@
 # Shark Chat
 
-A Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Drizzle ORM, Next 13.
+A Chat app built with Trpc, Tailwind CSS, Ably, Redis, Cloudinary, Drizzle ORM, Next.js.
 
-This repository is a monorepo ([Turborepo](https://turbo.build/)).
+This repository is a monorepo ([Turborepo](https://turbo.build)).
 
-![preview](./document/screen_shot.png)
+![preview](./document/image.png)
 
 ## Features
 
