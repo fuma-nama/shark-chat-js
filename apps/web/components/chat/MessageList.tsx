@@ -117,11 +117,7 @@ export function MessageList({
         })}
 
       {sending?.map((message) => (
-        <LocalMessageItem
-          key={message.nonce}
-          item={message}
-          onDelete={() => remove(channelId, message.nonce)}
-        />
+        <LocalMessageItem key={message.nonce} item={message} />
       ))}
     </div>
   );

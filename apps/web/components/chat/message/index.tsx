@@ -8,14 +8,15 @@ import * as ContextMenu from "ui/components/context-menu";
 import { AttachmentItem } from "../AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useRouter } from "next/router";
-import { CopyIcon, PencilIcon, ReplyIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, EditIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
 import { Reference } from "./reference";
 import { Embed } from "./embed";
+import { DropdownMenuContent, DropdownMenuItem } from "ui/components/dropdown";
 
 export function ChatMessageItem({ message }: { message: MessageType }) {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const embedOnly =
     message.embeds != null &&
     message.embeds.length === 1 &&
@@ -93,44 +94,75 @@ function Menu({
     });
   };
 
+  const onClose = (e: Event) => {
+    if (editing && inputRef.current) {
+      const edit = inputRef.current;
+      edit.focus();
+      edit.selectionStart = edit.selectionEnd = edit.value.length;
+    } else {
+      document.getElementById("text")?.focus();
+    }
+
+    e.preventDefault();
+  };
+
+  interface Item {
+    id: string;
+    icon: React.ReactNode;
+    onSelect: () => void;
+    color?: "danger";
+    text: string;
+  }
+  const items: Item[] = [
+    {
+      id: "reply",
+      icon: <ReplyIcon className="size-4" />,
+      onSelect: () => updateSendbar(message.channel_id, { reply_to: message }),
+      text: "Reply",
+    },
+    {
+      id: "copy",
+      icon: <CopyIcon className="size-4" />,
+      onSelect: () => navigator.clipboard.writeText(message.content),
+      text: "Copy",
+    },
+  ];
+
+  if (isAuthor) {
+    items.push({
+      id: "edit",
+      icon: <EditIcon className="size-4" />,
+      onSelect: () => setEditing(!editing),
+      text: editing ? "Close Edit" : "Edit",
+    });
+  }
+  if ((isGroup && isAdmin) || isAuthor) {
+    items.push({
+      id: "delete",
+      color: "danger",
+      icon: <TrashIcon className="size-4" />,
+      onSelect: onDelete,
+      text: "Delete",
+    });
+  }
+
   return (
-    <ContextMenu.Content
-      onCloseAutoFocus={(e) => {
-        if (editing) inputRef.current?.focus();
-        else document.getElementById("text")?.focus();
-        e.preventDefault();
-      }}
-    >
-      <ContextMenu.Item
-        icon={<ReplyIcon className="w-4 h-4" />}
-        onClick={() => updateSendbar(message.channel_id, { reply_to: message })}
-      >
-        Reply
-      </ContextMenu.Item>
-      <ContextMenu.Item
-        icon={<CopyIcon className="w-4 h-4" />}
-        onClick={() => navigator.clipboard.writeText(message.content)}
-      >
-        Copy
-      </ContextMenu.Item>
-      {isAuthor && (
-        <ContextMenu.CheckboxItem
-          icon={<PencilIcon className="w-4 h-4" />}
-          value={editing}
-          onChange={() => setEditing(!editing)}
-        >
-          {editing ? "Close Edit" : "Edit"}
-        </ContextMenu.CheckboxItem>
-      )}
-      {((isGroup && isAdmin) || isAuthor) && (
-        <ContextMenu.Item
-          icon={<TrashIcon className="w-4 h-4" />}
-          color="danger"
-          onClick={onDelete}
-        >
-          Delete
-        </ContextMenu.Item>
-      )}
-    </ContextMenu.Content>
+    <>
+      <DropdownMenuContent onCloseAutoFocus={onClose}>
+        {items.map(({ id, ...item }) => (
+          <DropdownMenuItem key={id} {...item}>
+            {item.icon}
+            {item.text}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+      <ContextMenu.Content onCloseAutoFocus={onClose}>
+        {items.map(({ id, ...item }) => (
+          <ContextMenu.Item key={id} {...item}>
+            {item.text}
+          </ContextMenu.Item>
+        ))}
+      </ContextMenu.Content>
+    </>
   );
 }

@@ -7,6 +7,9 @@ import { MessageType } from "@/utils/types";
 import { cn } from "ui/utils/cn";
 import { usePageStore } from "@/utils/stores/page";
 import Markdown from "marked-react";
+import { DropdownMenu, DropdownMenuTrigger } from "ui/components/dropdown";
+import { MoreHorizontalIcon } from "lucide-react";
+import { button } from "ui/components/button";
 
 type ContentProps = {
   user: MessageType["author"];
@@ -23,16 +26,17 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
   };
 
   const date = new Date(timestamp);
-  const setModal = usePageStore((s) => s.setModal);
 
   const onOpenProfile = () => {
-    setModal({ type: "user-profile", user_id: author.id });
+    usePageStore
+      .getState()
+      .setModal({ type: "user-profile", user_id: author.id });
   };
 
   return (
     <ContextMenu.Trigger
       className={cn(
-        "p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
+        "group p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
         props.className,
       )}
     >
@@ -48,9 +52,21 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
             {author.name}
           </p>
 
-          <p className="text-xs text-muted-foreground ml-auto sm:ml-2">
+          <p className="text-xs text-muted-foreground ml-2 mr-auto">
             {getTimeString(date)}
           </p>
+
+          <DropdownMenuTrigger
+            aria-label="Open Menu"
+            className={button({
+              size: "icon",
+              color: "ghost",
+              className:
+                "opacity-0 group-hover:opacity-100 radix-state-open:opacity-100",
+            })}
+          >
+            <MoreHorizontalIcon className="size-4" />
+          </DropdownMenuTrigger>
         </div>
 
         {children}
@@ -64,7 +80,11 @@ type RootProps = {
 };
 
 export function Root({ children }: RootProps) {
-  return <ContextMenu.Root>{children}</ContextMenu.Root>;
+  return (
+    <ContextMenu.Root>
+      <DropdownMenu>{children}</DropdownMenu>
+    </ContextMenu.Root>
+  );
 }
 
 export function Text({ children }: { children: string }) {
