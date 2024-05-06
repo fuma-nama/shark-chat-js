@@ -5,7 +5,7 @@ import { authOptions } from "server/auth";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const session = await getServerSession(req, res, authOptions);
   const clientId = session?.user.id;

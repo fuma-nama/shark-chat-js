@@ -18,10 +18,10 @@ import { tv } from "tailwind-variants";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
-  () => import("@/components/modal/CreateGroupModal")
+  () => import("@/components/modal/CreateGroupModal"),
 );
 const JoinGroupModal = dynamic(
-  () => import("@/components/modal/JoinGroupModal")
+  () => import("@/components/modal/JoinGroupModal"),
 );
 
 type Modal = "create-group" | "join-group" | "boarding";

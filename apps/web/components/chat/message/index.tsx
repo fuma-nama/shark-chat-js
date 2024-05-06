@@ -70,7 +70,7 @@ function Menu({
     {
       enabled: status === "authenticated" && typeof group === "string",
       staleTime: Infinity,
-    }
+    },
   );
 
   const deleteMutation = trpc.chat.delete.useMutation();

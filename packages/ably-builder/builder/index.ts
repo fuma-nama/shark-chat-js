@@ -1,15 +1,15 @@
 import { Serialize } from "shared/types";
 import { z, ZodType } from "zod";
-import { Types } from "ably";
 import { ChannelAndClient } from "../hooks";
 import { DependencyList } from "react";
-import { AblyMessageCallback } from "@ably-labs/react-hooks";
+import { AblyMessageCallback } from "ably/react";
+import { Message, RealtimeChannel } from "ably";
 
 type ConnectParams = {
   enabled?: boolean;
 };
 
-type EventMessage<T> = Omit<Types.Message, "data"> & {
+type EventMessage<T> = Omit<Message, "data"> & {
   data: Serialize<T>;
 };
 
@@ -31,7 +31,7 @@ export type EventBuilderRecord = Record<string, EventBuilder<any>>;
 
 export type Event<Args, T, Realtime extends boolean> = Realtime extends true
   ? {
-      parse(raw: Types.Message): T;
+      parse(raw: Message): T;
       publish(args: Args, data: T): Promise<void>;
       useChannel(
         args: Args,
@@ -40,7 +40,7 @@ export type Event<Args, T, Realtime extends boolean> = Realtime extends true
       ): ChannelAndClient;
     }
   : {
-      parse(raw: Types.Message): T;
+      parse(raw: Message): T;
       publish(args: Args, data: T): Promise<void>;
     };
 
@@ -58,14 +58,13 @@ export type Channel<
 
       useCallback(
         callback: (msg: ChannelMessage<Events>) => void,
-        dependencies: DependencyList,
       ): AblyMessageCallback;
       channelName(args: Args): string;
-      get(args: Args): Types.RealtimeChannelPromise;
+      get(args: Args): RealtimeChannel;
     }
   : {
       channelName(args: Args): string;
-      get(args: Args): Types.ChannelPromise;
+      get(args: Args): RealtimeChannel;
     }) &
   Events;
 
@@ -75,7 +74,7 @@ export type ChannelBuilder<Args, Events extends EventBuilderRecord> = {
 };
 
 export type EventBuilder<T> = {
-  parse(raw: Types.Message): T;
+  parse(raw: Message): T;
 };
 
 export type Schema = Record<string, ChannelBuilder<any, EventBuilderRecord>>;

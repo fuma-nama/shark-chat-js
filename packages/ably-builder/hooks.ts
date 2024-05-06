@@ -1,21 +1,20 @@
-import {
-  AblyMessageCallback,
-  assertConfiguration,
-  ChannelNameAndOptions,
-} from "@ably-labs/react-hooks";
-import { useEffect } from "react";
-import type { Types } from "ably";
+import { AblyMessageCallback, useAbly } from "ably/react";
+import { useEffect, useRef } from "react";
+import type {
+  ChannelOptions,
+  MessageFilter,
+  Realtime,
+  RealtimeChannel,
+} from "ably";
 
-export type ChannelAndClient = [
-  channel: Types.RealtimeChannelPromise,
-  message: Types.RealtimePromise,
-];
+export type ChannelAndClient = [channel: RealtimeChannel, message: Realtime];
 
-export type UseChannelParam = ChannelNameAndOptions & {
+export type UseChannelParam = ChannelOptions & {
+  channelName: string;
   /**
    * Accepted events or message filter
    */
-  events?: string | string[] | Types.MessageFilter;
+  events?: string | string[] | MessageFilter;
   enabled?: boolean;
 };
 
@@ -23,46 +22,39 @@ export type UseChannelParam = ChannelNameAndOptions & {
  * Customized use channel hook
  */
 export function useChannel(
-  options: UseChannelParam,
+  { channelName, events, enabled = true, ...options }: UseChannelParam,
   listener: AblyMessageCallback,
 ): ChannelAndClient {
-  const ably = assertConfiguration();
-  const channel = ably.channels.get(options.channelName, options.options);
-  const enabled = options.enabled ?? true;
-
-  const onMount = async () => {
-    if (options.events != null) {
-      await channel.subscribe(options.events as any, listener);
-    } else {
-      await channel.subscribe(listener);
-    }
-  };
-
-  const onUnmount = async () => {
-    channel.unsubscribe(listener);
-  };
+  const ably = useAbly();
+  const channel = ably.channels.get(channelName, options);
+  const listenerRef = useRef(listener);
+  listenerRef.current = listener;
 
   useEffect(() => {
-    if (enabled) {
-      onMount();
+    if (!enabled) return;
 
-      return () => {
-        onUnmount();
-      };
+    const onEvent = listenerRef.current;
+    if (events != null) {
+      void channel.subscribe(events as any, onEvent);
+    } else {
+      void channel.subscribe(onEvent);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options.channelName, enabled]);
+
+    return () => {
+      channel.unsubscribe(onEvent);
+    };
+  }, [channel, enabled, events]);
 
   return [channel, ably];
 }
 
 export function useChannels(
-  channelList: Types.RealtimeChannelPromise[],
+  channelList: RealtimeChannel[],
   onEvent: AblyMessageCallback,
 ) {
   useEffect(() => {
     for (const channel of channelList) {
-      channel.subscribe(onEvent);
+      void channel.subscribe(onEvent);
     }
 
     return () => {

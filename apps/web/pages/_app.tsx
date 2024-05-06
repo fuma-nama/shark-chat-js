@@ -41,17 +41,18 @@ function App({
 }: AppPropsWithLayout) {
   return (
     <SessionProvider session={session}>
-      <AblyClientProvider />
-      <PrivateEventManager />
-      <GroupEventManager />
-      <MessageEventManager />
-      <ToastManager />
+      <AblyClientProvider>
+        <PrivateEventManager />
+        <GroupEventManager />
+        <MessageEventManager />
+        <ToastManager />
 
-      <ThemeProvider attribute="class" disableTransitionOnChange>
-        <div className={inter.className}>
-          <Content Component={Component} pageProps={pageProps} />
-        </div>
-      </ThemeProvider>
+        <ThemeProvider attribute="class" disableTransitionOnChange>
+          <div className={inter.className}>
+            <Content Component={Component} pageProps={pageProps} />
+          </div>
+        </ThemeProvider>
+      </AblyClientProvider>
     </SessionProvider>
   );
 }

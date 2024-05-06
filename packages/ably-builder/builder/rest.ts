@@ -1,4 +1,3 @@
-import type { Types } from "ably";
 import type {
   Channel,
   ChannelBuilder,
@@ -8,9 +7,10 @@ import type {
   Schema,
   SchemaToCaller,
 } from ".";
+import { Rest } from "ably";
 
 function buildRestChannel(
-  ably: Types.RestPromise,
+  ably: Rest,
   channel: ChannelBuilder<unknown, EventBuilderRecord>,
   channel_name: string,
 ): Channel<unknown, EventsRecord<unknown, false>, false> {
@@ -41,7 +41,7 @@ function buildRestChannel(
 }
 
 export function rest<S extends Schema>(
-  ably: Types.RestPromise,
+  ably: Rest,
   schema: S,
 ): SchemaToCaller<S, false> {
   const caller = Object.entries(schema).map(([k, channel]) => {

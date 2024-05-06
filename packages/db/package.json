@@ -5,7 +5,7 @@
   "types": "./client.ts",
   "dependencies": {
     "@neondatabase/serverless": "^0.9.1",
-    "drizzle-orm": "^0.30.8"
+    "drizzle-orm": "^0.30.10"
   },
   "devDependencies": {
     "@types/node": "18.11.18",

@@ -66,7 +66,7 @@ function DialogContent(props: DialogPrimitive.DialogContentProps) {
         {...props}
         className={twMerge(
           "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] max-w-md rounded-lg p-4 bg-popover md:w-full m-auto z-50 animate-dialog-in radix-state-closed:animate-dialog-out focus:outline-none",
-          props.className
+          props.className,
         )}
       >
         {props.children}

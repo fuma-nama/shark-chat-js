@@ -16,7 +16,7 @@ function Welcome() {
   const { channel } = useRouter().query as { channel: string };
   const query = trpc.dm.info.useQuery(
     { channelId: channel },
-    { enabled: false }
+    { enabled: false },
   );
 
   const data = query.data;

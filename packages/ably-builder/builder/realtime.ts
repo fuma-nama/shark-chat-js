@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import type { Types } from "ably";
+import { useCallback, useRef } from "react";
+import type { Realtime } from "ably";
 import type {
   Event,
   Channel,
@@ -12,7 +12,7 @@ import type {
 import { useChannel } from "../hooks";
 
 export function realtime<S extends Schema>(
-  ably: Types.RealtimePromise,
+  ably: Realtime,
   schema: S,
 ): SchemaToCaller<S, true> {
   const caller = Object.entries(schema).map(([k, channel]) => {
@@ -23,7 +23,7 @@ export function realtime<S extends Schema>(
 }
 
 function buildRealtimeChannel(
-  ably: Types.RealtimePromise,
+  ably: Realtime,
   channel: ChannelBuilder<unknown, EventBuilderRecord>,
   channel_name: string,
 ): Channel<unknown, EventsRecord<unknown, true>, true> {
@@ -42,15 +42,12 @@ function buildRealtimeChannel(
             events: [event_name],
             ...params,
           },
-          useCallback(
-            (raw) => {
-              return callback({
-                ...raw,
-                data: this.parse(raw) as never,
-              });
-            },
-            [callback],
-          ),
+          (raw) => {
+            return callback({
+              ...raw,
+              data: this.parse(raw) as never,
+            });
+          },
         );
       },
     };
@@ -71,25 +68,28 @@ function buildRealtimeChannel(
           channelName: this.channelName(args),
           ...params,
         },
-        this.useCallback(callback, [callback]),
+        this.useCallback(callback),
       );
     },
-    useCallback(callback, deps) {
+    useCallback(callback) {
+      const ref = useRef(callback);
+      ref.current = callback;
+
       return useCallback((raw) => {
+        if (!raw.name) return;
         const event = channel.events[raw.name];
 
         if (event == null) {
-          console.error(`Unkown event: ${raw.name}`);
+          console.error(`Unknown event: ${raw.name}`);
           return;
         }
 
-        return callback({
+        return ref.current({
           ...raw,
           name: raw.name,
-          data: event.parse(raw) as never,
+          data: event.parse(raw),
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, deps);
+      }, []);
     },
     ...Object.fromEntries(events),
   };

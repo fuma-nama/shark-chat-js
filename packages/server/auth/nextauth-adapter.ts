@@ -46,8 +46,8 @@ export const authAdapter: Adapter = {
       .where(
         and(
           eq(accounts.provider, options.provider),
-          eq(accounts.providerAccountId, options.providerAccountId)
-        )
+          eq(accounts.providerAccountId, options.providerAccountId),
+        ),
       )
       .innerJoin(users, eq(users.id, accounts.userId));
     if (rows.length === 0) return null;
@@ -98,8 +98,8 @@ export const authAdapter: Adapter = {
       .where(
         and(
           eq(accounts.provider, provider),
-          eq(accounts.providerAccountId, providerAccountId)
-        )
+          eq(accounts.providerAccountId, providerAccountId),
+        ),
       );
   },
   async getSessionAndUser(sessionToken) {
@@ -142,7 +142,7 @@ export const authAdapter: Adapter = {
         verificationToken.identifier +
         ":" +
         verificationToken.token,
-      verificationToken
+      verificationToken,
     );
 
     return verificationToken;

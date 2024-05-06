@@ -16,7 +16,7 @@ export default async function SignInPage({
   }
 
   const providers = await getProviders().then((res) =>
-    Object.values(res ?? {})
+    Object.values(res ?? {}),
   );
 
   return (

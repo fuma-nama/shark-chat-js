@@ -8,21 +8,18 @@ import { Group } from "db/schema";
 import { deleteGroup } from "./shared";
 
 export function GroupEventManager() {
-  const { status, data } = useSession();
-  const utils = trpc.useContext();
+  const { status } = useSession();
+  const utils = trpc.useUtils();
 
-  const onEvent = channels.group.useCallback(
-    ({ name, data: message }) => {
-      if (name === "group_deleted") {
-        return deleteGroup(utils, message.id);
-      }
+  const onEvent = channels.group.useCallback(({ name, data: message }) => {
+    if (name === "group_deleted") {
+      return deleteGroup(utils, message.id);
+    }
 
-      if (name === "group_updated") {
-        return updateGroup(utils, message);
-      }
-    },
-    [data, utils],
-  );
+    if (name === "group_updated") {
+      return updateGroup(utils, message);
+    }
+  });
 
   const groups = trpc.group.all.useQuery(undefined, {
     enabled: status === "authenticated",

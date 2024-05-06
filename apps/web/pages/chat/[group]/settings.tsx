@@ -18,7 +18,7 @@ const Settings: NextPageWithLayout = () => {
   const { status, data } = useSession();
   const query = trpc.group.info.useQuery(
     { groupId },
-    { enabled: status === "authenticated" }
+    { enabled: status === "authenticated" },
   );
   const isAdmin =
     query.status === "success" && query.data.owner_id === data!!.user.id;

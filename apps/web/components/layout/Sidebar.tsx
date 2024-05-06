@@ -32,7 +32,7 @@ export default function Sidebar() {
           "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-card border-r overflow-x-hidden overflow-y-auto md:h-screen",
           "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
           "max-md:transition-transform max-md:duration-300",
-          !isOpen && "max-md:-translate-x-full"
+          !isOpen && "max-md:-translate-x-full",
         )}
       >
         <button
@@ -132,7 +132,7 @@ function LinkItem({
       href={route}
       className={cn(
         "flex flex-row gap-2 items-center p-1 rounded-lg",
-        active ? "bg-accent" : "hover:bg-accent/50 transition-colors"
+        active ? "bg-accent" : "hover:bg-accent/50 transition-colors",
       )}
     >
       <div className="p-2 border border-border dark:border-dark-700 bg-accent text-brand rounded-lg">
@@ -141,7 +141,7 @@ function LinkItem({
       <p
         className={cn(
           "text-sm text-foreground font-medium",
-          !active && "text-muted-foreground"
+          !active && "text-muted-foreground",
         )}
       >
         {name}
@@ -173,7 +173,7 @@ function SidebarItem({
         "flex flex-row items-center gap-2 p-1 rounded-lg text-sm transition-colors",
         active
           ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/50"
+          : "text-muted-foreground hover:bg-accent/50",
       )}
     >
       <Avatar src={image} fallback={name} size="2sm" rounded="sm" />
@@ -204,7 +204,7 @@ function BottomCard() {
         href="/settings"
         className={clsx(
           "p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors",
-          "hover:bg-accent"
+          "hover:bg-accent",
         )}
       >
         <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">

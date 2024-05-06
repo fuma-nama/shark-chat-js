@@ -11,15 +11,15 @@
     "@radix-ui/react-switch": "^1.0.3",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
-    "clsx": "^2.1.0",
-    "lucide-react": "^0.372.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.378.0",
     "tailwind-merge": "^2.3.0",
     "tailwind-variants": "^0.2.1"
   },
   "devDependencies": {
     "@types/node": "18.11.18",
-    "@types/react": "18.2.79",
-    "@types/react-dom": "18.2.25",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0",
     "config": "workspace:*"
   }
 }

@@ -1,9 +1,9 @@
 import { schema } from "./schema";
 import { rest } from "ably-builder/builder/rest";
-import Ably, { Types } from "ably";
+import Ably, { Rest } from "ably";
 
 function connect() {
-  return new Ably.Rest.Promise({
+  return new Ably.Rest({
     key: process.env.ABLY_API_KEY,
     //make sure time is sync in development mode
     queryTime: process.env.NODE_ENV === "development",
@@ -11,10 +11,10 @@ function connect() {
 }
 
 declare global {
-  var dev_ably: Types.RestPromise;
+  var dev_ably: Rest;
 }
 
-let ably: Types.RestPromise;
+let ably: Rest;
 
 if (process.env.NODE_ENV === "development") {
   if (global.dev_ably == null) {

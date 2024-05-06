@@ -33,7 +33,7 @@ export function Content({ user, timestamp, children, ...props }: ContentProps) {
     <ContextMenu.Trigger
       className={cn(
         "p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
-        props.className
+        props.className,
       )}
     >
       <Avatar

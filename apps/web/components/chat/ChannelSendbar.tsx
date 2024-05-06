@@ -43,10 +43,10 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
           nonce,
           error instanceof TRPCClientError
             ? error.message
-            : "Something went wrong"
+            : "Something went wrong",
         );
       },
-    }
+    },
   );
 
   const onEscape = useCallback(() => {
@@ -102,7 +102,7 @@ function TypingUsers({ channelId }: { channelId: string }) {
       if (message.data.user.id === session?.user.id) return;
 
       add(message.data.user);
-    }
+    },
   );
 
   return <TypingIndicator typing={typing} />;

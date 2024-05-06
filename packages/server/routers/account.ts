@@ -48,7 +48,7 @@ export const accountRouter = router({
       z.object({
         name: z.string().optional(),
         avatar_url: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id;

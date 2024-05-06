@@ -24,7 +24,7 @@ export function Navbar({
               className: "mr-1 md:hidden",
               color: "ghost",
               size: "icon",
-            })
+            }),
           )}
           onClick={() => setSidebarOpen(true)}
         >
