@@ -47,7 +47,7 @@ export default function Sidebar() {
         <LinkItem
           name="Home"
           route="/home"
-          icon={<HomeIcon className="size-4" fill="currentColor" />}
+          icon={<HomeIcon className="size-3" fill="currentColor" />}
         />
         <Nav />
         <BottomCard />
@@ -137,7 +137,9 @@ function LinkItem({
           : "hover:bg-accent/50 transition-colors",
       )}
     >
+      <div className={cn('p-2 rounded-full bg-brand/30', active && "bg-brand")}>
       {icon}
+        </div>
       <p className="text-sm font-medium">{name}</p>
     </Link>
   );
@@ -201,11 +203,7 @@ function BottomCard() {
         )}
       >
         <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
-          <Avatar
-            src={profile.image}
-            fallback={profile.name}
-            size="2sm"
-          />
+          <Avatar src={profile.image} fallback={profile.name} size="2sm" />
         </div>
         <div className="flex-1 overflow-hidden flex flex-col">
           <p className="font-medium text-sm">{profile.name}</p>
