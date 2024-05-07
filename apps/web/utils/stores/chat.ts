@@ -71,13 +71,11 @@ export const useMessageStore = create<ChatStore>((set) => ({
 
     addNonce(item.nonce);
     set((prev) => {
-      const next = {
-        ...prev.sending,
-        [group]: [...(prev.sending[group] ?? []), item],
-      };
-
       return {
-        sending: next,
+        sending: {
+          ...prev.sending,
+          [group]: [...(prev.sending[group] ?? []), item],
+        },
       };
     });
 

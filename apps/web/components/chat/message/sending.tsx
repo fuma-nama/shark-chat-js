@@ -16,7 +16,7 @@ export function LocalMessageItem({ item }: { item: MessagePlaceholder }) {
         timestamp={timestamp}
         className="opacity-50"
       >
-        {item.reply ? <Reference data={item.reply} /> : null}
+        {item.reply ? <Reference user={item.reply.author} content={item.reply.content} /> : null}
         <MessageItem.Text>{item.data.content}</MessageItem.Text>
         {item.data.attachment != null && (
           <UploadingAttachmentItem file={item.data.attachment} />

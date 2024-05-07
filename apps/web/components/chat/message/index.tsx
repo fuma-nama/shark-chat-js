@@ -32,7 +32,7 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
             <Edit message={message} />
           ) : (
             <>
-              {message.reply_id != null && <Reference data={message} />}
+              {message.reply_id != null && <Reference user={message.reply_user} content={message.reply_message?.content} />}
               {!embedOnly && <Item.Text>{message.content}</Item.Text>}
               {message.attachment != null && (
                 <AttachmentItem attachment={message.attachment} />

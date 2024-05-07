@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { channels } from "../ably";
 import { z } from "zod";
-import { protectedProcedure, router } from "./../trpc";
+import { protectedProcedure, router } from "../trpc";
 import { contentSchema } from "shared/schema/chat";
 import { getLastRead, setLastRead } from "../redis/last-read";
 import db from "db/client";
