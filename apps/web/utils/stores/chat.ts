@@ -8,6 +8,7 @@ import { MessageType } from "../types";
  */
 export type MessagePlaceholder = {
   data: SendData;
+  reply?: MessageType;
   error?: string;
   nonce: number;
 };
@@ -28,7 +29,11 @@ export type ChatStore = {
   };
   setEditing(channelId: string, messageId?: number): void;
   updateSendbar(id: string, data: Partial<SendbarData>): void;
-  addSending: (id: string, data: SendData) => MessagePlaceholder;
+  addSending: (
+    id: string,
+    data: SendData,
+    reply?: MessageType,
+  ) => MessagePlaceholder;
   errorSending: (id: string, nonce: number, message: string) => void;
   removeSending: (id: string, nonce: number) => void;
 };
@@ -57,9 +62,10 @@ export const useMessageStore = create<ChatStore>((set) => ({
       },
     }));
   },
-  addSending: (group, data) => {
+  addSending: (group, data, reply) => {
     const item: MessagePlaceholder = {
       data,
+      reply,
       nonce: Date.now(),
     };
 

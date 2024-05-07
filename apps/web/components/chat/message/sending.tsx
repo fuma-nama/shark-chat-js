@@ -3,6 +3,7 @@ import * as MessageItem from "./atom";
 import { useMemo } from "react";
 import { MessagePlaceholder } from "@/utils/stores/chat";
 import { UploadingAttachmentItem } from "../AttachmentItem";
+import { Reference } from "@/components/chat/message/reference";
 
 export function LocalMessageItem({ item }: { item: MessagePlaceholder }) {
   const timestamp = useMemo(() => new Date(Date.now()), []);
@@ -15,6 +16,7 @@ export function LocalMessageItem({ item }: { item: MessagePlaceholder }) {
         timestamp={timestamp}
         className="opacity-50"
       >
+        {item.reply ? <Reference data={item.reply} /> : null}
         <MessageItem.Text>{item.data.content}</MessageItem.Text>
         {item.data.attachment != null && (
           <UploadingAttachmentItem file={item.data.attachment} />

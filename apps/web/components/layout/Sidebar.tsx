@@ -137,9 +137,9 @@ function LinkItem({
           : "hover:bg-accent/50 transition-colors",
       )}
     >
-      <div className={cn('p-2 rounded-full bg-brand/30', active && "bg-brand")}>
-      {icon}
-        </div>
+      <div className={cn("p-2 rounded-full bg-brand/30", active && "bg-brand")}>
+        {icon}
+      </div>
       <p className="text-sm font-medium">{name}</p>
     </Link>
   );

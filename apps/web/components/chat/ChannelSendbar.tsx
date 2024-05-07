@@ -9,6 +9,7 @@ import { channels } from "@/utils/ably/client";
 import { useSession } from "next-auth/react";
 import { useTypingStatus, TypingIndicator } from "./TypingIndicator";
 import { useCallback } from "react";
+import { button } from "ui/components/button";
 
 type SendMutationInput = Omit<RouterInput["chat"]["send"], "attachment"> & {
   attachment: SendData["attachment"];
@@ -60,7 +61,7 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
       ...data,
       channelId: channelId,
       reply: info?.reply_to?.id ?? undefined,
-      nonce: add(channelId, data).nonce,
+      nonce: add(channelId, data, info?.reply_to).nonce,
     });
 
     onEscape();
@@ -75,10 +76,14 @@ export function ChannelSendbar({ channelId }: { channelId: string }) {
       {info?.reply_to != null && (
         <div className="flex flex-row pt-2 px-2 text-sm text-muted-foreground">
           <p className="flex-1">
-            Replying to <b>{info.reply_to.author?.name ?? "Unknown User"}</b>
+            Replying to{" "}
+            <span className="font-medium text-foreground">
+              {info.reply_to.author?.name ?? "Unknown User"}
+            </span>
           </p>
           <button
             aria-label="delete"
+            className={button({ color: "ghost", size: "icon" })}
             onClick={() => update(channelId, { reply_to: undefined })}
           >
             <XIcon className="size-4" />
