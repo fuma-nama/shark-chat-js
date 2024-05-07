@@ -4,11 +4,7 @@ import { useMemo } from "react";
 import { MessagePlaceholder } from "@/utils/stores/chat";
 import { UploadingAttachmentItem } from "../AttachmentItem";
 
-export function LocalMessageItem({
-  item,
-}: {
-  item: MessagePlaceholder;
-}) {
+export function LocalMessageItem({ item }: { item: MessagePlaceholder }) {
   const timestamp = useMemo(() => new Date(Date.now()), []);
   const { profile } = useProfile();
 

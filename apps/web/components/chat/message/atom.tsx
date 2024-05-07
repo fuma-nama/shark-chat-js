@@ -1,4 +1,4 @@
-import { Fragment, ReactNode } from "react";
+import { forwardRef, Fragment, ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
 
 import * as ContextMenu from "ui/components/context-menu";
@@ -18,60 +18,67 @@ type ContentProps = {
   children: ReactNode;
 };
 
-export function Content({ user, timestamp, children, ...props }: ContentProps) {
-  const author = user ?? {
-    id: "",
-    image: null,
-    name: "Deleted User",
-  };
+export const Content = forwardRef<HTMLDivElement, ContentProps>(
+  ({ user, timestamp, children, ...props }, ref) => {
+    const author = user ?? {
+      id: "",
+      image: null,
+      name: "Deleted User",
+    };
 
-  const date = new Date(timestamp);
+    const date = new Date(timestamp);
 
-  const onOpenProfile = () => {
-    usePageStore
-      .getState()
-      .setModal({ type: "user-profile", user_id: author.id });
-  };
+    const onOpenProfile = () => {
+      usePageStore
+        .getState()
+        .setModal({ type: "user-profile", user_id: author.id });
+    };
 
-  return (
-    <ContextMenu.Trigger
-      className={cn(
-        "group p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
-        props.className,
-      )}
-    >
-      <Avatar
-        src={author.image}
-        fallback={author.name}
-        className="cursor-pointer"
-        onClick={onOpenProfile}
-      />
-      <div className="flex-1 flex flex-col w-0">
-        <div className="flex flex-row items-center mb-1">
-          <p className="font-medium cursor-pointer" onClick={onOpenProfile}>
-            {author.name}
-          </p>
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "relative group p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
+          props.className,
+        )}
+      >
+        <Avatar
+          src={author.image}
+          fallback={author.name}
+          className="cursor-pointer"
+          onClick={onOpenProfile}
+        />
+        <div className="flex-1 flex flex-col w-0">
+          <div className="flex flex-row items-center mb-1">
+            <p className="font-medium cursor-pointer" onClick={onOpenProfile}>
+              {author.name}
+            </p>
 
-          <p className="text-xs text-muted-foreground ml-2 mr-auto">
-            {getTimeString(date)}
-          </p>
-
-          <DropdownMenuTrigger
-            aria-label="Open Menu"
-            className={button({
-              size: "icon",
-              color: "ghost",
-              className:
-                "opacity-0 group-hover:opacity-100 radix-state-open:opacity-100",
-            })}
-          >
-            <MoreHorizontalIcon className="size-4" />
-          </DropdownMenuTrigger>
+            <p className="text-xs text-muted-foreground ml-2 mr-auto">
+              {getTimeString(date)}
+            </p>
+          </div>
+          {children}
         </div>
-
-        {children}
       </div>
-    </ContextMenu.Trigger>
+    );
+  },
+);
+
+Content.displayName = "MessageContent";
+
+export function Menu() {
+  return (
+    <DropdownMenuTrigger
+      aria-label="Open Menu"
+      className={button({
+        size: "icon",
+        className:
+          "absolute -top-2 right-4 opacity-0 group-hover:opacity-100 radix-state-open:opacity-100",
+      })}
+    >
+      <MoreHorizontalIcon className="size-4" />
+    </DropdownMenuTrigger>
   );
 }
 

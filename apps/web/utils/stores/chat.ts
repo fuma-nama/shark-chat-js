@@ -23,6 +23,10 @@ export type ChatStore = {
   sendbar: {
     [id: string]: SendbarData;
   };
+  editing: {
+    [id: string]: { messageId?: number };
+  };
+  setEditing(channelId: string, messageId?: number): void;
   updateSendbar(id: string, data: Partial<SendbarData>): void;
   addSending: (id: string, data: SendData) => MessagePlaceholder;
   errorSending: (id: string, nonce: number, message: string) => void;
@@ -30,8 +34,9 @@ export type ChatStore = {
 };
 
 export const useMessageStore = create<ChatStore>((set) => ({
-  sendbar: {} as any,
-  sending: {} as any,
+  sendbar: {},
+  sending: {},
+  editing: {},
   updateSendbar(id, data) {
     set((prev) => ({
       ...prev,
@@ -41,6 +46,14 @@ export const useMessageStore = create<ChatStore>((set) => ({
           ...prev.sendbar[id],
           ...data,
         },
+      },
+    }));
+  },
+  setEditing(channelId: string, messageId?: number) {
+    set((prev) => ({
+      editing: {
+        ...prev.editing,
+        [channelId]: { messageId },
       },
     }));
   },

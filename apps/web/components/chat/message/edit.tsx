@@ -1,24 +1,23 @@
 import { trpc } from "@/utils/trpc";
 import { MessageType } from "@/utils/types";
-import { MutableRefObject } from "react";
+import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "ui/components/button";
 import { textArea } from "ui/components/textarea";
+import { useMessageStore } from "@/utils/stores/chat";
 
 type EditProps = {
-  inputRef: MutableRefObject<HTMLTextAreaElement | null>;
-  onCancel: () => void;
   message: MessageType;
 };
 
-export default function Edit({ message, inputRef, onCancel }: EditProps) {
+export default function Edit({ message }: EditProps) {
   const editMutation = trpc.chat.update.useMutation({
     onSuccess: () => {
       onCancel();
     },
   });
 
-  const { control, handleSubmit } = useForm<{ content: string }>({
+  const { control, handleSubmit, setFocus } = useForm<{ content: string }>({
     defaultValues: {
       content: message.content,
     },
@@ -31,6 +30,14 @@ export default function Edit({ message, inputRef, onCancel }: EditProps) {
       content: v.content,
     });
   });
+
+  const onCancel = () => {
+    useMessageStore.getState().setEditing(message.channel_id, message.id);
+  };
+
+  useEffect(() => {
+    setFocus("content", { shouldSelect: true });
+  }, [setFocus]);
 
   return (
     <form onSubmit={onSave}>
@@ -60,10 +67,6 @@ export default function Edit({ message, inputRef, onCancel }: EditProps) {
               }
             }}
             {...field}
-            ref={(e) => {
-              field.ref(e);
-              inputRef.current = e;
-            }}
           />
         )}
       />
