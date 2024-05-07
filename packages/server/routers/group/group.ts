@@ -154,7 +154,7 @@ export const groupRouter = router({
     .mutation(async ({ ctx, input }) => {
       const res = await checkIsOwnerOf(input.groupId, ctx.session);
 
-      db.transaction(async () => {
+      await db.transaction(async () => {
         await db.delete(groups).where(eq(groups.id, input.groupId));
 
         await db

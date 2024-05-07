@@ -39,7 +39,7 @@ export default function Sidebar() {
           className="bg-background absolute p-1 top-4 right-4 md:hidden"
           onClick={onClose}
         >
-          <XIcon className="w-4 h-4" />
+          <XIcon className="size-4" />
         </button>
         <Link href="/info" prefetch={false} className="font-bold mb-2">
           Shark Chat
@@ -47,7 +47,7 @@ export default function Sidebar() {
         <LinkItem
           name="Home"
           route="/home"
-          icon={<HomeIcon className="w-4 h-4" />}
+          icon={<HomeIcon className="size-4" fill="currentColor" />}
         />
         <Nav />
         <BottomCard />
@@ -131,21 +131,14 @@ function LinkItem({
     <Link
       href={route}
       className={cn(
-        "flex flex-row gap-2 items-center p-1 rounded-lg",
-        active ? "bg-accent" : "hover:bg-accent/50 transition-colors",
+        "flex flex-row gap-2 text-muted-foreground items-center px-3 py-2 rounded-xl",
+        active
+          ? "bg-accent text-accent-foreground"
+          : "hover:bg-accent/50 transition-colors",
       )}
     >
-      <div className="p-2 border border-border dark:border-dark-700 bg-accent text-brand rounded-lg">
-        {icon}
-      </div>
-      <p
-        className={cn(
-          "text-sm text-foreground font-medium",
-          !active && "text-muted-foreground",
-        )}
-      >
-        {name}
-      </p>
+      {icon}
+      <p className="text-sm font-medium">{name}</p>
     </Link>
   );
 }
@@ -170,13 +163,13 @@ function SidebarItem({
       href={href}
       scroll={false}
       className={cn(
-        "flex flex-row items-center gap-2 p-1 rounded-lg text-sm transition-colors",
+        "flex flex-row items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors",
         active
           ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-accent/50",
       )}
     >
-      <Avatar src={image} fallback={name} size="2sm" rounded="sm" />
+      <Avatar src={image} fallback={name} size="small" rounded="full" />
       <div className="w-0 flex-1">
         <p className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
           {name}
@@ -209,8 +202,8 @@ function BottomCard() {
       >
         <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
           <Avatar
-            src={profile.image ?? undefined}
-            fallback={profile.name ?? undefined}
+            src={profile.image}
+            fallback={profile.name}
             size="2sm"
           />
         </div>

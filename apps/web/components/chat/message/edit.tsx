@@ -32,7 +32,7 @@ export default function Edit({ message }: EditProps) {
   });
 
   const onCancel = () => {
-    useMessageStore.getState().setEditing(message.channel_id, message.id);
+    useMessageStore.getState().setEditing(message.channel_id);
   };
 
   useEffect(() => {
