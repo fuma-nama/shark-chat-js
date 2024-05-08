@@ -2,7 +2,7 @@ import { tv } from "tailwind-variants";
 
 export const textArea = tv({
   base: [
-    "text-[15px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none",
+    "text-[16px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none",
   ],
   variants: {
     color: {
