@@ -1,7 +1,7 @@
 import { trpc } from "@/utils/trpc";
 import { MessageType } from "@/utils/types";
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "ui/components/button";
 import { textArea } from "ui/components/textarea";
 import { useMessageStore } from "@/utils/stores/chat";
@@ -40,7 +40,7 @@ export default function Edit({ message }: EditProps) {
   }, [setFocus]);
 
   return (
-    <form onSubmit={onSave}>
+    <form className="flex flex-col gap-2" onSubmit={onSave}>
       <Controller
         control={control}
         name="content"
@@ -77,7 +77,7 @@ export default function Edit({ message }: EditProps) {
         Press enter to save • escape to exit
       </label>
 
-      <div className="flex flex-row gap-3 mt-3">
+      <div className="flex flex-row gap-3">
         <Button color="primary" isLoading={editMutation.isLoading}>
           Save changes
         </Button>

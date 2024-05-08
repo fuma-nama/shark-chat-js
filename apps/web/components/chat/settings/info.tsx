@@ -103,41 +103,37 @@ function EditGroupPanel({
             input={{ id: "icon", ...field }}
             value={value ?? groupIcon.url([group.id], group.icon_hash)}
             onChange={onChange}
-            previewClassName="size-[150px] max-w-full"
+            previewClassName="size-[150px] max-w-full mx-auto"
           />
         )}
       />
 
       <fieldset>
-        <label htmlFor="name" className="font-medium text-foreground text-sm">
+        <label htmlFor="name" className="font-medium text-sm">
           Name
         </label>
         <input id="name" className={input()} {...register("name")} />
       </fieldset>
       <fieldset>
-        <label
-          htmlFor="unique_name"
-          className="font-medium text-foreground text-sm"
-        >
+        <label htmlFor="unique_name" className="font-medium text-sm">
           Unique Name
         </label>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground mb-2">
           People can find a group by its unique name
         </p>
         <UniqueNameInput
-          root={{ className: "mt-3" }}
           input={{
             id: "unique_name",
             placeholder: control._defaultValues.unique_name,
             ...register("unique_name"),
           }}
         />
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-2 text-xs text-muted-foreground">
           Only lower-case letters, numbers, underscore
         </p>
       </fieldset>
 
-      <div className="flex flex-row gap-3">
+      <div className="flex flex-row gap-3 mt-2">
         <Button type="submit" color="primary" isLoading={mutation.isLoading}>
           Save Changes
         </Button>
