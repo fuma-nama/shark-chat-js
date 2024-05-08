@@ -7,7 +7,7 @@ export const textArea = tv({
   variants: {
     color: {
       primary:
-        "px-1 py-1.5 bg-transparent max-sm:bg-secondary max-sm:px-3 max-sm:py-2 max-sm:rounded-3xl transition-colors max-sm:focus-visible:bg-accent",
+        "py-1.5 bg-transparent max-sm:bg-secondary max-sm:px-3 max-sm:py-2 max-sm:rounded-3xl transition-colors max-sm:focus-visible:bg-accent",
       long: "bg-muted rounded-md px-2 py-1 border",
     },
   },

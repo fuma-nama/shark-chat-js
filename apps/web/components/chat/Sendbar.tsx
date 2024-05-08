@@ -90,7 +90,7 @@ export function Sendbar({
               aria-label="Trigger Menu"
               className={button({
                 className:
-                  "size-6 p-0 rounded-full text-background bg-muted-foreground mt-2 hover:bg-accent-foreground sm:m-1.5 sm:mr-0",
+                  "size-6 p-0 rounded-full text-background bg-muted-foreground mt-2 hover:bg-accent-foreground sm:m-1.5",
               })}
             >
               <PlusIcon className="size-4" />
@@ -122,10 +122,10 @@ export function Sendbar({
           <IconButton
             disabled={!formState.isValid}
             color="primary"
-            className="size-9 rounded-full p-2 animate-in fade-in disabled:hidden"
+            className="size-8 rounded-full p-0 animate-in fade-in mt-1 disabled:hidden sm:m-0.5"
             onClick={onSend}
           >
-            <SendIcon className="size-5 -translate-x-px translate-y-px" />
+            <SendIcon className="size-4 -translate-x-px translate-y-px" />
           </IconButton>
         </div>
       </div>
@@ -224,7 +224,7 @@ function TextArea({
   const lastType = useRef<Date>();
 
   return (
-    <div className="grid max-h-[30vh] flex-1 *:col-[1/2] *:row-[1/2]">
+    <div className="grid max-h-[30vh] overflow-auto flex-1 *:col-[1/2] *:row-[1/2]">
       <div
         aria-hidden
         className={textArea({
@@ -248,7 +248,7 @@ function TextArea({
         }}
         className={textArea({
           color: "primary",
-          className: "resize-none",
+          className: "resize-none overflow-hidden",
         })}
         placeholder="Type message"
         autoComplete="off"
