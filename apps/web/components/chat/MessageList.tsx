@@ -26,10 +26,7 @@ export function MessageList({
     0,
     BLOCK_SIZE,
   ]);
-  const [sending, remove] = useMessageStore((s) => [
-    s.sending[channelId],
-    s.removeSending,
-  ]);
+  const [sending] = useMessageStore((s) => [s.sending[channelId]]);
 
   const query = trpc.chat.messages.useInfiniteQuery(variables, {
     enabled: status === "authenticated",
@@ -61,7 +58,7 @@ export function MessageList({
       }
 
       if (query.hasPreviousPage) {
-        query.fetchPreviousPage();
+        void query.fetchPreviousPage();
       }
     },
     disabled: query.isLoading,
@@ -153,7 +150,7 @@ function UnreadSeparator() {
 
 function useLastRead(channelId: string) {
   const { status } = useSession();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
 
   const checkoutQuery = trpc.chat.checkout.useQuery(
     { channelId: channelId },

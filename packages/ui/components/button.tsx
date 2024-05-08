@@ -71,7 +71,7 @@ Button.displayName = "Button";
 
 export interface IconButtonProps extends ComponentProps<"button"> {
   color?: "primary" | "secondary" | "ghost" | "danger";
-  size?: "large" | "medium" | "small";
+  size?: "large" | "medium" | "small" | "icon";
   isLoading?: boolean;
 }
 

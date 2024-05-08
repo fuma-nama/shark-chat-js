@@ -1,15 +1,24 @@
-import { FilePlusIcon, SendIcon, TextIcon, TrashIcon } from "lucide-react";
+import { ChevronDownIcon, PlusIcon, SendIcon, TrashIcon } from "lucide-react";
 import { textArea } from "ui/components/textarea";
-import { HTMLAttributes, ReactNode, useEffect, useRef, useState } from "react";
-import { IconButton, button } from "ui/components/button";
-import clsx from "clsx";
-import React from "react";
+import React, {
+  HTMLAttributes,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { button, IconButton } from "ui/components/button";
 import { contentSchema } from "shared/schema/chat";
 import { Control, useController, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import dynamic from "next/dynamic";
-import { ChevronDownIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "ui/components/dropdown";
 
 const GenerateTextModal = dynamic(() => import("../modal/GenerateTextModal"));
 
@@ -58,12 +67,7 @@ export function Sendbar({
   return (
     <div className="sticky bottom-0 bg-background w-full mx-auto max-w-screen-2xl sm:px-4 sm:pb-4">
       <RollbackButton />
-      <div
-        className={clsx(
-          "flex flex-col gap-3 shadow-xl shadow-brand-500/10 p-2 rounded-3xl bg-secondary dark:shadow-none",
-          "max-sm:rounded-none max-sm:bg-transparent max-sm:gap-1 max-sm:pb-7 max-sm:px-3.5",
-        )}
-      >
+      <div className="flex flex-col gap-3 pt-2 pb-7 px-3.5 bg-muted/50 sm:rounded-3xl sm:bg-secondary sm:p-2">
         {openModal !== undefined && (
           <GenerateTextModal
             open={openModal}
@@ -80,29 +84,32 @@ export function Sendbar({
         )}
         {children}
         <AttachmentPicker control={control} />
-        <div className="flex flex-row">
-          <label
-            htmlFor="attachment"
-            className={button({
-              className: "w-9 h-9 p-2.5 mt-0.5 cursor-pointer",
-              color: "ghost",
-            })}
-          >
-            <FilePlusIcon />
-          </label>
-          <IconButton
-            className="w-9 h-9 p-2.5 mt-0.5 max-sm:hidden"
-            color="ghost"
-            onClick={() => setOpenModal(true)}
-          >
-            <TextIcon />
-          </IconButton>
+        <div className="flex flex-row items-start gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label="Trigger Menu"
+              className={button({
+                className:
+                  "size-6 p-0 rounded-full text-background bg-muted-foreground mt-2 hover:bg-accent-foreground sm:m-1.5 sm:mr-0",
+              })}
+            >
+              <PlusIcon className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => setOpenModal(true)}>
+                Generate Text
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <label htmlFor="attachment">Upload File</label>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <TextArea
             control={control}
             onType={onType}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                onSend();
+                void onSend();
                 e.preventDefault();
               }
 
@@ -115,10 +122,10 @@ export function Sendbar({
           <IconButton
             disabled={!formState.isValid}
             color="primary"
-            className="rounded-full w-9 h-9 p-2.5 mt-0.5"
+            className="size-9 rounded-full p-2 animate-in fade-in disabled:hidden"
             onClick={onSend}
           >
-            <SendIcon />
+            <SendIcon className="size-5 -translate-x-px translate-y-px" />
           </IconButton>
         </div>
       </div>
@@ -151,13 +158,16 @@ function RollbackButton() {
 
   return (
     <button
-      className={clsx(
-        "absolute top-0 right-4 -mt-12 bg-secondary text-secondary-foreground p-2 rounded-full transition-all",
-        !canRollback && "opacity-0 translate-y-20",
-      )}
+      className={button({
+        size: "icon",
+        className: [
+          "absolute top-0 right-4 -mt-12 rounded-full z-[-1] transition-all",
+          !canRollback && "opacity-0 translate-y-20",
+        ],
+      })}
       onClick={onClick}
     >
-      <ChevronDownIcon className="w-5 h-5" />
+      <ChevronDownIcon className="size-5" />
     </button>
   );
 }
@@ -182,14 +192,19 @@ function AttachmentPicker({ control }: { control: Control<SendData> }) {
         }}
       />
       {value != null && (
-        <div className="rounded-xl bg-background p-3 flex flex-row justify-between items-center">
-          <p className="font-medium text-sm text-foreground">{value.name}</p>
+        <div className="rounded-xl bg-secondary p-3 flex flex-row justify-between items-center">
+          <div>
+            <p className="font-medium text-sm">{value.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {Math.round(value.size / 1024)}KB
+            </p>
+          </div>
           <IconButton
-            size="small"
+            size="icon"
             color="danger"
             onClick={() => field.onChange(null)}
           >
-            <TrashIcon className="w-4 h-4" />
+            <TrashIcon className="size-4" />
           </IconButton>
         </div>
       )}
@@ -209,27 +224,37 @@ function TextArea({
   const lastType = useRef<Date>();
 
   return (
-    <textarea
-      id="text"
-      {...field}
-      onChange={(e) => {
-        field.onChange(e);
+    <div className="grid max-h-[30vh] flex-1 *:col-[1/2] *:row-[1/2]">
+      <div
+        aria-hidden
+        className={textArea({
+          color: "primary",
+          className: "whitespace-pre-wrap overflow-hidden invisible",
+        })}
+      >
+        {field.value + " "}
+      </div>
+      <textarea
+        id="text"
+        {...field}
+        rows={1}
+        onChange={(e) => {
+          field.onChange(e);
 
-        if (canSendSignal(lastType.current, 2)) {
-          onType();
-          lastType.current = new Date(Date.now());
-        }
-      }}
-      rows={Math.min(20, field.value.split("\n").length)}
-      wrap="virtual"
-      className={textArea({
-        color: "primary",
-        className: "resize-none h-auto max-h-[50vh]",
-      })}
-      placeholder="Type message"
-      autoComplete="off"
-      {...props}
-    />
+          if (canSendSignal(lastType.current, 2)) {
+            onType();
+            lastType.current = new Date(Date.now());
+          }
+        }}
+        className={textArea({
+          color: "primary",
+          className: "resize-none",
+        })}
+        placeholder="Type message"
+        autoComplete="off"
+        {...props}
+      />
+    </div>
   );
 }
 

@@ -49,12 +49,15 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
           onClick={onOpenProfile}
         />
         <div className="flex-1 flex flex-col w-0">
-          <div className="flex flex-row items-center mb-1">
-            <p className="font-medium cursor-pointer" onClick={onOpenProfile}>
+          <div className="flex flex-row items-center gap-2 mb-1">
+            <p
+              className="text-nowrap truncate font-medium cursor-pointer"
+              onClick={onOpenProfile}
+            >
               {author.name}
             </p>
 
-            <p className="text-xs text-muted-foreground ml-2 mr-auto">
+            <p className="text-xs text-muted-foreground">
               {getTimeString(date)}
             </p>
           </div>
