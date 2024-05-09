@@ -1,17 +1,17 @@
 import { InferSelectModel } from "drizzle-orm";
 import {
-  integer,
-  pgTable,
-  text,
-  varchar,
-  primaryKey,
-  uniqueIndex,
-  index,
-  serial,
   boolean,
-  pgEnum,
+  index,
+  integer,
   json,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  serial,
+  text,
   timestamp,
+  uniqueIndex,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const accounts = pgTable(
@@ -65,6 +65,7 @@ export const groups = pgTable(
     name: varchar(`name`, { length: 256 }).notNull(),
     unique_name: varchar(`unique_name`, { length: 32 }).notNull(),
     icon_hash: integer(`icon_hash`),
+    banner_hash: integer("banner_hash"),
     channel_id: varchar("channel_id", { length: 32 }).notNull().default(""),
     owner_id: varchar(`owner_id`, { length: 191 }).notNull(),
     public: boolean(`public`).notNull().default(false),

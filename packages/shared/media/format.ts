@@ -4,6 +4,10 @@ export const groupIcon = media<[groupId: number]>({
   publicId: ([groupId]) => `icons/${groupId}`,
 });
 
+export const groupBanners = media<[groupId: number]>({
+  publicId: ([groupId]) => `banners/${groupId}`,
+});
+
 export const userAvatar = media<[userId: string]>({
   publicId: ([userId]) => `avatars/${userId}`,
 });

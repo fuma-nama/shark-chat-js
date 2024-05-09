@@ -1,18 +1,22 @@
-import { ImagePicker } from "@/components/input/ImagePicker";
+import { ImagePicker, usePreview } from "@/components/input/ImagePicker";
 import { input } from "ui/components/input";
 import { Avatar } from "ui/components/avatar";
 import { Button, button } from "ui/components/button";
-import { groupIcon } from "shared/media/format";
+import { groupBanners, groupIcon } from "shared/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/hooks/mutations/update-group-info";
 import { Group } from "db/schema";
 import { Serialize } from "shared/types";
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { updateGroupSchema } from "shared/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 import { SimpleDialog } from "ui/components/dialog";
+import { Cropper, ReactCropperElement } from "react-cropper";
+import Image from "next/image";
+import { cloudinaryLoader } from "@/utils/cloudinary-loader";
+import { EditIcon } from "lucide-react";
 
 export default function Info({
   group,
@@ -25,7 +29,7 @@ export default function Info({
 
   return (
     <div className="flex flex-col">
-      <div className="h-auto aspect-[3/1] xl:rounded-lg bg-gradient-to-b from-brand to-brand-300 -mx-4" />
+      {isAdmin ? <BannerEdit group={group} /> : <BannerView group={group} />}
       <div className="flex flex-col gap-3 -mt-[4rem]">
         <div className="w-full flex flex-row justify-between items-end">
           <Avatar
@@ -66,6 +70,101 @@ const schema = updateGroupSchema
   .extend({
     icon: z.string().optional(),
   });
+
+export function BannerEdit({ group }: { group: Group }) {
+  const [file, setFile] = useState<Blob>();
+  const cropperRef = useRef<ReactCropperElement>(null);
+  const preview = usePreview(file);
+
+  const mutation = useUpdateGroupInfoMutation({
+    onSuccess() {
+      setFile(undefined);
+    },
+  });
+
+  const onCrop = () => {
+    const cropped = cropperRef.current?.cropper.getCroppedCanvas().toDataURL();
+
+    if (cropped) {
+      mutation.mutate({
+        groupId: group.id,
+        banner: cropped,
+      });
+    }
+  };
+
+  return (
+    <>
+      <SimpleDialog
+        open={Boolean(file)}
+        onOpenChange={(open) => setFile((prev) => (open ? prev : undefined))}
+        title="Change Banner"
+        description="Best at 1200x400."
+      >
+        {preview && (
+          <Cropper src={preview} aspectRatio={3} guides ref={cropperRef} />
+        )}
+        <div className="flex flex-row gap-3 mt-4">
+          <Button
+            color="primary"
+            type="button"
+            isLoading={mutation.isLoading}
+            onClick={onCrop}
+          >
+            Crop
+          </Button>
+          <Button type="button" onClick={() => setFile(undefined)}>
+            Cancel
+          </Button>
+        </div>
+      </SimpleDialog>
+
+      <input
+        id="banner_image"
+        type="file"
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0)
+            setFile(e.target.files[0]);
+        }}
+        hidden
+      />
+      <div className="relative -mx-4">
+        <label
+          htmlFor="banner_image"
+          aria-label="Change Banner"
+          className={button({
+            size: "icon",
+            className: "absolute z-[2] top-2 right-2 cursor-pointer",
+          })}
+        >
+          <EditIcon className="size-5" />
+        </label>
+        <BannerView group={group} />
+      </div>
+    </>
+  );
+}
+
+function BannerView({ group }: { group: Group }) {
+  if (group.banner_hash) {
+    return (
+      <div className="relative aspect-[3] bg-card overflow-hidden lg:rounded-lg">
+        <Image
+          priority
+          alt="Banner"
+          fill
+          sizes="(max-width: 800px) 90vw, 800px"
+          src={groupBanners.url([group.id], group.banner_hash)}
+          loader={cloudinaryLoader}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-auto aspect-[3] lg:rounded-lg bg-gradient-to-b from-brand to-brand-300" />
+  );
+}
 
 function EditGroupPanel({
   group,
@@ -133,7 +232,7 @@ function EditGroupPanel({
         </p>
       </fieldset>
 
-      <div className="flex flex-row gap-3 mt-2">
+      <div className="flex flex-row gap-3 pt-2">
         <Button type="submit" color="primary" isLoading={mutation.isLoading}>
           Save Changes
         </Button>

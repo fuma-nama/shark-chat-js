@@ -13,6 +13,7 @@ export const updateGroupSchema = z.object({
   groupId: z.number(),
   name: z.string().min(1).max(100).optional(),
   icon_hash: z.number().optional(),
+  banner_hash: z.number().optional(),
   public: z.boolean().optional(),
   unique_name: uniqueNameSchema.optional(),
 });

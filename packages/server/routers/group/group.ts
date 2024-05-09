@@ -141,20 +141,17 @@ export const groupRouter = router({
     .input(updateGroupSchema)
     .mutation(async ({ ctx, input }) => {
       await checkIsOwnerOf(input.groupId, ctx.session);
-      await db
+      const updated = await db
         .update(groups)
         .set({
           name: input.name,
           icon_hash: input.icon_hash,
           unique_name: input.unique_name,
+          banner_hash: input.banner_hash,
           public: input.public,
         })
-        .where(eq(groups.id, input.groupId));
-
-      const updated = await db
-        .select()
-        .from(groups)
         .where(eq(groups.id, input.groupId))
+        .returning()
         .then((res) => requireOne(res));
 
       await channels.group.group_updated.publish([input.groupId], updated);

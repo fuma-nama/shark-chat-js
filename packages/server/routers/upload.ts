@@ -1,4 +1,9 @@
-import { userAvatar, groupIcon, attachment } from "shared/media/format";
+import {
+  attachment,
+  groupBanners,
+  groupIcon,
+  userAvatar,
+} from "shared/media/format";
 import { getTimestamp } from "shared/media/timestamp";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
@@ -36,6 +41,19 @@ export const uploadRouter = router({
       return sign({
         public_id: groupIcon.id(groupId),
         transformation: "w_300,h_300",
+      });
+    }),
+  signGroupBanner: protectedProcedure
+    .input(
+      z.object({
+        groupId: z.number(),
+      }),
+    )
+    .query(async ({ input: { groupId }, ctx }) => {
+      await checkIsOwnerOf(groupId, ctx.session);
+
+      return sign({
+        public_id: groupBanners.id(groupId),
       });
     }),
   signAttachment: protectedProcedure

@@ -16,23 +16,9 @@ export function ImagePicker({
   input?: ComponentProps<"input">;
 }) {
   const [selected, setSelected] = useState<File | null>();
-  const [preview, setPreview] = useState<string | null>();
+  const preview = usePreview(selected);
   const cropperRef = useRef<ReactCropperElement>(null);
-
   const id = input?.id ?? "image-upload";
-
-  useEffect(() => {
-    if (selected != null) {
-      const url = URL.createObjectURL(selected);
-      setPreview(url);
-
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setPreview(null);
-
-      return () => {};
-    }
-  }, [selected]);
 
   if (preview != null) {
     const onCrop = () => {
@@ -109,4 +95,25 @@ export function ImagePicker({
       )}
     </div>
   );
+}
+
+export function usePreview(
+  selected: File | Blob | undefined | null,
+): string | null {
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selected != null) {
+      const url = URL.createObjectURL(selected);
+      setPreview(url);
+
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreview(null);
+
+      return () => {};
+    }
+  }, [selected]);
+
+  return preview;
 }

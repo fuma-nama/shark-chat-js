@@ -3,6 +3,7 @@ import { AttachmentType } from "shared/schema/chat";
 import { useState } from "react";
 import { SmartImage } from "ui/components/smart-image";
 import Image from "next/image";
+import { cloudinary_prefix, cloudinaryLoader } from "@/utils/cloudinary-loader";
 
 export function UploadingAttachmentItem({ file }: { file: File }) {
   return (
@@ -12,8 +13,6 @@ export function UploadingAttachmentItem({ file }: { file: File }) {
     </div>
   );
 }
-
-const cloudinary_prefix = "https://res.cloudinary.com/shark-chat/image/upload/";
 
 export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
   if (
@@ -41,9 +40,7 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
 
 function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
   const [state, setState] = useState<"loading" | "loaded">("loading");
-  const url = decodeURIComponent(attachment.url).slice(
-    cloudinary_prefix.length,
-  );
+  const url = decodeURIComponent(attachment.url);
 
   return (
     <div>
@@ -59,11 +56,7 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
           src={url}
           fill
           sizes={`(max-width: 500px) 90vw, 500px`}
-          loader={({ src, width, quality }) => {
-            const params = ["c_limit", `w_${width}`, `q_${quality || "auto"}`];
-
-            return `${cloudinary_prefix}${params.join(",")}/${src}`;
-          }}
+          loader={cloudinaryLoader}
           onLoadingComplete={() => setState("loaded")}
         />
       </SmartImage>
