@@ -19,6 +19,7 @@ export function BannerImage({ group }: { group: Group }) {
       fill
       sizes="(max-width: 800px) 100vw, 800px"
       className="blur-lg object-cover"
+      priority
     />
   );
 }
