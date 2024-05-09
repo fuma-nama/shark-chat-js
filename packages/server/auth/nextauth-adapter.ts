@@ -1,6 +1,6 @@
 import { Adapter, AdapterUser, VerificationToken } from "next-auth/adapters";
 import db from "db/client";
-import { sessions, accounts, members, users } from "db/schema";
+import { accounts, members, sessions, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
 import { oneOrNull, requireOne } from "db/utils";
 import { createId } from "@paralleldrive/cuid2";
@@ -137,7 +137,7 @@ export const authAdapter: Adapter = {
     await db.delete(sessions).where(eq(sessions.sessionToken, sessionToken));
   },
   async createVerificationToken(verificationToken) {
-    redis.set(
+    await redis.set(
       options.verificationTokenKeyPrefix +
         verificationToken.identifier +
         ":" +

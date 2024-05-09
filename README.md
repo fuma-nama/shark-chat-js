@@ -17,7 +17,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build)).
 - Direct Message with anyone
 - View & Kick Group members
 - Invite Group members via Invite code or Url
-- Upload profile images
+- Upload user avatar, group banner and icon images
 - Show notification when new Message received
 - AI-Powered Message Writer
 - Built-in AI Chatbot (Powered by Inworld)
