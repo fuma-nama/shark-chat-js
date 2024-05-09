@@ -61,7 +61,11 @@ export function InviteButton({
 
 export function LoginButton() {
   return (
-    <Button color="primary" className="w-full mt-3" onClick={() => signIn()}>
+    <Button
+      color="primary"
+      className="w-full mt-3"
+      onClick={() => signIn(undefined, { redirect: true })}
+    >
       Login
     </Button>
   );
