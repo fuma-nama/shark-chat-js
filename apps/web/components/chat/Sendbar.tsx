@@ -1,4 +1,11 @@
-import { ChevronDownIcon, PlusIcon, SendIcon, TrashIcon } from "lucide-react";
+import {
+  BrainIcon,
+  ChevronDownIcon,
+  PlusIcon,
+  SendIcon,
+  TrashIcon,
+  UploadIcon,
+} from "lucide-react";
 import { textArea } from "ui/components/textarea";
 import React, {
   HTMLAttributes,
@@ -84,23 +91,27 @@ export function Sendbar({
         )}
         {children}
         <AttachmentPicker control={control} />
-        <div className="flex flex-row items-start gap-2">
+        <div className="flex flex-row items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Trigger Menu"
               className={button({
                 className:
-                  "size-6 p-0 rounded-full text-background bg-muted-foreground mt-2 hover:bg-accent-foreground sm:m-1.5",
+                  "size-6 p-0 rounded-full text-background bg-muted-foreground hover:bg-accent-foreground sm:m-1.5",
               })}
             >
               <PlusIcon className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onSelect={() => setOpenModal(true)}>
+                <BrainIcon className="size-4" />
                 Generate Text
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <label htmlFor="attachment">Upload File</label>
+                <label htmlFor="attachment">
+                  <UploadIcon className="size-4" />
+                  Upload File
+                </label>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -122,7 +133,7 @@ export function Sendbar({
           <IconButton
             disabled={!formState.isValid}
             color="primary"
-            className="size-8 rounded-full p-0 animate-in fade-in mt-1 disabled:hidden sm:m-0.5"
+            className="size-8 rounded-full p-0 disabled:hidden sm:m-0.5"
             onClick={onSend}
           >
             <SendIcon className="size-4 -translate-x-px translate-y-px" />
@@ -151,9 +162,9 @@ function RollbackButton() {
   }, []);
 
   const onClick = () => {
-    const node = document.scrollingElement!!;
+    const node = document.scrollingElement;
 
-    node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
+    if (node) node.scrollTo({ top: node.scrollHeight, behavior: "smooth" });
   };
 
   return (
@@ -224,12 +235,13 @@ function TextArea({
   const lastType = useRef<Date>();
 
   return (
-    <div className="grid max-h-[30vh] overflow-auto flex-1 *:col-[1/2] *:row-[1/2]">
+    <div className="grid flex-1 *:col-[1/2] *:row-[1/2]">
       <div
         aria-hidden
         className={textArea({
           color: "primary",
-          className: "whitespace-pre-wrap overflow-hidden invisible",
+          className:
+            "overflow-hidden max-h-[200px] whitespace-pre-wrap invisible",
         })}
       >
         {field.value + " "}
@@ -246,11 +258,7 @@ function TextArea({
             lastType.current = new Date(Date.now());
           }
         }}
-        className={textArea({
-          color: "primary",
-          className: "resize-none overflow-hidden",
-        })}
-        placeholder="Type message"
+        className={textArea({ color: "primary", className: "block h-full" })}
         autoComplete="off"
         {...props}
       />
