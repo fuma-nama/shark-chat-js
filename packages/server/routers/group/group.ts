@@ -10,6 +10,7 @@ import { getLastReads } from "../../redis/last-read";
 import db from "db/client";
 import { createId } from "@paralleldrive/cuid2";
 import {
+  Group,
   groupInvites,
   groups,
   members,
@@ -19,6 +20,16 @@ import {
 import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { requireOne } from "db/utils";
 import { pick } from "shared/common";
+
+export interface GroupWithNotifications extends Group {
+  last_message: { content: string } | null;
+  unread_messages: number;
+
+  /**
+   * The last reading time
+   */
+  last_read?: number;
+}
 
 export const groupRouter = router({
   create: protectedProcedure
@@ -43,7 +54,7 @@ export const groupRouter = router({
         return await joinMember(result[0].group_id, ctx.session.user.id);
       });
     }),
-  all: protectedProcedure.query(async ({ ctx }) => {
+  all: protectedProcedure.query<GroupWithNotifications[]>(async ({ ctx }) => {
     try {
       return await getGroupsWithNotifications(ctx.session.user.id);
     } catch (e) {
@@ -236,7 +247,9 @@ async function joinMember(groupId: number, userId: string) {
   return rows[0];
 }
 
-async function getGroupsWithNotifications(userId: string) {
+async function getGroupsWithNotifications(
+  userId: string,
+): Promise<GroupWithNotifications[]> {
   const result = await db
     .select({
       group: groups,
@@ -275,6 +288,7 @@ async function getGroupsWithNotifications(userId: string) {
         return {
           ...group,
           last_message,
+          last_read: last_read?.getTime(),
           unread_messages: Number(result.count),
         };
       });

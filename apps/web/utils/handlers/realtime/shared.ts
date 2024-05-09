@@ -1,9 +1,9 @@
 import { Group } from "db/schema";
-import { GroupWithNotifications } from "@/utils/types";
 import { RouterUtils } from "@/utils/trpc";
 import { Serialize } from "shared/types";
 import { getGroupQuery } from "@/utils/variables";
 import Router from "next/router";
+import type { GroupWithNotifications } from "server/routers/group/group";
 
 export const nonces = new Set<number>();
 

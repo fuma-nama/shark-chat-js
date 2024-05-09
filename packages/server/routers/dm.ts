@@ -1,8 +1,8 @@
 import { protectedProcedure, router } from "../trpc";
 import db from "db/client";
 import {
-  messageChannels,
   directMessageInfos,
+  messageChannels,
   messages,
   users,
 } from "db/schema";
@@ -14,6 +14,15 @@ import { TRPCError } from "@trpc/server";
 import { createId } from "@paralleldrive/cuid2";
 import { requireOne } from "db/utils";
 import { channels } from "../ably";
+import { UserProfile } from "./chat";
+
+export interface DMChannel {
+  id: string;
+  user: UserProfile;
+  last_message: { content: string } | null;
+  last_read?: number;
+  unread_messages: number;
+}
 
 export const dmRouter = router({
   info: protectedProcedure
@@ -42,7 +51,7 @@ export const dmRouter = router({
       }
       return res[0];
     }),
-  channels: protectedProcedure.query(async ({ ctx }) => {
+  channels: protectedProcedure.query<DMChannel[]>(async ({ ctx }) => {
     const channels = await db
       .select({
         id: directMessageInfos.channel_id,
@@ -89,6 +98,7 @@ export const dmRouter = router({
 
           return {
             ...channel,
+            last_read: last_read?.getTime(),
             unread_messages: Number(unread_messages[0].count),
           };
         });
@@ -145,7 +155,7 @@ export const dmRouter = router({
             ]);
           }
 
-          return await db
+          return db
             .select({
               id: directMessageInfos.channel_id,
               user: users,

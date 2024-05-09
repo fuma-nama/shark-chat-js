@@ -5,7 +5,7 @@ import { protectedProcedure, router } from "../trpc";
 import { contentSchema } from "shared/schema/chat";
 import { getLastRead, setLastRead } from "../redis/last-read";
 import db from "db/client";
-import { directMessageInfos, groups, messages, users } from "db/schema";
+import { directMessageInfos, groups, messages, User, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
 import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
@@ -19,6 +19,8 @@ import {
 } from "../utils/messages";
 
 const userProfileKeys = ["id", "name", "image"] as const;
+
+export type UserProfile = Pick<User, (typeof userProfileKeys)[number]>;
 
 export const chatRouter = router({
   send: protectedProcedure
@@ -70,7 +72,7 @@ export const chatRouter = router({
 
       await channels.chat.message_sent.publish([input.channelId], message);
 
-      setLastRead(input.channelId, ctx.session.user.id, message.timestamp);
+      void setLastRead(input.channelId, ctx.session.user.id, message.timestamp);
 
       if (input.content.startsWith("@Shark")) {
         await onReceiveMessage({

@@ -6,7 +6,6 @@ import { groupIcon } from "shared/media/format";
 import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { GroupWithNotifications, DMChannel } from "@/utils/types";
 import { Spinner } from "ui/components/spinner";
 import { BoxIcon } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -15,6 +14,9 @@ import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
 import { useRouter } from "next/router";
 import { Navbar } from "@/components/layout/Navbar";
 import { tv } from "tailwind-variants";
+import { getTimeString } from "ui/utils/time";
+import { GroupWithNotifications } from "server/routers/group/group";
+import { DMChannel } from "server/routers/dm";
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
@@ -73,15 +75,15 @@ const Home: NextPageWithLayout = () => {
   });
 
   const onRetry = () => {
-    dmQuery.refetch();
-    groups.refetch();
+    void dmQuery.refetch();
+    void groups.refetch();
   };
 
   return (
     <>
       <Modals modal={modal} setModal={setModal} />
-      <h1 className="text-4xl font-bold">Recent Chat</h1>
-      <div className="flex flex-row gap-3 mt-3">
+      <h1 className="text-2xl font-bold mb-4">Recent Chat</h1>
+      <div className="flex flex-row gap-3">
         <Button color="primary" onClick={() => setModal("create-group")}>
           Create Group
         </Button>
@@ -132,6 +134,8 @@ const card = tv({
 });
 
 function GroupItem({ group }: { group: GroupWithNotifications }) {
+  const lastRead = getTimeString(new Date(group.last_read ?? Date.now()));
+
   return (
     <Link href={`/chat/${group.id}`} className={card()}>
       <Avatar
@@ -141,7 +145,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
       <div className="w-0 flex-1">
         <p className="font-medium text-sm truncate">{group.name}</p>
         <p className="text-sm text-muted-foreground truncate">
-          {group.last_message?.content}
+          {group.last_message?.content ?? `Last read at ${lastRead}`}
         </p>
       </div>
 
@@ -156,6 +160,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
 
 function ChatItem({ chat }: { chat: DMChannel }) {
   const user = chat.user;
+  const lastRead = getTimeString(new Date(chat.last_read ?? Date.now()));
 
   return (
     <DirectMessageContextMenu channelId={chat.id}>
@@ -164,7 +169,7 @@ function ChatItem({ chat }: { chat: DMChannel }) {
         <div className="flex-1 w-0">
           <p className="text-sm font-medium truncate">{user.name}</p>
           <p className="text-sm text-muted-foreground truncate">
-            {chat.last_message?.content}
+            {chat.last_message?.content ?? `Last read at ${lastRead}`}
           </p>
         </div>
         {chat.unread_messages > 0 && (
