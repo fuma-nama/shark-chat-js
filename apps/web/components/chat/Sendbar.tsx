@@ -118,6 +118,14 @@ export function Sendbar({
           <TextArea
             control={control}
             onType={onType}
+            onPaste={(e) => {
+              if (e.clipboardData.files.length > 0) {
+                e.preventDefault();
+                setValue("attachment", e.clipboardData.files[0], {
+                  shouldDirty: true,
+                });
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 void onSend();

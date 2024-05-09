@@ -145,7 +145,7 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
       <div className="w-0 flex-1">
         <p className="font-medium text-sm truncate">{group.name}</p>
         <p className="text-sm text-muted-foreground truncate">
-          {group.last_message?.content ?? `Last read at ${lastRead}`}
+          {group.last_message?.content ?? lastRead}
         </p>
       </div>
 
@@ -169,7 +169,7 @@ function ChatItem({ chat }: { chat: DMChannel }) {
         <div className="flex-1 w-0">
           <p className="text-sm font-medium truncate">{user.name}</p>
           <p className="text-sm text-muted-foreground truncate">
-            {chat.last_message?.content ?? `Last read at ${lastRead}`}
+            {chat.last_message?.content ?? lastRead}
           </p>
         </div>
         {chat.unread_messages > 0 && (

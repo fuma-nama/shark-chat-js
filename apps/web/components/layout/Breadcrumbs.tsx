@@ -1,8 +1,6 @@
-import { useProfile } from "@/utils/hooks/use-profile";
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { Fragment, ReactNode } from "react";
-import { Avatar } from "ui/components/avatar";
 import { useRouter } from "next/router";
 
 export type BreadcrumbItemType = {
@@ -11,22 +9,10 @@ export type BreadcrumbItemType = {
 };
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
-  const { profile } = useProfile();
   const query = useRouter().query;
 
   return (
     <div className="flex flex-row gap-1 items-center">
-      <Link
-        href="/home"
-        className="flex flex-row gap-1 items-center max-sm:hidden"
-      >
-        <Avatar
-          src={profile?.image}
-          fallback={profile?.name ?? undefined}
-          size="small"
-        />
-        <Separator />
-      </Link>
       {items.map((item, i) => (
         <Fragment key={item.href}>
           {i !== 0 && <Separator />}
