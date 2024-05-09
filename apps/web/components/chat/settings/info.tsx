@@ -128,13 +128,13 @@ export function BannerEdit({ group }: { group: Group }) {
         }}
         hidden
       />
-      <div className="relative -mx-4">
+      <div className="relative">
         <label
           htmlFor="banner_image"
           aria-label="Change Banner"
           className={button({
             size: "icon",
-            className: "absolute z-[2] top-2 right-2 cursor-pointer",
+            className: "absolute z-[2] top-2 right-0 cursor-pointer",
           })}
         >
           <EditIcon className="size-5" />
@@ -148,7 +148,7 @@ export function BannerEdit({ group }: { group: Group }) {
 function BannerView({ group }: { group: Group }) {
   if (group.banner_hash) {
     return (
-      <div className="relative aspect-[3] bg-card overflow-hidden lg:rounded-lg">
+      <div className="relative aspect-[3] bg-card overflow-hidden -mx-4 lg:rounded-lg">
         <Image
           priority
           alt="Banner"
@@ -162,7 +162,7 @@ function BannerView({ group }: { group: Group }) {
   }
 
   return (
-    <div className="h-auto aspect-[3] lg:rounded-lg bg-gradient-to-b from-brand to-brand-300" />
+    <div className="h-auto aspect-[3] bg-gradient-to-b from-brand to-brand-300 -mx-4 lg:rounded-lg" />
   );
 }
 
