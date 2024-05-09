@@ -1,8 +1,27 @@
 "use client";
-import { trpc } from "@/utils/trpc/app-router";
-import { signIn } from "next-auth/react";
+import { Group } from "db/schema";
+import { cloudinaryLoader } from "@/utils/cloudinary-loader";
+import Image from "next/image";
+import { groupBanners } from "shared/media/format";
 import { useRouter } from "next/navigation";
+import { trpc } from "@/utils/trpc/app-router";
 import { Button } from "ui/components/button";
+import { signIn } from "next-auth/react";
+
+export function BannerImage({ group }: { group: Group }) {
+  if (!group.banner_hash) return <></>;
+
+  return (
+    <Image
+      src={groupBanners.url([group.id], group.banner_hash)}
+      alt="Banner"
+      loader={cloudinaryLoader}
+      fill
+      sizes="(max-width: 800px) 100vw, 800px"
+      className="blur-lg object-cover"
+    />
+  );
+}
 
 export function InviteButton({
   query,

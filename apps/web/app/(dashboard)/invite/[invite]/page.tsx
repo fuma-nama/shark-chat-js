@@ -4,9 +4,9 @@ import { groupIcon } from "shared/media/format";
 import db from "db/client";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { InviteButton, LoginButton } from "./buttons";
 import { Metadata } from "next";
 import { getServerSession } from "next-auth";
+import { BannerImage, InviteButton, LoginButton } from "./page.client";
 
 type Data = {
   group: Group;
@@ -29,8 +29,9 @@ export default async function InvitePage({
   const { group, query, type } = info;
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gradient-to-b from-light-50 to-light-400  dark:from-dark-600 dark:to-dark-950 min-h-screen p-4">
-      <div className="flex flex-col gap-2 sm:gap-4 items-center text-center p-6 w-full max-w-sm border-[1px] rounded-xl bg-card/50 shadow-lg">
+    <main className="flex flex-col items-center justify-center bg-gradient-to-b from-light-50 to-light-400 dark:from-dark-600 dark:to-dark-950 min-h-screen p-4">
+      <BannerImage group={group} />
+      <div className="flex flex-col gap-4 items-center text-center p-6 w-full max-w-sm border rounded-xl bg-card shadow-lg shadow-black/40 z-[2]">
         <Avatar
           src={groupIcon.url([group.id], group.icon_hash)}
           size="medium"
