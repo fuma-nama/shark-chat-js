@@ -82,12 +82,13 @@ function MemberItem({
               color="danger"
               className="ml-auto"
               isLoading={kick.isLoading}
-              onClick={() =>
+              onClick={(e) => {
                 kick.mutate({
                   groupId: member.group_id,
                   userId: member.user_id,
-                })
-              }
+                });
+                e.preventDefault();
+              }}
             >
               Kick
             </Button>
