@@ -52,13 +52,7 @@ const Settings: NextPageWithLayout = () => {
           )}
           {!isAdmin && (
             <>
-              <div>
-                <h2 className="font-medium text-base mb-3 text-foreground">
-                  Members
-                </h2>
-                <Members group={groupId} isAdmin={false} />
-              </div>
-
+              <Members group={groupId} isAdmin={false} />
               <LeaveGroup group={groupId} />
             </>
           )}

@@ -15,6 +15,21 @@ export default function Members({
   group: number;
   isAdmin: boolean;
 }) {
+  return (
+    <div className="p-1">
+      <h3 className="font-semibold text-sm mb-4">Members</h3>
+      <MembersList group={group} isAdmin={isAdmin} />
+    </div>
+  );
+}
+
+export function MembersList({
+  group,
+  isAdmin,
+}: {
+  group: number;
+  isAdmin: boolean;
+}) {
   const { status, data } = useSession();
   const query = trpc.group.member.get.useQuery(
     { groupId: group },
@@ -22,8 +37,7 @@ export default function Members({
   );
 
   return (
-    <div className="flex flex-col gap-2 p-1">
-      <h3 className="font-semibold text-sm mb-2">Members</h3>
+    <div className="flex flex-col gap-1">
       {query.isLoading ? (
         <Skeleton />
       ) : (
