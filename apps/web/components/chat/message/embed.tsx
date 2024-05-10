@@ -4,7 +4,7 @@ import { SmartImage } from "ui/components/smart-image";
 import type { Embed } from "db/schema";
 
 export function Embed({ embed }: { embed: Embed }) {
-  const [state, setState] = useState<"loading" | "loaded">("loading");
+  const [isLoaded, setIsLoaded] = useState(true);
   const imageOnly = !embed.title && !embed.description && embed.image != null;
   const image = embed.image;
 
@@ -30,7 +30,7 @@ export function Embed({ embed }: { embed: Embed }) {
       )}
       {image != null && (
         <SmartImage
-          state={state}
+          loaded={isLoaded}
           width={image.width}
           height={image.height}
           maxWidth={400}
@@ -39,8 +39,8 @@ export function Embed({ embed }: { embed: Embed }) {
           <img
             alt="image"
             src={image.url}
-            onLoad={() => setState("loaded")}
-            className="w-full h-full"
+            onLoad={() => setIsLoaded(true)}
+            className="size-full"
           />
         </SmartImage>
       )}

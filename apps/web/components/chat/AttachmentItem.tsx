@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SmartImage } from "ui/components/smart-image";
 import Image from "next/image";
 import { cloudinary_prefix, cloudinaryLoader } from "@/utils/cloudinary-loader";
+import { Dialog, DialogContent, DialogTrigger } from "ui/components/dialog";
 
 export function UploadingAttachmentItem({ file }: { file: File }) {
   return (
@@ -39,27 +40,41 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
 }
 
 function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
-  const [state, setState] = useState<"loading" | "loaded">("loading");
+  const [isLoaded, setIsLoaded] = useState(false);
   const url = decodeURIComponent(attachment.url);
 
   return (
-    <div>
+    <Dialog>
       <SmartImage
-        state={state}
-        width={attachment.width!!}
-        height={attachment.height!!}
+        loaded={isLoaded}
+        width={attachment.width!}
+        height={attachment.height!}
         maxWidth={500}
         maxHeight={400}
       >
-        <Image
-          alt={attachment.name}
-          src={url}
-          fill
-          sizes={`(max-width: 500px) 90vw, 500px`}
-          loader={cloudinaryLoader}
-          onLoadingComplete={() => setState("loaded")}
-        />
+        <DialogTrigger asChild>
+          <Image
+            alt={attachment.name}
+            src={url}
+            fill
+            sizes="(max-width: 500px) 90vw, 500px"
+            className="cursor-pointer"
+            loader={cloudinaryLoader}
+            onLoad={() => setIsLoaded(true)}
+          />
+        </DialogTrigger>
       </SmartImage>
-    </div>
+
+      <DialogContent className="flex items-center justify-center bg-card overflow-hidden !w-fit max-w-none p-0">
+        <Image
+          alt="image"
+          src={url}
+          width={attachment.width!}
+          height={attachment.height!}
+          priority
+          unoptimized
+        />
+      </DialogContent>
+    </Dialog>
   );
 }

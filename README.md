@@ -13,7 +13,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build)).
 - Markdown (gfm, tables supported) in Messages
 - Reference Messages
 - Message Embeds (Display open-graph data of links in message)
-- Send Images/Files via Message
+- Send Images/Files via Message, images zoom-in
 - Direct Message with anyone
 - View & Kick Group members
 - Invite Group members via Invite code or Url

@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Spinner } from "./spinner";
 
 export type SmartImageProps = {
-  state: "loaded" | "loading";
+  loaded: boolean;
   width: number;
   height: number;
   maxWidth: number;
@@ -11,7 +11,7 @@ export type SmartImageProps = {
 };
 
 export function SmartImage({
-  state,
+  loaded,
   width,
   height,
   maxWidth,
@@ -33,7 +33,7 @@ export function SmartImage({
       }}
     >
       {children}
-      {state === "loading" && (
+      {!loaded && (
         <div className="flex flex-col justify-center items-center absolute inset-0 bg-light-100 dark:bg-dark-700">
           <Spinner size="medium" />
         </div>
