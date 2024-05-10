@@ -1,4 +1,4 @@
-import { DefaultSession, AuthOptions } from "next-auth";
+import { AuthOptions, DefaultSession } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { DefaultJWT } from "next-auth/jwt";
 import { authAdapter } from "./nextauth-adapter";

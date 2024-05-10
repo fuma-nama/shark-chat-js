@@ -7,7 +7,7 @@ const avatar = tv({
   slots: {
     root: "relative inline-flex aspect-square overflow-hidden",
     fallback:
-      "flex h-full w-full text-center items-center justify-center bg-primary text-primary-foreground text-sm font-medium uppercase",
+      "flex size-full text-center items-center justify-center bg-primary text-primary-foreground text-sm font-medium uppercase",
   },
   variants: {
     size: {
@@ -79,7 +79,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
         <AvatarBase.Image
           alt={fallback ?? alt ?? "avatar"}
           src={src}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover bg-brand"
         />
       )}
       <AvatarBase.Fallback className={styles.fallback()} delayMs={0}>

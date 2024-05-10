@@ -9,6 +9,8 @@
   },
   "devDependencies": {
     "@types/node": "18.11.18",
-    "config": "workspace:*"
+    "@types/pg": "^8.11.6",
+    "config": "workspace:*",
+    "pg": "^8.11.5"
   }
 }
