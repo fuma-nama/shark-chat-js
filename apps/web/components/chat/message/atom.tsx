@@ -10,6 +10,7 @@ import Markdown from "marked-react";
 import { DropdownMenu, DropdownMenuTrigger } from "ui/components/dropdown";
 import { MoreHorizontalIcon } from "lucide-react";
 import { button } from "ui/components/button";
+import Link from "next/link";
 
 type ContentProps = {
   user: MessageType["author"];
@@ -106,6 +107,25 @@ export function Text({ children }: { children: string }) {
         breaks
         openLinksInNewTab
         renderer={{
+          link: (href, text) => {
+            if (href.startsWith(window.location.origin))
+              return (
+                <Link key="link" href={href}>
+                  {text}
+                </Link>
+              );
+
+            return (
+              <a
+                key="link"
+                target="_blank"
+                rel="noreferrer noopener"
+                href={href}
+              >
+                {text}
+              </a>
+            );
+          },
           image: (src, alt) => (
             <Fragment key={src}>{`![${alt}](${src})`}</Fragment>
           ),
