@@ -46,11 +46,11 @@ export default function UserProfileModalDefault({
 }
 
 function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
   const query = trpc.account.profile.useQuery({ userId });
   const dmMutation = trpc.dm.open.useMutation({
     onSuccess: (res) => {
-      Router.push(`/dm/${res.id}`);
+      void Router.push(`/dm/${res.id}`);
       onClose();
     },
   });

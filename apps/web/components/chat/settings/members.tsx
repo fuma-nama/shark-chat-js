@@ -22,7 +22,8 @@ export default function Members({
   );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2 p-1">
+      <h3 className="font-semibold text-sm mb-2">Members</h3>
       {query.isLoading ? (
         <Skeleton />
       ) : (
@@ -55,7 +56,7 @@ function MemberItem({
   member: Serialize<Member & { user: UserInfo }>;
   canKick: boolean;
 }) {
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
   const kick = trpc.group.member.kick.useMutation({
     onSuccess(_, { groupId, userId }) {
       utils.group.member.get.setData({ groupId }, (prev) =>
@@ -66,35 +67,33 @@ function MemberItem({
 
   return (
     <UserProfileModal userId={member.user_id}>
-      <div className="flex flex-row items-center gap-3 p-2 rounded-md bg-muted/50 hover:bg-accent">
-        <DialogTrigger className="flex flex-row items-center">
+      <DialogTrigger asChild>
+        <div className="flex flex-row items-center gap-2 p-2 rounded-md bg-card cursor-pointer hover:bg-accent">
           <Avatar
             alt="avatar"
-            size="2sm"
+            size="small"
             src={member.user.image}
             fallback={member.user.name}
           />
-        </DialogTrigger>
 
-        <DialogTrigger asChild>
-          <p className="cursor-pointer font-medium">{member.user.name}</p>
-        </DialogTrigger>
-        {canKick && (
-          <Button
-            color="danger"
-            className="ml-auto"
-            isLoading={kick.isLoading}
-            onClick={() =>
-              kick.mutate({
-                groupId: member.group_id,
-                userId: member.user_id,
-              })
-            }
-          >
-            Kick
-          </Button>
-        )}
-      </div>
+          <p className="text-sm font-medium">{member.user.name}</p>
+          {canKick && (
+            <Button
+              color="danger"
+              className="ml-auto"
+              isLoading={kick.isLoading}
+              onClick={() =>
+                kick.mutate({
+                  groupId: member.group_id,
+                  userId: member.user_id,
+                })
+              }
+            >
+              Kick
+            </Button>
+          )}
+        </div>
+      </DialogTrigger>
     </UserProfileModal>
   );
 }

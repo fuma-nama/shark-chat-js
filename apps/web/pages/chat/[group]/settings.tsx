@@ -39,22 +39,13 @@ const Settings: NextPageWithLayout = () => {
                 <TabsTrigger value="member">Member</TabsTrigger>
                 <TabsTrigger value="danger">Danger</TabsTrigger>
               </TabsList>
-              <TabsContent
-                value="invite"
-                className="border border-border rounded-xl p-3"
-              >
+              <TabsContent value="invite" className="pt-4">
                 <Invite group={query.data} />
               </TabsContent>
-              <TabsContent
-                value="member"
-                className="border border-border rounded-xl p-3"
-              >
+              <TabsContent value="member" className="pt-4">
                 <Members group={groupId} isAdmin />
               </TabsContent>
-              <TabsContent
-                value="danger"
-                className="border border-border rounded-xl p-3"
-              >
+              <TabsContent value="danger" className="pt-4">
                 <Danger group={groupId} />
               </TabsContent>
             </Tabs>
@@ -77,20 +68,28 @@ const Settings: NextPageWithLayout = () => {
   );
 };
 
-Settings.useLayout = (children) => (
-  <AppLayout>
-    <Navbar
-      breadcrumb={[
-        {
-          text: <BreadcrumbItem />,
-          href: `/chat/[group]`,
-        },
-        { href: `/chat/[group]/settings`, text: "Settings" },
-      ]}
-    />
+Settings.useLayout = (children) => {
+  const router = useRouter();
 
-    <Content>{children}</Content>
-  </AppLayout>
-);
+  return (
+    <AppLayout>
+      <Navbar
+        breadcrumb={[
+          {
+            id: "group",
+            text: <BreadcrumbItem />,
+            href: `/chat/${router.query.group}`,
+          },
+          {
+            id: "settings",
+            text: "Settings",
+          },
+        ]}
+      />
+
+      <Content>{children}</Content>
+    </AppLayout>
+  );
+};
 
 export default Settings;

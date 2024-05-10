@@ -199,7 +199,7 @@ Home.useLayout = (children) => (
     <Navbar
       breadcrumb={[
         {
-          href: "/home",
+          id: "home",
           text: "Home",
         },
       ]}

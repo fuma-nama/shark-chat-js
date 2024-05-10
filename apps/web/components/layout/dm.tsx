@@ -19,8 +19,8 @@ export function useDirectMessageLayout(children: ReactNode) {
       <Navbar
         breadcrumb={[
           {
+            id: "dm",
             text: <BreadcrumbItem />,
-            href: router.asPath,
           },
         ]}
       />

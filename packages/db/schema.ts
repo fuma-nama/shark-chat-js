@@ -120,7 +120,9 @@ export const messages = pgTable(
     author_id: varchar(`author_id`, { length: 191 }).notNull(),
     channel_id: varchar("channel_id", { length: 32 }).notNull(),
     content: varchar(`content`, { length: 2000 }).notNull(),
-    timestamp: timestamp(`timestamp`).notNull().defaultNow(),
+    timestamp: timestamp(`timestamp`, { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     attachment_id: varchar(`attachment_id`, { length: 32 }),
     embeds: json("embeds").$type<Embed[]>(),
     reply_id: integer("reply_id"),

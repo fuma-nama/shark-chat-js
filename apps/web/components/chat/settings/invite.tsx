@@ -38,13 +38,12 @@ export default function Invite({ group }: { group: Group }) {
     });
   };
 
-  const invites = invitesQuery.data;
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4 p-1">
       <div className="flex flex-row gap-3 justify-between">
         <label htmlFor="public">
-          <h3 className="font-medium text-foreground">Pubilc</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="font-semibold text-sm">Public</h3>
+          <p className="text-muted-foreground text-xs">
             Anyone can join your group with an invite url
           </p>
         </label>
@@ -57,14 +56,14 @@ export default function Invite({ group }: { group: Group }) {
       </div>
       {group.public && <PublicInviteItem unique_name={group.unique_name} />}
       <div className="mt-4">
-        <h3 className="font-medium text-foreground">Private</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="font-semibold text-sm">Private</h3>
+        <p className="text-xs text-muted-foreground">
           Peoples with the invite code can join your group
         </p>
-        {invites?.map((invite) => (
+        {invitesQuery.data?.map((invite) => (
           <PrivateInviteItem key={invite.code} invite={invite} />
         ))}
-        <div className="flex flex-row gap-3 mt-3">
+        <div className="flex flex-row gap-3 mt-4">
           <Button
             color="primary"
             isLoading={createMutation.isLoading}
@@ -104,7 +103,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
   const copy = useCopyText();
   const copyLink = useCopyText();
 
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
   const deleteMutation = trpc.group.invite.delete.useMutation({
     onSuccess: (_, { groupId, code }) => {
       utils.group.invite.get.setData({ groupId }, (prev) =>

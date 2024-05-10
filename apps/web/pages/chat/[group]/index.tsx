@@ -42,23 +42,20 @@ function Welcome() {
 
 GroupChat.useLayout = (children) => {
   const router = useRouter();
-  const conroller = useViewScrollController();
+  const controller = useViewScrollController();
 
   return (
     <AppLayout>
       <Navbar
         breadcrumb={[
           {
+            id: "group",
             text: <BreadcrumbItem />,
-            href: `/chat/[group]`,
           },
         ]}
       >
         <Link
-          href={{
-            pathname: "/chat/[group]/settings",
-            query: router.query,
-          }}
+          href={`/chat/${router.query.group}/settings`}
           className={button({
             size: "icon",
             color: "ghost",
@@ -69,7 +66,7 @@ GroupChat.useLayout = (children) => {
       </Navbar>
 
       <Content>
-        <ChatViewProvider value={conroller}>{children}</ChatViewProvider>
+        <ChatViewProvider value={controller}>{children}</ChatViewProvider>
       </Content>
       <Sendbar />
     </AppLayout>

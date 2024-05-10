@@ -164,7 +164,7 @@ Settings.useLayout = (children) => (
     <Navbar
       breadcrumb={[
         {
-          href: "/settings",
+          id: "settings",
           text: "Settings",
         },
       ]}

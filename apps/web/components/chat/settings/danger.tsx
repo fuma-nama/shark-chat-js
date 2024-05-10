@@ -7,13 +7,9 @@ import { useState } from "react";
 
 export default function Danger({ group }: { group: number }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4 p-1">
       <LeaveGroup group={group} />
-      <div className="mt-4">
-        <h3 className="text-foreground font-medium text-base">Delete Group</h3>
-        <p className="text-sm text-muted-foreground">{`This action is irreversible and can not be undone`}</p>
-        <DeleteGroupButton group={group} />
-      </div>
+      <DeleteGroup group={group} />
     </div>
   );
 }
@@ -34,16 +30,30 @@ export function LeaveGroup({ group }: { group: number }) {
 
   return (
     <div>
-      <h3 className="text-base font-medium text-foreground">Leave Group</h3>
-      <p className="text-sm text-muted-foreground">{`You can still join the group after leaving it`}</p>
+      <h3 className="text-sm font-semibold">Leave Group</h3>
+      <p className="text-xs text-muted-foreground">
+        You can join the group after leaving it
+      </p>
       <Button
         color="danger"
         isLoading={mutation.isLoading}
         onClick={() => mutation.mutate({ groupId: group })}
-        className="mt-3"
+        className="mt-4"
       >
         Leave
       </Button>
+    </div>
+  );
+}
+
+function DeleteGroup({ group }: { group: number }) {
+  return (
+    <div className="mt-4">
+      <h3 className="text-sm font-semibold">Delete Group</h3>
+      <p className="text-xs text-muted-foreground">
+        This action is irreversible and cannot be undone
+      </p>
+      <DeleteGroupButton group={group} />
     </div>
   );
 }
