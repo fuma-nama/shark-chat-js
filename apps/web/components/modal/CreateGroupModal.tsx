@@ -3,7 +3,7 @@ import { SimpleDialog } from "ui/components/dialog";
 import { createGroupSchema } from "shared/schema/group";
 import { updateGroupInfo } from "@/utils/hooks/mutations/update-group-info";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { ImagePicker } from "../input/ImagePicker";
 import { Button } from "ui/components/button";
@@ -89,7 +89,7 @@ function Content({ onClose }: { onClose: () => void }) {
 }
 
 function useCreateMutation(onClose: () => void) {
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
 
   return useMutation(
     async ({ name, icon }: z.infer<typeof schema>) => {

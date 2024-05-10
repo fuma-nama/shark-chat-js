@@ -9,9 +9,11 @@ export const uniqueNameSchema = z
     "Unique name can only contain lower-case letters, numbers and underscore",
   );
 
+const groupName = z.string().trim().min(1).max(100);
+
 export const updateGroupSchema = z.object({
   groupId: z.number(),
-  name: z.string().min(1).max(100).optional(),
+  name: groupName.optional(),
   icon_hash: z.number().optional(),
   banner_hash: z.number().optional(),
   public: z.boolean().optional(),
@@ -19,5 +21,5 @@ export const updateGroupSchema = z.object({
 });
 
 export const createGroupSchema = z.object({
-  name: z.string().min(1).max(100).trim(),
+  name: groupName,
 });

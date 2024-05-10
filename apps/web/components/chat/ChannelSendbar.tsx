@@ -4,10 +4,10 @@ import { RouterInput, trpc } from "@/utils/trpc";
 import { XIcon } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { TRPCClientError } from "@trpc/client";
-import { SendData, Sendbar } from "./Sendbar";
+import { Sendbar, SendData } from "./Sendbar";
 import { channels } from "@/utils/ably/client";
 import { useSession } from "next-auth/react";
-import { useTypingStatus, TypingIndicator } from "./TypingIndicator";
+import { TypingIndicator, useTypingStatus } from "./TypingIndicator";
 import { useCallback } from "react";
 import { button } from "ui/components/button";
 
