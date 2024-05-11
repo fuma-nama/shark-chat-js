@@ -45,7 +45,7 @@ export default function Sidebar() {
         <Link
           href="/info"
           prefetch={false}
-          className="font-semibold text-sm px-3 mb-2"
+          className="font-semibold text-sm mb-2"
         >
           Shark Chat
         </Link>
@@ -75,7 +75,7 @@ function Nav() {
 
   return (
     <div className="mt-4">
-      <p className="text-sm mb-2 font-medium px-1">Groups</p>
+      <p className="text-sm mb-2 font-medium">Groups</p>
       {query.data.length === 0 ? (
         <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground">
           no messages
@@ -95,7 +95,7 @@ function Nav() {
         ))
       )}
 
-      <p className="text-sm mt-4 mb-2 font-medium px-1">Users</p>
+      <p className="text-sm mt-4 mb-2 font-medium">Users</p>
       {dm.data.length === 0 ? (
         <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground">
           no direct messages
@@ -136,7 +136,7 @@ function LinkItem({
     <Link
       href={route}
       className={cn(
-        "flex flex-row gap-2 text-muted-foreground items-center px-3 py-2 rounded-xl",
+        "flex flex-row gap-2 text-muted-foreground items-center px-3 -mx-3 py-2 rounded-xl",
         active
           ? "bg-accent text-accent-foreground"
           : "hover:bg-accent/50 transition-colors",
@@ -170,7 +170,7 @@ function SidebarItem({
       href={href}
       scroll={false}
       className={cn(
-        "flex flex-row items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors",
+        "flex flex-row items-center gap-2 px-3 -mx-3 py-2 rounded-xl text-sm transition-colors",
         active
           ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-accent/50",
@@ -178,12 +178,8 @@ function SidebarItem({
     >
       <Avatar src={image} fallback={name} size="small" rounded="full" />
       <div className="w-0 flex-1">
-        <p className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
-          {name}
-        </p>
-        <p className="text-muted-foreground text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-          {description}
-        </p>
+        <p className="font-medium truncate">{name}</p>
+        <p className="text-muted-foreground text-xs truncate">{description}</p>
       </div>
       {notifications > 0 && (
         <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
@@ -202,10 +198,7 @@ function BottomCard() {
     <div className="sticky bottom-0 bg-card mt-auto -mx-2 py-2">
       <Link
         href="/settings"
-        className={clsx(
-          "p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors",
-          "hover:bg-accent",
-        )}
+        className="p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors hover:bg-accent"
       >
         <div className="flex flex-col flex-shrink-0 max-h-fit mr-3">
           <Avatar src={profile.image} fallback={profile.name} size="2sm" />
