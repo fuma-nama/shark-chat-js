@@ -1,11 +1,24 @@
 import Link from "next/link";
 import { button } from "ui/components/button";
+import Image from "next/image";
+import { CodeIcon, PaintbrushIcon, RocketIcon, TimerIcon } from "lucide-react";
+import { tv } from "tailwind-variants";
+
+const card = tv({
+  base: "bg-background/30 p-4 rounded-xl shadow-lg",
+});
 
 export default function InfoPage() {
   return (
-    <div className="relative flex flex-col mx-auto px-6 py-4 gap-3 min-h-screen bg-gradient-to-t from-brand/30 md:px-8">
-      <div className="sticky top-0 left-0 right-0 py-2 flex flex-row items-center z-50 rounded-xl bg-light-100/30 dark:bg-dark-900/30 -mx-2 px-2 backdrop-blur-xl">
-        <div className="w-8 h-8 mr-2 bg-brand rounded-full" />
+    <div className="relative flex flex-col items-center mx-auto px-6 py-4 gap-3 min-h-screen bg-gradient-to-t from-brand/50 md:px-8">
+      <div className="sticky top-4 w-full py-2 flex flex-row items-center z-50 rounded-xl bg-light-100/30 dark:bg-dark-900/30 -mx-2 px-2 backdrop-blur-xl">
+        <Image
+          alt="icon"
+          src="/icon.png"
+          width={25}
+          height={25}
+          className="size-8 mr-2 rounded-full"
+        />
         <p className="font-semibold">Shark Chat</p>
 
         <Link
@@ -16,11 +29,50 @@ export default function InfoPage() {
         </Link>
       </div>
       <Hero />
+      <div className="grid grid-cols-1 gap-4 w-full max-w-screen-sm my-8 sm:grid-cols-2">
+        <div className={card()}>
+          <div className="flex flex-row gap-2 items-center mb-2">
+            <TimerIcon className="size-5" />
+            <h2 className="font-medium">Fast and Light</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Built on top of Next.js App Router, Shark Chat is fast and
+            beautiful.
+          </p>
+        </div>
+        <div className={card()}>
+          <div className="flex flex-row gap-2 items-center mb-2">
+            <RocketIcon className="size-5" />
+            <h2 className="font-medium">Powerful</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            All basic features supported.
+          </p>
+        </div>
+        <div className={card()}>
+          <div className="flex flex-row gap-2 items-center mb-2">
+            <CodeIcon className="size-5" />
+            <h2 className="font-medium">Proudly Open Source</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            All source code is available on Github.
+          </p>
+        </div>
+        <div className={card()}>
+          <div className="flex flex-row gap-2 items-center mb-2">
+            <PaintbrushIcon className="size-5" />
+            <h2 className="font-medium">Aesthetic</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Well-designed UI with good user experience.
+          </p>
+        </div>
+      </div>
       <a
         href="https://github.com/fuma-nama"
         rel="noreferrer noopener"
         target="_blank"
-        className="mt-auto mx-auto text-sm"
+        className="mt-auto text-center text-sm"
       >
         Built with ❤️ by Fuma
       </a>
@@ -30,7 +82,7 @@ export default function InfoPage() {
 
 function Hero() {
   return (
-    <div className="relative z-[2] flex flex-col items-center text-center mt-20">
+    <div className="relative z-[2] flex flex-col items-center text-center mt-12 lg:mt-20">
       <h1 className="text-4xl lg:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-foreground to-brand font-bold !leading-snug">
         The Serverless
         <br />
@@ -40,7 +92,7 @@ function Hero() {
         Shark Chat is an open-source chat app built with Next.js and Tailwind
         CSS.
       </p>
-      <div className="flex flex-row gap-3 mt-6">
+      <div className="grid grid-cols-2 gap-3 mt-6">
         <Link href="/" className={button({ size: "large", color: "primary" })}>
           Try Now
         </Link>
