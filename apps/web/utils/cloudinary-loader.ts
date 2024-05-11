@@ -10,5 +10,5 @@ export const cloudinaryLoader: ImageLoader = ({ src, width, quality }) => {
     src = src.slice(cloudinary_prefix.length);
   }
 
-  return `${cloudinary_prefix}${params.join(",")}/${src}`;
+  return encodeURI(`${cloudinary_prefix}${params.join(",")}/${src}`);
 };
