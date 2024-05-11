@@ -1,4 +1,3 @@
-"use client";
 import { ButtonHTMLAttributes, ComponentProps, forwardRef } from "react";
 
 import { tv } from "tailwind-variants";

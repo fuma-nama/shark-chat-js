@@ -10,12 +10,12 @@ import { BoxIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { tv } from "tailwind-variants";
 import { getTimeString } from "ui/utils/time";
 import { GroupWithNotifications } from "server/routers/group/group";
 import { DMChannel } from "server/routers/dm";
+import { useRouter } from "next/navigation";
 
 const card = tv({
   base: [
@@ -63,14 +63,15 @@ function Modals({
 export default function Page() {
   const router = useRouter();
   const [modal, setModal] = useState<Modal>();
-  const query = useSearchParams();
-  const initialModal = query?.get("modal");
 
   useEffect(() => {
-    if (initialModal === "new") {
+    const params = new URLSearchParams(document.location.search);
+
+    if (params.get("modal") === "new") {
+      router.replace("/");
       setModal("boarding");
     }
-  }, [initialModal, router, setModal]);
+  }, [router, setModal]);
 
   return (
     <>
