@@ -24,7 +24,7 @@ export function MessageEventManager() {
     const active = channelId === message.channel_id;
 
     if (name === "message_sent") {
-      const self = message.author_id === data?.user.id;
+      const self = data && message.author?.id === data.user.id;
 
       if (active || self) {
         utils.chat.checkout.setData(

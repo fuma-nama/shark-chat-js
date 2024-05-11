@@ -76,7 +76,7 @@ function Menu({ message }: { message: MessageType }) {
   const deleteMutation = trpc.chat.delete.useMutation();
 
   const isAuthor =
-    status === "authenticated" && message.author_id === data.user.id;
+    status === "authenticated" && message.author?.id === data.user.id;
 
   const isGroup = typeof group === "string";
 
