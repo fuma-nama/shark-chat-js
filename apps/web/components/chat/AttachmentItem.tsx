@@ -4,7 +4,12 @@ import { useState } from "react";
 import { SmartImage } from "ui/components/smart-image";
 import Image from "next/image";
 import { cloudinary_prefix, cloudinaryLoader } from "@/utils/cloudinary-loader";
-import { Dialog, DialogContent, DialogTrigger } from "ui/components/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTrigger,
+} from "ui/components/dialog";
 
 export function UploadingAttachmentItem({ file }: { file: File }) {
   return (
@@ -65,15 +70,18 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
         </DialogTrigger>
       </SmartImage>
 
-      <DialogContent className="flex items-center justify-center bg-card overflow-hidden !w-fit max-w-none p-0">
-        <Image
-          alt="image"
-          src={url}
-          width={attachment.width!}
-          height={attachment.height!}
-          priority
-          unoptimized
-        />
+      <DialogContent className="flex items-center justify-center bg-transparent max-w-none p-0">
+        <DialogClose asChild>
+          <Image
+            alt="image"
+            src={url}
+            className="w-[100vw] h-[90vh] max-w-none object-contain"
+            width={attachment.width!}
+            height={attachment.height!}
+            priority
+            unoptimized
+          />
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

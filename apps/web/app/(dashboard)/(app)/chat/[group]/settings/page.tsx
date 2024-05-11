@@ -19,7 +19,7 @@ export default function Page({ params }: { params: { group: string } }) {
     query.status === "success" && query.data.owner_id === data!!.user.id;
 
   return (
-    <div className="flex flex-col gap-10 mx-auto w-full max-w-3xl px-4">
+    <div className="flex flex-col gap-10 mx-auto w-full max-w-3xl p-4">
       {query.isLoading || query.isError ? (
         <div className="m-auto">
           <Spinner size="large" />
