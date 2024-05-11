@@ -27,6 +27,12 @@ export type ChatStore = {
   editing: {
     [id: string]: { messageId?: number };
   };
+  messages: {
+    [id: string]: MessageType[];
+  };
+  pointer: {
+    [channel: string]: number | undefined;
+  };
   setEditing(channelId: string, messageId?: number): void;
   updateSendbar(id: string, data: Partial<SendbarData>): void;
   addSending: (
@@ -42,6 +48,8 @@ export const useMessageStore = create<ChatStore>((set) => ({
   sendbar: {},
   sending: {},
   editing: {},
+  messages: {},
+  pointer: {},
   updateSendbar(id, data) {
     set((prev) => ({
       ...prev,

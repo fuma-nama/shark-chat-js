@@ -12,6 +12,7 @@ import { onReceiveMessage } from "../inworld";
 import { checkChannelPermissions } from "../utils/permissions";
 import { pick } from "shared/common";
 import {
+  ComplexMessage,
   createMessage,
   fetchMessages,
   getEmbeds,
@@ -89,22 +90,18 @@ export const chatRouter = router({
       z.object({
         channelId: z.string(),
         count: z.number().min(0).max(50).default(50),
-        cursorType: z.enum(["after", "before"]).default("before"),
-        cursor: z.string().datetime().optional(),
+        after: z.number().optional(),
+        before: z.number().optional(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query<ComplexMessage[]>(async ({ input, ctx }) => {
       await checkChannelPermissions(input.channelId, ctx.session);
 
       return await fetchMessages(
         input.channelId,
         input.count,
-        input.cursor != null && input.cursorType === "after"
-          ? new Date(input.cursor)
-          : undefined,
-        input.cursor != null && input.cursorType === "before"
-          ? new Date(input.cursor)
-          : undefined,
+        input.after ? new Date(input.after) : undefined,
+        input.before ? new Date(input.before) : undefined,
       );
     }),
   update: protectedProcedure

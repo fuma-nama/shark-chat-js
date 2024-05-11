@@ -3,22 +3,18 @@ import { BookmarkIcon } from "lucide-react";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
 import { ChatViewProvider } from "@/components/chat/ChatView";
-import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
-import { Blocker } from "@/components/blocker";
 import { useGroup } from "@/app/(dashboard)/(app)/chat/[group]/use-group";
+import { Spinner } from "ui/components/spinner";
 
 export default function Page({ params }: { params: { group: string } }) {
   const channelId = useGroup(params.group)?.channel_id;
-  const controller = useViewScrollController();
-  if (channelId == null) return <></>;
+  if (channelId == null) return <Spinner size="large" className="m-auto" />;
 
   return (
     <>
-      <Blocker>
-        <ChatViewProvider value={controller}>
-          <MessageList channelId={channelId} welcome={<Welcome />} />
-        </ChatViewProvider>
-      </Blocker>
+      <ChatViewProvider>
+        <MessageList channelId={channelId} welcome={<Welcome />} />
+      </ChatViewProvider>
       <ChannelSendbar channelId={channelId} />
     </>
   );

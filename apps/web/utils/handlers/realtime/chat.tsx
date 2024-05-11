@@ -1,12 +1,10 @@
 import { channels } from "@/utils/ably/client";
 import { useChannels } from "ably-builder/hooks";
-import { RouterInput, RouterUtils, trpc } from "@/utils/trpc";
+import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import { getMessageVariables } from "@/utils/variables";
 import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
-import { MessageType } from "@/utils/types";
 import { useParams } from "next/navigation";
 
 export function MessageEventManager() {
@@ -17,7 +15,6 @@ export function MessageEventManager() {
   const onEvent = channels.chat.useCallback(({ name, data: message }) => {
     if (name === "typing") return;
 
-    const variables = getMessageVariables(message.channel_id);
     const channelId =
       params.group != null
         ? utils.group.all
@@ -50,44 +47,50 @@ export function MessageEventManager() {
           .removeSending(message.channel_id, message.nonce);
       }
 
-      return addMessage(utils, variables, message);
+      return useMessageStore.setState((prev) => ({
+        messages: {
+          ...prev.messages,
+          [message.channel_id]: [
+            ...(prev.messages[message.channel_id] ?? []),
+            message,
+          ],
+        },
+      }));
     }
 
     if (name === "message_updated") {
-      return utils.chat.messages.setInfiniteData(variables, (prev) => {
-        if (prev == null) return prev;
+      return useMessageStore.setState((prev) => {
+        const updated = prev.messages[message.channel_id]?.map((item) => {
+          if (item.id === message.id) {
+            return {
+              ...item,
+              ...message,
+            };
+          }
 
-        const pages = prev.pages.map((page) =>
-          page.map((msg) => {
-            if (msg.id === message.id) {
-              return {
-                ...msg,
-                ...message,
-              };
-            }
-
-            return msg;
-          }),
-        );
+          return item;
+        });
 
         return {
-          ...prev,
-          pages,
+          messages: {
+            ...prev.messages,
+            [message.channel_id]: updated,
+          },
         };
       });
     }
 
     if (name === "message_deleted") {
-      return utils.chat.messages.setInfiniteData(variables, (prev) => {
-        if (prev == null) return prev;
-
-        const pages = prev.pages.map((page) => {
-          return page.filter((msg) => msg.id !== message.id);
-        });
+      return useMessageStore.setState((prev) => {
+        const filtered = prev.messages[message.channel_id]?.filter(
+          (item) => item.id !== message.id,
+        );
 
         return {
-          ...prev,
-          pages,
+          messages: {
+            ...prev.messages,
+            [message.channel_id]: filtered,
+          },
         };
       });
     }
@@ -114,38 +117,4 @@ export function MessageEventManager() {
   useChannels(channelList, onEvent);
 
   return <></>;
-}
-
-function addMessage(
-  utils: RouterUtils,
-  variables: RouterInput["chat"]["messages"],
-  message: MessageType,
-) {
-  utils.chat.messages.setInfiniteData(variables, (prev) => {
-    if (prev == null) return prev;
-
-    return {
-      ...prev,
-      pages: [...prev.pages, [message]],
-    };
-  });
-
-  utils.dm.channels.setData(undefined, (prev) => {
-    if (prev == null) return prev;
-
-    return prev.map((channel) =>
-      channel.id === message.channel_id
-        ? { ...channel, last_message: message }
-        : channel,
-    );
-  });
-
-  utils.group.all.setData(undefined, (prev) => {
-    if (prev == null) return prev;
-    return prev.map((group) =>
-      group.channel_id === message.channel_id
-        ? { ...group, last_message: message }
-        : group,
-    );
-  });
 }

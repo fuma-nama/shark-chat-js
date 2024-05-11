@@ -1,5 +1,4 @@
 "use client";
-import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
 import { Navbar } from "@/components/layout/Navbar";
 import { ChatViewProvider } from "@/components/chat/ChatView";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
@@ -8,28 +7,27 @@ import { trpc } from "@/utils/trpc";
 import { skeleton } from "ui/components/skeleton";
 import { Avatar } from "ui/components/avatar";
 import { useParams } from "next/navigation";
-import { Blocker } from "@/components/blocker";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams() as { channel: string };
-  const controller = useViewScrollController();
 
   return (
-    <>
-      <Navbar
-        breadcrumb={[
-          {
-            id: "dm",
-            text: <BreadcrumbItem channel={params.channel} />,
-          },
-        ]}
-      />
+    <div className="relative flex flex-col-reverse overflow-auto h-dvh">
+      <div className="flex flex-col flex-1">
+        <Navbar
+          breadcrumb={[
+            {
+              id: "dm",
+              text: <BreadcrumbItem channel={params.channel} />,
+            },
+          ]}
+        />
 
-      <Blocker>
-        <ChatViewProvider value={controller}>{children}</ChatViewProvider>
-      </Blocker>
-      <ChannelSendbar channelId={params.channel} />
-    </>
+        <ChatViewProvider>{children}</ChatViewProvider>
+
+        <ChannelSendbar channelId={params.channel} />
+      </div>
+    </div>
   );
 }
 

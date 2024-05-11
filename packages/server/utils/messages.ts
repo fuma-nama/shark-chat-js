@@ -1,24 +1,24 @@
 import db from "db";
 import {
-  messages,
-  users,
-  attachments,
-  messageChannels,
   Attachment,
+  attachments,
   Embed,
   Message,
+  messageChannels,
+  messages,
+  users,
 } from "db/schema";
 import { requireOne } from "db/utils";
-import { and, eq, lt, desc, gt } from "drizzle-orm";
+import { and, desc, eq, gt, lt } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { pick } from "shared/common";
 import { z } from "zod";
 import {
   AttachmentType,
-  UploadAttachment,
-  UserInfo,
   contentSchema,
+  UploadAttachment,
   uploadAttachmentSchema,
+  UserInfo,
 } from "shared/schema/chat";
 import { createId } from "@paralleldrive/cuid2";
 import { info } from "./og-meta";
@@ -57,8 +57,8 @@ export async function fetchMessages(
     .where(
       and(
         eq(messages.channel_id, channel),
-        after != null ? gt(messages.timestamp, after) : undefined,
-        before != null ? lt(messages.timestamp, before) : undefined,
+        after ? gt(messages.timestamp, after) : undefined,
+        before ? lt(messages.timestamp, before) : undefined,
       ),
     )
     .leftJoin(users, eq(users.id, messages.author_id))
@@ -102,7 +102,8 @@ export async function createMessage(
     .returning({ message_id: messages.id })
     .then((res) => res[0].message_id);
 
-  db.update(messageChannels)
+  await db
+    .update(messageChannels)
     .set({
       last_message_id: message_id,
     })

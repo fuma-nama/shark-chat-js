@@ -1,3 +1,4 @@
-import { RouterOutput } from "./trpc";
+import { ComplexMessage } from "server/utils/messages";
+import { Serialize } from "@trpc/server/shared";
 
-export type MessageType = RouterOutput["chat"]["messages"][number];
+export type MessageType = Serialize<ComplexMessage>;

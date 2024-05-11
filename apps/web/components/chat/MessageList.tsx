@@ -1,14 +1,14 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
-import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode, useLayoutEffect, useMemo } from "react";
+import { Fragment, ReactNode } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
-import { usePathname } from "next/navigation";
+
+const count = 15;
 
 export function MessageList({
   channelId,
@@ -17,52 +17,53 @@ export function MessageList({
   channelId: string;
   welcome: ReactNode;
 }) {
-  const pathname = usePathname();
   const { status } = useSession();
-  const variables = getMessageVariables(channelId);
   const lastRead = useLastRead(channelId);
-  const [sending] = useMessageStore((s) => [s.sending[channelId]]);
+  const [sending, messages, pointer] = useMessageStore((s) => [
+    s.sending[channelId] ?? [],
+    s.messages[channelId] ?? [],
+    s.pointer[channelId],
+  ]);
 
-  const query = trpc.chat.messages.useInfiniteQuery(variables, {
-    enabled: status === "authenticated",
-    staleTime: Infinity,
-    getPreviousPageParam: (messages) =>
-      messages.length >= variables.count
-        ? messages[messages.length - 1].timestamp
-        : null,
-  });
-
-  const rows = useMemo(
-    () =>
-      query.data?.pages?.flatMap((messages) => [...messages].reverse()) ?? [],
-    [query.data?.pages],
+  const query = trpc.chat.messages.useQuery(
+    { channelId, count, before: pointer },
+    {
+      enabled: status === "authenticated",
+      staleTime: Infinity,
+      onSuccess(data) {
+        useMessageStore.setState((prev) => ({
+          messages: {
+            ...prev.messages,
+            [channelId]: [...(prev.messages[channelId] ?? []), ...data],
+          },
+        }));
+        console.log(`Loaded new chunk: ${data.length} items`);
+      },
+    },
   );
 
-  const showSkeleton = query.isLoading || query.hasPreviousPage;
+  const showSkeleton = !query.data || query.data.length === count;
 
-  const { sentryRef, resetScroll, updateScrollPosition } = useChatView({
-    hasNextPage: (query.hasPreviousPage ?? true) || rows.length === 0,
+  const { sentryRef } = useChatView({
+    hasNextPage: showSkeleton,
     onLoadMore: () => {
-      if (!query.isSuccess || query.isFetchingPreviousPage) return;
+      if (!query.isSuccess || query.isLoading) return;
 
-      if (query.hasPreviousPage) {
-        void query.fetchPreviousPage();
-      }
+      useMessageStore.setState((prev) => ({
+        pointer: {
+          ...prev.pointer,
+          [channelId]:
+            messages.length > 0
+              ? new Date(messages[0].timestamp).getTime()
+              : undefined,
+        },
+      }));
     },
-    disabled: query.isLoading,
-    loading: query.isFetchingPreviousPage,
+    loading: query.isLoading,
   });
 
-  useLayoutEffect(() => {
-    resetScroll();
-  }, [resetScroll, pathname]);
-
-  useLayoutEffect(() => {
-    updateScrollPosition();
-  }, [rows, sending, updateScrollPosition]);
-
   return (
-    <div className="flex flex-col gap-3 mb-8">
+    <div className="flex flex-col gap-3 mb-8 max-w-screen-2xl w-full mx-auto flex-1 pt-2 p-4">
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
           {new Array(40).fill(0).map((_, i) => (
@@ -79,7 +80,7 @@ export function MessageList({
       ) : (
         welcome
       )}
-      {rows.map((message, i, arr) => {
+      {messages.map((message, i, arr) => {
         const prev_message = i > 0 ? arr[i - 1] : null;
         const newLine =
           lastRead != null &&
@@ -95,7 +96,7 @@ export function MessageList({
         );
       })}
 
-      {sending?.map((message) => (
+      {sending.map((message) => (
         <LocalMessageItem key={message.nonce} item={message} />
       ))}
     </div>
