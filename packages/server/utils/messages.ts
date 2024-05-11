@@ -66,7 +66,8 @@ export async function fetchMessages(
     .leftJoin(reply_message, eq(messages.reply_id, reply_message.id))
     .leftJoin(reply_user, eq(reply_message.author_id, reply_user.id))
     .orderBy(desc(messages.timestamp))
-    .limit(count);
+    .limit(count)
+    .then((res) => res.reverse());
 }
 
 export const messageSchema = z
