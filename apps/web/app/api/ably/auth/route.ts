@@ -1,17 +1,16 @@
 import { getServerSession } from "next-auth/next";
-import type { NextApiRequest, NextApiResponse } from "next";
 import ably, { channels } from "server/ably";
 import { authOptions } from "server/auth";
+import { NextResponse } from "next/server";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  const session = await getServerSession(req, res, authOptions);
+export async function POST() {
+  const session = await getServerSession(authOptions);
   const clientId = session?.user.id;
 
   if (clientId == null) {
-    return res.status(401).json("You must be login before connecting to Ably");
+    return NextResponse.json("You must login before connecting to Ably", {
+      status: 401,
+    });
   }
 
   const tokenRequestData = await ably.auth.createTokenRequest({
@@ -23,5 +22,5 @@ export default async function handler(
     },
   });
 
-  return res.status(200).json(tokenRequestData);
+  return NextResponse.json(tokenRequestData);
 }

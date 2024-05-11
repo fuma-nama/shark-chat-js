@@ -1,26 +1,23 @@
 import { forwardRef, Fragment, ReactNode } from "react";
 import { Avatar } from "ui/components/avatar";
-
 import * as ContextMenu from "ui/components/context-menu";
 import { getTimeString } from "ui/utils/time";
 import { MessageType } from "@/utils/types";
 import { cn } from "ui/utils/cn";
 import { usePageStore } from "@/utils/stores/page";
-import Markdown from "marked-react";
+import Markdown, { ReactRenderer } from "marked-react";
 import { DropdownMenu, DropdownMenuTrigger } from "ui/components/dropdown";
 import { MoreHorizontalIcon } from "lucide-react";
 import { button } from "ui/components/button";
 import Link from "next/link";
 
-type ContentProps = {
+interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
   user: MessageType["author"];
   timestamp: string | Date | number;
-  className?: string;
-  children: ReactNode;
-};
+}
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
-  ({ user, timestamp, children, ...props }, ref) => {
+  ({ user, timestamp, className, ...props }, ref) => {
     const author = user ?? {
       id: "",
       image: null,
@@ -40,8 +37,9 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
         ref={ref}
         className={cn(
           "relative group p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
-          props.className,
+          className,
         )}
+        {...props}
       >
         <Avatar
           src={author.image}
@@ -62,7 +60,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
               {getTimeString(date)}
             </p>
           </div>
-          {children}
+          {props.children}
         </div>
       </div>
     );
@@ -98,39 +96,28 @@ export function Root({ children }: RootProps) {
   );
 }
 
+const renderer: Partial<ReactRenderer> = {
+  link: (href, text) => {
+    if (href.startsWith(window.location.origin))
+      return (
+        <Link key="link" href={href}>
+          {text}
+        </Link>
+      );
+
+    return (
+      <a key="link" target="_blank" rel="noreferrer noopener" href={href}>
+        {text}
+      </a>
+    );
+  },
+  image: (src, alt) => <Fragment key={src}>{`![${alt}](${src})`}</Fragment>,
+};
+
 export function Text({ children }: { children: string }) {
   return (
     <div className="prose prose-message text-[15px] break-words overflow-hidden">
-      <Markdown
-        value={children}
-        gfm
-        breaks
-        openLinksInNewTab
-        renderer={{
-          link: (href, text) => {
-            if (href.startsWith(window.location.origin))
-              return (
-                <Link key="link" href={href}>
-                  {text}
-                </Link>
-              );
-
-            return (
-              <a
-                key="link"
-                target="_blank"
-                rel="noreferrer noopener"
-                href={href}
-              >
-                {text}
-              </a>
-            );
-          },
-          image: (src, alt) => (
-            <Fragment key={src}>{`![${alt}](${src})`}</Fragment>
-          ),
-        }}
-      />
+      <Markdown value={children} gfm breaks renderer={renderer} />
     </div>
   );
 }

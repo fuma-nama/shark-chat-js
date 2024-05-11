@@ -2,10 +2,10 @@ import { AlertDialog } from "ui/components/alert-dialog";
 import { Button } from "ui/components/button";
 import { showErrorToast } from "@/utils/stores/page";
 import { trpc } from "@/utils/trpc";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function Danger({ group }: { group: number }) {
+export function Danger({ group }: { group: number }) {
   return (
     <div className="flex flex-col gap-4 p-1">
       <LeaveGroup group={group} />
@@ -18,7 +18,7 @@ export function LeaveGroup({ group }: { group: number }) {
   const router = useRouter();
   const mutation = trpc.group.leave.useMutation({
     onSuccess: () => {
-      return router.push("/home");
+      return router.push("/");
     },
     onError: (error) => {
       showErrorToast({

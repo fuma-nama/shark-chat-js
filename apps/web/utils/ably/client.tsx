@@ -7,6 +7,7 @@ import { AblyProvider } from "ably/react";
 
 const ably = new Realtime({
   authUrl: `${getBaseUrl()}/api/ably/auth`,
+  authMethod: "POST",
   autoConnect: false,
 });
 

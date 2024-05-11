@@ -1,8 +1,6 @@
 import { Group } from "db/schema";
 import { RouterUtils } from "@/utils/trpc";
 import { Serialize } from "shared/types";
-import { getGroupQuery } from "@/utils/variables";
-import Router from "next/router";
 import type { GroupWithNotifications } from "server/routers/group/group";
 
 export const nonces = new Set<number>();
@@ -25,20 +23,6 @@ export function createGroup(utils: RouterUtils, group: Serialize<Group>) {
   utils.group.info.setData({ groupId: group.id }, group);
   utils.group.all.setData(undefined, (groups) =>
     groups != null ? [full_group, ...groups] : undefined,
-  );
-}
-
-export function deleteGroup(utils: RouterUtils, groupId: number) {
-  const active =
-    Router.asPath.startsWith("/chat/") &&
-    getGroupQuery(Router).groupId === groupId;
-
-  if (active) {
-    Router.push("/home");
-  }
-
-  utils.group.all.setData(undefined, (groups) =>
-    groups?.filter((g) => g.id !== groupId),
   );
 }
 

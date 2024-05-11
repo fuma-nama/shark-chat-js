@@ -1,6 +1,6 @@
-import { TrpcProvider } from "@/utils/trpc/app-router-provider";
 import { ReactNode } from "react";
+import { Provider } from "./layout.client";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  return <TrpcProvider>{children}</TrpcProvider>;
+  return <Provider>{children}</Provider>;
 }

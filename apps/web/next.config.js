@@ -12,7 +12,7 @@ const nextConfig = {
     deviceSizes: [350, 500, 640, 828, 1080, 1200, 1920, 2048, 3840],
   },
   async redirects() {
-    return [{ source: "/", destination: "/home", permanent: false }];
+    return [{ source: "/home", destination: "/", permanent: false }];
   },
 };
 

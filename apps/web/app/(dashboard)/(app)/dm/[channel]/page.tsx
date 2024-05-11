@@ -1,19 +1,18 @@
+"use client";
 import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
-import { useRouter } from "next/router";
-
-import type { NextPageWithLayout } from "../../_app";
-import { useDirectMessageLayout } from "@/components/layout/dm";
 import { MessageList } from "@/components/chat/MessageList";
 
-const DMPage: NextPageWithLayout = () => {
-  const { channel } = useRouter().query as { channel: string };
+export default function Page({ params }: { params: { channel: string } }) {
+  return (
+    <MessageList
+      channelId={params.channel}
+      welcome={<Welcome channel={params.channel} />}
+    />
+  );
+}
 
-  return <MessageList channelId={channel} welcome={<Welcome />} />;
-};
-
-function Welcome() {
-  const { channel } = useRouter().query as { channel: string };
+function Welcome({ channel }: { channel: string }) {
   const query = trpc.dm.info.useQuery(
     { channelId: channel },
     { enabled: false },
@@ -38,7 +37,3 @@ function Welcome() {
     </div>
   );
 }
-
-DMPage.useLayout = useDirectMessageLayout;
-
-export default DMPage;

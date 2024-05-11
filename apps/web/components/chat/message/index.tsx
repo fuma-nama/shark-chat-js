@@ -6,7 +6,7 @@ import * as Item from "./atom";
 import * as ContextMenu from "ui/components/context-menu";
 import { AttachmentItem } from "../AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
-import { useRouter } from "next/router";
+import { useParams } from "next/navigation";
 import { CopyIcon, EditIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
 import { Reference } from "./reference";
@@ -26,13 +26,18 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
 
   return (
     <Item.Root>
-      <ContextMenu.Trigger disabled={editing}>
+      <ContextMenu.Trigger disabled={editing} asChild>
         <Item.Content user={message.author} timestamp={message.timestamp}>
           {editing ? (
             <Edit message={message} />
           ) : (
             <>
-              {message.reply_id != null && <Reference user={message.reply_user} content={message.reply_message?.content} />}
+              {message.reply_id != null && (
+                <Reference
+                  user={message.reply_user}
+                  content={message.reply_message?.content}
+                />
+              )}
               {!embedOnly && <Item.Text>{message.content}</Item.Text>}
               {message.attachment != null && (
                 <AttachmentItem attachment={message.attachment} />
@@ -58,7 +63,7 @@ interface Item {
 
 function Menu({ message }: { message: MessageType }) {
   const { status, data } = useSession();
-  const { group } = useRouter().query;
+  const { group } = useParams() as { group?: string };
 
   const query = trpc.group.info.useQuery(
     { groupId: typeof group === "string" ? Number(group) : NaN },

@@ -1,9 +1,10 @@
+"use client";
 import { usePageStore } from "@/utils/stores/page";
 import { useProfile } from "@/utils/hooks/use-profile";
-import { ChevronRightIcon, XIcon, HomeIcon } from "lucide-react";
+import { ChevronRightIcon, HomeIcon, XIcon } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useParams, usePathname } from "next/navigation";
 import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
@@ -29,7 +30,7 @@ export default function Sidebar() {
       )}
       <aside
         className={clsx(
-          "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-card border-r overflow-x-hidden overflow-y-auto md:h-screen",
+          "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-card border-r overflow-x-hidden overflow-y-auto md:h-dvh",
           "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
           "max-md:transition-transform max-md:duration-300",
           !isOpen && "max-md:-translate-x-full",
@@ -41,12 +42,16 @@ export default function Sidebar() {
         >
           <XIcon className="size-4" />
         </button>
-        <Link href="/info" prefetch={false} className="font-bold mb-2">
+        <Link
+          href="/info"
+          prefetch={false}
+          className="font-semibold text-sm px-2 mb-2"
+        >
           Shark Chat
         </Link>
         <LinkItem
           name="Home"
-          route="/home"
+          route="/"
           icon={<HomeIcon className="size-3" fill="currentColor" />}
         />
         <Nav />
@@ -57,7 +62,7 @@ export default function Sidebar() {
 }
 
 function Nav() {
-  const router = useRouter();
+  const params = useParams() as { group?: string; channel?: string };
   const query = trpc.group.all.useQuery(undefined, { enabled: false });
   const dm = trpc.dm.channels.useQuery(undefined, { enabled: false });
 
@@ -81,7 +86,7 @@ function Nav() {
             key={group.id}
             href={`/chat/${group.id}`}
             description={group.last_message?.content}
-            active={router.query.group === group.id.toString()}
+            active={params.group === group.id.toString()}
             image={groupIcon.url([group.id], group.icon_hash)}
             notifications={group.unread_messages}
           >
@@ -102,7 +107,7 @@ function Nav() {
               <SidebarItem
                 href={`/dm/${item.id}`}
                 description={item.last_message?.content}
-                active={router.query.channel === item.id}
+                active={params.channel === item.id}
                 image={item.user.image}
                 notifications={item.unread_messages}
               >
@@ -125,7 +130,7 @@ function LinkItem({
   route: string;
   icon: ReactNode;
 }) {
-  const active = route === useRouter().route;
+  const active = route === usePathname();
 
   return (
     <Link

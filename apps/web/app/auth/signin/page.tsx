@@ -12,7 +12,7 @@ export default async function SignInPage({
   const session = await getServerSession(authOptions);
 
   if (session) {
-    redirect(searchParams.callbackUrl ?? "/home");
+    redirect(searchParams.callbackUrl ?? "/");
   }
 
   const providers = await getProviders().then((res) =>

@@ -33,7 +33,7 @@ export const authOptions: AuthOptions = {
   ],
   pages: {
     signIn: "/auth/signin",
-    newUser: "/home?modal=new",
+    newUser: "/?modal=new",
   },
   callbacks: {
     session: async ({ session, token }) => {

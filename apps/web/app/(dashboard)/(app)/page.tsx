@@ -1,9 +1,8 @@
+"use client";
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
-import { AppLayout, Content } from "@/components/layout/app";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "shared/media/format";
-import { NextPageWithLayout } from "./_app";
 import Link from "next/link";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { Spinner } from "ui/components/spinner";
@@ -11,12 +10,19 @@ import { BoxIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { tv } from "tailwind-variants";
 import { getTimeString } from "ui/utils/time";
 import { GroupWithNotifications } from "server/routers/group/group";
 import { DMChannel } from "server/routers/dm";
+
+const card = tv({
+  base: [
+    "relative rounded-xl bg-card p-4 flex flex-row gap-3 transition duration-100 hover:bg-accent",
+    "shadow-lg shadow-brand-500/10 dark:shadow-none",
+  ],
+});
 
 const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
 const CreateGroupModal = dynamic(
@@ -54,19 +60,32 @@ function Modals({
   );
 }
 
-const Home: NextPageWithLayout = () => {
+export default function Page() {
   const router = useRouter();
   const [modal, setModal] = useState<Modal>();
-  const { modal: initialModal } = router.query;
+  const query = useSearchParams();
+  const initialModal = query?.get("modal");
 
   useEffect(() => {
     if (initialModal === "new") {
-      router.replace("/home", undefined, { shallow: true }).then(() => {
-        setModal("boarding");
-      });
+      setModal("boarding");
     }
   }, [initialModal, router, setModal]);
 
+  return (
+    <>
+      <Navbar breadcrumb={[{ id: "home", text: "Recent Chat" }]}>
+        <div className="max-sm:hidden flex flex-row gap-3">
+          <ThemeSwitch />
+        </div>
+      </Navbar>
+      <Modals modal={modal} setModal={setModal} />
+      <RecentChat setModal={setModal} />
+    </>
+  );
+}
+
+function RecentChat({ setModal }: { setModal: (v: Modal) => void }) {
   const dmQuery = trpc.dm.channels.useQuery(undefined, {
     enabled: false,
   });
@@ -80,9 +99,7 @@ const Home: NextPageWithLayout = () => {
   };
 
   return (
-    <>
-      <Modals modal={modal} setModal={setModal} />
-      <h1 className="text-2xl font-bold mb-4">Recent Chat</h1>
+    <main className="p-4">
       <div className="flex flex-row gap-3">
         <Button color="primary" onClick={() => setModal("create-group")}>
           Create Group
@@ -122,19 +139,14 @@ const Home: NextPageWithLayout = () => {
           )}
         </>
       )}
-    </>
+    </main>
   );
-};
-
-const card = tv({
-  base: [
-    "relative rounded-xl bg-card p-4 flex flex-row gap-3 transition duration-100 hover:bg-accent",
-    "shadow-lg shadow-brand-500/10 dark:shadow-none",
-  ],
-});
+}
 
 function GroupItem({ group }: { group: GroupWithNotifications }) {
-  const lastRead = getTimeString(new Date(group.last_read ?? Date.now()));
+  const lastRead = group.last_read
+    ? getTimeString(new Date(group.last_read))
+    : undefined;
 
   return (
     <Link href={`/chat/${group.id}`} className={card()}>
@@ -160,7 +172,9 @@ function GroupItem({ group }: { group: GroupWithNotifications }) {
 
 function ChatItem({ chat }: { chat: DMChannel }) {
   const user = chat.user;
-  const lastRead = getTimeString(new Date(chat.last_read ?? Date.now()));
+  const lastRead = chat.last_read
+    ? getTimeString(new Date(chat.last_read))
+    : undefined;
 
   return (
     <DirectMessageContextMenu channelId={chat.id}>
@@ -193,24 +207,3 @@ function Placeholder() {
     </div>
   );
 }
-
-Home.useLayout = (children) => (
-  <AppLayout>
-    <Navbar
-      breadcrumb={[
-        {
-          id: "home",
-          text: "Home",
-        },
-      ]}
-    >
-      <div className="max-sm:hidden flex flex-row gap-3">
-        <ThemeSwitch />
-      </div>
-    </Navbar>
-
-    <Content>{children}</Content>
-  </AppLayout>
-);
-
-export default Home;

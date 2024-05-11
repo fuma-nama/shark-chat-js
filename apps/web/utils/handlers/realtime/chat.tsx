@@ -3,28 +3,28 @@ import { useChannels } from "ably-builder/hooks";
 import { RouterInput, RouterUtils, trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
 import { useMemo } from "react";
-import Router from "next/router";
 import { getMessageVariables } from "@/utils/variables";
 import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
 import { MessageType } from "@/utils/types";
+import { useParams } from "next/navigation";
 
 export function MessageEventManager() {
   const { status, data } = useSession();
   const utils = trpc.useUtils();
+  const params = useParams() as { group?: string; channel?: string };
 
   const onEvent = channels.chat.useCallback(({ name, data: message }) => {
     if (name === "typing") return;
 
     const variables = getMessageVariables(message.channel_id);
-    const channel_id =
-      Router.query.group != null
+    const channelId =
+      params.group != null
         ? utils.group.all
             .getData(undefined)
-            ?.find((group) => group.id === Number(Router.query.group))
-            ?.channel_id
-        : Router.query.channel;
-    const active = channel_id === message.channel_id;
+            ?.find((group) => group.id === Number(params.group))?.channel_id
+        : params.channel;
+    const active = channelId === message.channel_id;
 
     if (name === "message_sent") {
       const self = message.author_id === data?.user.id;

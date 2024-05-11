@@ -2,15 +2,14 @@ import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { getMessageVariables } from "@/utils/variables";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode, useLayoutEffect, useMemo, useState } from "react";
+import { Fragment, ReactNode, useLayoutEffect, useMemo } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
-const BLOCK_SIZE = 15;
 export function MessageList({
   channelId,
   welcome,
@@ -18,14 +17,10 @@ export function MessageList({
   channelId: string;
   welcome: ReactNode;
 }) {
-  const { pathname } = useRouter();
+  const pathname = usePathname();
   const { status } = useSession();
   const variables = getMessageVariables(channelId);
   const lastRead = useLastRead(channelId);
-  const [range, setRange] = useState<[start: number, end: number]>([
-    0,
-    BLOCK_SIZE,
-  ]);
   const [sending] = useMessageStore((s) => [s.sending[channelId]]);
 
   const query = trpc.chat.messages.useInfiniteQuery(variables, {
@@ -43,19 +38,12 @@ export function MessageList({
     [query.data?.pages],
   );
 
-  const showSkeleton =
-    query.isLoading || query.hasPreviousPage || rows.length - 1 > range[1];
+  const showSkeleton = query.isLoading || query.hasPreviousPage;
 
   const { sentryRef, resetScroll, updateScrollPosition } = useChatView({
-    hasNextPage: (query.hasPreviousPage ?? true) || rows.length - 1 > range[1],
+    hasNextPage: (query.hasPreviousPage ?? true) || rows.length === 0,
     onLoadMore: () => {
       if (!query.isSuccess || query.isFetchingPreviousPage) return;
-
-      if (rows.length - 1 > range[1]) {
-        setRange((prev) => [prev[0], prev[1] + BLOCK_SIZE]);
-
-        if (rows.length - 1 > range[1] + BLOCK_SIZE) return;
-      }
 
       if (query.hasPreviousPage) {
         void query.fetchPreviousPage();
@@ -67,12 +55,11 @@ export function MessageList({
 
   useLayoutEffect(() => {
     resetScroll();
-    setRange([0, BLOCK_SIZE]);
   }, [resetScroll, pathname]);
 
   useLayoutEffect(() => {
     updateScrollPosition();
-  }, [rows, range, sending, updateScrollPosition]);
+  }, [rows, sending, updateScrollPosition]);
 
   return (
     <div className="flex flex-col gap-3 mb-8">
@@ -92,26 +79,21 @@ export function MessageList({
       ) : (
         welcome
       )}
-      {rows
-        .slice(
-          Math.max(0, rows.length - range[1] - 1),
-          Math.min(Number.MAX_VALUE, Math.max(0, rows.length - range[0])),
-        )
-        .map((message, i, arr) => {
-          const prev_message = i > 0 ? arr[i - 1] : null;
-          const newLine =
-            lastRead != null &&
-            lastRead < new Date(message.timestamp) &&
-            (prev_message == null ||
-              new Date(prev_message.timestamp) <= lastRead);
+      {rows.map((message, i, arr) => {
+        const prev_message = i > 0 ? arr[i - 1] : null;
+        const newLine =
+          lastRead != null &&
+          lastRead < new Date(message.timestamp) &&
+          (prev_message == null ||
+            new Date(prev_message.timestamp) <= lastRead);
 
-          return (
-            <Fragment key={message.id}>
-              {newLine && <UnreadSeparator />}
-              <ChatMessageItem message={message} />
-            </Fragment>
-          );
-        })}
+        return (
+          <Fragment key={message.id}>
+            {newLine && <UnreadSeparator />}
+            <ChatMessageItem message={message} />
+          </Fragment>
+        );
+      })}
 
       {sending?.map((message) => (
         <LocalMessageItem key={message.nonce} item={message} />

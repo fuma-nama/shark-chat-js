@@ -1,40 +1,39 @@
-import { trpc } from "@/utils/trpc";
+"use client";
+import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
+import { Navbar } from "@/components/layout/Navbar";
+import { ChatViewProvider } from "@/components/chat/ChatView";
+import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { AppLayout, Content } from "./app";
-import { ReactNode } from "react";
+import { trpc } from "@/utils/trpc";
 import { skeleton } from "ui/components/skeleton";
 import { Avatar } from "ui/components/avatar";
-import { useViewScrollController } from "ui/hooks/use-bottom-scroll";
-import { Navbar } from "./Navbar";
-import { ChannelSendbar } from "../chat/ChannelSendbar";
-import { ChatViewProvider } from "../chat/ChatView";
+import { useParams } from "next/navigation";
+import { Blocker } from "@/components/blocker";
 
-export function useDirectMessageLayout(children: ReactNode) {
-  const router = useRouter();
+export default function Layout({ children }: { children: React.ReactNode }) {
+  const params = useParams() as { channel: string };
   const controller = useViewScrollController();
 
   return (
-    <AppLayout>
+    <>
       <Navbar
         breadcrumb={[
           {
             id: "dm",
-            text: <BreadcrumbItem />,
+            text: <BreadcrumbItem channel={params.channel} />,
           },
         ]}
       />
 
-      <Content>
+      <Blocker>
         <ChatViewProvider value={controller}>{children}</ChatViewProvider>
-      </Content>
-      <ChannelSendbar channelId={router.query.channel as string} />
-    </AppLayout>
+      </Blocker>
+      <ChannelSendbar channelId={params.channel} />
+    </>
   );
 }
 
-function BreadcrumbItem() {
-  const { channel } = useRouter().query as { channel: string };
+function BreadcrumbItem({ channel }: { channel: string }) {
   const { status } = useSession();
   const query = trpc.dm.info.useQuery(
     { channelId: channel },

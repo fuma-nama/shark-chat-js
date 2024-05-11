@@ -21,6 +21,12 @@ export default function JoinGroupModal({
       title="Join Group"
       description="Chat with other peoples in the group"
       open={open}
+      contentProps={{
+        onOpenAutoFocus: (e) => {
+          document.getElementById("code")?.focus();
+          e.preventDefault();
+        },
+      }}
       onOpenChange={setOpen}
     >
       <Tabs defaultValue="code">
@@ -32,10 +38,10 @@ export default function JoinGroupModal({
             <label htmlFor="code">Unique Name</label>
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="code" tabIndex={-1}>
+        <TabsContent value="code">
           <JoinGroupByCode onClose={() => setOpen(false)} />
         </TabsContent>
-        <TabsContent value="unique_name" tabIndex={-1}>
+        <TabsContent value="unique_name">
           <JoinGroupByName onClose={() => setOpen(false)} />
         </TabsContent>
       </Tabs>
@@ -53,7 +59,7 @@ function JoinGroupByCode({ onClose }: { onClose: () => void }) {
   });
 
   const joinMutation = trpc.group.join.useMutation({
-    onSuccess(data) {
+    onSuccess() {
       onClose();
     },
     onError(e) {

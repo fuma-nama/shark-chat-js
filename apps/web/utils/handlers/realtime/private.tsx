@@ -1,12 +1,12 @@
 import { channels } from "@/utils/ably/client";
-import { useAbly } from "ably/react";
 import { useSession } from "next-auth/react";
-import Router from "next/router";
-import { createGroup, deleteGroup } from "./shared";
+import { createGroup } from "./shared";
 import { trpc } from "@/utils/trpc";
+import { useParams, useRouter } from "next/navigation";
 
 export function PrivateEventManager() {
-  const ably = useAbly();
+  const router = useRouter();
+  const params = useParams() as { group?: string; channel?: string };
   const { data, status } = useSession();
   const utils = trpc.useUtils();
 
@@ -16,7 +16,15 @@ export function PrivateEventManager() {
     }
 
     if (name === "group_removed") {
-      return deleteGroup(utils, message.id);
+      const active = params.group === message.id.toString();
+
+      if (active) {
+        router.push("/");
+      }
+
+      utils.group.all.setData(undefined, (groups) =>
+        groups?.filter((g) => g.id !== message.id),
+      );
     }
 
     if (name === "open_dm") {
@@ -32,8 +40,8 @@ export function PrivateEventManager() {
         return prev?.filter((c) => c.id !== message.channel_id);
       });
 
-      if (Router.query.channel === message.channel_id) {
-        void Router.push("/home");
+      if (params.channel === message.channel_id) {
+        void router.push("/");
       }
 
       return;

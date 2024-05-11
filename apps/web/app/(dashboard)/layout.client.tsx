@@ -1,15 +1,21 @@
 "use client";
-
+import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { useState } from "react";
-import { trpc } from "./app-router";
-import { showErrorToast } from "../stores/page";
-import { getBaseUrl } from "../get-base-url";
+import { trpc } from "@/utils/trpc/app-router";
+import { getBaseUrl } from "@/utils/get-base-url";
+import { showErrorToast } from "@/utils/stores/page";
 
-export const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export function Provider({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <ClientProvider>{children}</ClientProvider>
+    </SessionProvider>
+  );
+}
+
+function ClientProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -47,4 +53,4 @@ export const TrpcProvider: React.FC<{ children: React.ReactNode }> = ({
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </trpc.Provider>
   );
-};
+}

@@ -5,15 +5,25 @@ import { useSession } from "next-auth/react";
 import { useMemo } from "react";
 import { Serialize } from "shared/types";
 import { Group } from "db/schema";
-import { deleteGroup } from "./shared";
+import { useParams, useRouter } from "next/navigation";
 
 export function GroupEventManager() {
+  const router = useRouter();
+  const params = useParams() as { group?: string };
   const { status } = useSession();
   const utils = trpc.useUtils();
 
   const onEvent = channels.group.useCallback(({ name, data: message }) => {
     if (name === "group_deleted") {
-      return deleteGroup(utils, message.id);
+      const active = params.group === message.id.toString();
+
+      if (active) {
+        router.push("/");
+      }
+
+      return utils.group.all.setData(undefined, (groups) =>
+        groups?.filter((g) => g.id !== message.id),
+      );
     }
 
     if (name === "group_updated") {

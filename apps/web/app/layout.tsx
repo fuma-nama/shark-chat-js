@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { ThemeProvider } from "./theme";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
+import { getBaseUrl } from "@/utils/get-base-url";
 
 export const metadata: Metadata = {
   title: "Shark Chat",
@@ -9,11 +10,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
-  metadataBase: new URL(
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000",
-  ),
+  metadataBase: new URL(getBaseUrl()),
 };
 
 const inter = Inter({
@@ -26,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" disableTransitionOnChange>
           {children}

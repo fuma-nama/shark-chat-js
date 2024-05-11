@@ -1,20 +1,15 @@
-import { BreadcrumbItem } from "@/components/layout/GroupBreadcrumb";
-import { NextPageWithLayout } from "@/pages/_app";
-import { useRouter } from "next/router";
-import Info from "@/components/chat/settings/info";
+"use client";
+import Info from "./info";
 import { Spinner } from "ui/components/spinner";
-import { getGroupQuery } from "@/utils/variables";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
-import Danger, { LeaveGroup } from "@/components/chat/settings/danger";
-import Members from "@/components/chat/settings/members";
+import { Danger, LeaveGroup } from "./danger";
+import Members from "./members";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { Navbar } from "@/components/layout/Navbar";
-import { AppLayout, Content } from "@/components/layout/app";
-import Invite from "@/components/chat/settings/invite";
+import Invite from "./invite";
 
-const Settings: NextPageWithLayout = () => {
-  const { groupId } = getGroupQuery(useRouter());
+export default function Page({ params }: { params: { group: string } }) {
+  const groupId = Number(params.group);
   const { status, data } = useSession();
   const query = trpc.group.info.useQuery(
     { groupId },
@@ -24,7 +19,7 @@ const Settings: NextPageWithLayout = () => {
     query.status === "success" && query.data.owner_id === data!!.user.id;
 
   return (
-    <div className="flex flex-col gap-10 mx-auto w-full max-w-3xl">
+    <div className="flex flex-col gap-10 mx-auto w-full max-w-3xl px-4">
       {query.isLoading || query.isError ? (
         <div className="m-auto">
           <Spinner size="large" />
@@ -60,30 +55,4 @@ const Settings: NextPageWithLayout = () => {
       )}
     </div>
   );
-};
-
-Settings.useLayout = (children) => {
-  const router = useRouter();
-
-  return (
-    <AppLayout>
-      <Navbar
-        breadcrumb={[
-          {
-            id: "group",
-            text: <BreadcrumbItem />,
-            href: `/chat/${router.query.group}`,
-          },
-          {
-            id: "settings",
-            text: "Settings",
-          },
-        ]}
-      />
-
-      <Content>{children}</Content>
-    </AppLayout>
-  );
-};
-
-export default Settings;
+}

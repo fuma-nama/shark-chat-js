@@ -8,25 +8,17 @@ import { ReactNode, useState } from "react";
 import { trpc } from "@/utils/trpc";
 import { Avatar } from "ui/components/avatar";
 import { Button, button } from "ui/components/button";
-import Router from "next/router";
 import { Spinner } from "ui/components/spinner";
+import { useRouter } from "next/navigation";
 
-export function UserProfileModal({
-  userId,
-  children,
-}: {
+export function UserProfileModal(props: {
   userId: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {children}
-      <DialogContent className="max-w-lg">
-        <Content userId={userId} onClose={() => setOpen(false)} />
-      </DialogContent>
-    </Dialog>
+    <UserProfileModalDefault open={open} onOpenChange={setOpen} {...props} />
   );
 }
 
@@ -38,6 +30,7 @@ export default function UserProfileModalDefault({
 } & DialogProps) {
   return (
     <Dialog {...props}>
+      {props.children}
       <DialogContent className="max-w-lg">
         <Content userId={userId} onClose={() => props.onOpenChange?.(false)} />
       </DialogContent>
@@ -48,9 +41,10 @@ export default function UserProfileModalDefault({
 function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
   const utils = trpc.useUtils();
   const query = trpc.account.profile.useQuery({ userId });
+  const router = useRouter();
   const dmMutation = trpc.dm.open.useMutation({
     onSuccess: (res) => {
-      void Router.push(`/dm/${res.id}`);
+      void router.push(`/dm/${res.id}`);
       onClose();
     },
   });
@@ -62,7 +56,7 @@ function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
       const channel = data.find((channel) => channel.user.id === userId);
 
       if (channel != null) {
-        Router.push(`/dm/${channel.id}`);
+        router.push(`/dm/${channel.id}`);
         onClose();
         return;
       }

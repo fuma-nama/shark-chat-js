@@ -6,3 +6,11 @@ export const input = tv({
     "focus:outline-none focus-visible:ring-1 focus-visible:ring-brand-500 dark:focus-visible:ring-brand-400 focus-visible:ring-opacity-75 focus-visible:border-transparent",
   ],
 });
+
+export const fieldset = tv({
+  base: "flex flex-col",
+  slots: {
+    label: "font-semibold text-sm",
+    description: "text-muted-foreground text-xs",
+  },
+});

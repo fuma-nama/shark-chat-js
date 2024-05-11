@@ -1,35 +1,31 @@
+"use client";
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
 import { ImagePicker } from "@/components/input/ImagePicker";
-import { AppLayout, Content } from "@/components/layout/app";
 import { useProfile } from "@/utils/hooks/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
-import { NextPageWithLayout } from "./_app";
 import { User } from "db/schema";
 import { Serialize } from "shared/types";
 import { useUpdateProfileMutation } from "@/utils/hooks/mutations/update-profile";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { input } from "ui/components/input";
-import { Navbar } from "@/components/layout/Navbar";
+import { fieldset, input } from "ui/components/input";
 import { SimpleDialog } from "ui/components/dialog";
 import { AlertDialog } from "ui/components/alert-dialog";
 
-const Settings: NextPageWithLayout = () => {
+export default function Settings() {
   const { status, profile } = useProfile();
   const [edit, setEdit] = useState(false);
 
   if (status !== "authenticated") return <></>;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-4">
       <Avatar size="large" src={profile.image} fallback={profile.name} />
       <div>
-        <h2 className="font-bold text-2xl">{profile.name}</h2>
-        <p className="text-accent-800 dark:text-accent-600 text-base">
-          {profile.email}
-        </p>
+        <h2 className="font-semibold text-lg mb-1">{profile.name}</h2>
+        <p className="text-muted-foreground text-sm">{profile.email}</p>
       </div>
       <div className="flex flex-row gap-3">
         <SimpleDialog
@@ -46,15 +42,12 @@ const Settings: NextPageWithLayout = () => {
         </Button>
       </div>
 
-      <fieldset className="flex flex-col gap-3 items-start">
+      <fieldset className="flex flex-col gap-4 items-start">
         <div>
-          <label
-            htmlFor="theme"
-            className="font-medium text-base text-foreground"
-          >
+          <label htmlFor="theme" className={fieldset().label()}>
             Appearance
           </label>
-          <p className="text-sm text-muted-foreground">
+          <p className={fieldset().description()}>
             Change the color theme of UI
           </p>
         </div>
@@ -63,7 +56,7 @@ const Settings: NextPageWithLayout = () => {
       <DangerZone />
     </div>
   );
-};
+}
 
 function DangerZone() {
   const mutation = trpc.account.delete.useMutation({
@@ -73,15 +66,12 @@ function DangerZone() {
   });
 
   return (
-    <fieldset className="flex flex-col items-start gap-3">
+    <fieldset className="flex flex-col items-start gap-4">
       <div>
-        <label
-          htmlFor="delete_bn"
-          className="font-medium text-base text-foreground"
-        >
+        <label htmlFor="delete_bn" className={fieldset().label()}>
           Delete Account
         </label>
-        <p className="text-sm text-muted-foreground">
+        <p className={fieldset().description()}>
           Clear all associated data and profile info.
         </p>
       </div>
@@ -110,7 +100,7 @@ function UpdateProfile({
   onCancel: () => void;
 }) {
   const [name, setName] = useState<string>(profile.name);
-  const [avatar, setAvatar] = useState<string | undefined>();
+  const [avatar, setAvatar] = useState<string>();
   const utils = trpc.useUtils();
   const mutation = useUpdateProfileMutation();
 
@@ -127,18 +117,15 @@ function UpdateProfile({
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 pt-4">
       <ImagePicker
-        previewClassName="max-w-[150px] max-h-[150px]"
+        previewClassName="mx-auto max-w-[150px]"
         value={avatar ?? profile.image}
         onChange={setAvatar}
       />
 
       <fieldset>
-        <label
-          htmlFor="username"
-          className="text-sm font-medium text-foreground"
-        >
+        <label htmlFor="username" className="text-xs font-medium">
           Username
         </label>
         <input
@@ -158,20 +145,3 @@ function UpdateProfile({
     </div>
   );
 }
-
-Settings.useLayout = (children) => (
-  <AppLayout>
-    <Navbar
-      breadcrumb={[
-        {
-          id: "settings",
-          text: "Settings",
-        },
-      ]}
-    />
-
-    <Content>{children}</Content>
-  </AppLayout>
-);
-
-export default Settings;

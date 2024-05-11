@@ -134,10 +134,11 @@ export function BannerEdit({ group }: { group: Group }) {
           aria-label="Change Banner"
           className={button({
             size: "icon",
-            className: "absolute z-[2] top-2 right-0 cursor-pointer",
+            className:
+              "absolute z-[2] top-2 right-0 cursor-pointer rounded-full",
           })}
         >
-          <EditIcon className="size-5" />
+          <EditIcon className="size-4" />
         </label>
         <BannerView group={group} />
       </div>

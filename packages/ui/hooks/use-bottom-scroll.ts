@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 export function useViewScrollController() {
   const lastScrollDistanceToBottomRef = useRef<number>();
@@ -17,8 +17,8 @@ export function useViewScrollController() {
       const root = document.scrollingElement;
       if (!root) return;
 
-      const scrollDistanceToBottom = root.scrollHeight - root.scrollTop;
-      lastScrollDistanceToBottomRef.current = scrollDistanceToBottom;
+      lastScrollDistanceToBottomRef.current =
+        root.scrollHeight - root.scrollTop;
     };
 
     document.addEventListener("scroll", handleRootScroll);
