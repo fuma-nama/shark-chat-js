@@ -32,58 +32,51 @@ export const chatRouter = router({
         ctx.session,
       );
 
-      const embeds = await getEmbeds(input.content);
-      const { message, is_new_dm } = await db.transaction(async () => {
-        const message = await createMessage(input, ctx.session.user.id, embeds);
+      const [message, is_new_dm] = await Promise.all([
+        createMessage(input, ctx.session.user.id),
+        type === "dm"
+          ? db
+              .update(directMessageInfos)
+              .set({
+                open: true,
+              })
+              .where(
+                and(
+                  eq(directMessageInfos.channel_id, input.channelId),
+                  eq(directMessageInfos.open, false),
+                ),
+              )
+              .then((res) => {
+                return res.rowCount !== 0;
+              })
+          : false,
+      ]);
 
-        let is_new_dm = false;
+      const messageWithNonce = {
+        ...message,
+        nonce: input.nonce,
+      };
 
-        if (type === "dm") {
-          const result = await db
-            .update(directMessageInfos)
-            .set({
-              open: true,
-            })
-            .where(
-              and(
-                eq(directMessageInfos.channel_id, input.channelId),
-                eq(directMessageInfos.open, false),
-              ),
-            );
-          is_new_dm = result.rowCount !== 0;
-        }
+      await Promise.all([
+        type === "dm" &&
+          is_new_dm &&
+          channels.private.open_dm.publish([data.to_user_id], {
+            id: data.channel_id,
+            user: message.author!,
+            unread_messages: 0,
+            last_message: { content: message.content },
+          }),
+        channels.chat.message_sent.publish([input.channelId], messageWithNonce),
+        setLastRead(input.channelId, ctx.session.user.id, message.timestamp),
+        input.content.startsWith("@Shark") &&
+          onReceiveMessage({
+            content: input.content,
+            channel_id: input.channelId,
+            user_name: message.author!.name,
+          }),
+      ]);
 
-        return {
-          message: {
-            ...message,
-            nonce: input.nonce,
-          },
-          is_new_dm,
-        };
-      });
-
-      if (type === "dm" && is_new_dm) {
-        await channels.private.open_dm.publish([data.to_user_id], {
-          id: data.channel_id,
-          user: message.author,
-          unread_messages: 0,
-          last_message: message,
-        });
-      }
-
-      await channels.chat.message_sent.publish([input.channelId], message);
-
-      void setLastRead(input.channelId, ctx.session.user.id, message.timestamp);
-
-      if (input.content.startsWith("@Shark")) {
-        await onReceiveMessage({
-          content: input.content,
-          channel_id: input.channelId,
-          user_name: message.author.name,
-        });
-      }
-
-      return message;
+      return messageWithNonce;
     }),
   messages: protectedProcedure
     .input(
@@ -97,7 +90,7 @@ export const chatRouter = router({
     .query<ComplexMessage[]>(async ({ input, ctx }) => {
       await checkChannelPermissions(input.channelId, ctx.session);
 
-      return await fetchMessages(
+      return fetchMessages(
         input.channelId,
         input.count,
         input.after ? new Date(input.after) : undefined,

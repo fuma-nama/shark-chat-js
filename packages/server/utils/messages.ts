@@ -16,7 +16,6 @@ import { z } from "zod";
 import {
   AttachmentType,
   contentSchema,
-  UploadAttachment,
   uploadAttachmentSchema,
   UserInfo,
 } from "shared/schema/chat";
@@ -24,9 +23,13 @@ import { createId } from "@paralleldrive/cuid2";
 import { info } from "./og-meta";
 
 const userProfileKeys = ["id", "name", "image"] as const;
-const url_regex = /(https?:\/\/[^\s]+)/g;
+const url_regex = /(https?:\/\/\S+)/g;
 
-export interface ComplexMessage extends Message {
+export interface ComplexMessage
+  extends Pick<
+    Message,
+    "id" | "content" | "embeds" | "channel_id" | "timestamp" | "reply_id"
+  > {
   author: UserInfo | null;
   attachment: AttachmentType | null;
 
@@ -47,7 +50,12 @@ export async function fetchMessages(
 
   return db
     .select({
-      ...(messages as typeof messages._.columns),
+      id: messages.id,
+      content: messages.content,
+      embeds: messages.embeds,
+      channel_id: messages.channel_id,
+      timestamp: messages.timestamp,
+      reply_id: messages.reply_id,
       author: pick(users, ...userProfileKeys),
       attachment: attachments,
       reply_message: pick(reply_message, "content"),
@@ -86,49 +94,64 @@ export const messageSchema = z
 export async function createMessage(
   input: z.infer<typeof messageSchema>,
   author_id: string,
-  embeds: Embed[],
-) {
-  const attachment = insertAttachment(input.attachment);
+): Promise<ComplexMessage> {
+  const embeds = await getEmbeds(input.content);
+  const attachment: Attachment | null = input.attachment
+    ? {
+        ...input.attachment,
+        id: createId(),
+        width: input.attachment.type === "raw" ? null : input.attachment.width,
+        height:
+          input.attachment.type === "raw" ? null : input.attachment.height,
+      }
+    : null;
 
-  const message_id = await db
-    .insert(messages)
-    .values({
-      author_id: author_id,
-      content: input.content,
-      channel_id: input.channelId,
-      attachment_id: attachment?.id ?? null,
-      reply_id: input.reply,
-      embeds: embeds.length === 0 ? null : embeds,
-    })
-    .returning({ message_id: messages.id })
-    .then((res) => res[0].message_id);
+  const [result] = await Promise.all([
+    db
+      .insert(messages)
+      .values({
+        author_id: author_id,
+        content: input.content,
+        channel_id: input.channelId,
+        attachment_id: attachment?.id ?? null,
+        reply_id: input.reply,
+        embeds: embeds.length === 0 ? null : embeds,
+      })
+      .returning({ message_id: messages.id }),
+    attachment && db.insert(attachments).values(attachment),
+  ]);
+  const messageId = result[0].message_id;
 
   await db
     .update(messageChannels)
     .set({
-      last_message_id: message_id,
+      last_message_id: messageId,
     })
     .where(eq(messageChannels.id, input.channelId))
     .execute();
 
   const reply_message = alias(messages, "reply_message");
   const reply_user = alias(users, "reply_user");
-
-  const message = await db
-    .select({
-      ...(messages as typeof messages._.columns),
-      reply_message: pick(reply_message, "content"),
-      reply_user: pick(reply_user, ...userProfileKeys),
-      author: pick(users, ...userProfileKeys),
-    })
-    .from(messages)
-    .where(eq(messages.id, message_id))
-    .innerJoin(users, eq(users.id, messages.author_id))
-    .leftJoin(reply_message, eq(reply_message.id, messages.reply_id))
-    .leftJoin(reply_user, eq(reply_message.author_id, reply_user.id))
+  const context = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, author_id))
+    .innerJoin(reply_message, eq(reply_message.id, messageId))
+    .innerJoin(reply_user, eq(reply_user.id, reply_message.author_id))
     .then((res) => requireOne(res));
 
-  return { ...message, attachment, embeds };
+  return {
+    id: messageId,
+    content: input.content,
+    embeds,
+    channel_id: input.channelId,
+    timestamp: new Date(Date.now()),
+    author: pick(context.User, ...userProfileKeys),
+    reply_id: input.reply ?? null,
+    reply_message: context.reply_message,
+    reply_user: pick(context.reply_user, ...userProfileKeys),
+    attachment,
+  };
 }
 
 export async function getEmbeds(content: string): Promise<Embed[]> {
@@ -150,23 +173,4 @@ export async function getEmbeds(content: string): Promise<Embed[]> {
   }
 
   return embeds;
-}
-
-function insertAttachment(
-  attachment: UploadAttachment | null | undefined,
-): AttachmentType | null {
-  if (attachment == null) return null;
-
-  const values: Attachment = {
-    ...attachment,
-    id: createId(),
-    width: attachment.width ?? null,
-    height: attachment.height ?? null,
-  };
-
-  db.insert(attachments)
-    .values({ ...values })
-    .execute();
-
-  return values;
 }

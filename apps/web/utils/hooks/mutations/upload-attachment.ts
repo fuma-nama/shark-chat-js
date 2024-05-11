@@ -1,6 +1,10 @@
-import { upload, blobToBase64 } from "./upload";
+import { blobToBase64, upload } from "./upload";
 import type { UploadAttachment } from "shared/schema/chat";
 import type { RouterUtils } from "@/utils/trpc";
+
+const forced: Record<string, "raw" | "image"> = {
+  "application/pdf": "raw",
+};
 
 export async function uploadAttachment(
   utils: RouterUtils,
@@ -13,7 +17,7 @@ export async function uploadAttachment(
       }),
     await blobToBase64(file),
     {
-      resource_type: "auto",
+      resource_type: forced[file.type] ?? "auto",
     },
   );
 
@@ -22,7 +26,7 @@ export async function uploadAttachment(
     url: res.secure_url,
     type: res.resource_type,
     bytes: res.bytes,
-    width: res.width,
-    height: res.height,
+    width: res.width!,
+    height: res.height!,
   };
 }
