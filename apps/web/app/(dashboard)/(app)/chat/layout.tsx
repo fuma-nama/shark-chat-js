@@ -7,7 +7,6 @@ import { SettingsIcon, XIcon } from "lucide-react";
 import { Avatar } from "ui/components/avatar";
 import { useGroup } from "@/app/(dashboard)/(app)/chat/[group]/use-group";
 import { groupIcon } from "shared/media/format";
-import { cn } from "ui/utils/cn";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams() as { group: string };
@@ -15,46 +14,39 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isSettings = pathname?.endsWith("/settings");
 
   return (
-    <div
-      className={cn(
-        "relative flex flex-col-reverse",
-        isSettings ? "flex-col h-full min-h-screen" : "overflow-auto h-dvh",
-      )}
-    >
-      <div className="flex flex-col flex-1">
-        <Navbar
-          breadcrumb={[
-            {
-              id: "group",
-              text: <BreadcrumbItem />,
-            },
-          ]}
-        >
-          {isSettings ? (
-            <Link
-              href={`/chat/${params.group}`}
-              aria-label="Back to Chat"
-              scroll={false}
-              className={button({ size: "icon", color: "ghost" })}
-            >
-              <XIcon className="size-5" />
-            </Link>
-          ) : (
-            <Link
-              aria-label="Settings"
-              href={`/chat/${params.group}/settings`}
-              className={button({
-                size: "icon",
-                color: "ghost",
-              })}
-            >
-              <SettingsIcon className="size-5" />
-            </Link>
-          )}
-        </Navbar>
-        {children}
-      </div>
-    </div>
+    <>
+      <Navbar
+        breadcrumb={[
+          {
+            id: "group",
+            text: <BreadcrumbItem />,
+          },
+        ]}
+      >
+        {isSettings ? (
+          <Link
+            href={`/chat/${params.group}`}
+            aria-label="Back to Chat"
+            scroll={false}
+            className={button({ size: "icon", color: "ghost" })}
+          >
+            <XIcon className="size-5" />
+          </Link>
+        ) : (
+          <Link
+            aria-label="Settings"
+            href={`/chat/${params.group}/settings`}
+            className={button({
+              size: "icon",
+              color: "ghost",
+            })}
+          >
+            <SettingsIcon className="size-5" />
+          </Link>
+        )}
+      </Navbar>
+      {children}
+    </>
   );
 }
 

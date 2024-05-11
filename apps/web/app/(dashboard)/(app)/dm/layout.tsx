@@ -12,22 +12,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams() as { channel: string };
 
   return (
-    <div className="relative flex flex-col-reverse overflow-auto h-dvh">
-      <div className="flex flex-col flex-1">
-        <Navbar
-          breadcrumb={[
-            {
-              id: "dm",
-              text: <BreadcrumbItem channel={params.channel} />,
-            },
-          ]}
-        />
+    <>
+      <Navbar
+        breadcrumb={[
+          {
+            id: "dm",
+            text: <BreadcrumbItem channel={params.channel} />,
+          },
+        ]}
+      />
 
-        <ChatViewProvider>{children}</ChatViewProvider>
+      <ChatViewProvider>{children}</ChatViewProvider>
 
-        <ChannelSendbar channelId={params.channel} />
-      </div>
-    </div>
+      <ChannelSendbar channelId={params.channel} />
+    </>
   );
 }
 

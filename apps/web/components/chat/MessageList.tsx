@@ -1,14 +1,34 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode } from "react";
+import { Fragment, ReactNode, useLayoutEffect } from "react";
 import { Button } from "ui/components/button";
-import { useChatView } from "./ChatView";
+import { useChatView, useChatViewContext } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
 
 const count = 15;
+
+function ScrollUpdate({ channelId }: { channelId: string }) {
+  const { updateScrollPosition, resetScroll } = useChatViewContext();
+  const deps = useMessageStore((s) => [
+    s.sending[channelId],
+    s.messages[channelId],
+    s.editing[channelId],
+    s.sendbar,
+  ]);
+
+  useLayoutEffect(() => {
+    updateScrollPosition();
+  }, [deps, updateScrollPosition]);
+
+  useLayoutEffect(() => {
+    resetScroll();
+  }, [channelId, resetScroll]);
+
+  return <></>;
+}
 
 export function MessageList({
   channelId,
@@ -34,7 +54,7 @@ export function MessageList({
         useMessageStore.setState((prev) => ({
           messages: {
             ...prev.messages,
-            [channelId]: [...(prev.messages[channelId] ?? []), ...data],
+            [channelId]: [...data, ...(prev.messages[channelId] ?? [])],
           },
         }));
         console.log(`Loaded new chunk: ${data.length} items`);
@@ -46,7 +66,7 @@ export function MessageList({
 
   const { sentryRef } = useChatView({
     hasNextPage: showSkeleton,
-    onLoadMore: () => {
+    onLoadMore() {
       if (!query.isSuccess || query.isLoading) return;
 
       useMessageStore.setState((prev) => ({
@@ -64,6 +84,7 @@ export function MessageList({
 
   return (
     <div className="flex flex-col gap-3 mb-8 max-w-screen-2xl w-full mx-auto flex-1 pt-2 p-4">
+      <ScrollUpdate channelId={channelId} />
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
           {new Array(40).fill(0).map((_, i) => (
