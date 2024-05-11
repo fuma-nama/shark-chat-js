@@ -45,7 +45,7 @@ export default function Sidebar() {
         <Link
           href="/info"
           prefetch={false}
-          className="font-semibold text-sm px-2 mb-2"
+          className="font-semibold text-sm px-3 mb-2"
         >
           Shark Chat
         </Link>
