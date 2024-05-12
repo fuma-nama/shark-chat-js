@@ -12,7 +12,7 @@ import { useBottomScroll } from "ui/hooks/use-bottom-scroll";
 const count = 30;
 
 function ScrollUpdate({ channelId }: { channelId: string }) {
-  const previousChannelId = useRef(channelId);
+  const previousChannelId = useRef<string>();
   const { updateScrollPosition, resetScroll } = useBottomScroll();
   const deps = useMessageStore((s) => [
     s.sending[channelId],
