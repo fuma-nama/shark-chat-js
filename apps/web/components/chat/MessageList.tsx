@@ -14,12 +14,6 @@ const count = 30;
 function ScrollUpdate({ channelId }: { channelId: string }) {
   const previousChannelId = useRef<string>();
   const { updateScrollPosition, resetScroll } = useBottomScroll();
-  const deps = useMessageStore((s) => [
-    s.sending[channelId],
-    s.messages[channelId],
-    s.editing[channelId],
-    s.sendbar,
-  ]);
 
   useLayoutEffect(() => {
     if (previousChannelId.current !== channelId) {
@@ -27,7 +21,7 @@ function ScrollUpdate({ channelId }: { channelId: string }) {
     }
 
     previousChannelId.current = channelId;
-  }, [channelId, deps, resetScroll, updateScrollPosition]);
+  }, [channelId, resetScroll, updateScrollPosition]);
 
   return <></>;
 }

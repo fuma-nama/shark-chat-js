@@ -34,8 +34,7 @@ export function useBottomScroll(): UseBottomScroll {
 
   useEffect(() => {
     const element = getElement();
-    const innerElement = document.getElementById("scroll-inner");
-    if (!element || !innerElement) return;
+    if (!element) return;
 
     const handleRootScroll = () => {
       virtualScrollTopRef.current = realToVirtual(element, element.scrollTop);
@@ -46,7 +45,10 @@ export function useBottomScroll(): UseBottomScroll {
     });
 
     element.addEventListener("scroll", handleRootScroll);
-    observer.observe(innerElement);
+
+    element.childNodes.forEach((child) => {
+      observer.observe(child as HTMLElement);
+    });
     return () => {
       observer.disconnect();
       element.removeEventListener("scroll", handleRootScroll);
