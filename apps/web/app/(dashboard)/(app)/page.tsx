@@ -109,11 +109,11 @@ function RecentChat({ setModal }: { setModal: (v: Modal) => void }) {
       </div>
 
       {dmQuery.isLoading || groups.isLoading ? (
-        <div className="m-auto">
+        <div className="mx-auto mt-12">
           <Spinner size="large" />
         </div>
       ) : dmQuery.isError || groups.isError ? (
-        <div className="m-auto flex flex-col gap-3">
+        <div className="mx-auto mt-12 flex flex-col gap-3">
           <h2 className="font-semibold text-lg text-foreground">
             Failed to fetch info
           </h2>

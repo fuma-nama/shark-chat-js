@@ -1,17 +1,19 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode, useLayoutEffect } from "react";
+import { Fragment, ReactNode, useLayoutEffect, useRef } from "react";
 import { Button } from "ui/components/button";
-import { useChatView, useChatViewContext } from "./ChatView";
+import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
+import { useBottomScroll } from "ui/hooks/use-bottom-scroll";
 
 const count = 30;
 
 function ScrollUpdate({ channelId }: { channelId: string }) {
-  const { updateScrollPosition, resetScroll } = useChatViewContext();
+  const previousChannelId = useRef(channelId);
+  const { updateScrollPosition, resetScroll } = useBottomScroll();
   const deps = useMessageStore((s) => [
     s.sending[channelId],
     s.messages[channelId],
@@ -20,12 +22,14 @@ function ScrollUpdate({ channelId }: { channelId: string }) {
   ]);
 
   useLayoutEffect(() => {
-    updateScrollPosition();
-  }, [deps, updateScrollPosition]);
+    if (previousChannelId.current === channelId) {
+      updateScrollPosition();
+    } else {
+      resetScroll();
+    }
 
-  useLayoutEffect(() => {
-    resetScroll();
-  }, [channelId, resetScroll]);
+    previousChannelId.current = channelId;
+  }, [channelId, deps, resetScroll, updateScrollPosition]);
 
   return <></>;
 }
@@ -42,7 +46,7 @@ export function MessageList({
   const [sending, messages, pointer] = useMessageStore((s) => [
     s.sending[channelId] ?? [],
     s.messages[channelId] ?? [],
-    s.pointer[channelId],
+    s.pointer.get(channelId),
   ]);
 
   const query = trpc.chat.messages.useQuery(
@@ -69,21 +73,13 @@ export function MessageList({
     onLoadMore() {
       if (!query.isSuccess || query.isLoading) return;
 
-      useMessageStore.setState((prev) => ({
-        pointer: {
-          ...prev.pointer,
-          [channelId]:
-            messages.length > 0
-              ? new Date(messages[0].timestamp).getTime()
-              : undefined,
-        },
-      }));
+      useMessageStore.getState().updatePointer(channelId);
     },
     loading: query.isLoading,
   });
 
   return (
-    <div className="flex flex-col gap-3 mb-8 max-w-screen-2xl w-full mx-auto flex-1 pt-2 p-4">
+    <div className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
       <ScrollUpdate channelId={channelId} />
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">

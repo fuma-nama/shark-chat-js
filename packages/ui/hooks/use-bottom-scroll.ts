@@ -13,15 +13,17 @@ function realToVirtual(element: Element, real: number): number {
   return element.scrollHeight - real - element.clientHeight;
 }
 
+function getElement(): HTMLElement | null {
+  return document.getElementById("scroll");
+}
+
 export function useBottomScroll(): UseBottomScroll {
   const virtualScrollTopRef = useRef<number>(0);
 
   const setRealScrollTop = useCallback(() => {
-    if (!document.scrollingElement) return;
-    document.scrollingElement.scrollTop = virtualToReal(
-      document.scrollingElement,
-      virtualScrollTopRef.current,
-    );
+    const element = getElement();
+    if (!element) return;
+    element.scrollTop = virtualToReal(element, virtualScrollTopRef.current);
   }, []);
 
   const resetScroll = useCallback(() => {
@@ -31,17 +33,16 @@ export function useBottomScroll(): UseBottomScroll {
   }, [setRealScrollTop]);
 
   useEffect(() => {
-    const handleRootScroll = () => {
-      const root = document.scrollingElement;
-      if (!root) return;
+    const element = getElement();
+    if (!element) return;
 
-      virtualScrollTopRef.current = realToVirtual(root, root.scrollTop);
+    const handleRootScroll = () => {
+      virtualScrollTopRef.current = realToVirtual(element, element.scrollTop);
     };
 
-    document.addEventListener("scroll", handleRootScroll);
-
+    element.addEventListener("scroll", handleRootScroll);
     return () => {
-      document.removeEventListener("scroll", handleRootScroll);
+      element.removeEventListener("scroll", handleRootScroll);
     };
   }, []);
 

@@ -1,8 +1,4 @@
 "use client";
-import { PrivateEventManager } from "@/utils/handlers/realtime/private";
-import { GroupEventManager } from "@/utils/handlers/realtime/group";
-import { MessageEventManager } from "@/utils/handlers/realtime/chat";
-import { AblyClientProvider } from "@/utils/ably/client";
 import { usePageStore } from "@/utils/stores/page";
 import {
   Toast,
@@ -12,16 +8,14 @@ import {
   ToastTitle,
   ToastViewport,
 } from "ui/components/toast";
+import React from "react";
 
 export function Provider({ children }: { children: React.ReactNode }) {
   return (
-    <AblyClientProvider>
-      <PrivateEventManager />
-      <GroupEventManager />
-      <MessageEventManager />
+    <>
       <ToastManager />
       {children}
-    </AblyClientProvider>
+    </>
   );
 }
 

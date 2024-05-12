@@ -30,10 +30,9 @@ export type ChatStore = {
   messages: {
     [id: string]: MessageType[];
   };
-  pointer: {
-    [channel: string]: number | undefined;
-  };
+  pointer: Map<string, number>;
   setEditing(channelId: string, messageId?: number): void;
+  updatePointer(channelId: string): void;
   updateSendbar(id: string, data: Partial<SendbarData>): void;
   addSending: (
     id: string,
@@ -49,7 +48,19 @@ export const useMessageStore = create<ChatStore>((set) => ({
   sending: {},
   editing: {},
   messages: {},
-  pointer: {},
+  pointer: new Map(),
+  updatePointer(channelId) {
+    set((prev) => {
+      const next = new Map(prev.pointer);
+      const messages = prev.messages[channelId];
+      if (messages && messages.length > 0)
+        next.set(channelId, new Date(messages[0].timestamp).getTime());
+
+      return {
+        pointer: next,
+      };
+    });
+  },
   updateSendbar(id, data) {
     set((prev) => ({
       ...prev,

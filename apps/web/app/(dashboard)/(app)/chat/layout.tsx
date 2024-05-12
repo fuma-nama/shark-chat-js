@@ -7,14 +7,15 @@ import { SettingsIcon, XIcon } from "lucide-react";
 import { Avatar } from "ui/components/avatar";
 import { useGroup } from "@/app/(dashboard)/(app)/chat/[group]/use-group";
 import { groupIcon } from "shared/media/format";
+import { ChatViewport } from "@/components/chat/ChatView";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams() as { group: string };
   const pathname = usePathname();
-  const isSettings = pathname?.endsWith("/settings");
+  const isSettings = pathname === `/chat/${params.group}/settings`;
 
   return (
-    <>
+    <ChatViewport>
       <Navbar
         breadcrumb={[
           {
@@ -46,7 +47,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </Navbar>
       {children}
-    </>
+    </ChatViewport>
   );
 }
 

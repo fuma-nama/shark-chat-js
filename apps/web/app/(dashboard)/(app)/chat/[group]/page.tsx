@@ -8,7 +8,8 @@ import { Spinner } from "ui/components/spinner";
 
 export default function Page({ params }: { params: { group: string } }) {
   const channelId = useGroup(params.group)?.channel_id;
-  if (channelId == null) return <Spinner size="large" className="m-auto" />;
+  if (channelId == null)
+    return <Spinner size="large" className="m-auto p-12" />;
 
   return (
     <>

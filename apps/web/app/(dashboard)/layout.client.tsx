@@ -2,15 +2,26 @@
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { trpc } from "@/utils/trpc/app-router";
 import { getBaseUrl } from "@/utils/get-base-url";
 import { showErrorToast } from "@/utils/stores/page";
+import { AblyClientProvider } from "@/utils/ably/client";
+import { PrivateEventManager } from "@/utils/handlers/realtime/private";
+import { GroupEventManager } from "@/utils/handlers/realtime/group";
+import { MessageEventManager } from "@/utils/handlers/realtime/chat";
 
 export function Provider({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <ClientProvider>{children}</ClientProvider>
+      <ClientProvider>
+        <AblyClientProvider>
+          <PrivateEventManager />
+          <GroupEventManager />
+          <MessageEventManager />
+          {children}
+        </AblyClientProvider>
+      </ClientProvider>
     </SessionProvider>
   );
 }
@@ -38,14 +49,16 @@ function ClientProvider({ children }: { children: React.ReactNode }) {
         },
       }),
   );
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-        }),
-      ],
-    }),
+  const trpcClient = useMemo(
+    () =>
+      trpc.createClient({
+        links: [
+          httpBatchLink({
+            url: `${getBaseUrl()}/api/trpc`,
+          }),
+        ],
+      }),
+    [],
   );
 
   return (

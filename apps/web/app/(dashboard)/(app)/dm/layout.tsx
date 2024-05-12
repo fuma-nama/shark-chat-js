@@ -1,6 +1,6 @@
 "use client";
 import { Navbar } from "@/components/layout/Navbar";
-import { ChatViewProvider } from "@/components/chat/ChatView";
+import { ChatViewport, ChatViewProvider } from "@/components/chat/ChatView";
 import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/utils/trpc";
@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams() as { channel: string };
 
   return (
-    <>
+    <ChatViewport>
       <Navbar
         breadcrumb={[
           {
@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <ChatViewProvider>{children}</ChatViewProvider>
 
       <ChannelSendbar channelId={params.channel} />
-    </>
+    </ChatViewport>
   );
 }
 

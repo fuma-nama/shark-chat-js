@@ -27,7 +27,7 @@ export function SimpleDialog({
     <Dialog {...props}>
       {trigger != null && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent {...contentProps}>
-        <DialogPrimitive.Title className="text-lg font-semibold mb-2">
+        <DialogPrimitive.Title className="text-base font-semibold mb-2">
           {title}
         </DialogPrimitive.Title>
         {description && (
