@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 export interface UseBottomScroll {
   resetScroll: () => void;
-  updateScrollPosition: () => void;
+  setRealScrollTop: () => void;
 }
 
 function virtualToReal(element: Element, virtual: number): number {
@@ -18,7 +18,7 @@ function getElement(): HTMLElement | null {
 }
 
 export function useBottomScroll(): UseBottomScroll {
-  const virtualScrollTopRef = useRef<number>(0);
+  const virtualScrollTopRef = useRef(0);
 
   const setRealScrollTop = useCallback(() => {
     const element = getElement();
@@ -44,8 +44,10 @@ export function useBottomScroll(): UseBottomScroll {
       setRealScrollTop();
     });
 
-    element.addEventListener("scroll", handleRootScroll);
+    // reset before adding listener
+    resetScroll();
 
+    element.addEventListener("scroll", handleRootScroll);
     element.childNodes.forEach((child) => {
       observer.observe(child as HTMLElement);
     });
@@ -53,11 +55,7 @@ export function useBottomScroll(): UseBottomScroll {
       observer.disconnect();
       element.removeEventListener("scroll", handleRootScroll);
     };
-  }, [setRealScrollTop]);
+  }, [resetScroll, setRealScrollTop]);
 
-  const updateScrollPosition = useCallback(() => {
-    setRealScrollTop();
-  }, [setRealScrollTop]);
-
-  return { resetScroll, updateScrollPosition };
+  return { resetScroll, setRealScrollTop };
 }

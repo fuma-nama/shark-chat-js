@@ -13,7 +13,7 @@ const count = 30;
 
 function ScrollUpdate({ channelId }: { channelId: string }) {
   const previousChannelId = useRef<string>();
-  const { updateScrollPosition, resetScroll } = useBottomScroll();
+  const { resetScroll } = useBottomScroll();
 
   useLayoutEffect(() => {
     if (previousChannelId.current !== channelId) {
@@ -21,7 +21,7 @@ function ScrollUpdate({ channelId }: { channelId: string }) {
     }
 
     previousChannelId.current = channelId;
-  }, [channelId, resetScroll, updateScrollPosition]);
+  }, [channelId, resetScroll]);
 
   return <></>;
 }
