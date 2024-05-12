@@ -8,7 +8,7 @@ import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
 
-const count = 15;
+const count = 30;
 
 function ScrollUpdate({ channelId }: { channelId: string }) {
   const { updateScrollPosition, resetScroll } = useChatViewContext();
