@@ -34,17 +34,24 @@ export function useBottomScroll(): UseBottomScroll {
 
   useEffect(() => {
     const element = getElement();
-    if (!element) return;
+    const innerElement = document.getElementById("scroll-inner");
+    if (!element || !innerElement) return;
 
     const handleRootScroll = () => {
       virtualScrollTopRef.current = realToVirtual(element, element.scrollTop);
     };
 
+    const observer = new ResizeObserver(() => {
+      setRealScrollTop();
+    });
+
     element.addEventListener("scroll", handleRootScroll);
+    observer.observe(innerElement);
     return () => {
+      observer.disconnect();
       element.removeEventListener("scroll", handleRootScroll);
     };
-  }, []);
+  }, [setRealScrollTop]);
 
   const updateScrollPosition = useCallback(() => {
     setRealScrollTop();

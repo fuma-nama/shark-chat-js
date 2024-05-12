@@ -22,9 +22,7 @@ function ScrollUpdate({ channelId }: { channelId: string }) {
   ]);
 
   useLayoutEffect(() => {
-    if (previousChannelId.current === channelId) {
-      updateScrollPosition();
-    } else {
+    if (previousChannelId.current !== channelId) {
       resetScroll();
     }
 
@@ -79,7 +77,7 @@ export function MessageList({
   });
 
   return (
-    <div className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
+    <div id="scroll-inner" className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
       <ScrollUpdate channelId={channelId} />
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
