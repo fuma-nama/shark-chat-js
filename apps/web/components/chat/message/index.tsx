@@ -27,13 +27,18 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
   return (
     <Item.Root>
       <ContextMenu.Trigger disabled={editing} asChild>
-        <Item.Content user={message.author} timestamp={message.timestamp}>
+        <Item.Content
+          id={`message_${message.id}`}
+          user={message.author}
+          timestamp={message.timestamp}
+        >
           {editing ? (
             <Edit message={message} />
           ) : (
             <>
               {message.reply_id != null && (
                 <Reference
+                  id={message.reply_id}
                   user={message.reply_user}
                   content={message.reply_message?.content}
                 />
