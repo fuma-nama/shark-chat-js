@@ -330,13 +330,13 @@ function TextArea({
     if (!textArea) return;
 
     const timer = window.setInterval(() => {
-      if (document.activeElement === textArea) {
+      if (document.activeElement === textArea && document.hasFocus()) {
         onSignalRef.current?.();
       }
-    }, 500);
+    }, 2000);
 
     return () => {
-      clearInterval(timer);
+      window.clearInterval(timer);
     };
   }, []);
 
