@@ -2,13 +2,18 @@
 import { Avatar } from "ui/components/avatar";
 import { trpc } from "@/utils/trpc";
 import { MessageList } from "@/components/chat/MessageList";
+import { ChatViewport } from "@/components/chat/ChatView";
+import { Sendbar } from "@/components/chat/Sendbar";
 
 export default function Page({ params }: { params: { channel: string } }) {
   return (
-    <MessageList
-      channelId={params.channel}
-      welcome={<Welcome channel={params.channel} />}
-    />
+    <ChatViewport>
+      <MessageList
+        channelId={params.channel}
+        welcome={<Welcome channel={params.channel} />}
+      />
+      <Sendbar channelId={params.channel} />
+    </ChatViewport>
   );
 }
 

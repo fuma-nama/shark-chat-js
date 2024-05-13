@@ -1,30 +1,14 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode, useLayoutEffect, useRef } from "react";
+import { Fragment, ReactNode } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
-import { useBottomScroll } from "ui/hooks/use-bottom-scroll";
 
 const count = 30;
-
-function ScrollUpdate({ channelId }: { channelId: string }) {
-  const previousChannelId = useRef<string>();
-  const { resetScroll } = useBottomScroll();
-
-  useLayoutEffect(() => {
-    if (previousChannelId.current !== channelId) {
-      resetScroll();
-    }
-
-    previousChannelId.current = channelId;
-  }, [channelId, resetScroll]);
-
-  return <></>;
-}
 
 export function MessageList({
   channelId,
@@ -71,8 +55,7 @@ export function MessageList({
   });
 
   return (
-    <div id="scroll-inner" className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
-      <ScrollUpdate channelId={channelId} />
+    <div className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
           {new Array(40).fill(0).map((_, i) => (

@@ -13,15 +13,16 @@ function realToVirtual(element: Element, real: number): number {
   return element.scrollHeight - real - element.clientHeight;
 }
 
-function getElement(): HTMLElement | null {
-  return document.getElementById("scroll");
-}
-
-export function useBottomScroll(): UseBottomScroll {
+export function useBottomScroll(options: {
+  viewport: () => HTMLElement | null;
+  inner: () => HTMLElement | null;
+}): UseBottomScroll {
+  const optionsRef = useRef(options);
   const virtualScrollTopRef = useRef(0);
+  optionsRef.current = options;
 
   const setRealScrollTop = useCallback(() => {
-    const element = getElement();
+    const element = optionsRef.current.viewport();
     if (!element) return;
     element.scrollTop = virtualToReal(element, virtualScrollTopRef.current);
   }, []);
@@ -33,11 +34,13 @@ export function useBottomScroll(): UseBottomScroll {
   }, [setRealScrollTop]);
 
   useEffect(() => {
-    const element = getElement();
-    if (!element) return;
+    const viewport = optionsRef.current.viewport();
+    const inner = optionsRef.current.inner();
+
+    if (!viewport) return;
 
     const handleRootScroll = () => {
-      virtualScrollTopRef.current = realToVirtual(element, element.scrollTop);
+      virtualScrollTopRef.current = realToVirtual(viewport, viewport.scrollTop);
     };
 
     const observer = new ResizeObserver(() => {
@@ -47,13 +50,11 @@ export function useBottomScroll(): UseBottomScroll {
     // reset before adding listener
     resetScroll();
 
-    element.addEventListener("scroll", handleRootScroll);
-    element.childNodes.forEach((child) => {
-      observer.observe(child as HTMLElement);
-    });
+    viewport.addEventListener("scroll", handleRootScroll);
+    if (inner) observer.observe(inner);
     return () => {
       observer.disconnect();
-      element.removeEventListener("scroll", handleRootScroll);
+      viewport.removeEventListener("scroll", handleRootScroll);
     };
   }, [resetScroll, setRealScrollTop]);
 

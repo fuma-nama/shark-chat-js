@@ -1,16 +1,9 @@
 import { create } from "zustand";
 
-type ModalType =
-  | {
-      type: "user-profile";
-      user_id: string;
-    }
-  | {
-      type: "image";
-      image_url: string;
-      width: number;
-      height: number;
-    };
+type ModalType = {
+  type: "user-profile";
+  user_id: string;
+};
 type ToastError = { title: string; description: string };
 type ToastMessage = {
   id: number;

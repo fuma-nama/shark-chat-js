@@ -1,10 +1,10 @@
 "use client";
 import { BookmarkIcon } from "lucide-react";
-import { ChannelSendbar } from "@/components/chat/ChannelSendbar";
 import { MessageList } from "@/components/chat/MessageList";
-import { ChatViewProvider } from "@/components/chat/ChatView";
 import { useGroup } from "@/app/(dashboard)/(app)/chat/[group]/use-group";
 import { Spinner } from "ui/components/spinner";
+import { Sendbar } from "@/components/chat/Sendbar";
+import { ChatViewport } from "@/components/chat/ChatView";
 
 export default function Page({ params }: { params: { group: string } }) {
   const channelId = useGroup(params.group)?.channel_id;
@@ -12,12 +12,10 @@ export default function Page({ params }: { params: { group: string } }) {
     return <Spinner size="large" className="m-auto p-12" />;
 
   return (
-    <>
-      <ChatViewProvider>
-        <MessageList channelId={channelId} welcome={<Welcome />} />
-      </ChatViewProvider>
-      <ChannelSendbar channelId={channelId} />
-    </>
+    <ChatViewport>
+      <MessageList channelId={channelId} welcome={<Welcome />} />
+      <Sendbar channelId={channelId} />
+    </ChatViewport>
   );
 }
 
