@@ -13,16 +13,9 @@ export type MessagePlaceholder = {
   nonce: number;
 };
 
-type SendbarData = {
-  reply_to?: MessageType;
-};
-
 export type ChatStore = {
   sending: {
     [id: string]: MessagePlaceholder[];
-  };
-  sendbar: {
-    [id: string]: SendbarData;
   };
   editing: {
     [id: string]: { messageId?: number };
@@ -30,10 +23,11 @@ export type ChatStore = {
   messages: {
     [id: string]: MessageType[];
   };
+  reply: Map<string, MessageType>;
   pointer: Map<string, number>;
   setEditing(channelId: string, messageId?: number): void;
   updatePointer(channelId: string): void;
-  updateSendbar(id: string, data: Partial<SendbarData>): void;
+  updateReply(channelId: string, data: MessageType | null): void;
   addSending: (
     id: string,
     data: SendData,
@@ -44,11 +38,11 @@ export type ChatStore = {
 };
 
 export const useMessageStore = create<ChatStore>((set) => ({
-  sendbar: {},
   sending: {},
   editing: {},
   messages: {},
   pointer: new Map(),
+  reply: new Map(),
   updatePointer(channelId) {
     set((prev) => {
       const next = new Map(prev.pointer);
@@ -60,18 +54,6 @@ export const useMessageStore = create<ChatStore>((set) => ({
         pointer: next,
       };
     });
-  },
-  updateSendbar(id, data) {
-    set((prev) => ({
-      ...prev,
-      sendbar: {
-        ...prev.sendbar,
-        [id]: {
-          ...prev.sendbar[id],
-          ...data,
-        },
-      },
-    }));
   },
   setEditing(channelId: string, messageId?: number) {
     set((prev) => ({
@@ -99,6 +81,17 @@ export const useMessageStore = create<ChatStore>((set) => ({
     });
 
     return item;
+  },
+  updateReply(channelId: string, data: MessageType | null) {
+    set((prev) => {
+      const next = new Map(prev.reply);
+      if (!data) next.delete(channelId);
+      else next.set(channelId, data);
+
+      return {
+        reply: next,
+      };
+    });
   },
   errorSending(group, nonce, message) {
     set((prev) => {

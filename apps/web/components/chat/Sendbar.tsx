@@ -70,14 +70,12 @@ export function Sendbar({ channelId }: { channelId: string }) {
   const mutation = useSendMessageMutation();
 
   const onEscape = () => {
-    useMessageStore.getState().updateSendbar(channelId, {
-      reply_to: undefined,
-    });
+    useMessageStore.getState().updateReply(channelId, null);
   };
 
   const onSubmit = form.handleSubmit(async (data) => {
     const store = useMessageStore.getState();
-    const reply = store.sendbar[channelId]?.reply_to;
+    const reply = store.reply.get(channelId);
 
     mutation.mutate({
       ...data,
@@ -140,29 +138,25 @@ export function Sendbar({ channelId }: { channelId: string }) {
 }
 
 function Reference({ channelId }: { channelId: string }) {
-  const { reply_to } = useMessageStore((s) => s.sendbar[channelId] ?? {});
+  const reply = useMessageStore((s) => s.reply.get(channelId));
 
   return (
     <div
       className={cn(
         "flex flex-row pt-2 px-2 text-sm text-muted-foreground",
-        !reply_to && "hidden",
+        !reply && "hidden",
       )}
     >
       <p className="flex-1">
         Replying to{" "}
         <span className="font-medium text-foreground">
-          {reply_to?.author?.name ?? "Unknown User"}
+          {reply?.author?.name ?? "Unknown User"}
         </span>
       </p>
       <button
         aria-label="delete"
         className={button({ color: "ghost", size: "icon" })}
-        onClick={() =>
-          useMessageStore
-            .getState()
-            .updateSendbar(channelId, { reply_to: undefined })
-        }
+        onClick={() => useMessageStore.getState().updateReply(channelId, null)}
       >
         <XIcon className="size-4" />
       </button>

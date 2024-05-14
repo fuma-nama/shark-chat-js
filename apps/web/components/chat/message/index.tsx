@@ -105,9 +105,7 @@ function Menu({ message }: { message: MessageType }) {
       id: "reply",
       icon: <ReplyIcon className="size-4" />,
       onSelect: () =>
-        useMessageStore
-          .getState()
-          .updateSendbar(message.channel_id, { reply_to: message }),
+        useMessageStore.getState().updateReply(message.channel_id, message),
       text: "Reply",
     },
     {

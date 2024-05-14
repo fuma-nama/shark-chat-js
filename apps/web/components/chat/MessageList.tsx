@@ -58,7 +58,7 @@ export function MessageList({
     <div className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
-          {new Array(40).fill(0).map((_, i) => (
+          {new Array(30).fill(0).map((_, i) => (
             <Skeleton key={i} />
           ))}
         </div>

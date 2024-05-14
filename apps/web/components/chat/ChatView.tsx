@@ -1,19 +1,15 @@
 import { usePageStore } from "@/utils/stores/page";
 import dynamic from "next/dynamic";
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 import useInfiniteScroll, {
   UseInfiniteScrollHookArgs,
 } from "react-infinite-scroll-hook";
-import { useBottomScroll } from "ui/hooks/use-bottom-scroll";
 
 const UserProfileModal = dynamic(() => import("../modal/UserProfileModal"));
 
 export function ChatViewport({ children }: { children: ReactNode }) {
   const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
-  useBottomScroll({
-    viewport: getViewportScroll,
-    inner: getViewportInner,
-  });
+  useBottomScroll();
 
   return (
     <div
@@ -52,4 +48,60 @@ export function useChatView(props: UseInfiniteScrollHookArgs) {
   return {
     sentryRef,
   };
+}
+
+export interface UseBottomScroll {
+  resetScroll: () => void;
+  setRealScrollTop: () => void;
+}
+
+function virtualToReal(element: Element, virtual: number): number {
+  return element.scrollHeight - virtual - element.clientHeight;
+}
+
+function realToVirtual(element: Element, real: number): number {
+  return element.scrollHeight - real - element.clientHeight;
+}
+
+export function useBottomScroll(): UseBottomScroll {
+  const virtualScrollTopRef = useRef(0);
+
+  const setRealScrollTop = useCallback(() => {
+    const element = getViewportScroll();
+    if (!element) return;
+    element.scrollTop = virtualToReal(element, virtualScrollTopRef.current);
+  }, []);
+
+  const resetScroll = useCallback(() => {
+    virtualScrollTopRef.current = 0;
+
+    setRealScrollTop();
+  }, [setRealScrollTop]);
+
+  useEffect(() => {
+    const viewport = getViewportScroll();
+    const inner = getViewportInner();
+
+    if (!viewport) return;
+
+    const handleRootScroll = () => {
+      virtualScrollTopRef.current = realToVirtual(viewport, viewport.scrollTop);
+    };
+
+    const observer = new ResizeObserver(() => {
+      setRealScrollTop();
+    });
+
+    // reset before adding listener
+    resetScroll();
+
+    viewport.addEventListener("scroll", handleRootScroll);
+    if (inner) observer.observe(inner);
+    return () => {
+      observer.disconnect();
+      viewport.removeEventListener("scroll", handleRootScroll);
+    };
+  }, [resetScroll, setRealScrollTop]);
+
+  return { resetScroll, setRealScrollTop };
 }
