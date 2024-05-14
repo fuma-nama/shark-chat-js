@@ -5,7 +5,13 @@ import { MessagePlaceholder } from "@/utils/stores/chat";
 import { UploadingAttachmentItem } from "../AttachmentItem";
 import { Reference } from "@/components/chat/message/reference";
 
-export function LocalMessageItem({ item }: { item: MessagePlaceholder }) {
+export function LocalMessageItem({
+  item,
+  chain,
+}: {
+  item: MessagePlaceholder;
+  chain: boolean;
+}) {
   const timestamp = useMemo(() => new Date(Date.now()), []);
   const { profile } = useProfile();
 
@@ -15,6 +21,7 @@ export function LocalMessageItem({ item }: { item: MessagePlaceholder }) {
         user={profile}
         timestamp={timestamp}
         className="opacity-50"
+        chain={chain}
       >
         {item.reply ? (
           <Reference

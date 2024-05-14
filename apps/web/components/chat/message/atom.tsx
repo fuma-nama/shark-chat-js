@@ -14,10 +14,11 @@ import Link from "next/link";
 interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
   user: MessageType["author"];
   timestamp: string | Date | number;
+  chain: boolean;
 }
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
-  ({ user, timestamp, className, ...props }, ref) => {
+  ({ user, timestamp, className, chain, ...props }, ref) => {
     const author = user ?? {
       id: "",
       image: null,
@@ -32,11 +33,26 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
         .setModal({ type: "user-profile", user_id: author.id });
     };
 
+    if (chain) {
+      return (
+        <div
+          ref={ref}
+          className={cn(
+            "relative group px-6 py-1 flex flex-col gap-2 text-[15px] -mt-4 hover:bg-card",
+            className,
+          )}
+          {...props}
+        >
+          <div className="flex flex-col pl-12">{props.children}</div>
+        </div>
+      );
+    }
+
     return (
       <div
         ref={ref}
         className={cn(
-          "relative group p-3 rounded-xl flex flex-row items-start gap-2 bg-card text-[15px]",
+          "relative group px-6 py-2 flex flex-row items-start gap-2 text-[15px] hover:bg-card",
           className,
         )}
         {...props}

@@ -13,7 +13,13 @@ import { Reference } from "./reference";
 import { Embed } from "./embed";
 import { DropdownMenuContent, DropdownMenuItem } from "ui/components/dropdown";
 
-export function ChatMessageItem({ message }: { message: MessageType }) {
+export function ChatMessageItem({
+  chain,
+  message,
+}: {
+  message: MessageType;
+  chain: boolean;
+}) {
   const editing = useMessageStore(
     (s) => s.editing[message.channel_id]?.messageId === message.id,
   );
@@ -31,6 +37,7 @@ export function ChatMessageItem({ message }: { message: MessageType }) {
           id={`message_${message.id}`}
           user={message.author}
           timestamp={message.timestamp}
+          chain={chain}
         >
           {editing ? (
             <Edit message={message} />

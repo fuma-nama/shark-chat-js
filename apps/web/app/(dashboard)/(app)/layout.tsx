@@ -7,9 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <Provider>
       <main className="grid grid-cols-1 md:grid-cols-[20rem_auto]">
         <Sidebar />
-        <div className="flex flex-col max-w-screen-2xl w-full mx-auto">
-          {children}
-        </div>
+        <div className="flex flex-col">{children}</div>
       </main>
     </Provider>
   );

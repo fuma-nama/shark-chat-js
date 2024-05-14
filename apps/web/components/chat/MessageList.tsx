@@ -1,14 +1,94 @@
-import { useMessageStore } from "@/utils/stores/chat";
+import { MessagePlaceholder, useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { Fragment, ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
+import { MessageType } from "@/utils/types";
 
 const count = 30;
+
+type ListItem =
+  | {
+      id: number;
+      type: "message";
+      message: MessageType;
+      chain: boolean;
+    }
+  | {
+      id: string;
+      type: "unread";
+    }
+  | {
+      type: "pending";
+      id: string;
+      message: MessagePlaceholder;
+      chain: boolean;
+    };
+
+function useItems(channelId: string, lastRead: Date | null): ListItem[] {
+  const { data } = useSession();
+  const [sending, messages] = useMessageStore((s) => [
+    s.sending[channelId] ?? [],
+    s.messages[channelId] ?? [],
+  ]);
+
+  return useMemo(() => {
+    const items: ListItem[] = [];
+    let previousTimestamp: Date | undefined;
+    if (!data) return [];
+
+    for (const message of messages) {
+      const prev = items.length > 0 ? items.at(-1) : undefined;
+      const time = new Date(message.timestamp);
+
+      if (
+        lastRead &&
+        lastRead < time &&
+        (!previousTimestamp || previousTimestamp <= lastRead)
+      )
+        items.push({
+          id: `unread:${lastRead.getTime()}`,
+          type: "unread",
+        });
+
+      items.push({
+        id: message.id,
+        type: "message",
+        message,
+        chain:
+          message.author != null &&
+          prev?.type === "message" &&
+          prev.message.author?.id === message.author.id &&
+          time.getTime() - new Date(prev.message.timestamp).getTime() <=
+            10 * 1000 &&
+          message.reply_id == null,
+      });
+      previousTimestamp = time;
+    }
+
+    for (const message of sending) {
+      const prev = items.length > 0 ? items.at(-1) : undefined;
+
+      items.push({
+        id: `pending:${message.nonce}`,
+        type: "pending",
+        message,
+        chain:
+          prev?.type === "message" &&
+          prev.message.author?.id === data.user.id &&
+          Date.now() - new Date(prev.message.timestamp).getTime() <=
+            10 * 1000 &&
+          message.reply == null,
+      });
+    }
+
+    return items;
+  }, [data, messages, lastRead, sending]);
+}
 
 export function MessageList({
   channelId,
@@ -19,11 +99,7 @@ export function MessageList({
 }) {
   const { status } = useSession();
   const lastRead = useLastRead(channelId);
-  const [sending, messages, pointer] = useMessageStore((s) => [
-    s.sending[channelId] ?? [],
-    s.messages[channelId] ?? [],
-    s.pointer.get(channelId),
-  ]);
+  const pointer = useMessageStore((s) => s.pointer.get(channelId));
 
   const query = trpc.chat.messages.useQuery(
     { channelId, count, before: pointer },
@@ -54,8 +130,10 @@ export function MessageList({
     loading: query.isLoading,
   });
 
+  const items = useItems(channelId, lastRead);
+
   return (
-    <div className="flex flex-col gap-3 mb-8 flex-1 pt-2 p-4">
+    <div className="flex flex-col gap-3 mb-8 flex-1 py-2">
       {showSkeleton ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
           {new Array(30).fill(0).map((_, i) => (
@@ -72,25 +150,28 @@ export function MessageList({
       ) : (
         welcome
       )}
-      {messages.map((message, i, arr) => {
-        const prev_message = i > 0 ? arr[i - 1] : null;
-        const newLine =
-          lastRead != null &&
-          lastRead < new Date(message.timestamp) &&
-          (prev_message == null ||
-            new Date(prev_message.timestamp) <= lastRead);
-
-        return (
-          <Fragment key={message.id}>
-            {newLine && <UnreadSeparator />}
-            <ChatMessageItem message={message} />
-          </Fragment>
-        );
+      {items.map((item) => {
+        switch (item.type) {
+          case "message":
+            return (
+              <ChatMessageItem
+                key={item.id}
+                message={item.message}
+                chain={item.chain}
+              />
+            );
+          case "pending":
+            return (
+              <LocalMessageItem
+                key={item.id}
+                item={item.message}
+                chain={item.chain}
+              />
+            );
+          case "unread":
+            return <UnreadSeparator key={item.id} />;
+        }
       })}
-
-      {sending.map((message) => (
-        <LocalMessageItem key={message.nonce} item={message} />
-      ))}
     </div>
   );
 }
@@ -118,7 +199,7 @@ function UnreadSeparator() {
       <p className="text-red-500 dark:text-red-400 text-sm mx-auto">
         New Message
       </p>
-      <div className="h-[1px] flex-1 bg-red-500 dark:bg-red-400" />
+      <div className="h-px flex-1 bg-red-500 dark:bg-red-400" />
     </div>
   );
 }
