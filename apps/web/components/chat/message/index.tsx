@@ -12,6 +12,7 @@ import Edit from "./edit";
 import { Reference } from "./reference";
 import { Embed } from "./embed";
 import { DropdownMenuContent, DropdownMenuItem } from "ui/components/dropdown";
+import { cn } from "ui/utils/cn";
 
 export function ChatMessageItem({
   chain,
@@ -37,6 +38,7 @@ export function ChatMessageItem({
           id={`message_${message.id}`}
           user={message.author}
           timestamp={message.timestamp}
+          className={cn(editing && "hover:bg-transparent")}
           chain={chain}
         >
           {editing ? (

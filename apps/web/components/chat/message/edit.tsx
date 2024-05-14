@@ -70,10 +70,7 @@ export default function Edit({ message }: EditProps) {
           />
         )}
       />
-      <label
-        htmlFor="edit-message"
-        className="text-xs text-accent-800 dark:text-accent-600"
-      >
+      <label htmlFor="edit-message" className="text-xs text-muted-foreground">
         Press enter to save • escape to exit
       </label>
 
@@ -81,12 +78,7 @@ export default function Edit({ message }: EditProps) {
         <Button color="primary" isLoading={editMutation.isLoading}>
           Save changes
         </Button>
-        <Button
-          type="button"
-          color="secondary"
-          onClick={onCancel}
-          className="dark:bg-dark-700"
-        >
+        <Button type="button" color="secondary" onClick={onCancel}>
           Cancel
         </Button>
       </div>

@@ -1,94 +1,15 @@
-import { MessagePlaceholder, useMessageStore } from "@/utils/stores/chat";
+import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
 import { useSession } from "next-auth/react";
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/realtime/shared";
-import { MessageType } from "@/utils/types";
+import { useItems } from "@/components/chat/use-items";
 
 const count = 30;
-
-type ListItem =
-  | {
-      id: number;
-      type: "message";
-      message: MessageType;
-      chain: boolean;
-    }
-  | {
-      id: string;
-      type: "unread";
-    }
-  | {
-      type: "pending";
-      id: string;
-      message: MessagePlaceholder;
-      chain: boolean;
-    };
-
-function useItems(channelId: string, lastRead: Date | null): ListItem[] {
-  const { data } = useSession();
-  const [sending, messages] = useMessageStore((s) => [
-    s.sending[channelId] ?? [],
-    s.messages[channelId] ?? [],
-  ]);
-
-  return useMemo(() => {
-    const items: ListItem[] = [];
-    let previousTimestamp: Date | undefined;
-    if (!data) return [];
-
-    for (const message of messages) {
-      const prev = items.length > 0 ? items.at(-1) : undefined;
-      const time = new Date(message.timestamp);
-
-      if (
-        lastRead &&
-        lastRead < time &&
-        (!previousTimestamp || previousTimestamp <= lastRead)
-      )
-        items.push({
-          id: `unread:${lastRead.getTime()}`,
-          type: "unread",
-        });
-
-      items.push({
-        id: message.id,
-        type: "message",
-        message,
-        chain:
-          message.author != null &&
-          prev?.type === "message" &&
-          prev.message.author?.id === message.author.id &&
-          time.getTime() - new Date(prev.message.timestamp).getTime() <=
-            10 * 1000 &&
-          message.reply_id == null,
-      });
-      previousTimestamp = time;
-    }
-
-    for (const message of sending) {
-      const prev = items.length > 0 ? items.at(-1) : undefined;
-
-      items.push({
-        id: `pending:${message.nonce}`,
-        type: "pending",
-        message,
-        chain:
-          prev?.type === "message" &&
-          prev.message.author?.id === data.user.id &&
-          Date.now() - new Date(prev.message.timestamp).getTime() <=
-            10 * 1000 &&
-          message.reply == null,
-      });
-    }
-
-    return items;
-  }, [data, messages, lastRead, sending]);
-}
 
 export function MessageList({
   channelId,
