@@ -16,7 +16,8 @@ import { SimpleDialog } from "ui/components/dialog";
 import { Cropper, ReactCropperElement } from "react-cropper";
 import Image from "next/image";
 import { cloudinaryLoader } from "@/utils/cloudinary-loader";
-import { EditIcon } from "lucide-react";
+import { EditIcon, InfoIcon } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "ui/components/tooltip";
 
 export default function Info({
   group,
@@ -194,7 +195,7 @@ function EditGroupPanel({
   });
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={onSave}>
+    <form className="flex flex-col gap-4" onSubmit={onSave}>
       <Controller
         name="icon"
         control={control}
@@ -209,18 +210,24 @@ function EditGroupPanel({
       />
 
       <fieldset>
-        <label htmlFor="name" className="font-medium text-sm">
+        <label htmlFor="name" className="font-medium text-xs">
           Name
         </label>
         <input id="name" className={input()} {...register("name")} />
       </fieldset>
       <fieldset>
-        <label htmlFor="unique_name" className="font-medium text-sm">
+        <label htmlFor="unique_name" className="font-medium text-xs">
           Unique Name
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InfoIcon className="ml-1 text-muted-foreground inline size-3" />
+            </TooltipTrigger>
+            <TooltipContent>
+              People can find a group by its unique name
+            </TooltipContent>
+          </Tooltip>
         </label>
-        <p className="text-sm text-muted-foreground mb-2">
-          People can find a group by its unique name
-        </p>
+
         <UniqueNameInput
           input={{
             id: "unique_name",

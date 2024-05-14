@@ -66,9 +66,9 @@ function Content({ onClose }: { onClose: () => void }) {
         />
       </fieldset>
       <fieldset>
-        <label htmlFor="name" className="text-sm font-medium text-foreground">
+        <label htmlFor="name" className="text-xs font-medium">
           Name
-          <span className="text-red-400 mx-1 text-base">*</span>
+          <span className="text-red-400 mx-1">*</span>
         </label>
         <input
           id="name"

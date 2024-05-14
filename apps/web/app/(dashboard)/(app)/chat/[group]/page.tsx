@@ -21,7 +21,7 @@ export default function Page({ params }: { params: { group: string } }) {
 
 function Welcome() {
   return (
-    <div className="flex flex-col mb-8 bg-gradient-to-b from-brand-500/10 -mx-4 p-4">
+    <div className="flex flex-col mb-8 bg-gradient-to-b from-brand-500/10 p-4">
       <BookmarkIcon className="size-10 bg-brand p-2 mb-2 md:size-14 md:p-3 rounded-full text-accent-50" />
       <h1 className="text-lg md:text-xl font-bold">
         The beginning of this story

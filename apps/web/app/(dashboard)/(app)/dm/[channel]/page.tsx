@@ -28,7 +28,7 @@ function Welcome({ channel }: { channel: string }) {
   if (!data?.user) return <div></div>;
 
   return (
-    <div className="flex flex-col mb-8">
+    <div className="flex flex-col mb-8 p-4">
       <Avatar
         src={data?.user?.image}
         fallback={data?.user?.name}

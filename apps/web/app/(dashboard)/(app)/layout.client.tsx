@@ -9,13 +9,14 @@ import {
   ToastViewport,
 } from "ui/components/toast";
 import React from "react";
+import { TooltipProvider } from "ui/components/tooltip";
 
 export function Provider({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <TooltipProvider delayDuration={100}>
       <ToastManager />
       {children}
-    </>
+    </TooltipProvider>
   );
 }
 
