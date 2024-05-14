@@ -132,13 +132,23 @@ export async function createMessage(
 
   const reply_message = alias(messages, "reply_message");
   const reply_user = alias(users, "reply_user");
-  const context = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, author_id))
-    .innerJoin(reply_message, eq(reply_message.id, messageId))
-    .innerJoin(reply_user, eq(reply_user.id, reply_message.author_id))
-    .then((res) => requireOne(res));
+  const context = input.reply
+    ? await db
+        .select({ user: users, reply_message, reply_user })
+        .from(users)
+        .where(eq(users.id, author_id))
+        .leftJoin(reply_message, eq(reply_message.id, input.reply))
+        .leftJoin(reply_user, eq(reply_user.id, reply_message.author_id))
+        .then((res) => requireOne(res))
+    : await db
+        .select()
+        .from(users)
+        .where(eq(users.id, author_id))
+        .then((res) => ({
+          user: requireOne(res),
+          reply_message: null,
+          reply_user: null,
+        }));
 
   return {
     id: messageId,
@@ -146,10 +156,12 @@ export async function createMessage(
     embeds,
     channel_id: input.channelId,
     timestamp: new Date(Date.now()),
-    author: pick(context.User, ...userProfileKeys),
+    author: pick(context.user, ...userProfileKeys),
     reply_id: input.reply ?? null,
     reply_message: context.reply_message,
-    reply_user: pick(context.reply_user, ...userProfileKeys),
+    reply_user: context.reply_user
+      ? pick(context.reply_user, ...userProfileKeys)
+      : null,
     attachment,
   };
 }
