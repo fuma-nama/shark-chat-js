@@ -13,6 +13,7 @@ import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { fieldset, input } from "ui/components/input";
 import { SimpleDialog } from "ui/components/dialog";
 import { AlertDialog } from "ui/components/alert-dialog";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default function Settings() {
   const { status, profile } = useProfile();
@@ -21,40 +22,43 @@ export default function Settings() {
   if (status !== "authenticated") return <></>;
 
   return (
-    <div className="flex flex-col gap-6 p-4">
-      <Avatar size="large" src={profile.image} fallback={profile.name} />
-      <div>
-        <h2 className="font-semibold text-lg mb-1">{profile.name}</h2>
-        <p className="text-muted-foreground text-sm">{profile.email}</p>
-      </div>
-      <div className="flex flex-row gap-3">
-        <SimpleDialog
-          open={edit}
-          onOpenChange={setEdit}
-          title="Update Profile"
-          trigger={<Button color="primary">Edit Profile</Button>}
-        >
-          <UpdateProfile profile={profile} onCancel={() => setEdit(false)} />
-        </SimpleDialog>
-
-        <Button color="danger" onClick={() => signOut()}>
-          Logout
-        </Button>
-      </div>
-
-      <fieldset className="flex flex-col gap-4 items-start">
+    <>
+      <Navbar breadcrumb={[{ id: "settings", text: "Settings" }]} />
+      <div className="flex flex-col gap-6 p-4">
+        <Avatar size="large" src={profile.image} fallback={profile.name} />
         <div>
-          <label htmlFor="theme" className={fieldset().label()}>
-            Appearance
-          </label>
-          <p className={fieldset().description()}>
-            Change the color theme of UI
-          </p>
+          <h2 className="font-semibold text-lg mb-1">{profile.name}</h2>
+          <p className="text-muted-foreground text-sm">{profile.email}</p>
         </div>
-        <ThemeSwitch id="theme" />
-      </fieldset>
-      <DangerZone />
-    </div>
+        <div className="flex flex-row gap-3">
+          <SimpleDialog
+            open={edit}
+            onOpenChange={setEdit}
+            title="Update Profile"
+            trigger={<Button color="primary">Edit Profile</Button>}
+          >
+            <UpdateProfile profile={profile} onCancel={() => setEdit(false)} />
+          </SimpleDialog>
+
+          <Button color="danger" onClick={() => signOut()}>
+            Logout
+          </Button>
+        </div>
+
+        <fieldset className="flex flex-col gap-4 items-start">
+          <div>
+            <label htmlFor="theme" className={fieldset().label()}>
+              Appearance
+            </label>
+            <p className={fieldset().description()}>
+              Change the color theme of UI
+            </p>
+          </div>
+          <ThemeSwitch id="theme" />
+        </fieldset>
+        <DangerZone />
+      </div>
+    </>
   );
 }
 
