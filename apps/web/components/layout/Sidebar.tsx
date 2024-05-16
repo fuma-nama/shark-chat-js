@@ -195,7 +195,7 @@ function BottomCard() {
   if (status !== "authenticated") return <></>;
 
   return (
-    <div className="sticky bottom-0 bg-card mt-auto -mx-2 py-2">
+    <div className="sticky bottom-0 bg-card mt-auto -mx-2 pb-4">
       <Link
         href="/settings"
         className="p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors hover:bg-accent"
