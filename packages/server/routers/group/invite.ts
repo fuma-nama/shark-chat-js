@@ -1,11 +1,12 @@
 import { protectedProcedure, router } from "../../trpc";
 import { z } from "zod";
-import { checkIsOwnerOf } from "../../utils/permissions";
-import { groupInvites } from "db/schema";
+import { getMembership } from "../../utils/permissions";
+import { GroupInvite, groupInvites } from "db/schema";
 import db from "db/client";
 import { and, eq } from "drizzle-orm";
-import { requireOne } from "db/utils";
 import { v4 as uuid } from "uuid";
+import { TRPCError } from "@trpc/server";
+
 /**
  * Only the group owner can manage invites
  */
@@ -17,34 +18,48 @@ export const inviteRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      await checkIsOwnerOf(input.groupId, ctx.session);
+      const member = await getMembership(input.groupId, ctx.session.user.id);
+      if (!member.owner && !member.admin)
+        throw new TRPCError({
+          message: "Admin only",
+          code: "UNAUTHORIZED",
+        });
 
-      return await db
+      return db
         .select()
         .from(groupInvites)
         .where(eq(groupInvites.group_id, input.groupId));
     }),
   create: protectedProcedure
     .input(z.object({ groupId: z.number() }))
-    .mutation(async ({ input, ctx }) => {
-      await checkIsOwnerOf(input.groupId, ctx.session);
-      const code = uuid();
+    .mutation<GroupInvite>(async ({ input, ctx }) => {
+      const member = await getMembership(input.groupId, ctx.session.user.id);
+      if (!member.owner && !member.admin)
+        throw new TRPCError({
+          message: "Admin only",
+          code: "UNAUTHORIZED",
+        });
 
+      const code = uuid();
       await db.insert(groupInvites).values({
         group_id: input.groupId,
         code,
       });
 
-      return db
-        .select()
-        .from(groupInvites)
-        .where(eq(groupInvites.code, code))
-        .then((res) => requireOne(res));
+      return {
+        group_id: input.groupId,
+        code,
+      };
     }),
   delete: protectedProcedure
     .input(z.object({ groupId: z.number(), code: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      await checkIsOwnerOf(input.groupId, ctx.session);
+      const member = await getMembership(input.groupId, ctx.session.user.id);
+      if (!member.owner && !member.admin)
+        throw new TRPCError({
+          message: "Admin only",
+          code: "UNAUTHORIZED",
+        });
 
       await db
         .delete(groupInvites)

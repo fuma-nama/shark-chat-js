@@ -1,9 +1,9 @@
 import db from "db/client";
 import {
   DirectMessageInfo,
-  Member,
   directMessageInfos,
   groups,
+  Member,
   members,
   messageChannels,
 } from "db/schema";
@@ -53,6 +53,31 @@ export async function checkChannelPermissions(
   }
 
   throw new TRPCError({ code: "NOT_FOUND" });
+}
+
+export async function getMembership(
+  groupId: number,
+  userId: string,
+): Promise<Member & { owner: boolean; ownerId: string }> {
+  const result = await db
+    .select({ member: members, owner_id: groups.owner_id })
+    .from(members)
+    .where(and(eq(members.group_id, groupId), eq(members.user_id, userId)))
+    .innerJoin(groups, eq(groups.id, groupId))
+    .limit(1);
+
+  if (result.length === 0)
+    throw new TRPCError({
+      message: "Not a member of group",
+      code: "UNAUTHORIZED",
+    });
+
+  // todo: Store is_owner in member table
+  return {
+    ...result[0].member,
+    owner: result[0].owner_id === userId,
+    ownerId: result[0].owner_id,
+  };
 }
 
 export async function checkIsMemberOf(group: number, user: Session) {

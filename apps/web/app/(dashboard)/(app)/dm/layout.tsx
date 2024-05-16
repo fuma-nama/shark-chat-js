@@ -1,6 +1,5 @@
 "use client";
 import { Navbar } from "@/components/layout/Navbar";
-import { useSession } from "next-auth/react";
 import { trpc } from "@/utils/trpc";
 import { skeleton } from "ui/components/skeleton";
 import { Avatar } from "ui/components/avatar";
@@ -25,22 +24,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 function BreadcrumbItem() {
   const params = useParams() as { channel: string };
 
-  const { status } = useSession();
-  const query = trpc.dm.info.useQuery(
-    { channelId: params.channel },
-    { enabled: status === "authenticated", staleTime: Infinity },
-  );
+  const query = trpc.dm.channels.useQuery(undefined, { enabled: false });
+  const channel = query.data?.find((item) => item.id === params.channel);
 
   return query.data == null ? (
     <div className={skeleton()} />
   ) : (
     <div className="flex flex-row gap-2 items-center">
       <Avatar
-        src={query.data.user.image}
-        fallback={query.data.user.name}
+        src={channel?.user.image}
+        fallback={channel?.user.name}
         size="small"
       />
-      <span>{query.data.user.name}</span>
+      <span>{channel?.user.name}</span>
     </div>
   );
 }

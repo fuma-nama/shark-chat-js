@@ -11,7 +11,7 @@ export const uniqueNameSchema = z
 
 const groupName = z.string().trim().min(1).max(100);
 
-export const updateGroupSchema = z.object({
+export const updateGroupSchema = z.strictObject({
   groupId: z.number(),
   name: groupName.optional(),
   icon_hash: z.number().optional(),
@@ -20,6 +20,6 @@ export const updateGroupSchema = z.object({
   unique_name: uniqueNameSchema.optional(),
 });
 
-export const createGroupSchema = z.object({
+export const createGroupSchema = z.strictObject({
   name: groupName,
 });

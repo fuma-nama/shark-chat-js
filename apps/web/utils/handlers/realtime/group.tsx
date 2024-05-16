@@ -27,7 +27,15 @@ export function GroupEventManager() {
     }
 
     if (name === "group_updated") {
-      return updateGroup(utils, message);
+      utils.group.info.setData({ groupId: message.groupId }, (prev) =>
+        prev ? { ...prev, ...message.group } : undefined,
+      );
+      utils.group.all.setData(undefined, (groups) =>
+        groups?.map((item) =>
+          item.id === message.groupId ? { ...item, ...message.group } : item,
+        ),
+      );
+      return;
     }
   });
 
@@ -47,9 +55,4 @@ export function GroupEventManager() {
   return <></>;
 }
 
-function updateGroup(utils: RouterUtils, group: Serialize<Group>) {
-  utils.group.info.setData({ groupId: group.id }, group);
-  utils.group.all.setData(undefined, (groups) =>
-    groups?.map((g) => (g.id === group.id ? { ...g, ...group } : g)),
-  );
-}
+function updateGroup(utils: RouterUtils, group: Serialize<Group>) {}

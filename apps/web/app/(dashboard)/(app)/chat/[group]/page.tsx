@@ -1,18 +1,17 @@
 "use client";
 import { BookmarkIcon } from "lucide-react";
 import { MessageList } from "@/components/chat/MessageList";
-import { useGroup } from "@/app/(dashboard)/(app)/chat/[group]/use-group";
-import { Spinner } from "ui/components/spinner";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { ChatViewport } from "@/components/chat/ChatView";
+import { useGroupContext } from "@/utils/contexts/group-context";
+import { useSession } from "next-auth/react";
 
-export default function Page({ params }: { params: { group: string } }) {
-  const channelId = useGroup(params.group)?.channel_id;
-  if (channelId == null)
-    return <Spinner size="large" className="m-auto p-12" />;
+export default function Page() {
+  const { data: session } = useSession();
+  const { channel_id: channelId, member, owner_id } = useGroupContext();
 
   return (
-    <ChatViewport>
+    <ChatViewport deleteMessage={member.admin || owner_id === session?.user.id}>
       <MessageList channelId={channelId} welcome={<Welcome />} />
       <Sendbar channelId={channelId} />
     </ChatViewport>

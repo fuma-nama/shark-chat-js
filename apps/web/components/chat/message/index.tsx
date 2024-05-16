@@ -6,13 +6,13 @@ import * as Item from "./atom";
 import * as ContextMenu from "ui/components/context-menu";
 import { AttachmentItem } from "../AttachmentItem";
 import { useMessageStore } from "@/utils/stores/chat";
-import { useParams } from "next/navigation";
 import { CopyIcon, EditIcon, ReplyIcon, TrashIcon } from "lucide-react";
 import Edit from "./edit";
 import { Reference } from "./reference";
 import { Embed } from "./embed";
 import { DropdownMenuContent, DropdownMenuItem } from "ui/components/dropdown";
 import { cn } from "ui/utils/cn";
+import { useViewContext } from "@/components/chat/ChatView";
 
 export function ChatMessageItem({
   chain,
@@ -77,27 +77,11 @@ interface Item {
 
 function Menu({ message }: { message: MessageType }) {
   const { status, data } = useSession();
-  const { group } = useParams() as { group?: string };
-
-  const query = trpc.group.info.useQuery(
-    { groupId: typeof group === "string" ? Number(group) : NaN },
-    {
-      enabled: status === "authenticated" && typeof group === "string",
-      staleTime: Infinity,
-    },
-  );
-
   const deleteMutation = trpc.chat.delete.useMutation();
+  const ctx = useViewContext();
 
   const isAuthor =
     status === "authenticated" && message.author?.id === data.user.id;
-
-  const isGroup = typeof group === "string";
-
-  const isAdmin =
-    query.status === "success" &&
-    status === "authenticated" &&
-    query.data.owner_id === data.user.id;
 
   const onClose = (e: Event) => {
     if (
@@ -134,7 +118,7 @@ function Menu({ message }: { message: MessageType }) {
       text: "Edit",
     });
   }
-  if ((isGroup && isAdmin) || isAuthor) {
+  if (ctx.deleteMessage || isAuthor) {
     items.push({
       id: "delete",
       color: "danger",

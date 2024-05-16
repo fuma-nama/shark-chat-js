@@ -8,8 +8,9 @@ import { getTimestamp } from "shared/media/timestamp";
 import cloudinary from "../cloudinary";
 import { protectedProcedure, router } from "../trpc";
 import { z } from "zod";
-import { checkIsOwnerOf } from "../utils/permissions";
+import { getMembership } from "../utils/permissions";
 import { createId } from "@paralleldrive/cuid2";
+import { TRPCError } from "@trpc/server";
 
 type SignOptions = {
   transformation?: string;
@@ -36,7 +37,9 @@ export const uploadRouter = router({
       }),
     )
     .query(async ({ input: { groupId }, ctx }) => {
-      await checkIsOwnerOf(groupId, ctx.session);
+      const member = await getMembership(groupId, ctx.session.user.id);
+      if (!member.owner && !member.admin)
+        throw new TRPCError({ message: "Admin Only", code: "UNAUTHORIZED" });
 
       return sign({
         public_id: groupIcon.id(groupId),
@@ -50,7 +53,9 @@ export const uploadRouter = router({
       }),
     )
     .query(async ({ input: { groupId }, ctx }) => {
-      await checkIsOwnerOf(groupId, ctx.session);
+      const member = await getMembership(groupId, ctx.session.user.id);
+      if (!member.owner && !member.admin)
+        throw new TRPCError({ message: "Admin Only", code: "UNAUTHORIZED" });
 
       return sign({
         public_id: groupBanners.id(groupId),

@@ -1,13 +1,31 @@
 import { usePageStore } from "@/utils/stores/page";
 import dynamic from "next/dynamic";
-import { ReactNode, useCallback, useEffect, useRef } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import useInfiniteScroll, {
   UseInfiniteScrollHookArgs,
 } from "react-infinite-scroll-hook";
 
 const UserProfileModal = dynamic(() => import("../modal/UserProfileModal"));
 
-export function ChatViewport({ children }: { children: ReactNode }) {
+export interface ChatViewContext {
+  deleteMessage: boolean;
+}
+
+export const ChatContext = createContext<ChatViewContext | undefined>(
+  undefined,
+);
+
+export function ChatViewport({
+  children,
+  ...props
+}: ChatViewContext & { children: ReactNode }) {
   const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
   useBottomScroll();
 
@@ -24,10 +42,14 @@ export function ChatViewport({ children }: { children: ReactNode }) {
             onOpenChange={() => setModal(undefined)}
           />
         )}
-        {children}
+        <ChatContext.Provider value={props}>{children}</ChatContext.Provider>
       </div>
     </div>
   );
+}
+
+export function useViewContext() {
+  return useContext(ChatContext)!;
 }
 
 export function getViewportScroll(): HTMLDivElement | null {

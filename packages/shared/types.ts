@@ -1,7 +1,6 @@
 /*
  * Close from trpc
  */
-
 export type FilterKeys<TObj extends object, TFilter> = {
   [TKey in keyof TObj]: TObj[TKey] extends TFilter ? TKey : never;
 }[keyof TObj];

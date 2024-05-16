@@ -94,6 +94,7 @@ export const members = pgTable(
   {
     group_id: integer(`group_id`).notNull(),
     user_id: varchar(`user_id`, { length: 191 }).notNull(),
+    admin: boolean("is_admin").notNull().default(false),
   },
   (table) => ({
     cpk: primaryKey({ columns: [table.group_id, table.user_id] }),

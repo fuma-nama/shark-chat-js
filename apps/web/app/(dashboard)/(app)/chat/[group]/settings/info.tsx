@@ -18,19 +18,18 @@ import Image from "next/image";
 import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { EditIcon, InfoIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/components/tooltip";
+import { useGroupContext } from "@/utils/contexts/group-context";
+import { useSession } from "next-auth/react";
 
-export default function Info({
-  group,
-  isAdmin,
-}: {
-  group: Group;
-  isAdmin: boolean;
-}) {
+export default function Info() {
   const [edit, setEdit] = useState(false);
+  const group = useGroupContext();
+  const { data } = useSession();
+  const canEdit = group.member.admin || group.owner_id === data?.user.id;
 
   return (
     <div className="flex flex-col">
-      {isAdmin ? <BannerEdit group={group} /> : <BannerView group={group} />}
+      {canEdit ? <BannerEdit group={group} /> : <BannerView group={group} />}
       <div className="flex flex-col gap-3 -mt-[4rem]">
         <div className="w-full flex flex-row justify-between items-end">
           <Avatar
@@ -39,7 +38,7 @@ export default function Info({
             src={groupIcon.url([group.id], group.icon_hash)}
             fallback={group.name}
           />
-          {isAdmin && (
+          {canEdit && (
             <div className="flex flex-row gap-3">
               <SimpleDialog
                 open={edit}

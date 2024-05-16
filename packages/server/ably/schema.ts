@@ -25,7 +25,12 @@ export const schema = {
     close_dm: a.event(z.custom<{ channel_id: string }>()),
   }),
   group: a.channel(([group]: [groupId: number]) => [`${group}`], {
-    group_updated: a.event(z.custom<Group>()),
+    group_updated: a.event(
+      z.custom<{
+        groupId: number;
+        group: Partial<Group>;
+      }>(),
+    ),
     group_deleted: a.event(z.custom<Pick<ServerGroupEvent, "id">>()),
   }),
   chat: a.channel(([channel]: [channelId: string]) => [channel], {

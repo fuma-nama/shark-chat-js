@@ -4,12 +4,17 @@ import { showErrorToast } from "@/utils/stores/page";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useGroupContext } from "@/utils/contexts/group-context";
+import { useSession } from "next-auth/react";
 
 export function Danger({ group }: { group: number }) {
+  const { data: session } = useSession();
+  const ctx = useGroupContext();
+
   return (
     <div className="flex flex-col gap-4 p-1">
       <LeaveGroup group={group} />
-      <DeleteGroup group={group} />
+      {ctx.owner_id === session?.user.id ? <DeleteGroup group={group} /> : null}
     </div>
   );
 }

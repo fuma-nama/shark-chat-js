@@ -7,7 +7,7 @@ import { Sendbar } from "@/components/chat/Sendbar";
 
 export default function Page({ params }: { params: { channel: string } }) {
   return (
-    <ChatViewport>
+    <ChatViewport deleteMessage={false}>
       <MessageList
         channelId={params.channel}
         welcome={<Welcome channel={params.channel} />}
@@ -18,10 +18,7 @@ export default function Page({ params }: { params: { channel: string } }) {
 }
 
 function Welcome({ channel }: { channel: string }) {
-  const query = trpc.dm.info.useQuery(
-    { channelId: channel },
-    { enabled: false },
-  );
+  const query = trpc.dm.info.useQuery({ channelId: channel });
 
   const data = query.data;
 

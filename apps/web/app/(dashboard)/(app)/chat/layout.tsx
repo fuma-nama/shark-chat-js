@@ -7,12 +7,21 @@ import { SettingsIcon, XIcon } from "lucide-react";
 import { Avatar } from "ui/components/avatar";
 import { useGroup } from "@/app/(dashboard)/(app)/chat/[group]/use-group";
 import { groupIcon } from "shared/media/format";
+import { GroupContext } from "@/utils/contexts/group-context";
+import { Spinner } from "ui/components/spinner";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const params = useParams() as { group: string };
+  const info = useGroup(params.group);
+
   return (
     <div className="relative flex flex-col min-h-dvh">
       <Nav />
-      {children}
+      {info ? (
+        <GroupContext.Provider value={info}>{children}</GroupContext.Provider>
+      ) : (
+        <Spinner size="large" className="m-auto p-12" />
+      )}
     </div>
   );
 }

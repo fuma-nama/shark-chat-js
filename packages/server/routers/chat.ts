@@ -9,7 +9,7 @@ import { directMessageInfos, groups, messages, User, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
 import { generateText } from "../eden";
 import { onReceiveMessage } from "../inworld";
-import { checkChannelPermissions } from "../utils/permissions";
+import { checkChannelPermissions, getMembership } from "../utils/permissions";
 import { pick } from "shared/common";
 import {
   ComplexMessage,
@@ -142,15 +142,42 @@ export const chatRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { channel_id } = await checkDeleteMessage(
-        input.messageId,
-        ctx.session.user.id,
-      );
+      const message = await db
+        .select({
+          authorId: messages.author_id,
+          channelId: messages.channel_id,
+          groupId: groups.id,
+        })
+        .from(messages)
+        .where(eq(messages.id, input.messageId))
+        .leftJoin(groups, eq(groups.channel_id, messages.channel_id))
+        .limit(1)
+        .then((res) => res[0]);
+
+      if (message == null)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Message not found",
+        });
+
+      const member = message.groupId
+        ? await getMembership(message.groupId, ctx.session.user.id)
+        : undefined;
+
+      if (
+        message.authorId !== ctx.session.user.id &&
+        (!member || (!member.admin && !member.owner))
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Missing required permission",
+        });
+      }
 
       await db.delete(messages).where(eq(messages.id, input.messageId));
-      await channels.chat.message_deleted.publish([channel_id], {
+      await channels.chat.message_deleted.publish([message.channelId], {
         id: input.messageId,
-        channel_id,
+        channel_id: message.channelId,
       });
     }),
   read: protectedProcedure
@@ -210,32 +237,3 @@ export const chatRouter = router({
       };
     }),
 });
-
-async function checkDeleteMessage(messageId: number, user: string) {
-  const message = await db
-    .select({
-      author_id: messages.author_id,
-      channel_id: messages.channel_id,
-      owner_id: groups.owner_id,
-    })
-    .from(messages)
-    .where(eq(messages.id, messageId))
-    .leftJoin(groups, eq(groups.channel_id, messages.channel_id))
-    .limit(1)
-    .then((res) => res[0]);
-
-  if (message == null)
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Message not found",
-    });
-
-  if (message.author_id !== user && message.owner_id !== user) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "Missing required permission",
-    });
-  }
-
-  return { channel_id: message.channel_id };
-}

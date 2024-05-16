@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure, router } from "../../trpc";
-import { checkIsOwnerOf } from "../../utils/permissions";
+import { checkIsOwnerOf, getMembership } from "../../utils/permissions";
 import { inviteRouter } from "./invite";
 import { createGroupSchema, updateGroupSchema } from "shared/schema/group";
 import { membersRouter } from "./members";
@@ -23,6 +23,9 @@ import { pick } from "shared/common";
 
 export interface GroupWithNotifications extends Group {
   last_message: { content: string } | null;
+  member: {
+    admin: boolean;
+  };
   unread_messages: number;
 
   /**
@@ -79,9 +82,10 @@ export const groupRouter = router({
           ),
         )
         .innerJoin(groups, eq(members.group_id, groups.id))
+        .limit(1)
         .then((res) => res[0]);
 
-      if (member == null) {
+      if (!member) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "You aren't the member of this group yet",
@@ -139,23 +143,21 @@ export const groupRouter = router({
     }),
   update: protectedProcedure
     .input(updateGroupSchema)
-    .mutation(async ({ ctx, input }) => {
-      await checkIsOwnerOf(input.groupId, ctx.session);
-      const updated = await db
-        .update(groups)
-        .set({
-          name: input.name,
-          icon_hash: input.icon_hash,
-          unique_name: input.unique_name,
-          banner_hash: input.banner_hash,
-          public: input.public,
-        })
-        .where(eq(groups.id, input.groupId))
-        .returning()
-        .then((res) => requireOne(res));
+    .mutation(async ({ ctx, input: { groupId, ...input } }) => {
+      const member = await getMembership(groupId, ctx.session.user.id);
+      if (!member.admin && !member.owner)
+        throw new TRPCError({
+          message: "Admin only",
+          code: "UNAUTHORIZED",
+        });
 
-      await channels.group.group_updated.publish([input.groupId], updated);
-      return updated;
+      await Promise.all([
+        db.update(groups).set(input).where(eq(groups.id, groupId)),
+        channels.group.group_updated.publish([groupId], {
+          groupId,
+          group: input,
+        }),
+      ]);
     }),
   delete: protectedProcedure
     .input(z.object({ groupId: z.number() }))
@@ -237,6 +239,7 @@ async function joinMember(groupId: number, userId: string) {
     await channels.private.group_created.publish([userId], {
       ...rows[0],
       last_message: null,
+      member: { admin: false },
       unread_messages: 0,
     });
   }
@@ -250,6 +253,7 @@ async function getGroupsWithNotifications(
   const result = await db
     .select({
       group: groups,
+      member: pick(members, "admin"),
       last_message: pick(messages, "content"),
     })
     .from(members)
@@ -267,7 +271,7 @@ async function getGroupsWithNotifications(
 
   return await db.transaction(
     async () => {
-      const groups = result.map(async ({ group, last_message }, i) => {
+      const groups = result.map(async ({ group, member, last_message }, i) => {
         const last_read = last_reads[i];
         const result = await db
           .select({
@@ -284,6 +288,7 @@ async function getGroupsWithNotifications(
 
         return {
           ...group,
+          member,
           last_message,
           last_read: last_read?.getTime(),
           unread_messages: Number(result.count),

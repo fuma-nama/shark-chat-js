@@ -1,36 +1,32 @@
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
-import { UserInfo } from "shared/schema/chat";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "shared/types";
-import { Member } from "db/schema";
 import { useSession } from "next-auth/react";
 import { UserProfileModal } from "@/components/modal/UserProfileModal";
 import { DialogTrigger } from "ui/components/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "ui/components/select";
+import { useState } from "react";
+import { MemberWithUser } from "server/routers/group/members";
+import { useGroupContext } from "@/utils/contexts/group-context";
 
-export default function Members({
-  group,
-  isAdmin,
-}: {
-  group: number;
-  isAdmin: boolean;
-}) {
+export default function Members({ group }: { group: number }) {
   return (
     <div className="p-1">
       <h3 className="font-semibold text-sm mb-4">Members</h3>
-      <MembersList group={group} isAdmin={isAdmin} />
+      <MembersList group={group} />
     </div>
   );
 }
 
-export function MembersList({
-  group,
-  isAdmin,
-}: {
-  group: number;
-  isAdmin: boolean;
-}) {
-  const { status, data } = useSession();
+export function MembersList({ group }: { group: number }) {
+  const { status } = useSession();
   const query = trpc.group.member.get.useQuery(
     { groupId: group },
     { enabled: status === "authenticated" },
@@ -42,11 +38,7 @@ export function MembersList({
         <Skeleton />
       ) : (
         query.data?.map((member) => (
-          <MemberItem
-            key={member.user_id}
-            member={member}
-            canKick={isAdmin && member.user_id !== data?.user.id}
-          />
+          <MemberItem key={member.user_id} member={member} />
         ))
       )}
     </div>
@@ -63,14 +55,12 @@ function Skeleton() {
   );
 }
 
-function MemberItem({
-  member,
-  canKick,
-}: {
-  member: Serialize<Member & { user: UserInfo }>;
-  canKick: boolean;
-}) {
+function MemberItem({ member }: { member: Serialize<MemberWithUser> }) {
   const utils = trpc.useUtils();
+  const ctx = useGroupContext();
+  const { data: session } = useSession();
+  const [value, setValue] = useState(member.admin ? "admin" : "member");
+  const update = trpc.group.member.update.useMutation();
   const kick = trpc.group.member.kick.useMutation({
     onSuccess(_, { groupId, userId }) {
       utils.group.member.get.setData({ groupId }, (prev) =>
@@ -79,36 +69,78 @@ function MemberItem({
     },
   });
 
+  const canUpdate =
+    ctx.owner_id === session?.user.id && member.user_id !== session?.user.id;
+
+  const canKick =
+    (ctx.member.admin || ctx.owner_id === session?.user.id) &&
+    !member.admin &&
+    member.user_id !== ctx.owner_id &&
+    member.user_id !== session?.user.id;
+
+  const onValueChange = (value: string) => {
+    setValue(value);
+    update.mutate({
+      groupId: ctx.id,
+      userId: member.user_id,
+      admin: value === "admin",
+    });
+  };
+
   return (
     <UserProfileModal userId={member.user_id}>
-      <DialogTrigger asChild>
-        <div className="flex flex-row items-center gap-2 p-2 rounded-md bg-card cursor-pointer hover:bg-accent">
+      <div className="flex flex-row items-center gap-2 p-2 rounded-md bg-card flex-wrap hover:bg-accent">
+        <DialogTrigger asChild>
           <Avatar
             alt="avatar"
             size="small"
             src={member.user.image}
             fallback={member.user.name}
           />
-
-          <p className="text-sm font-medium">{member.user.name}</p>
-          {canKick && (
-            <Button
-              color="danger"
-              className="ml-auto"
-              isLoading={kick.isLoading}
-              onClick={(e) => {
-                kick.mutate({
-                  groupId: member.group_id,
-                  userId: member.user_id,
-                });
-                e.preventDefault();
-              }}
-            >
-              Kick
-            </Button>
-          )}
-        </div>
-      </DialogTrigger>
+        </DialogTrigger>
+        <DialogTrigger asChild>
+          <p className="text-sm font-medium cursor-pointer mr-auto">
+            {member.user.name}
+          </p>
+        </DialogTrigger>
+        {canUpdate ? (
+          <Select
+            value={value}
+            onValueChange={onValueChange}
+            disabled={update.isLoading}
+          >
+            <SelectTrigger className="max-w-[100px] bg-background">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="member">Member</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          <p className="text-xs px-2 text-muted-foreground">
+            {member.user_id === ctx.owner_id
+              ? "Owner"
+              : member.admin
+                ? "Admin"
+                : "Member"}
+          </p>
+        )}
+        {canKick ? (
+          <Button
+            color="danger"
+            isLoading={kick.isLoading}
+            onClick={() => {
+              kick.mutate({
+                groupId: member.group_id,
+                userId: member.user_id,
+              });
+            }}
+          >
+            Kick
+          </Button>
+        ) : null}
+      </div>
     </UserProfileModal>
   );
 }

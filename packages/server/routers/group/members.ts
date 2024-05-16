@@ -1,11 +1,20 @@
 import { protectedProcedure, router } from "../../trpc";
 import { channels } from "../../ably";
-import { checkIsMemberOf, checkIsOwnerOf } from "../../utils/permissions";
+import {
+  checkIsMemberOf,
+  checkIsOwnerOf,
+  getMembership,
+} from "../../utils/permissions";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import db from "db/client";
-import { members, users } from "db/schema";
+import { Member, members, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
+import type { UserProfile } from "../chat";
+
+export interface MemberWithUser extends Member {
+  user: UserProfile;
+}
 
 export const membersRouter = router({
   get: protectedProcedure
@@ -14,10 +23,10 @@ export const membersRouter = router({
         groupId: z.number(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query<MemberWithUser[]>(async ({ ctx, input }) => {
       await checkIsMemberOf(input.groupId, ctx.session);
 
-      return await db
+      return db
         .select({
           ...(members as typeof members._.columns),
           user: {
@@ -38,7 +47,21 @@ export const membersRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await checkIsOwnerOf(input.groupId, ctx.session);
+      const member = await getMembership(input.groupId, ctx.session.user.id);
+      if (!member.admin && !member.owner)
+        throw new TRPCError({
+          message: "Admin only",
+          code: "UNAUTHORIZED",
+        });
+
+      const target = await getMembership(input.groupId, input.userId);
+
+      if (target.owner || target.admin)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You can't kick the owner or admin of group",
+        });
+
       if (ctx.session.user.id === input.userId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -58,5 +81,30 @@ export const membersRouter = router({
       await channels.private.group_removed.publish([input.userId], {
         id: input.groupId,
       });
+    }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        groupId: z.number(),
+        userId: z.string(),
+        admin: z.boolean().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await checkIsOwnerOf(input.groupId, ctx.session);
+
+      if (input.admin === undefined) return;
+
+      await db
+        .update(members)
+        .set({
+          admin: input.admin,
+        })
+        .where(
+          and(
+            eq(members.group_id, input.groupId),
+            eq(members.user_id, input.userId),
+          ),
+        );
     }),
 });
