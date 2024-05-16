@@ -97,7 +97,7 @@ function Nav() {
 
       <p className="text-sm mt-4 mb-2 font-medium">Users</p>
       {dm.data.length === 0 ? (
-        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground">
+        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground -mx-2">
           no direct messages
         </div>
       ) : (
