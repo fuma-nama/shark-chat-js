@@ -56,18 +56,17 @@ export const membersRouter = router({
 
       const target = await getMembership(input.groupId, input.userId);
 
-      if (target.owner || target.admin)
+      const allowed =
+        // Owner
+        (member.owner && ctx.session.user.id !== input.userId) ||
+        // Admin
+        (member.admin && !target.owner && !target.admin);
+
+      if (!allowed)
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "You can't kick the owner or admin of group",
         });
-
-      if (ctx.session.user.id === input.userId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "You can't kick yourself",
-        });
-      }
 
       await db
         .delete(members)

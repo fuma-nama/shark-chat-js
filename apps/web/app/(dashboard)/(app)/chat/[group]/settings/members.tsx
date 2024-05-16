@@ -69,14 +69,14 @@ function MemberItem({ member }: { member: Serialize<MemberWithUser> }) {
     },
   });
 
-  const canUpdate =
-    ctx.owner_id === session?.user.id && member.user_id !== session?.user.id;
+  const isOwner = session && ctx.owner_id === session.user.id;
+  const canUpdate = isOwner && member.user_id !== session?.user.id;
 
   const canKick =
-    (ctx.member.admin || ctx.owner_id === session?.user.id) &&
-    !member.admin &&
-    member.user_id !== ctx.owner_id &&
-    member.user_id !== session?.user.id;
+    // Owner
+    (isOwner && member.user_id !== session?.user.id) ||
+    // Admin
+    (ctx.member.admin && !member.admin && member.user_id !== ctx.owner_id);
 
   const onValueChange = (value: string) => {
     setValue(value);
@@ -119,7 +119,7 @@ function MemberItem({ member }: { member: Serialize<MemberWithUser> }) {
           </Select>
         ) : (
           <p className="text-xs px-2 text-muted-foreground">
-            {member.user_id === ctx.owner_id
+            {ctx.owner_id === member.user.id
               ? "Owner"
               : member.admin
                 ? "Admin"
