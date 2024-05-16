@@ -1,6 +1,5 @@
 import { channels } from "@/utils/ably/client";
 import { useSession } from "next-auth/react";
-import { createGroup } from "./shared";
 import { trpc } from "@/utils/trpc";
 import { useParams, useRouter } from "next/navigation";
 
@@ -12,7 +11,11 @@ export function PrivateEventManager() {
 
   const onEvent = channels.private.useCallback(({ data: message, name }) => {
     if (name === "group_created") {
-      return createGroup(utils, message);
+      utils.group.info.setData({ groupId: message.id }, message);
+      utils.group.all.setData(undefined, (groups) =>
+        groups != null ? [message, ...groups] : undefined,
+      );
+      return;
     }
 
     if (name === "group_removed") {
