@@ -1,6 +1,6 @@
 import type { Config } from "drizzle-kit";
 
-const url = process.env.DATABASE_PUSH_URL;
+const url = process.env.DATABASE_URL;
 if (url == null) {
   throw new Error("Missing environment variables");
 }

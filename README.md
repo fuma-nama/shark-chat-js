@@ -48,11 +48,7 @@ Create a new project on https://ably.com, paste `ABLY_API_KEY` into environment 
 
 By default, it uses Drizzle ORM with Neon Serverless Postresql for database. You may use other providers if you prefer.
 
-Create a Postresql database and get your `DATABASE_URL` and `DATABASE_PUSH_URL`.
-
-> Note
->
-> `DATABASE_PUSH_URL` is used for pushing changes which has pool connections disabled.
+Create a Postresql database and get your `DATABASE_URL`.
 
 ### Cloudinary
 

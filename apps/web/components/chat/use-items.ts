@@ -23,7 +23,7 @@ export type ListItem =
       chainEnd: boolean;
     };
 
-const minSeparateTime = 12 * 1000;
+const minSeparateTime = 30 * 1000;
 
 export function useItems(channelId: string, lastRead: Date | null): ListItem[] {
   const { data } = useSession();
