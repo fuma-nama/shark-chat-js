@@ -6,11 +6,13 @@ import { UploadingAttachmentItem } from "../AttachmentItem";
 import { Reference } from "@/components/chat/message/reference";
 
 export function LocalMessageItem({
-  item,
-  chain,
+  message,
+  chainStart,
+  chainEnd,
 }: {
-  item: MessagePlaceholder;
-  chain: boolean;
+  message: MessagePlaceholder;
+  chainStart: boolean;
+  chainEnd: boolean;
 }) {
   const timestamp = useMemo(() => new Date(Date.now()), []);
   const { profile } = useProfile();
@@ -21,20 +23,23 @@ export function LocalMessageItem({
         user={profile}
         timestamp={timestamp}
         className="opacity-50"
-        chain={chain}
+        chainStart={chainStart}
+        chainEnd={chainEnd}
       >
-        {item.reply ? (
+        {message.reply ? (
           <Reference
-            id={item.reply.id}
-            user={item.reply.author}
-            content={item.reply.content}
+            id={message.reply.id}
+            user={message.reply.author}
+            content={message.reply.content}
           />
         ) : null}
-        <MessageItem.Text>{item.data.content}</MessageItem.Text>
-        {item.data.attachment != null && (
-          <UploadingAttachmentItem file={item.data.attachment} />
+        <MessageItem.Text>{message.data.content}</MessageItem.Text>
+        {message.data.attachment != null && (
+          <UploadingAttachmentItem file={message.data.attachment} />
         )}
-        {item.error != null && <p className="text-red-400">{item.error}</p>}
+        {message.error != null && (
+          <p className="text-red-400">{message.error}</p>
+        )}
       </MessageItem.Content>
     </MessageItem.Root>
   );

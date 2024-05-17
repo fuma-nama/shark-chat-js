@@ -3,22 +3,33 @@ import { Avatar } from "ui/components/avatar";
 import * as ContextMenu from "ui/components/context-menu";
 import { getTimeString } from "ui/utils/time";
 import { MessageType } from "@/utils/types";
-import { cn } from "ui/utils/cn";
 import { usePageStore } from "@/utils/stores/page";
 import Markdown, { ReactRenderer } from "marked-react";
 import { DropdownMenu, DropdownMenuTrigger } from "ui/components/dropdown";
 import { MoreHorizontalIcon } from "lucide-react";
 import { button } from "ui/components/button";
 import Link from "next/link";
+import { tv } from "tailwind-variants";
 
 interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
   user: MessageType["author"];
+  chainStart: boolean;
   timestamp: string | Date | number;
-  chain: boolean;
+  chainEnd: boolean;
 }
 
+const contentVariants = tv({
+  base: "relative group px-6 text-[15px] data-[state=open]:bg-card hover:bg-card",
+  variants: {
+    chain: {
+      head: "flex flex-row items-start gap-2 pt-2",
+      body: "flex flex-col gap-2 py-0.5 -mt-3",
+    },
+  },
+});
+
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
-  ({ user, timestamp, className, chain, ...props }, ref) => {
+  ({ user, timestamp, className, chainStart, chainEnd, ...props }, ref) => {
     const author = user ?? {
       id: "",
       image: null,
@@ -33,14 +44,14 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
         .setModal({ type: "user-profile", user_id: author.id });
     };
 
-    if (chain) {
+    if (!chainStart) {
       return (
         <div
           ref={ref}
-          className={cn(
-            "relative group px-6 py-1 flex flex-col gap-2 text-[15px] -mt-4 hover:bg-card",
-            className,
-          )}
+          className={contentVariants({
+            chain: "body",
+            className: [chainEnd && "pb-2", className],
+          })}
           {...props}
         >
           <div className="flex flex-col pl-12">{props.children}</div>
@@ -51,10 +62,10 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          "relative group px-6 py-2 flex flex-row items-start gap-2 text-[15px] hover:bg-card",
-          className,
-        )}
+        className={contentVariants({
+          chain: "head",
+          className: [chainEnd && "pb-2", className],
+        })}
         {...props}
       >
         <Avatar

@@ -15,15 +15,18 @@ import { cn } from "ui/utils/cn";
 import { useViewContext } from "@/components/chat/ChatView";
 
 export function ChatMessageItem({
-  chain,
+  chainStart,
+  chainEnd,
   message,
 }: {
   message: MessageType;
-  chain: boolean;
+  chainStart: boolean;
+  chainEnd: boolean;
 }) {
-  const editing = useMessageStore(
-    (s) => s.editing[message.channel_id]?.messageId === message.id,
-  );
+  const [editing, reply] = useMessageStore((s) => [
+    s.editing[message.channel_id]?.messageId === message.id,
+    s.reply.get(message.channel_id)?.id === message.id,
+  ]);
   const embedOnly =
     message.embeds != null &&
     message.embeds.length === 1 &&
@@ -38,8 +41,12 @@ export function ChatMessageItem({
           id={`message_${message.id}`}
           user={message.author}
           timestamp={message.timestamp}
-          className={cn(editing && "hover:bg-transparent")}
-          chain={chain}
+          chainStart={chainStart}
+          chainEnd={chainEnd}
+          className={cn(
+            editing && "hover:bg-transparent",
+            reply && "!bg-brand/10",
+          )}
         >
           {editing ? (
             <Edit message={message} />

@@ -1,5 +1,6 @@
 import { UserInfo } from "shared/schema/chat";
 import { useRef } from "react";
+import { CornerUpRight } from "lucide-react";
 
 export function Reference({
   id,
@@ -28,11 +29,14 @@ export function Reference({
 
   return (
     <div
-      className="flex flex-col mb-2 overflow-hidden max-w-full border-l-2 border-brand p-2 bg-secondary rounded-lg cursor-pointer"
+      className="relative flex flex-col gap-1 mb-2 overflow-hidden max-w-full pl-7 p-2 bg-secondary rounded-lg cursor-pointer"
       onClick={onClick}
     >
-      <p className="font-medium text-xs mb-1">{user?.name ?? "Unknown User"}</p>
-      <p className="whitespace-nowrap text-xs truncate text-muted-foreground">
+      <CornerUpRight className="absolute top-2 left-2 size-4 text-muted-foreground" />
+      <p className="font-medium text-xs truncate">
+        {user?.name ?? "Unknown User"}
+      </p>
+      <p className="text-xs truncate text-muted-foreground">
         {content ?? "Message Deleted"}
       </p>
     </div>
