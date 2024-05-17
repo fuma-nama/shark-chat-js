@@ -16,7 +16,7 @@ import { useState } from "react";
 import { MemberWithUser } from "server/routers/group/members";
 import { useGroupContext } from "@/utils/contexts/group-context";
 
-export default function Members({ group }: { group: number }) {
+export default function Members({ group }: { group: string }) {
   return (
     <div className="p-1">
       <h3 className="font-semibold text-sm mb-4">Members</h3>
@@ -25,7 +25,7 @@ export default function Members({ group }: { group: number }) {
   );
 }
 
-export function MembersList({ group }: { group: number }) {
+export function MembersList({ group }: { group: string }) {
   const { status } = useSession();
   const query = trpc.group.member.get.useQuery(
     { groupId: group },

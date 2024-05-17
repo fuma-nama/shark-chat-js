@@ -29,27 +29,29 @@ export const chatRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { type, data } = await checkChannelPermissions(
         input.channelId,
-        ctx.session,
+        ctx.session.user.id,
       );
 
-      const [message, is_new_dm] = await Promise.all([
+      const [message, isDMOpened] = await Promise.all([
         createMessage(input, ctx.session.user.id),
-        type === "dm"
-          ? db
-              .update(directMessageInfos)
-              .set({
-                open: true,
-              })
-              .where(
-                and(
-                  eq(directMessageInfos.channel_id, input.channelId),
-                  eq(directMessageInfos.open, false),
-                ),
-              )
-              .then((res) => {
-                return res.rowCount !== 0;
-              })
-          : false,
+        (() => {
+          if (type !== "dm") return false;
+
+          return db
+            .update(directMessageInfos)
+            .set({
+              open: true,
+            })
+            .where(
+              and(
+                eq(directMessageInfos.channel_id, input.channelId),
+                eq(directMessageInfos.open, false),
+              ),
+            )
+            .then((res) => {
+              return res.rowCount !== 0;
+            });
+        })(),
       ]);
 
       const messageWithNonce = {
@@ -59,7 +61,7 @@ export const chatRouter = router({
 
       await Promise.all([
         type === "dm" &&
-          is_new_dm &&
+          isDMOpened &&
           channels.private.open_dm.publish([data.to_user_id], {
             id: data.channel_id,
             user: message.author!,
@@ -88,7 +90,7 @@ export const chatRouter = router({
       }),
     )
     .query<ComplexMessage[]>(async ({ input, ctx }) => {
-      await checkChannelPermissions(input.channelId, ctx.session);
+      await checkChannelPermissions(input.channelId, ctx.session.user.id);
 
       return fetchMessages(
         input.channelId,
@@ -102,6 +104,7 @@ export const chatRouter = router({
       z.object({
         messageId: z.number(),
         channelId: z.string(),
+        // todo: Support when message contains embed/attachment
         content: contentSchema.min(1),
       }),
     )

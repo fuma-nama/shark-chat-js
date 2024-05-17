@@ -6,7 +6,7 @@ import Members from "./members";
 import Invite from "./invite";
 
 export default function Page({ params }: { params: { group: string } }) {
-  const groupId = Number(params.group);
+  const groupId = params.group;
 
   return (
     <div className="flex flex-col gap-10 mx-auto w-full max-w-3xl p-4">

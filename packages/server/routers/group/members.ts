@@ -20,7 +20,7 @@ export const membersRouter = router({
   get: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
       }),
     )
     .query<MemberWithUser[]>(async ({ ctx, input }) => {
@@ -42,7 +42,7 @@ export const membersRouter = router({
   kick: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
         userId: z.string(),
       }),
     )
@@ -84,7 +84,7 @@ export const membersRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
         userId: z.string(),
         admin: z.boolean().optional(),
       }),

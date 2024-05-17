@@ -14,7 +14,7 @@ export const inviteRouter = router({
   get: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -31,7 +31,7 @@ export const inviteRouter = router({
         .where(eq(groupInvites.group_id, input.groupId));
     }),
   create: protectedProcedure
-    .input(z.object({ groupId: z.number() }))
+    .input(z.object({ groupId: z.string() }))
     .mutation<GroupInvite>(async ({ input, ctx }) => {
       const member = await getMembership(input.groupId, ctx.session.user.id);
       if (!member.owner && !member.admin)
@@ -52,7 +52,7 @@ export const inviteRouter = router({
       };
     }),
   delete: protectedProcedure
-    .input(z.object({ groupId: z.number(), code: z.string() }))
+    .input(z.object({ groupId: z.string(), code: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const member = await getMembership(input.groupId, ctx.session.user.id);
       if (!member.owner && !member.admin)

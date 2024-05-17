@@ -22,33 +22,35 @@ type Result =
     };
 export async function checkChannelPermissions(
   channelId: string,
-  user: Session,
+  userId: string,
 ): Promise<Result> {
   const channel = await db
     .select({ member: members, dm: directMessageInfos })
     .from(messageChannels)
     .where(eq(messageChannels.id, channelId))
-    .leftJoin(groups, eq(groups.channel_id, messageChannels.id))
     .leftJoin(
       members,
-      and(eq(members.group_id, groups.id), eq(members.user_id, user.user.id)),
+      and(
+        eq(members.group_id, messageChannels.group_id),
+        eq(members.user_id, userId),
+      ),
     )
     .leftJoin(
       directMessageInfos,
       and(
+        eq(messageChannels.type, "DM"),
         eq(directMessageInfos.channel_id, messageChannels.id),
-        eq(directMessageInfos.user_id, user.user.id),
-        eq(directMessageInfos.open, true),
+        eq(directMessageInfos.user_id, userId),
       ),
     )
     .limit(1)
     .then((res) => res[0]);
 
-  if (channel?.member != null) {
+  if (channel?.member) {
     return { type: "group", data: channel.member };
   }
 
-  if (channel?.dm != null) {
+  if (channel?.dm) {
     return { type: "dm", data: channel.dm };
   }
 
@@ -56,7 +58,7 @@ export async function checkChannelPermissions(
 }
 
 export async function getMembership(
-  groupId: number,
+  groupId: string,
   userId: string,
 ): Promise<Member & { owner: boolean; ownerId: string }> {
   const result = await db
@@ -80,11 +82,13 @@ export async function getMembership(
   };
 }
 
-export async function checkIsMemberOf(group: number, user: Session) {
+export async function checkIsMemberOf(groupId: string, user: Session) {
   const rows = await db
     .select()
     .from(members)
-    .where(and(eq(members.group_id, group), eq(members.user_id, user.user.id)))
+    .where(
+      and(eq(members.group_id, groupId), eq(members.user_id, user.user.id)),
+    )
     .limit(1);
 
   if (rows.length === 0) {
@@ -95,11 +99,11 @@ export async function checkIsMemberOf(group: number, user: Session) {
   }
 }
 
-export async function checkIsOwnerOf(group: number, user: Session) {
+export async function checkIsOwnerOf(groupId: string, user: Session) {
   const rows = await db
     .select()
     .from(groups)
-    .where(and(eq(groups.owner_id, user.user.id), eq(groups.id, group)))
+    .where(and(eq(groups.owner_id, user.user.id), eq(groups.id, groupId)))
     .limit(1);
 
   if (rows.length === 0) {

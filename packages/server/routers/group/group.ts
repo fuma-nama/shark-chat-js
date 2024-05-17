@@ -37,24 +37,31 @@ export interface GroupWithNotifications extends Group {
 export const groupRouter = router({
   create: protectedProcedure
     .input(createGroupSchema)
-    .mutation(({ ctx, input }) => {
+    .mutation<Group>(({ ctx, input }) => {
       return db.transaction(async () => {
+        const group_id = createId();
         const channel_id = createId();
-        const result = await db
-          .insert(groups)
-          .values({
-            channel_id,
-            name: input.name,
-            owner_id: ctx.session.user.id,
-            unique_name: createId(),
-          })
-          .returning({ group_id: groups.id });
 
-        await db.insert(messageChannels).values({
-          id: channel_id,
-        });
+        const [result] = await Promise.all([
+          db
+            .insert(groups)
+            .values({
+              id: group_id,
+              channel_id,
+              name: input.name,
+              owner_id: ctx.session.user.id,
+              unique_name: group_id,
+            })
+            .returning(),
+          db.insert(messageChannels).values({
+            id: channel_id,
+            group_id,
+            type: "GROUP",
+          }),
+        ]);
 
-        return await joinMember(result[0].group_id, ctx.session.user.id);
+        await joinMember(result[0], ctx.session.user.id);
+        return result[0];
       });
     }),
   all: protectedProcedure.query<GroupWithNotifications[]>(async ({ ctx }) => {
@@ -68,7 +75,7 @@ export const groupRouter = router({
   info: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -100,11 +107,12 @@ export const groupRouter = router({
         code: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation<Group>(async ({ ctx, input }) => {
       const invites = await db
         .select()
         .from(groupInvites)
-        .where(eq(groupInvites.code, input.code));
+        .where(eq(groupInvites.code, input.code))
+        .innerJoin(groups, eq(groupInvites.group_id, groups.id));
 
       if (invites.length === 0)
         throw new TRPCError({
@@ -112,7 +120,9 @@ export const groupRouter = router({
           message: "Invite not found",
         });
 
-      return await joinMember(invites[0].group_id, ctx.session.user.id);
+      await joinMember(invites[0].Group, ctx.session.user.id);
+
+      return invites[0].Group;
     }),
   joinByUniqueName: protectedProcedure
     .input(
@@ -120,7 +130,7 @@ export const groupRouter = router({
         uniqueName: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation<Group>(async ({ ctx, input }) => {
       const group = await db
         .select()
         .from(groups)
@@ -139,7 +149,9 @@ export const groupRouter = router({
           message: "The group isn't a public group",
         });
 
-      return await joinMember(group.id, ctx.session.user.id);
+      await joinMember(group, ctx.session.user.id);
+
+      return group;
     }),
   update: protectedProcedure
     .input(updateGroupSchema)
@@ -160,7 +172,7 @@ export const groupRouter = router({
       ]);
     }),
   delete: protectedProcedure
-    .input(z.object({ groupId: z.number() }))
+    .input(z.object({ groupId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const res = await checkIsOwnerOf(input.groupId, ctx.session);
 
@@ -185,7 +197,7 @@ export const groupRouter = router({
   leave: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -224,27 +236,23 @@ export const groupRouter = router({
   member: membersRouter,
 });
 
-async function joinMember(groupId: number, userId: string) {
+async function joinMember(group: Group, userId: string) {
   const res = await db
     .insert(members)
     .values({
-      group_id: groupId,
+      group_id: group.id,
       user_id: userId,
     })
     .onConflictDoNothing();
 
-  const rows = await db.select().from(groups).where(eq(groups.id, groupId));
-
-  if (rows.length !== 0 && res.rowCount !== 0) {
+  if (res.rowCount !== 0) {
     await channels.private.group_created.publish([userId], {
-      ...rows[0],
+      ...group,
       last_message: null,
       member: { admin: false },
       unread_messages: 0,
     });
   }
-
-  return rows[0];
 }
 
 async function getGroupsWithNotifications(

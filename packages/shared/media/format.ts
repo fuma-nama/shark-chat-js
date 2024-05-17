@@ -1,10 +1,10 @@
 export const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-export const groupIcon = media<[groupId: number]>({
+export const groupIcon = media<[groupId: string]>({
   publicId: ([groupId]) => `icons/${groupId}`,
 });
 
-export const groupBanners = media<[groupId: number]>({
+export const groupBanners = media<[groupId: string]>({
   publicId: ([groupId]) => `banners/${groupId}`,
 });
 

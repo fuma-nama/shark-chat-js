@@ -24,10 +24,10 @@ export const schema = {
     open_dm: a.event(z.custom<ServerDirectChannelEvent>()),
     close_dm: a.event(z.custom<{ channel_id: string }>()),
   }),
-  group: a.channel(([group]: [groupId: number]) => [`${group}`], {
+  group: a.channel(([group]: [groupId: string]) => [`${group}`], {
     group_updated: a.event(
       z.custom<{
-        groupId: number;
+        groupId: string;
         group: Partial<Group>;
       }>(),
     ),

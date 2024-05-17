@@ -19,7 +19,7 @@ export function MessageEventManager() {
       params.group != null
         ? utils.group.all
             .getData(undefined)
-            ?.find((group) => group.id === Number(params.group))?.channel_id
+            ?.find((group) => group.id === params.group)?.channel_id
         : params.channel;
     const active = channelId === message.channel_id;
 

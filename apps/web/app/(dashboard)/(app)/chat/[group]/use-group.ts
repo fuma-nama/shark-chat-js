@@ -8,7 +8,7 @@ export function useGroup(
   const query = trpc.group.all.useQuery(undefined, { enabled: false });
 
   return useMemo(
-    () => query.data?.find((group) => group.id === Number(groupId)),
+    () => query.data?.find((group) => group.id === groupId),
     [groupId, query.data],
   );
 }

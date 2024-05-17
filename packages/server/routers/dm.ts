@@ -12,7 +12,6 @@ import { z } from "zod";
 import { pick } from "shared/common";
 import { TRPCError } from "@trpc/server";
 import { createId } from "@paralleldrive/cuid2";
-import { requireOne } from "db/utils";
 import { channels } from "../ably";
 import { UserProfile } from "./chat";
 
@@ -77,108 +76,88 @@ export const dmRouter = router({
       channels.map((c) => [c.id, ctx.session.user.id]),
     );
 
-    return await db.transaction(
-      async () => {
-        const result = channels.map(async (channel, i) => {
-          const last_read = lastReads[i];
+    const result = channels.map(async (channel, i) => {
+      const last_read = lastReads[i];
 
-          const unread_messages = await db
-            .select({
-              count: sql<string>`count(*)`,
-            })
-            .from(messages)
-            .where(
-              and(
-                eq(messages.channel_id, channel.id),
-                last_read != null
-                  ? gt(messages.timestamp, last_read)
-                  : undefined,
-              ),
-            );
+      const unread_messages = await db
+        .select({
+          count: sql<string>`count(*)`,
+        })
+        .from(messages)
+        .where(
+          and(
+            eq(messages.channel_id, channel.id),
+            last_read != null ? gt(messages.timestamp, last_read) : undefined,
+          ),
+        );
 
-          return {
-            ...channel,
-            last_read: last_read?.getTime(),
-            unread_messages: Number(unread_messages[0].count),
-          };
-        });
+      return {
+        ...channel,
+        last_read: last_read?.getTime(),
+        unread_messages: Number(unread_messages[0].count),
+      };
+    });
 
-        return Promise.all(result);
-      },
-      {
-        accessMode: "read only",
-        isolationLevel: "read committed",
-      },
-    );
+    return Promise.all(result);
   }),
   open: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const res = await db
-        .transaction(async () => {
-          const updated = await db
-            .update(directMessageInfos)
-            .set({ open: true })
-            .where(
-              and(
-                eq(directMessageInfos.to_user_id, input.userId),
-                eq(directMessageInfos.user_id, ctx.session.user.id),
-              ),
-            );
+      const updated = await db
+        .update(directMessageInfos)
+        .set({ open: true })
+        .where(
+          and(
+            eq(directMessageInfos.user_id, ctx.session.user.id),
+            eq(directMessageInfos.to_user_id, input.userId),
+          ),
+        )
+        .returning();
 
-          if (updated.rowCount === 0) {
-            const id = createId();
+      let channelId = updated[0]?.channel_id;
+      if (updated.length === 0) {
+        const id = createId();
+        channelId = id;
 
-            await Promise.all([
-              db
-                .insert(messageChannels)
-                .values({
-                  id,
-                })
-                .onConflictDoNothing(),
-              db
-                .insert(directMessageInfos)
-                .values({
-                  channel_id: id,
-                  user_id: ctx.session.user.id,
-                  to_user_id: input.userId,
-                })
-                .onConflictDoNothing(),
-              db
-                .insert(directMessageInfos)
-                .values({
-                  channel_id: id,
-                  user_id: input.userId,
-                  to_user_id: ctx.session.user.id,
-                })
-                .onConflictDoNothing(),
-            ]);
-          }
+        await Promise.all([
+          db.insert(messageChannels).values({
+            id,
+            type: "DM",
+          }),
+          db
+            .insert(directMessageInfos)
+            .values([
+              {
+                channel_id: id,
+                user_id: ctx.session.user.id,
+                to_user_id: input.userId,
+              },
+              {
+                channel_id: id,
+                user_id: input.userId,
+                to_user_id: ctx.session.user.id,
+              },
+            ])
+            .onConflictDoNothing(),
+        ]);
+      }
 
-          return db
-            .select({
-              id: directMessageInfos.channel_id,
-              user: users,
-            })
-            .from(directMessageInfos)
-            .where(
-              and(
-                eq(directMessageInfos.to_user_id, input.userId),
-                eq(directMessageInfos.user_id, ctx.session.user.id),
-              ),
-            )
-            .innerJoin(users, eq(users.id, directMessageInfos.to_user_id))
-            .limit(1);
-        })
-        .then((res) => requireOne(res));
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId))
+        .limit(1);
 
       await channels.private.open_dm.publish([ctx.session.user.id], {
-        ...res,
+        id: channelId,
+        user: user[0],
         last_message: null,
         unread_messages: 0,
       });
 
-      return res;
+      return {
+        id: channelId,
+      };
     }),
   close: protectedProcedure
     .input(z.object({ channelId: z.string() }))

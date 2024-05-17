@@ -50,18 +50,23 @@ export const directMessageInfos = pgTable(
   },
   (table) => ({
     cpk: primaryKey({ columns: [table.user_id, table.to_user_id] }),
+    channel_id_key: index("channel_id_key").on(table.channel_id),
   }),
 );
 
+export const ChannelType = pgEnum("channel_type", ["DM", "GROUP"]);
+
 export const messageChannels = pgTable("MessageChannel", {
   id: varchar("id", { length: 32 }).primaryKey(),
+  type: ChannelType("type").notNull(),
+  group_id: varchar("group_id", { length: 32 }),
   last_message_id: integer("last_message_id"),
 });
 
 export const groups = pgTable(
   "Group",
   {
-    id: serial(`id`).notNull().primaryKey(),
+    id: varchar(`id`, { length: 32 }).notNull().primaryKey(),
     name: varchar(`name`, { length: 256 }).notNull(),
     unique_name: varchar(`unique_name`, { length: 32 }).notNull(),
     icon_hash: integer(`icon_hash`),
@@ -81,7 +86,7 @@ export const groups = pgTable(
 export const groupInvites = pgTable(
   "GroupInvite",
   {
-    group_id: integer(`group_id`).notNull(),
+    group_id: varchar("group_id", { length: 32 }).notNull(),
     code: varchar("code", { length: 191 }).notNull().primaryKey(),
   },
   (table) => ({
@@ -92,7 +97,7 @@ export const groupInvites = pgTable(
 export const members = pgTable(
   `Member`,
   {
-    group_id: integer(`group_id`).notNull(),
+    group_id: varchar("group_id", { length: 32 }).notNull(),
     user_id: varchar(`user_id`, { length: 191 }).notNull(),
     admin: boolean("is_admin").notNull().default(false),
   },

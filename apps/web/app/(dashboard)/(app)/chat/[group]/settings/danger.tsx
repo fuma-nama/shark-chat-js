@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useGroupContext } from "@/utils/contexts/group-context";
 import { useSession } from "next-auth/react";
 
-export function Danger({ group }: { group: number }) {
+export function Danger({ group }: { group: string }) {
   const { data: session } = useSession();
   const ctx = useGroupContext();
 
@@ -19,7 +19,7 @@ export function Danger({ group }: { group: number }) {
   );
 }
 
-export function LeaveGroup({ group }: { group: number }) {
+export function LeaveGroup({ group }: { group: string }) {
   const router = useRouter();
   const mutation = trpc.group.leave.useMutation({
     onSuccess: () => {
@@ -51,7 +51,7 @@ export function LeaveGroup({ group }: { group: number }) {
   );
 }
 
-function DeleteGroup({ group }: { group: number }) {
+function DeleteGroup({ group }: { group: string }) {
   return (
     <div className="mt-4">
       <h3 className="text-sm font-semibold">Delete Group</h3>
@@ -63,7 +63,7 @@ function DeleteGroup({ group }: { group: number }) {
   );
 }
 
-function DeleteGroupButton({ group }: { group: number }) {
+function DeleteGroupButton({ group }: { group: string }) {
   const [open, setOpen] = useState(false);
   const deleteMutation = trpc.group.delete.useMutation({
     onSuccess() {

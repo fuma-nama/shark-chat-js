@@ -33,7 +33,7 @@ export const uploadRouter = router({
   signGroupIcon: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
       }),
     )
     .query(async ({ input: { groupId }, ctx }) => {
@@ -49,7 +49,7 @@ export const uploadRouter = router({
   signGroupBanner: protectedProcedure
     .input(
       z.object({
-        groupId: z.number(),
+        groupId: z.string(),
       }),
     )
     .query(async ({ input: { groupId }, ctx }) => {

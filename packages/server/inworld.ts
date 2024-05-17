@@ -7,9 +7,7 @@ import {
 import { channels } from "./ably";
 import redis from "./redis/client";
 import db from "db/client";
-import { eq } from "drizzle-orm";
-import { requireOne } from "db/utils";
-import { messages, users, User } from "db/schema";
+import { messages, User, users } from "db/schema";
 
 type Message = {
   channel_id: string;
@@ -18,7 +16,7 @@ type Message = {
 };
 
 //preload bot account
-createBotAccount();
+void createBotAccount();
 
 async function get(channelId: string) {
   const json = await redis.get<string>(getKey(channelId));
@@ -54,9 +52,9 @@ export async function onReceiveMessage(message: Message) {
     .setScene(process.env.INWORLD_SCENE!)
     .setUser({ fullName: user_name })
     .setOnError(handleError(message))
-    .setOnMessage((packet) => {
+    .setOnMessage(async (packet) => {
       if (packet.isInteractionEnd()) {
-        sendMessage(channel_id, lines.join("\n")).catch((e) =>
+        await sendMessage(channel_id, lines.join("\n")).catch((e) =>
           sendErrorMessage(channel_id, e?.toString()),
         );
         connection.close();
@@ -70,7 +68,7 @@ export async function onReceiveMessage(message: Message) {
     })
     .build();
 
-  channels.chat.typing.publish([channel_id], { user: bot });
+  void channels.chat.typing.publish([channel_id], { user: bot });
   await connection.sendText(content);
 }
 
@@ -87,9 +85,8 @@ function handleError(message: Message) {
           .catch((e) => sendErrorMessage(message.channel_id, e?.toString()));
         break;
       case status.UNAVAILABLE:
-        sendErrorMessage(message.channel_id, "The Shark is sleeping now");
       default:
-        sendErrorMessage(message.channel_id, err.message);
+        void sendErrorMessage(message.channel_id, err.message);
         break;
     }
   };
@@ -115,18 +112,21 @@ async function sendMessage(channel_id: string, content: string) {
     })
     .returning({ id: messages.id });
 
-  const message = await db
-    .select()
-    .from(messages)
-    .where(eq(messages.id, insertResult[0].id));
-
   await channels.chat.message_sent.publish([channel_id], {
-    ...message[0],
+    id: insertResult[0].id,
+    content,
+    channel_id,
+    timestamp: new Date(Date.now()),
+    embeds: null,
     attachment: null,
     reply_id: null,
     reply_message: null,
     reply_user: null,
-    author: bot,
+    author: {
+      id: bot.id,
+      name: bot.name,
+      image: bot.image,
+    },
   });
 }
 
@@ -136,22 +136,18 @@ declare global {
 
 async function createBotAccount() {
   if (global.bot_account != null) return global.bot_account;
-  await db
+  const user = await db
     .insert(users)
     .values({
       id: "shark",
       name: "Shark AI",
       is_ai: true,
     })
-    .onConflictDoNothing();
-  const user = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, "shark"))
-    .then((res) => requireOne(res));
+    .onConflictDoNothing()
+    .returning();
 
-  global.bot_account = user;
-  return user;
+  global.bot_account = user[0];
+  return user[0];
 }
 
 function getKey(group_id: string) {
