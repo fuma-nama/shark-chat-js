@@ -40,9 +40,7 @@ export default function Settings() {
             <UpdateProfile profile={profile} onCancel={() => setEdit(false)} />
           </SimpleDialog>
 
-          <Button color="danger" onClick={() => signOut()}>
-            Logout
-          </Button>
+          <Button onClick={() => signOut()}>Logout</Button>
         </div>
 
         <fieldset className="flex flex-col gap-4 items-start">
