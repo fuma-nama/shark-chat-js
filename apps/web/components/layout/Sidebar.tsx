@@ -77,7 +77,7 @@ function Nav() {
     <div className="mt-4">
       <p className="text-sm mb-2 font-medium">Groups</p>
       {query.data.length === 0 ? (
-        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground">
+        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground -mx-2">
           no messages
         </div>
       ) : (

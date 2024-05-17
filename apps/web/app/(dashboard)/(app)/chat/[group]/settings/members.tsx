@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import { MemberWithUser } from "server/routers/group/members";
 import { useGroupContext } from "@/utils/contexts/group-context";
+import { AlertDialog } from "ui/components/alert-dialog";
 
 export default function Members({ group }: { group: string }) {
   return (
@@ -126,19 +127,29 @@ function MemberItem({ member }: { member: Serialize<MemberWithUser> }) {
                 : "Member"}
           </p>
         )}
+
         {canKick ? (
-          <Button
-            color="danger"
-            isLoading={kick.isLoading}
-            onClick={() => {
-              kick.mutate({
-                groupId: member.group_id,
-                userId: member.user_id,
-              });
-            }}
+          <AlertDialog
+            title={`Kick ${member.user.name}?`}
+            description="He may still join this group with an invite"
+            action={
+              <Button
+                color="danger"
+                onClick={() => {
+                  kick.mutate({
+                    groupId: member.group_id,
+                    userId: member.user_id,
+                  });
+                }}
+              >
+                Confirm
+              </Button>
+            }
           >
-            Kick
-          </Button>
+            <Button color="danger" isLoading={kick.isLoading}>
+              Kick
+            </Button>
+          </AlertDialog>
         ) : null}
       </div>
     </UserProfileModal>
