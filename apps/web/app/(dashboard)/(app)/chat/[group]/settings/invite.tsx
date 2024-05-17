@@ -47,7 +47,13 @@ export default function Invite() {
           />
         ) : null}
       </div>
-      {ctx.public && <PublicInviteItem unique_name={ctx.unique_name} />}
+      {ctx.public ? (
+        <PublicInviteItem unique_name={ctx.unique_name} />
+      ) : (
+        <div className="bg-muted rounded-lg text-muted-foreground text-sm px-4 py-[9px]">
+          This group isn't public
+        </div>
+      )}
       {isAdmin ? <PrivateInvites /> : null}
     </div>
   );
