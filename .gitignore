@@ -37,4 +37,4 @@ yarn-error.log*
 next-env.d.ts
 
 # For local development only
-./packages/db/migrations
+migrations
