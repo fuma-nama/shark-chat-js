@@ -47,7 +47,7 @@ function Nav() {
           scroll={false}
           className={button({ size: "icon", color: "ghost" })}
         >
-          <XIcon className="size-5" />
+          <XIcon className="size-5 text-muted-foreground" />
         </Link>
       ) : (
         <Link
@@ -58,7 +58,7 @@ function Nav() {
             color: "ghost",
           })}
         >
-          <SettingsIcon className="size-5" />
+          <SettingsIcon className="size-5 text-muted-foreground" />
         </Link>
       )}
     </Navbar>

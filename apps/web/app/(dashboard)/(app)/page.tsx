@@ -4,7 +4,6 @@ import { Button } from "ui/components/button";
 import { trpc } from "@/utils/trpc";
 import { groupIcon } from "shared/media/format";
 import Link from "next/link";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { Spinner } from "ui/components/spinner";
 import { BoxIcon } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -75,11 +74,7 @@ export default function Page() {
 
   return (
     <>
-      <Navbar breadcrumb={[{ id: "home", text: "Recent Chat" }]}>
-        <div className="max-sm:hidden flex flex-row gap-3">
-          <ThemeSwitch />
-        </div>
-      </Navbar>
+      <Navbar breadcrumb={[{ id: "home", text: "Recent Chat" }]} />
       <Modals modal={modal} setModal={setModal} />
       <RecentChat setModal={setModal} />
     </>

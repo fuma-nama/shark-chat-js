@@ -12,6 +12,7 @@ import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
 import { ReactNode } from "react";
 import { Spinner } from "ui/components/spinner";
+import { useMessageStore } from "@/utils/stores/chat";
 
 export default function Sidebar() {
   const [isOpen, setOpen] = usePageStore((v) => [
@@ -87,16 +88,17 @@ function Nav() {
         </div>
       ) : (
         query.data.map((group) => (
-          <SidebarItem
+          <ChatItem
             key={group.id}
             href={`/chat/${group.id}`}
+            channelId={group.channel_id}
             description={group.last_message?.content}
             active={params.group === group.id.toString()}
             image={groupIcon.url([group.id], group.icon_hash)}
             notifications={group.unread_messages}
           >
             {group.name}
-          </SidebarItem>
+          </ChatItem>
         ))
       )}
 
@@ -109,15 +111,16 @@ function Nav() {
         dm.data.map((item) => (
           <DirectMessageContextMenu key={item.id} channelId={item.id}>
             <div className="select-none">
-              <SidebarItem
+              <ChatItem
                 href={`/dm/${item.id}`}
+                channelId={item.id}
                 description={item.last_message?.content}
                 active={params.channel === item.id}
                 image={item.user.image}
                 notifications={item.unread_messages}
               >
                 {item.user.name}
-              </SidebarItem>
+              </ChatItem>
             </div>
           </DirectMessageContextMenu>
         ))
@@ -155,21 +158,25 @@ function LinkItem({
   );
 }
 
-function SidebarItem({
+function ChatItem({
   active,
   href,
   image,
   description,
-  children: name,
+  children,
   notifications,
+  channelId,
 }: {
   active: boolean;
+  channelId: string;
   description?: string;
   href: string;
   image: string | null;
   children: string;
   notifications: number;
 }) {
+  const lastMessage = useMessageStore((s) => s.messages[channelId]?.at(-1));
+
   return (
     <Link
       href={href}
@@ -181,10 +188,12 @@ function SidebarItem({
           : "text-muted-foreground hover:bg-accent/50",
       )}
     >
-      <Avatar src={image} fallback={name} size="small" rounded="full" />
+      <Avatar src={image} fallback={children} size="small" rounded="full" />
       <div className="w-0 flex-1">
-        <p className="font-medium truncate">{name}</p>
-        <p className="text-muted-foreground text-xs truncate">{description}</p>
+        <p className="font-medium truncate">{children}</p>
+        <p className="text-muted-foreground text-xs truncate">
+          {lastMessage?.content ?? description}
+        </p>
       </div>
       {notifications > 0 && (
         <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
