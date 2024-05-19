@@ -1,15 +1,19 @@
-import { forwardRef, Fragment, ReactNode } from "react";
+import { forwardRef, Fragment, ReactNode, useMemo } from "react";
 import { Avatar } from "ui/components/avatar";
 import * as ContextMenu from "ui/components/context-menu";
 import { getTimeString } from "ui/utils/time";
 import { MessageType } from "@/utils/types";
 import { usePageStore } from "@/utils/stores/page";
-import Markdown, { ReactRenderer } from "marked-react";
+import { ReactParser, ReactRenderer } from "marked-react";
 import { DropdownMenu, DropdownMenuTrigger } from "ui/components/dropdown";
 import { MoreHorizontalIcon } from "lucide-react";
 import { button } from "ui/components/button";
 import Link from "next/link";
 import { tv } from "tailwind-variants";
+import { Marked } from "marked";
+import { emotes } from "shared/media/format";
+import Image from "next/image";
+import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 
 interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
   user: MessageType["author"];
@@ -123,8 +127,37 @@ export function Root({ children }: RootProps) {
   );
 }
 
+const emoteRegex = /<!em!(.+?)>/gm;
 const renderer: Partial<ReactRenderer> = {
-  link: (href, text) => {
+  text(text) {
+    if (typeof text !== "string") return text;
+
+    let a,
+      child = [],
+      lastIdx = 0;
+
+    while ((a = emoteRegex.exec(text))) {
+      const id = a[1];
+
+      child.push(
+        <Image
+          alt="Emote"
+          width={25}
+          height={25}
+          src={emotes.url([id], "default")}
+          loader={cloudinaryLoader}
+        />,
+      );
+
+      child.push(text.slice(lastIdx, a.index));
+      lastIdx = a.index + a[0].length;
+    }
+
+    child.push(text.slice(lastIdx));
+
+    return child;
+  },
+  link(href, text) {
     if (href.startsWith(window.location.origin))
       return (
         <Link key="link" href={href}>
@@ -138,13 +171,36 @@ const renderer: Partial<ReactRenderer> = {
       </a>
     );
   },
-  image: (src, alt) => <Fragment key={src}>{`![${alt}](${src})`}</Fragment>,
+  image(src, alt) {
+    return <Fragment key={src}>{`![${alt}](${src})`}</Fragment>;
+  },
 };
 
+const marked = new Marked();
+
 export function Text({ children }: { children: string }) {
+  // convert input markdown into tokens
+  const output = useMemo(() => {
+    const tokens = marked.lexer(children, {
+      breaks: true,
+      gfm: true,
+    });
+
+    // parser options
+    const parserOptions = {
+      renderer: new ReactRenderer({
+        renderer: renderer,
+        langPrefix: "language-",
+      }),
+    };
+
+    const parser = new ReactParser(parserOptions);
+    return parser.parse(tokens);
+  }, [children]);
+
   return (
     <div className="prose prose-message text-[15px] break-words overflow-hidden">
-      <Markdown value={children} gfm breaks renderer={renderer} />
+      {output}
     </div>
   );
 }

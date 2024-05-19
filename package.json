@@ -13,10 +13,10 @@
   },
   "packageManager": "pnpm@8.2.0",
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.9",
+    "@tailwindcss/typography": "^0.5.13",
     "autoprefixer": "^10.4.19",
-    "dotenv-cli": "^7.4.1",
-    "drizzle-kit": "^0.20.17",
+    "dotenv-cli": "^7.4.2",
+    "drizzle-kit": "^0.21.2",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.3",
     "pg": "^8.11.5",

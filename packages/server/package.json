@@ -2,12 +2,12 @@
   "name": "server",
   "private": false,
   "dependencies": {
-    "@inworld/nodejs-sdk": "1.11.0",
+    "@inworld/nodejs-sdk": "1.12.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@trpc-limiter/core": "^0.0.8",
     "@trpc/server": "^10.45.2",
     "@upstash/ratelimit": "^1.1.3",
-    "@upstash/redis": "^1.30.1",
+    "@upstash/redis": "^1.31.1",
     "ably": "^2.0.4",
     "ably-builder": "workspace:*",
     "cloudinary": "^2.2.0",
@@ -19,12 +19,12 @@
     "probe-image-size": "^7.2.3",
     "shared": "workspace:*",
     "uuid": "^9.0.1",
-    "zod": "^3.23.6"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "18.11.18",
     "@types/probe-image-size": "^7.2.4",
-    "@types/react": "18.3.1",
+    "@types/react": "18.3.2",
     "@types/react-dom": "18.3.0",
     "@types/uuid": "^9.0.8",
     "config": "workspace:*"

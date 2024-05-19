@@ -7,7 +7,7 @@
     "migrate:0001": "NODE_ENV=development dotenv -e ../../.env -- tsx ./migrations/0001.ts"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.1",
+    "@neondatabase/serverless": "^0.9.3",
     "drizzle-orm": "^0.30.10"
   },
   "devDependencies": {
@@ -15,6 +15,6 @@
     "@types/pg": "^8.11.6",
     "config": "workspace:*",
     "pg": "^8.11.5",
-    "tsx": "^4.10.4"
+    "tsx": "^4.10.5"
   }
 }

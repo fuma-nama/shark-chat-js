@@ -8,6 +8,10 @@ export const groupBanners = media<[groupId: string]>({
   publicId: ([groupId]) => `banners/${groupId}`,
 });
 
+export const emotes = media<[id: string]>({
+  publicId: ([id]) => `emotes/${id}`,
+});
+
 export const userAvatar = media<[userId: string]>({
   publicId: ([userId]) => `avatars/${userId}`,
 });
@@ -25,13 +29,17 @@ function media<Args extends any[]>({
   publicId: (args: Args) => string;
 }): {
   id: (...args: Args) => string;
-  url(args: Args, hash: number, format?: "png"): string;
+  url(args: Args, hash: "default" | number, format?: "png"): string;
   url(args: Args, hash: number | null, format?: "png"): string | null;
 } {
   return {
     id: (...args) => publicId(args),
     url: (args, hash, format = "png") => {
       if (hash == null) return null as any;
+      if (hash === "default")
+        `https://res.cloudinary.com/${cloudName}/image/upload/${publicId(
+          args,
+        )}.${format}`;
 
       return `https://res.cloudinary.com/${cloudName}/image/upload/v${hash}/${publicId(
         args,

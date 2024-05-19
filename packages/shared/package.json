@@ -3,7 +3,7 @@
   "private": true,
   "dependencies": {
     "db": "workspace:*",
-    "zod": "^3.23.6"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "config": "workspace:*"
