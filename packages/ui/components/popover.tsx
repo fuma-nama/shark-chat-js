@@ -5,11 +5,10 @@ import { tv } from "tailwind-variants";
 export const popover = tv({
   slots: {
     content: [
-      "rounded-lg p-4 bg-light-50 flex flex-col gap-3 z-10 animate-in zoom-in shadow-brand-300/10 shadow-xl",
-      "dark:shadow-none dark:bg-dark-950",
+      "rounded-lg p-4 bg-popover flex flex-col gap-3 z-10 animate-in fade-in shadow-xl text-sm text-popover-foreground dark:shadow-none",
       "focus:outline-none",
     ],
-    arrow: ["fill-light-50", "dark:fill-dark-950"],
+    arrow: "fill-popover",
   },
 });
 
@@ -24,9 +23,7 @@ export function Popover({
 
   return (
     <Base.Root>
-      <Base.Anchor>
-        <Base.Trigger asChild>{trigger}</Base.Trigger>
-      </Base.Anchor>
+      <Base.Trigger asChild>{trigger}</Base.Trigger>
 
       <Base.Portal>
         <Base.Content className={styles.content()}>

@@ -47,11 +47,11 @@ async function uploadAsset(options: UploadOptions): Promise<UploadResponse> {
 }
 
 export async function upload(
-  sign: () => Promise<SignResponse>,
+  sign: SignResponse | (() => SignResponse | Promise<SignResponse>),
   file: string,
   options?: Partial<UploadOptions>,
 ) {
-  const signed = await sign();
+  const signed = typeof sign === "function" ? await sign() : sign;
 
   return uploadAsset({
     file: file,

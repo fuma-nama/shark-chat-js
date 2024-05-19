@@ -6,11 +6,11 @@ if (url == null) {
 }
 
 export default {
+  dialect: "postgresql",
   out: "./packages/db",
   schema: "./packages/db/schema.ts",
-  driver: "pg",
   dbCredentials: {
-    connectionString: url,
+    url,
   },
   breakpoints: true,
 } satisfies Config;

@@ -37,7 +37,7 @@ function media<Args extends any[]>({
     url: (args, hash, format = "png") => {
       if (hash == null) return null as any;
       if (hash === "default")
-        `https://res.cloudinary.com/${cloudName}/image/upload/${publicId(
+        return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId(
           args,
         )}.${format}`;
 

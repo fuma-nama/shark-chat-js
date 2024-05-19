@@ -178,6 +178,16 @@ export const attachmentType = pgEnum("attachment_type", [
   "raw",
 ]);
 
+export const Emotes = pgTable("emotes", {
+  id: varchar("id", { length: 256 }).notNull().primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  creatorId: varchar("creator_id", { length: 191 }).notNull(),
+  timestamp: timestamp(`timestamp`, { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  hash: varchar(`hash`, { length: 191 }),
+});
+
 export const attachments = pgTable("Attachment", {
   id: varchar(`id`, { length: 32 }).notNull().primaryKey(),
   name: varchar(`name`, { length: 255 }).notNull(),
@@ -189,6 +199,7 @@ export const attachments = pgTable("Attachment", {
 });
 
 export type Group = InferSelectModel<typeof groups>;
+export type Emote = InferSelectModel<typeof Emotes>;
 export type User = InferSelectModel<typeof users>;
 export type Message = InferSelectModel<typeof messages>;
 export type MessageChannel = InferSelectModel<typeof messageChannels>;

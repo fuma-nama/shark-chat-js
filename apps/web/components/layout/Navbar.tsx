@@ -1,3 +1,4 @@
+"use client";
 import { usePageStore } from "@/utils/stores/page";
 import { SidebarOpen } from "lucide-react";
 import { ReactNode } from "react";

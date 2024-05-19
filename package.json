@@ -7,8 +7,8 @@
     "dev": "dotenv -- turbo dev",
     "build": "dotenv -- turbo build",
     "lint": "turbo lint",
-    "db:push": "dotenv -- drizzle-kit push:pg  --config ./packages/db/drizzle.config.ts",
-    "db:generate": "dotenv -- drizzle-kit generate:pg --config ./packages/db/drizzle.config.ts",
+    "db:push": "dotenv -- drizzle-kit push  --config ./packages/db/drizzle.config.ts",
+    "db:generate": "dotenv -- drizzle-kit generate --config ./packages/db/drizzle.config.ts",
     "prettier": "prettier . -w -l"
   },
   "packageManager": "pnpm@8.2.0",

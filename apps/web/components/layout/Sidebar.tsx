@@ -1,7 +1,7 @@
 "use client";
 import { usePageStore } from "@/utils/stores/page";
 import { useProfile } from "@/utils/hooks/use-profile";
-import { ChevronRightIcon, HomeIcon, XIcon } from "lucide-react";
+import { ChevronRightIcon, HomeIcon, SmileIcon, XIcon } from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -53,6 +53,11 @@ export default function Sidebar() {
           name="Home"
           route="/"
           icon={<HomeIcon className="size-3" fill="currentColor" />}
+        />
+        <LinkItem
+          name="Emotes"
+          route="/emotes"
+          icon={<SmileIcon className="size-3" />}
         />
         <Nav />
         <BottomCard />

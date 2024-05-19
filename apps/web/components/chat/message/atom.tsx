@@ -1,4 +1,4 @@
-import { forwardRef, Fragment, ReactNode, useMemo } from "react";
+import React, { forwardRef, Fragment, ReactNode, useMemo } from "react";
 import { Avatar } from "ui/components/avatar";
 import * as ContextMenu from "ui/components/context-menu";
 import { getTimeString } from "ui/utils/time";
@@ -127,8 +127,27 @@ export function Root({ children }: RootProps) {
   );
 }
 
-const emoteRegex = /<!em!(.+?)>/gm;
+const emoteRegex = /<!em!(.+?)>/g;
+
 const renderer: Partial<ReactRenderer> = {
+  html(html) {
+    let a;
+    if (typeof html === "string" && (a = emoteRegex.exec(html))) {
+      return (
+        <Image
+          key={mdRenderer.elementId}
+          alt="Emote"
+          width={50}
+          height={50}
+          src={emotes.url([a[1]], "default")}
+          className="my-0 mx-1"
+          loader={cloudinaryLoader}
+        />
+      );
+    }
+
+    return html;
+  },
   text(text) {
     if (typeof text !== "string") return text;
 
@@ -141,10 +160,12 @@ const renderer: Partial<ReactRenderer> = {
 
       child.push(
         <Image
+          key={mdRenderer.elementId}
           alt="Emote"
           width={25}
           height={25}
           src={emotes.url([id], "default")}
+          className="inline my-0 mx-1"
           loader={cloudinaryLoader}
         />,
       );
@@ -160,42 +181,44 @@ const renderer: Partial<ReactRenderer> = {
   link(href, text) {
     if (href.startsWith(window.location.origin))
       return (
-        <Link key="link" href={href}>
+        <Link key={mdRenderer.elementId} href={href}>
           {text}
         </Link>
       );
 
     return (
-      <a key="link" target="_blank" rel="noreferrer noopener" href={href}>
+      <a
+        key={mdRenderer.elementId}
+        target="_blank"
+        rel="noreferrer noopener"
+        href={href}
+      >
         {text}
       </a>
     );
   },
   image(src, alt) {
-    return <Fragment key={src}>{`![${alt}](${src})`}</Fragment>;
+    return (
+      <Fragment key={mdRenderer.elementId}>{`![${alt}](${src})`}</Fragment>
+    );
   },
 };
 
 const marked = new Marked();
+const mdRenderer = new ReactRenderer({
+  renderer: renderer,
+  langPrefix: "language-",
+});
+const mdParser = new ReactParser({ renderer: mdRenderer });
 
 export function Text({ children }: { children: string }) {
-  // convert input markdown into tokens
   const output = useMemo(() => {
     const tokens = marked.lexer(children, {
       breaks: true,
       gfm: true,
     });
 
-    // parser options
-    const parserOptions = {
-      renderer: new ReactRenderer({
-        renderer: renderer,
-        langPrefix: "language-",
-      }),
-    };
-
-    const parser = new ReactParser(parserOptions);
-    return parser.parse(tokens);
+    return mdParser.parse(tokens);
   }, [children]);
 
   return (

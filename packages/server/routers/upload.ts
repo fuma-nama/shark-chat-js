@@ -72,7 +72,7 @@ export const uploadRouter = router({
     }),
 });
 
-function sign(options: SignOptions): SignResponse {
+export function sign(options: SignOptions): SignResponse {
   const config = cloudinary.config();
   const timestamp = getTimestamp();
 
