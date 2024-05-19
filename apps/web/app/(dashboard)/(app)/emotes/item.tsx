@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import type { Emote } from "db/schema";
@@ -9,8 +8,9 @@ import { Check, Copy } from "lucide-react";
 import { button } from "ui/components/button";
 import { input } from "ui/components/input";
 import { useCopyText } from "ui/hooks/use-copy-text";
+import { Serialize } from "@trpc/server/shared";
 
-export function Item({ emote }: { emote: Emote }) {
+export function Item({ emote }: { emote: Serialize<Emote> }) {
   return (
     <Popover
       trigger={
@@ -27,7 +27,7 @@ export function Item({ emote }: { emote: Emote }) {
           <div className="w-0 flex-1">
             <p className="font-medium truncate text-sm mb-2">{emote.name}</p>
             <p className="text-muted-foreground text-xs">
-              {getTimeString(emote.timestamp)}
+              {getTimeString(new Date(emote.timestamp))}
             </p>
           </div>
         </button>
@@ -38,7 +38,7 @@ export function Item({ emote }: { emote: Emote }) {
   );
 }
 
-function EmoteUsage({ emote }: { emote: Emote }) {
+function EmoteUsage({ emote }: { emote: Serialize<Emote> }) {
   const { copy, isShow } = useCopyText();
   const usage = `<!em!${emote.id}>`;
 

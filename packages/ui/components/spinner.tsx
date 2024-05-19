@@ -30,10 +30,10 @@ export function Spinner({
   size,
   className,
 }: VariantProps<typeof spinner> & { className?: string }) {
-  const { container, status } = spinner({ size, className });
+  const { container, status } = spinner({ size });
 
   return (
-    <div className={container()}>
+    <div className={container({ className })}>
       <div className={status()} role="status" />
     </div>
   );

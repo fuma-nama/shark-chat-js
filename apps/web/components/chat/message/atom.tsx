@@ -159,6 +159,7 @@ const renderer: Partial<ReactRenderer> = {
       const id = a[1];
 
       child.push(
+        text.slice(lastIdx, a.index),
         <Image
           key={mdRenderer.elementId}
           alt="Emote"
@@ -170,7 +171,6 @@ const renderer: Partial<ReactRenderer> = {
         />,
       );
 
-      child.push(text.slice(lastIdx, a.index));
       lastIdx = a.index + a[0].length;
     }
 

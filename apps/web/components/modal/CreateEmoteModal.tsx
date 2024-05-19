@@ -38,6 +38,7 @@ export function CreateEmoteModal() {
     },
     {
       onSuccess() {
+        void utils.emotes.get.invalidate();
         setOpen(false);
       },
       onError(e) {
