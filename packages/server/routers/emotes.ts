@@ -4,15 +4,15 @@ import { Emotes, users } from "db/schema";
 import { TRPCError } from "@trpc/server";
 import { sign } from "./upload";
 import { emotes } from "shared/media/format";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { pick } from "next/dist/lib/pick";
 
 export const emotesRouter = router({
   get: protectedProcedure
     .input(
       z.strictObject({
-        offset: z.number().optional(),
-        count: z.number().max(50).default(50),
+        cursor: z.number().optional(),
+        limit: z.number().max(50).default(50),
       }),
     )
     .query(async ({ input }) => {
@@ -20,8 +20,8 @@ export const emotesRouter = router({
         .select()
         .from(Emotes)
         .orderBy(desc(Emotes.timestamp))
-        .offset(input.offset ?? 0)
-        .limit(input.count)
+        .offset(input.cursor ?? 0)
+        .limit(input.limit)
         .innerJoin(users, eq(users.id, Emotes.creatorId))
         .then((res) =>
           res.map((item) => ({
@@ -29,6 +29,29 @@ export const emotesRouter = router({
             creator: pick(item.User, ["id", "image", "name"]),
           })),
         );
+    }),
+  delete: protectedProcedure
+    .input(
+      z.strictObject({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const result = await db
+        .delete(Emotes)
+        .where(
+          and(
+            eq(Emotes.id, input.id),
+            eq(Emotes.creatorId, ctx.session.user.id),
+          ),
+        );
+
+      if (result.rowCount === 0) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You cannot delete this emote",
+        });
+      }
     }),
   create: protectedProcedure
     .input(

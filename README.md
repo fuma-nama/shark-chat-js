@@ -16,6 +16,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build)).
 - Send Images/Files via Message, images zoom-in
 - Direct Message with anyone
 - View & Kick Group members
+- Custom Emotes
 - Invite Group members via Invite code or Url
 - Upload user avatar, group banner and icon images
 - Show notification when new Message received

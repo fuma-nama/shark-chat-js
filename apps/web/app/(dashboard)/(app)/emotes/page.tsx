@@ -4,10 +4,17 @@ import { CreateEmoteModal } from "@/components/modal/CreateEmoteModal";
 import { Item } from "./item";
 import { trpc } from "@/utils/trpc";
 import { Spinner } from "ui/components/spinner";
+import { Button } from "ui/components/button";
 
 const count = 50;
 export default function Page() {
-  const query = trpc.emotes.get.useQuery({ count });
+  const query = trpc.emotes.get.useInfiniteQuery(
+    { limit: count },
+    {
+      getNextPageParam: (last, all) =>
+        last.length === 50 ? all.length * count : undefined,
+    },
+  );
 
   return (
     <>
@@ -20,8 +27,19 @@ export default function Page() {
           {query.isLoading && (
             <Spinner className="col-span-full" size="large" />
           )}
-          {query.data?.map((emote) => <Item key={emote.id} emote={emote} />)}
+          {query.data?.pages.flatMap((block) =>
+            block.map((emote) => <Item key={emote.id} emote={emote} />),
+          )}
         </div>
+        {query.hasNextPage ? (
+          <Button
+            isLoading={query.isFetchingNextPage}
+            className="mt-4 mx-auto"
+            onClick={() => query.fetchNextPage()}
+          >
+            Load More
+          </Button>
+        ) : null}
       </div>
     </>
   );
