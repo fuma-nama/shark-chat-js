@@ -13,7 +13,7 @@ import { useState } from "react";
 import { TRPCClientError } from "@trpc/client";
 
 const schema = z.object({
-  id: z.string(),
+  id: z.string().regex(/^\w+$/),
   name: z.string(),
   image: z.string(),
 });
@@ -81,7 +81,9 @@ export function CreateEmoteModal() {
           <label htmlFor="id" className={fieldset().label()}>
             ID
           </label>
-          <p className={fieldset().description()}>The Id to use this emote.</p>
+          <p className={fieldset().description()}>
+            The Id to use this emote, only A-Z and underscore are allowed.
+          </p>
           <input
             id="id"
             className={input({ className: "mt-2" })}

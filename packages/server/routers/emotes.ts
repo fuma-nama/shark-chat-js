@@ -33,7 +33,7 @@ export const emotesRouter = router({
   create: protectedProcedure
     .input(
       z.strictObject({
-        id: z.string(),
+        id: z.string().regex(/^\w+$/),
         name: z.string(),
       }),
     )
@@ -47,7 +47,7 @@ export const emotesRouter = router({
 
         return sign({
           public_id: emotes.id(input.id),
-          transformation: "w_25,h_25",
+          transformation: "w_50,h_50",
         });
       } catch (e) {
         throw new TRPCError({

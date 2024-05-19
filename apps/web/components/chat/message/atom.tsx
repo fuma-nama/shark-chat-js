@@ -1,19 +1,14 @@
-import React, { forwardRef, Fragment, ReactNode, useMemo } from "react";
+import React, { forwardRef, ReactNode, useMemo } from "react";
 import { Avatar } from "ui/components/avatar";
 import * as ContextMenu from "ui/components/context-menu";
 import { getTimeString } from "ui/utils/time";
 import { MessageType } from "@/utils/types";
 import { usePageStore } from "@/utils/stores/page";
-import { ReactParser, ReactRenderer } from "marked-react";
 import { DropdownMenu, DropdownMenuTrigger } from "ui/components/dropdown";
 import { MoreHorizontalIcon } from "lucide-react";
 import { button } from "ui/components/button";
-import Link from "next/link";
 import { tv } from "tailwind-variants";
-import { Marked } from "marked";
-import { emotes } from "shared/media/format";
-import Image from "next/image";
-import { cloudinaryLoader } from "@/utils/cloudinary-loader";
+import { render } from "@/components/chat/message/markdown";
 
 interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
   user: MessageType["author"];
@@ -127,99 +122,8 @@ export function Root({ children }: RootProps) {
   );
 }
 
-const emoteRegex = /<!em!(.+?)>/g;
-
-const renderer: Partial<ReactRenderer> = {
-  html(html) {
-    let a;
-    if (typeof html === "string" && (a = emoteRegex.exec(html))) {
-      return (
-        <Image
-          key={mdRenderer.elementId}
-          alt="Emote"
-          width={50}
-          height={50}
-          src={emotes.url([a[1]], "default")}
-          className="my-0 mx-1"
-          loader={cloudinaryLoader}
-        />
-      );
-    }
-
-    return html;
-  },
-  text(text) {
-    if (typeof text !== "string") return text;
-
-    let a,
-      child = [],
-      lastIdx = 0;
-
-    while ((a = emoteRegex.exec(text))) {
-      const id = a[1];
-
-      child.push(
-        text.slice(lastIdx, a.index),
-        <Image
-          key={mdRenderer.elementId}
-          alt="Emote"
-          width={25}
-          height={25}
-          src={emotes.url([id], "default")}
-          className="inline my-0 mx-1"
-          loader={cloudinaryLoader}
-        />,
-      );
-
-      lastIdx = a.index + a[0].length;
-    }
-
-    child.push(text.slice(lastIdx));
-
-    return child;
-  },
-  link(href, text) {
-    if (href.startsWith(window.location.origin))
-      return (
-        <Link key={mdRenderer.elementId} href={href}>
-          {text}
-        </Link>
-      );
-
-    return (
-      <a
-        key={mdRenderer.elementId}
-        target="_blank"
-        rel="noreferrer noopener"
-        href={href}
-      >
-        {text}
-      </a>
-    );
-  },
-  image(src, alt) {
-    return (
-      <Fragment key={mdRenderer.elementId}>{`![${alt}](${src})`}</Fragment>
-    );
-  },
-};
-
-const marked = new Marked();
-const mdRenderer = new ReactRenderer({
-  renderer: renderer,
-  langPrefix: "language-",
-});
-const mdParser = new ReactParser({ renderer: mdRenderer });
-
 export function Text({ children }: { children: string }) {
-  const output = useMemo(() => {
-    const tokens = marked.lexer(children, {
-      breaks: true,
-      gfm: true,
-    });
-
-    return mdParser.parse(tokens);
-  }, [children]);
+  const output = useMemo(() => render(children), [children]);
 
   return (
     <div className="prose prose-message text-[15px] break-words overflow-hidden">

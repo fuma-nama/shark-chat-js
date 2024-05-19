@@ -40,7 +40,7 @@ export function Item({ emote }: { emote: Serialize<Emote> }) {
 
 function EmoteUsage({ emote }: { emote: Serialize<Emote> }) {
   const { copy, isShow } = useCopyText();
-  const usage = `<!em!${emote.id}>`;
+  const usage = `:${emote.id}:`;
 
   return (
     <div>
