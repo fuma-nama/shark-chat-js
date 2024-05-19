@@ -14,7 +14,7 @@ const uploadResponseSchema = z.object({
 type UploadResponse = z.infer<typeof uploadResponseSchema>;
 
 export type UploadOptions = {
-  file: string;
+  file: string | Blob;
   resource_type?: "image" | "raw" | "auto";
 } & SignResponse;
 
@@ -48,7 +48,7 @@ async function uploadAsset(options: UploadOptions): Promise<UploadResponse> {
 
 export async function upload(
   sign: SignResponse | (() => SignResponse | Promise<SignResponse>),
-  file: string,
+  file: string | Blob,
   options?: Partial<UploadOptions>,
 ) {
   const signed = typeof sign === "function" ? await sign() : sign;
@@ -57,14 +57,5 @@ export async function upload(
     file: file,
     ...signed,
     ...options,
-  });
-}
-
-export function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = (e) => reject(e.target?.error);
-    reader.readAsDataURL(blob);
   });
 }

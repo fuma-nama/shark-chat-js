@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Spinner } from "./spinner";
 
-export type SmartImageProps = {
+export type ImageSkeletonProps = {
   loaded: boolean;
   width: number;
   height: number;
@@ -10,14 +10,14 @@ export type SmartImageProps = {
   children: ReactNode;
 };
 
-export function SmartImage({
+export function ImageSkeleton({
   loaded,
   width,
   height,
   maxWidth,
   maxHeight,
   children,
-}: SmartImageProps) {
+}: ImageSkeletonProps) {
   const ratio = Math.min(
     width > height ? maxWidth / width : maxHeight / height,
     1,

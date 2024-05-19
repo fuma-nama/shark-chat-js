@@ -17,7 +17,7 @@ function emote(key: number, id: string, inline: boolean) {
     return (
       <img
         key={key}
-        alt="Emote"
+        alt={id}
         width={50}
         height={50}
         src={`https://cdn.discordapp.com/emojis/${id.slice(discordPrefix.length)}.webp?size=240&quality=lossless`}
@@ -29,7 +29,7 @@ function emote(key: number, id: string, inline: boolean) {
   return (
     <Image
       key={key}
-      alt="Emote"
+      alt={id}
       width={50}
       height={50}
       src={emotes.url([id], "default")}

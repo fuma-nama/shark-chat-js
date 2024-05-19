@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AttachmentType } from "shared/schema/chat";
 import { useState } from "react";
-import { SmartImage } from "ui/components/smart-image";
+import { ImageSkeleton } from "ui/components/image-skeleton";
 import Image from "next/image";
 import { cloudinary_prefix, cloudinaryLoader } from "@/utils/cloudinary-loader";
 import {
@@ -50,7 +50,7 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
 
   return (
     <Dialog>
-      <SmartImage
+      <ImageSkeleton
         loaded={isLoaded}
         width={attachment.width!}
         height={attachment.height!}
@@ -68,7 +68,7 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
             onLoad={() => setIsLoaded(true)}
           />
         </DialogTrigger>
-      </SmartImage>
+      </ImageSkeleton>
 
       <DialogContent className="flex items-center justify-center bg-transparent max-w-none p-0">
         <DialogClose asChild>
