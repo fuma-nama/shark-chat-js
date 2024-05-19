@@ -40,14 +40,6 @@ function emote(key: number, id: string, inline: boolean) {
 }
 
 const renderer: Partial<ReactRenderer> = {
-  html(html) {
-    let a;
-    if (typeof html === "string" && (a = emoteRegex.exec(html))) {
-      return emote(mdRenderer.elementId, a[1], false);
-    }
-
-    return html;
-  },
   text(text) {
     if (typeof text !== "string") return text;
 
@@ -58,7 +50,7 @@ const renderer: Partial<ReactRenderer> = {
     while ((a = emoteRegex.exec(text))) {
       child.push(
         text.slice(lastIdx, a.index),
-        emote(mdRenderer.elementId, a[1], true),
+        emote(mdRenderer.elementId, a[1], a[0] !== text),
       );
 
       lastIdx = a.index + a[0].length;
