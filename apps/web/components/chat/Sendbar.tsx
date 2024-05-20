@@ -33,7 +33,6 @@ import { useSendMessageMutation } from "@/utils/hooks/mutations/send-message";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
-import { useAbly } from "ably/react";
 
 const GenerateTextModal = dynamic(() => import("../modal/GenerateTextModal"));
 
@@ -54,7 +53,6 @@ const schema = z
 export type SendData = z.infer<typeof schema>;
 
 export function Sendbar({ channelId }: { channelId: string }) {
-  const ably = useAbly();
   const utils = trpc.useUtils();
   const form = useForm<SendData>({
     resolver: zodResolver(schema),
