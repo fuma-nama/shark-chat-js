@@ -70,7 +70,7 @@ export async function onReceiveMessage(message: Message) {
 
   void publish("chat", [channel_id], {
     type: "typing",
-    data: { user: bot },
+    data: { user: bot, channelId: channel_id },
   });
   await connection.sendText(content);
 }
