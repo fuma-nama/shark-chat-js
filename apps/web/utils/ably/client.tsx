@@ -1,7 +1,5 @@
-import { realtime } from "ably-builder/builder/realtime";
 import { useSession } from "next-auth/react";
 import { getBaseUrl } from "../get-base-url";
-import { schema } from "server/ably/schema";
 import { Realtime } from "ably";
 import { AblyProvider } from "ably/react";
 
@@ -33,5 +31,3 @@ export function AblyClientProvider({
 
   return <AblyProvider client={ably}>{children}</AblyProvider>;
 }
-
-export const channels = realtime(ably, schema);

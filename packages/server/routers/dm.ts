@@ -12,7 +12,7 @@ import { z } from "zod";
 import { pick } from "shared/common";
 import { TRPCError } from "@trpc/server";
 import { createId } from "@paralleldrive/cuid2";
-import { channels } from "../ably";
+import { publish } from "../ably";
 import { UserProfile } from "./chat";
 
 export interface DMChannel {
@@ -148,16 +148,19 @@ export const dmRouter = router({
         .where(eq(users.id, input.userId))
         .limit(1);
 
-      await channels.private.open_dm.publish([ctx.session.user.id], {
+      const channel: DMChannel = {
         id: channelId,
         user: user[0],
         last_message: null,
         unread_messages: 0,
+      };
+
+      await publish("private", [ctx.session.user.id], {
+        type: "open_dm",
+        data: channel,
       });
 
-      return {
-        id: channelId,
-      };
+      return channel;
     }),
   close: protectedProcedure
     .input(z.object({ channelId: z.string() }))
@@ -172,8 +175,11 @@ export const dmRouter = router({
           ),
         );
 
-      await channels.private.close_dm.publish([ctx.session.user.id], {
-        channel_id: input.channelId,
+      await publish("private", [ctx.session.user.id], {
+        type: "close_dm",
+        data: {
+          channel_id: input.channelId,
+        },
       });
     }),
 });

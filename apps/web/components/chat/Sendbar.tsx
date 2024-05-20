@@ -30,12 +30,7 @@ import {
 import { getViewportScroll } from "@/components/chat/ChatView";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useSendMessageMutation } from "@/utils/hooks/mutations/send-message";
-import { useSession } from "next-auth/react";
-import {
-  TypingIndicator,
-  useTypingStatus,
-} from "@/components/chat/TypingIndicator";
-import { channels } from "@/utils/ably/client";
+import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
 
@@ -94,7 +89,7 @@ export function Sendbar({ channelId }: { channelId: string }) {
       <RollbackButton />
       <FormProvider {...form}>
         <div className="flex flex-col gap-3 pt-2 pb-7 px-3.5 bg-muted/50 sm:rounded-3xl sm:bg-secondary sm:p-2">
-          <TypingUsers channelId={channelId} />
+          <TypingIndicator channelId={channelId} />
           <Reference channelId={channelId} />
           <AttachmentPicker control={form.control} />
           <div className="flex flex-row items-center gap-2">
@@ -162,23 +157,6 @@ function Reference({ channelId }: { channelId: string }) {
       </button>
     </div>
   );
-}
-
-function TypingUsers({ channelId }: { channelId: string }) {
-  const { status, data: session } = useSession();
-  const { typing, add } = useTypingStatus();
-
-  channels.chat.typing.useChannel(
-    [channelId],
-    { enabled: status === "authenticated" },
-    (message) => {
-      if (message.data.user.id === session?.user.id) return;
-
-      add(message.data.user);
-    },
-  );
-
-  return <TypingIndicator typing={typing} />;
 }
 
 function Options() {

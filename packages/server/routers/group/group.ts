@@ -5,7 +5,7 @@ import { checkIsOwnerOf, getMembership } from "../../utils/permissions";
 import { inviteRouter } from "./invite";
 import { createGroupSchema, updateGroupSchema } from "shared/schema/group";
 import { membersRouter } from "./members";
-import { channels } from "../../ably";
+import { publish } from "../../ably";
 import { getLastReads } from "../../redis/last-read";
 import db from "db/client";
 import { createId } from "@paralleldrive/cuid2";
@@ -165,9 +165,12 @@ export const groupRouter = router({
 
       await Promise.all([
         db.update(groups).set(input).where(eq(groups.id, groupId)),
-        channels.group.group_updated.publish([groupId], {
-          groupId,
-          group: input,
+        publish("group", [groupId], {
+          type: "group_updated",
+          data: {
+            groupId,
+            group: input,
+          },
         }),
       ]);
     }),
@@ -190,8 +193,11 @@ export const groupRouter = router({
           .where(eq(groupInvites.group_id, input.groupId));
       });
 
-      await channels.group.group_deleted.publish([input.groupId], {
-        id: input.groupId,
+      await publish("group", [input.groupId], {
+        type: "group_deleted",
+        data: {
+          id: input.groupId,
+        },
       });
     }),
   leave: protectedProcedure
@@ -228,8 +234,11 @@ export const groupRouter = router({
           ),
         );
 
-      await channels.private.group_removed.publish([ctx.session.user.id], {
-        id: input.groupId,
+      await publish("private", [ctx.session.user.id], {
+        type: "group_removed",
+        data: {
+          id: input.groupId,
+        },
       });
     }),
   invite: inviteRouter,
@@ -246,11 +255,14 @@ async function joinMember(group: Group, userId: string) {
     .onConflictDoNothing();
 
   if (res.rowCount !== 0) {
-    await channels.private.group_created.publish([userId], {
-      ...group,
-      last_message: null,
-      member: { admin: false },
-      unread_messages: 0,
+    await publish("private", [userId], {
+      type: "group_created",
+      data: {
+        ...group,
+        last_message: null,
+        member: { admin: false },
+        unread_messages: 0,
+      },
     });
   }
 }

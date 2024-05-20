@@ -6,7 +6,7 @@ import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
-import { setChannelUnread } from "@/utils/handlers/realtime/shared";
+import { setChannelUnread } from "@/utils/handlers/shared";
 import { useItems } from "@/components/chat/use-items";
 
 const count = 30;

@@ -4,7 +4,7 @@ import {
   Session,
   status,
 } from "@inworld/nodejs-sdk";
-import { channels } from "./ably";
+import { publish } from "./ably";
 import redis from "./redis/client";
 import db from "db/client";
 import { messages, User, users } from "db/schema";
@@ -68,7 +68,10 @@ export async function onReceiveMessage(message: Message) {
     })
     .build();
 
-  void channels.chat.typing.publish([channel_id], { user: bot });
+  void publish("chat", [channel_id], {
+    type: "typing",
+    data: { user: bot },
+  });
   await connection.sendText(content);
 }
 
@@ -112,20 +115,23 @@ async function sendMessage(channel_id: string, content: string) {
     })
     .returning({ id: messages.id });
 
-  await channels.chat.message_sent.publish([channel_id], {
-    id: insertResult[0].id,
-    content,
-    channel_id,
-    timestamp: new Date(Date.now()),
-    embeds: null,
-    attachment: null,
-    reply_id: null,
-    reply_message: null,
-    reply_user: null,
-    author: {
-      id: bot.id,
-      name: bot.name,
-      image: bot.image,
+  await publish("chat", [channel_id], {
+    type: "message_sent",
+    data: {
+      id: insertResult[0].id,
+      content,
+      channel_id,
+      timestamp: new Date(Date.now()),
+      embeds: null,
+      attachment: null,
+      reply_id: null,
+      reply_message: null,
+      reply_user: null,
+      author: {
+        id: bot.id,
+        name: bot.name,
+        image: bot.image,
+      },
     },
   });
 }

@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth/next";
-import ably, { channels } from "server/ably";
+import ably from "server/ably";
 import { authOptions } from "server/auth";
 import { NextResponse } from "next/server";
+import { schema } from "server/ably/schema";
 
 export async function POST() {
   const session = await getServerSession(authOptions);
@@ -16,7 +17,7 @@ export async function POST() {
   const tokenRequestData = await ably.auth.createTokenRequest({
     clientId: clientId,
     capability: {
-      [channels.private.channelName([clientId])]: ["subscribe", "publish"],
+      [schema.private.name(clientId)]: ["subscribe", "publish"],
       ["group:*"]: ["subscribe"],
       ["chat:*"]: ["subscribe"],
     },

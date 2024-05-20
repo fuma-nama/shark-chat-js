@@ -1,5 +1,5 @@
 import { schema } from "./schema";
-import { rest } from "ably-builder/builder/rest";
+import { createPublish } from "shared/ably";
 import Ably, { Rest } from "ably";
 
 function connect() {
@@ -26,6 +26,6 @@ if (process.env.NODE_ENV === "development") {
   ably = connect();
 }
 
-export const channels = rest(ably, schema);
+export const { publish } = createPublish(ably, schema);
 
 export default ably;

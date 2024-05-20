@@ -1,44 +1,32 @@
-import { UserInfo } from "shared/schema/chat";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar } from "ui/components/avatar";
+import { type TypingUser, useMessageStore } from "@/utils/stores/chat";
 
-type TypingData = {
-  user: UserInfo;
-  timestamp: Date;
-};
+function useTypingStatus(channelId: string): TypingUser[] {
+  const [typing, setTyping] = useState<TypingUser[]>([]);
+  const data = useMessageStore((s) => s.typing.get(channelId) ?? []);
+  const update = useRef<() => void>();
 
-export function useTypingStatus() {
-  const [typing, setTyping] = useState<TypingData[]>([]);
+  update.current = () =>
+    setTyping(data.filter((item) => Date.now() - item.timestamp <= 5000));
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const last = new Date(Date.now());
-      last.setSeconds(last.getSeconds() - 5);
-
-      setTyping((prev) => prev.filter((data) => data.timestamp >= last));
-    }, 5000);
+    const timer = setInterval(() => update.current?.(), 5000);
 
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [channelId]);
 
-  return {
-    typing,
-    add: (user: UserInfo) => {
-      const data: TypingData = {
-        user,
-        timestamp: new Date(Date.now()),
-      };
+  useEffect(() => {
+    update.current?.();
+  }, [data]);
 
-      setTyping((prev) =>
-        prev.some((u) => u.user.id === data.user.id) ? prev : [...prev, data],
-      );
-    },
-  };
+  return typing;
 }
 
-export function TypingIndicator({ typing }: { typing: TypingData[] }) {
+export function TypingIndicator({ channelId }: { channelId: string }) {
+  const typing = useTypingStatus(channelId);
   if (typing.length === 0) return <></>;
 
   return (

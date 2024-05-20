@@ -74,9 +74,6 @@ importers:
       ably:
         specifier: ^2.0.4
         version: 2.0.4(react-dom@18.3.1)(react@18.3.1)
-      ably-builder:
-        specifier: workspace:*
-        version: link:../../packages/ably-builder
       cloudinary:
         specifier: ^2.2.0
         version: 2.2.0
@@ -157,28 +154,6 @@ importers:
         specifier: ^5.4.5
         version: 5.4.5
 
-  packages/ably-builder:
-    dependencies:
-      ably:
-        specifier: ^2.0.4
-        version: 2.0.4(react-dom@18.3.1)(react@18.3.1)
-      shared:
-        specifier: workspace:*
-        version: link:../shared
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
-    devDependencies:
-      '@types/react':
-        specifier: 18.3.2
-        version: 18.3.2
-      '@types/react-dom':
-        specifier: 18.3.0
-        version: 18.3.0
-      config:
-        specifier: workspace:*
-        version: link:../config
-
   packages/config: {}
 
   packages/db:
@@ -229,9 +204,6 @@ importers:
       ably:
         specifier: ^2.0.4
         version: 2.0.4(react-dom@18.3.1)(react@18.3.1)
-      ably-builder:
-        specifier: workspace:*
-        version: link:../ably-builder
       cloudinary:
         specifier: ^2.2.0
         version: 2.2.0
@@ -284,6 +256,9 @@ importers:
 
   packages/shared:
     dependencies:
+      ably:
+        specifier: ^2.0.4
+        version: 2.0.4(react-dom@18.3.1)(react@18.3.1)
       db:
         specifier: workspace:*
         version: link:../db

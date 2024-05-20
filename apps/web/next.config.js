@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ["ably-builder", "db", "server", "shared", "ui"],
+  transpilePackages: ["db", "server", "shared", "ui"],
   images: {
     remotePatterns: [
       {

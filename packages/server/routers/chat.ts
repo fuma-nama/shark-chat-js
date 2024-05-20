@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { channels } from "../ably";
+import { publish } from "../ably";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc";
 import { contentSchema } from "shared/schema/chat";
@@ -54,21 +54,26 @@ export const chatRouter = router({
         })(),
       ]);
 
-      const messageWithNonce = {
-        ...message,
-        nonce: input.nonce,
-      };
-
       await Promise.all([
         type === "dm" &&
           isDMOpened &&
-          channels.private.open_dm.publish([data.to_user_id], {
-            id: data.channel_id,
-            user: message.author!,
-            unread_messages: 0,
-            last_message: { content: message.content },
+          publish("private", [data.to_user_id], {
+            type: "open_dm",
+            data: {
+              id: data.channel_id,
+              user: message.author!,
+              unread_messages: 0,
+              last_message: { content: message.content },
+            },
           }),
-        channels.chat.message_sent.publish([input.channelId], messageWithNonce),
+        publish("chat", [input.channelId], {
+          type: "message_sent",
+          data: {
+            ...message,
+            nonce: input.nonce,
+          },
+        }),
+
         setLastRead(input.channelId, ctx.session.user.id, message.timestamp),
         input.content.startsWith("@Shark") &&
           onReceiveMessage({
@@ -78,7 +83,7 @@ export const chatRouter = router({
           }),
       ]);
 
-      return messageWithNonce;
+      return message;
     }),
   messages: protectedProcedure
     .input(
@@ -131,11 +136,14 @@ export const chatRouter = router({
           message: "No permission or message doesn't exist",
         });
 
-      await channels.chat.message_updated.publish([input.channelId], {
-        id: input.messageId,
-        content: input.content,
-        embeds,
-        channel_id: input.channelId,
+      await publish("chat", [input.channelId], {
+        type: "message_updated",
+        data: {
+          id: input.messageId,
+          content: input.content,
+          embeds,
+          channel_id: input.channelId,
+        },
       });
     }),
   delete: protectedProcedure
@@ -178,9 +186,12 @@ export const chatRouter = router({
       }
 
       await db.delete(messages).where(eq(messages.id, input.messageId));
-      await channels.chat.message_deleted.publish([message.channelId], {
-        id: input.messageId,
-        channel_id: message.channelId,
+      await publish("chat", [message.channelId], {
+        type: "message_deleted",
+        data: {
+          id: input.messageId,
+          channel_id: message.channelId,
+        },
       });
     }),
   read: protectedProcedure
@@ -228,8 +239,9 @@ export const chatRouter = router({
           message: "User not found",
         });
 
-      await channels.chat.typing.publish([input.channelId], {
-        user,
+      await publish("chat", [input.channelId], {
+        type: "typing",
+        data: { user, channelId: input.channelId },
       });
     }),
   generateText: protectedProcedure

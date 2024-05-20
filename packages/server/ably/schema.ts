@@ -1,50 +1,71 @@
 import { z } from "zod";
-import { a } from "ably-builder/builder";
-import { inferProcedureOutput } from "@trpc/server";
-import { AppRouter } from "../routers/_app";
-import { Group, User } from "db/schema";
-
-type ServerMessageType = inferProcedureOutput<
-  AppRouter["chat"]["messages"]
->[number];
-
-type ServerDirectChannelEvent = inferProcedureOutput<
-  AppRouter["dm"]["channels"]
->[number];
-
-type ServerGroupEvent = inferProcedureOutput<AppRouter["group"]["all"]>[number];
+import { Group } from "db/schema";
+import { GroupWithNotifications } from "../routers/group/group";
+import { DMChannel } from "../routers/dm";
+import { ComplexMessage } from "../utils/messages";
+import { Serialize } from "shared/types";
+import { UserInfo } from "shared/schema/chat";
 
 export const schema = {
   /**
    * Private channel for per user
    */
-  private: a.channel(([clientId]: [clientId: string]) => [clientId], {
-    group_created: a.event(z.custom<ServerGroupEvent>()),
-    group_removed: a.event(z.custom<Pick<ServerGroupEvent, "id">>()),
-    open_dm: a.event(z.custom<ServerDirectChannelEvent>()),
-    close_dm: a.event(z.custom<{ channel_id: string }>()),
-  }),
-  group: a.channel(([group]: [groupId: string]) => [`${group}`], {
-    group_updated: a.event(
-      z.custom<{
+  private: {
+    name(clientId: string) {
+      return `private:${clientId}`;
+    },
+
+    group_created: z.custom<GroupWithNotifications>().transform(serialize),
+    group_removed: z
+      .custom<Pick<GroupWithNotifications, "id">>()
+      .transform(serialize),
+    open_dm: z.custom<DMChannel>().transform(serialize),
+    close_dm: z.custom<{ channel_id: string }>().transform(serialize),
+  },
+
+  group: {
+    name(groupId: string) {
+      return `group:${groupId}`;
+    },
+
+    group_updated: z
+      .custom<{
         groupId: string;
         group: Partial<Group>;
-      }>(),
-    ),
-    group_deleted: a.event(z.custom<Pick<ServerGroupEvent, "id">>()),
-  }),
-  chat: a.channel(([channel]: [channelId: string]) => [channel], {
-    typing: a.event(
-      z.object({ user: z.custom<Pick<User, "id" | "image" | "name">>() }),
-    ),
-    message_sent: a.event(z.custom<ServerMessageType & { nonce?: number }>()),
-    message_updated: a.event(
-      z.custom<
-        Pick<ServerMessageType, "id" | "channel_id" | "content" | "embeds">
-      >(),
-    ),
-    message_deleted: a.event(
-      z.custom<Pick<ServerMessageType, "id" | "channel_id">>(),
-    ),
-  }),
+      }>()
+      .transform(serialize),
+
+    group_deleted: z
+      .custom<Pick<GroupWithNotifications, "id">>()
+      .transform(serialize),
+  },
+  chat: {
+    name(channelId: string) {
+      return `chat:${channelId}`;
+    },
+
+    typing: z
+      .object({ channelId: z.string(), user: z.custom<UserInfo>() })
+      .transform(serialize),
+
+    message_sent: z
+      .custom<ComplexMessage & { nonce?: number }>()
+      .transform(serialize),
+
+    message_updated: z
+      .custom<
+        Pick<ComplexMessage, "id" | "channel_id" | "content" | "embeds">
+      >()
+      .transform(serialize),
+    message_deleted: z
+      .custom<Pick<ComplexMessage, "id" | "channel_id">>()
+      .transform(serialize),
+  },
 };
+
+/**
+ * Because messages are serialized with JSON, we should change the output type
+ */
+function serialize<T>(v: T): Serialize<T> {
+  return v as Serialize<T>;
+}

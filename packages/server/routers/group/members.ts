@@ -1,5 +1,5 @@
 import { protectedProcedure, router } from "../../trpc";
-import { channels } from "../../ably";
+import { publish } from "../../ably";
 import {
   checkIsMemberOf,
   checkIsOwnerOf,
@@ -77,8 +77,11 @@ export const membersRouter = router({
           ),
         );
 
-      await channels.private.group_removed.publish([input.userId], {
-        id: input.groupId,
+      await publish("private", [input.userId], {
+        type: "group_removed",
+        data: {
+          id: input.groupId,
+        },
       });
     }),
   update: protectedProcedure

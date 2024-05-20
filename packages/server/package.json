@@ -9,7 +9,6 @@
     "@upstash/ratelimit": "^1.1.3",
     "@upstash/redis": "^1.31.1",
     "ably": "^2.0.4",
-    "ably-builder": "workspace:*",
     "cloudinary": "^2.2.0",
     "db": "workspace:*",
     "drizzle-orm": "^0.30.10",

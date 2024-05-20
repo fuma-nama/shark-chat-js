@@ -7,9 +7,9 @@ import { trpc } from "@/utils/trpc/app-router";
 import { getBaseUrl } from "@/utils/get-base-url";
 import { showErrorToast } from "@/utils/stores/page";
 import { AblyClientProvider } from "@/utils/ably/client";
-import { PrivateEventManager } from "@/utils/handlers/realtime/private";
-import { GroupEventManager } from "@/utils/handlers/realtime/group";
-import { MessageEventManager } from "@/utils/handlers/realtime/chat";
+import { PrivateEventManager } from "@/utils/handlers/private";
+import { GroupEventManager } from "@/utils/handlers/group";
+import { MessageEventManager } from "@/utils/handlers/chat";
 
 export function Provider({ children }: { children: React.ReactNode }) {
   return (

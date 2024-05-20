@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import { addNonce, removeNonce } from "../handlers/realtime/shared";
+import { addNonce, removeNonce } from "../handlers/shared";
 import { SendData } from "@/components/chat/Sendbar";
 import { MessageType } from "../types";
+import type { UserProfile } from "server/routers/chat";
 
 /**
  * Message that being sent locally but not received from the server yet
@@ -13,6 +14,11 @@ export type MessagePlaceholder = {
   nonce: number;
 };
 
+export interface TypingUser {
+  timestamp: number;
+  user: UserProfile;
+}
+
 export type ChatStore = {
   sending: {
     [id: string]: MessagePlaceholder[];
@@ -23,6 +29,7 @@ export type ChatStore = {
   messages: {
     [id: string]: MessageType[];
   };
+  typing: Map<string, TypingUser[]>;
   reply: Map<string, MessageType>;
   pointer: Map<string, number>;
   setEditing(channelId: string, messageId?: number): void;
@@ -43,6 +50,7 @@ export const useMessageStore = create<ChatStore>((set) => ({
   messages: {},
   pointer: new Map(),
   reply: new Map(),
+  typing: new Map(),
   updatePointer(channelId) {
     set((prev) => {
       const next = new Map(prev.pointer);

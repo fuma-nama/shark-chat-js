@@ -20,7 +20,6 @@
     "@trpc/react-query": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "ably": "^2.0.4",
-    "ably-builder": "workspace:*",
     "cloudinary": "^2.2.0",
     "clsx": "^2.1.1",
     "db": "workspace:*",
