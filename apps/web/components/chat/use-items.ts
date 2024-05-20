@@ -25,33 +25,36 @@ export type ListItem =
 
 const minSeparateTime = 30 * 1000;
 
-export function useItems(channelId: string, lastRead: Date | null): ListItem[] {
-  const { data } = useSession();
+export function useItems(
+  channelId: string,
+  lastRead: number | null,
+): ListItem[] {
+  const { data: session } = useSession();
   const [sending, messages] = useMessageStore((s) => [
-    s.sending[channelId] ?? [],
-    s.messages[channelId] ?? [],
+    s.sending[channelId],
+    s.messages[channelId],
   ]);
 
   return useMemo(() => {
     const items: ListItem[] = [];
     let previousTimestamp: Date | null = null;
-    if (!data) return [];
+    if (!session) return [];
 
     function getLastMessage() {
       const last = items[items.length - 1];
       return last?.type === "message" ? last : undefined;
     }
 
-    for (const message of messages) {
+    for (const message of messages ?? []) {
       const time = new Date(message.timestamp);
 
       if (
         lastRead &&
-        lastRead < time &&
-        (!previousTimestamp || previousTimestamp <= lastRead)
+        lastRead < time.getTime() &&
+        (!previousTimestamp || previousTimestamp.getTime() <= lastRead)
       )
         items.push({
-          id: `unread:${lastRead.getTime()}`,
+          id: `unread:${lastRead}`,
           type: "unread",
         });
 
@@ -77,9 +80,9 @@ export function useItems(channelId: string, lastRead: Date | null): ListItem[] {
       previousTimestamp = time;
     }
 
-    for (const message of sending) {
+    for (const message of sending ?? []) {
       const prev = items.length > 0 ? items[items.length - 1] : undefined;
-      const authorId = data.user.id;
+      const authorId = session.user.id;
       const time = Date.now();
       const isChain =
         // automatically chain with pending messages
@@ -104,5 +107,5 @@ export function useItems(channelId: string, lastRead: Date | null): ListItem[] {
     }
 
     return items;
-  }, [data, messages, lastRead, sending]);
+  }, [session, messages, lastRead, sending]);
 }

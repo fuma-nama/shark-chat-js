@@ -5,7 +5,7 @@ import {
   ReactNode,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useRef,
 } from "react";
 import useInfiniteScroll, {
@@ -34,14 +34,14 @@ export function ChatViewport({
       id="scroll"
       className="absolute inset-0 top-[52px] flex flex-col overflow-y-scroll overflow-x-hidden [overflow-anchor:none] overscroll-none"
     >
+      {modal && (
+        <UserProfileModal
+          userId={modal.user_id}
+          open={modal.type === "user-profile"}
+          onOpenChange={() => setModal(undefined)}
+        />
+      )}
       <div id="scroll-inner" className="flex flex-col flex-1">
-        {modal && (
-          <UserProfileModal
-            userId={modal.user_id}
-            open={modal.type === "user-profile"}
-            onOpenChange={() => setModal(undefined)}
-          />
-        )}
         <ChatContext.Provider value={props}>{children}</ChatContext.Provider>
       </div>
     </div>
@@ -100,7 +100,7 @@ export function useBottomScroll(): UseBottomScroll {
     setRealScrollTop();
   }, [setRealScrollTop]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const viewport = getViewportScroll();
     const inner = getViewportInner();
 

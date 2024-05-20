@@ -35,6 +35,7 @@ export type ChatStore = {
   setEditing(channelId: string, messageId?: number): void;
   updatePointer(channelId: string): void;
   updateReply(channelId: string, data: MessageType | null): void;
+  setUserTyping(channelId: string, user: UserProfile): void;
   addSending: (
     id: string,
     data: SendData,
@@ -60,6 +61,19 @@ export const useMessageStore = create<ChatStore>((set) => ({
 
       return {
         pointer: next,
+      };
+    });
+  },
+  setUserTyping(channelId: string, user: UserProfile) {
+    set((prev) => {
+      const next = new Map(prev.typing);
+      let channel = next.get(channelId) ?? [];
+      channel = channel.filter((item) => item.user.id !== user.id);
+      channel.push({ user, timestamp: Date.now() });
+      next.set(channelId, channel);
+
+      return {
+        typing: next,
       };
     });
   },

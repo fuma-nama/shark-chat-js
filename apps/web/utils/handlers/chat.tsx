@@ -26,21 +26,10 @@ export function MessageEventManager() {
 
       if (name === "typing") {
         const message = schema.chat[name].parse(data);
-        console.log("update");
-        useMessageStore.setState((prev) => {
-          const typing = new Map(prev.typing);
-          let list = typing.get(message.channelId) ?? [];
 
-          list = list.filter((i) => i.user.id !== message.user.id);
-          list.push({
-            user: message.user,
-            timestamp: Date.now(),
-          });
-          typing.set(message.channelId, list);
-          return {
-            typing,
-          };
-        });
+        useMessageStore
+          .getState()
+          .setUserTyping(message.channelId, message.user);
         return;
       }
 
@@ -150,13 +139,20 @@ export function MessageEventManager() {
     ];
 
     const listener: AblyMessageCallback = (res) => callback.current?.(res);
+    const typeListener: AblyMessageCallback = (res) =>
+      callback.current?.({
+        name: "typing",
+        data: res.data,
+      });
 
     for (const c of channels) {
       void c.subscribe(listener);
+      void ably.channels.get(`${c.name}:typing`).subscribe(typeListener);
     }
     return () => {
       for (const c of channels) {
         void c.unsubscribe(listener);
+        void ably.channels.get(`${c.name}:typing`).unsubscribe(typeListener);
       }
     };
   }, [ably, dm.data, groups.data]);

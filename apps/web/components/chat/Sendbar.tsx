@@ -33,6 +33,7 @@ import { useSendMessageMutation } from "@/utils/hooks/mutations/send-message";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
+import { useAbly } from "ably/react";
 
 const GenerateTextModal = dynamic(() => import("../modal/GenerateTextModal"));
 
@@ -53,6 +54,7 @@ const schema = z
 export type SendData = z.infer<typeof schema>;
 
 export function Sendbar({ channelId }: { channelId: string }) {
+  const ably = useAbly();
   const utils = trpc.useUtils();
   const form = useForm<SendData>({
     resolver: zodResolver(schema),
@@ -96,7 +98,21 @@ export function Sendbar({ channelId }: { channelId: string }) {
             <Options />
             <TextArea
               control={form.control}
-              onSignal={() => utils.client.chat.type.mutate({ channelId })}
+              onSignal={() => {
+                const profile = utils.account.get.getData();
+                if (!profile) return;
+
+                void ably.channels.get(`chat:${channelId}:typing`).publish({
+                  data: {
+                    channelId,
+                    user: {
+                      id: profile.id,
+                      name: profile.name,
+                      image: profile.image,
+                    },
+                  },
+                });
+              }}
               onPaste={(e) => {
                 if (e.clipboardData.files.length > 0) {
                   e.preventDefault();

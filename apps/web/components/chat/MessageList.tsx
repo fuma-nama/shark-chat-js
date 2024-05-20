@@ -51,7 +51,7 @@ export function MessageList({
     loading: query.isLoading,
   });
 
-  const items = useItems(channelId, lastRead);
+  const items = useItems(channelId, lastRead?.getTime() ?? null);
 
   return (
     <div className="flex flex-col gap-3 mb-8 flex-1 py-2">

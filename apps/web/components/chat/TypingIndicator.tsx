@@ -1,17 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "ui/components/avatar";
 import { type TypingUser, useMessageStore } from "@/utils/stores/chat";
+import { useSession } from "next-auth/react";
 
 function useTypingStatus(channelId: string): TypingUser[] {
   const [typing, setTyping] = useState<TypingUser[]>([]);
-  const data = useMessageStore((s) => s.typing.get(channelId) ?? []);
+  const data = useMessageStore((s) => s.typing.get(channelId));
   const update = useRef<() => void>();
+  const { data: session } = useSession();
 
-  update.current = () =>
-    setTyping(data.filter((item) => Date.now() - item.timestamp <= 5000));
+  update.current = () => {
+    if (!session) return;
+
+    setTyping(
+      data?.filter(
+        (item) =>
+          Date.now() - item.timestamp <= 5000 &&
+          item.user.id !== session.user.id,
+      ) ?? [],
+    );
+  };
 
   useEffect(() => {
-    const timer = setInterval(() => update.current?.(), 5000);
+    const timer = setInterval(() => update.current?.(), 1000);
 
     return () => {
       clearInterval(timer);
@@ -20,7 +31,7 @@ function useTypingStatus(channelId: string): TypingUser[] {
 
   useEffect(() => {
     update.current?.();
-  }, [data]);
+  }, [data, session]);
 
   return typing;
 }

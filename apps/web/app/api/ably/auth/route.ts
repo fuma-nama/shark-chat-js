@@ -17,9 +17,10 @@ export async function POST() {
   const tokenRequestData = await ably.auth.createTokenRequest({
     clientId: clientId,
     capability: {
-      [schema.private.name(clientId)]: ["subscribe", "publish"],
-      ["group:*"]: ["subscribe"],
-      ["chat:*"]: ["subscribe"],
+      [schema.private.name(clientId)]: ["subscribe", "publish", "presence"],
+      ["group:*"]: ["subscribe", "presence"],
+      ["chat:*"]: ["subscribe", "presence"],
+      ["chat:*:typing"]: ["subscribe", "publish"],
     },
   });
 
