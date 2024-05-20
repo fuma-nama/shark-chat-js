@@ -1,6 +1,7 @@
 import { UserInfo } from "shared/schema/chat";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { CornerUpRight } from "lucide-react";
+import { render } from "@/components/chat/message/markdown";
 
 export function Reference({
   id,
@@ -12,6 +13,10 @@ export function Reference({
   content?: string;
 }) {
   const timeoutRef = useRef<number>();
+  const children = useMemo(
+    () => render(content ?? "Message Deleted"),
+    [content],
+  );
 
   const onClick = () => {
     const element = document.getElementById(`message_${id}`);
@@ -36,9 +41,9 @@ export function Reference({
       <p className="font-medium text-xs truncate">
         {user?.name ?? "Unknown User"}
       </p>
-      <p className="text-xs truncate text-muted-foreground">
-        {content ?? "Message Deleted"}
-      </p>
+      <div className="text-muted-foreground scale-90 origin-top-left max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)]">
+        {children}
+      </div>
     </div>
   );
 }

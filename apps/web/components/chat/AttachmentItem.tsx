@@ -31,11 +31,11 @@ export function AttachmentItem({ attachment }: { attachment: AttachmentType }) {
   }
 
   return (
-    <div className="p-3 rounded-lg bg-light-100 dark:bg-dark-700 mt-3">
+    <div className="p-3 rounded-lg bg-card mt-3 group-hover:bg-accent">
       <Link
         target="_blank"
         href={attachment.url}
-        className="text-base font-medium text-foreground"
+        className="text-sm font-medium text-foreground"
       >
         {attachment.name}
       </Link>
