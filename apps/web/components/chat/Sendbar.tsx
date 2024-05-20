@@ -99,6 +99,8 @@ export function Sendbar({ channelId }: { channelId: string }) {
             <TextArea
               control={form.control}
               onSignal={() => {
+                void utils.client.chat.type.mutate({ channelId });
+                /* Experimental typing signal
                 const profile = utils.account.get.getData();
                 if (!profile) return;
 
@@ -112,6 +114,7 @@ export function Sendbar({ channelId }: { channelId: string }) {
                     },
                   },
                 });
+                 */
               }}
               onPaste={(e) => {
                 if (e.clipboardData.files.length > 0) {
