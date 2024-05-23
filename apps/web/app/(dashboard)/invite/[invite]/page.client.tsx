@@ -4,7 +4,7 @@ import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import Image from "next/image";
 import { groupBanners } from "shared/media/format";
 import { useRouter } from "next/navigation";
-import { trpc } from "@/utils/trpc/app-router";
+import { trpc } from "@/utils/trpc";
 import { Button } from "ui/components/button";
 import { signIn } from "next-auth/react";
 

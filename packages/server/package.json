@@ -7,7 +7,7 @@
     "@trpc-limiter/core": "^0.0.8",
     "@trpc/server": "^10.45.2",
     "@upstash/ratelimit": "^1.1.3",
-    "@upstash/redis": "^1.31.1",
+    "@upstash/redis": "^1.31.2",
     "ably": "^2.0.4",
     "cloudinary": "^2.2.0",
     "db": "workspace:*",

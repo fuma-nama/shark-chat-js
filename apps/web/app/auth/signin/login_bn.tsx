@@ -13,7 +13,7 @@ export function LoginButton({
   return (
     <Button
       onClick={() => signIn(provider.id, { callbackUrl })}
-      color="primary"
+      color={provider.id === "github" ? "primary" : "secondary"}
     >
       {provider.id === "github" && (
         <svg role="img" viewBox="0 0 24 24" className="size-5 mr-2">

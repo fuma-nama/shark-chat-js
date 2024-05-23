@@ -1,6 +1,6 @@
 import { schema } from "./schema";
 import { createPublish } from "shared/ably";
-import Ably, { Rest } from "ably";
+import Ably from "ably";
 
 function connect() {
   return new Ably.Rest({
@@ -10,18 +10,17 @@ function connect() {
   });
 }
 
-declare global {
-  var dev_ably: Rest;
-}
-
-let ably: Rest;
+let ably: Ably.Rest;
 
 if (process.env.NODE_ENV === "development") {
-  if (global.dev_ably == null) {
-    global.dev_ably = connect();
+  const ctx = globalThis as { dev_ably?: Ably.Rest };
+  let cachedAbly = ctx.dev_ably;
+
+  if (!cachedAbly) {
+    cachedAbly = ctx.dev_ably = connect();
   }
 
-  ably = global.dev_ably;
+  ably = cachedAbly;
 } else {
   ably = connect();
 }

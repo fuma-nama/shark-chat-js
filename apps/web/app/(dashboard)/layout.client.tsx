@@ -3,7 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { useMemo, useState } from "react";
-import { trpc } from "@/utils/trpc/app-router";
+import { trpc } from "@/utils/trpc";
 import { getBaseUrl } from "@/utils/get-base-url";
 import { showErrorToast } from "@/utils/stores/page";
 import { AblyClientProvider } from "@/utils/ably/client";

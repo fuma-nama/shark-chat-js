@@ -12,7 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.4.0",
+    "@hookform/resolvers": "^3.4.2",
     "@inworld/nodejs-sdk": "1.12.0",
     "@tanstack/react-query": "^4.18.0",
     "@trpc/client": "^10.45.2",
@@ -24,7 +24,7 @@
     "clsx": "^2.1.1",
     "db": "workspace:*",
     "drizzle-orm": "^0.30.10",
-    "lucide-react": "^0.378.0",
+    "lucide-react": "^0.379.0",
     "marked": "^6.0.0",
     "marked-react": "^2.0.0",
     "next": "14.2.3",
@@ -33,7 +33,7 @@
     "react": "18.3.1",
     "react-cropper": "^2.3.3",
     "react-dom": "18.3.1",
-    "react-hook-form": "^7.51.4",
+    "react-hook-form": "^7.51.5",
     "react-infinite-scroll-hook": "^4.1.1",
     "server": "workspace:*",
     "shared": "workspace:*",
