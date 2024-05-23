@@ -1,5 +1,4 @@
 import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AblyMessageCallback, useAbly } from "ably/react";
@@ -8,7 +7,6 @@ import { schema } from "server/ably/schema";
 export function GroupEventManager() {
   const router = useRouter();
   const params = useParams() as { group?: string };
-  const { status } = useSession();
   const utils = trpc.useUtils();
   const ably = useAbly();
   const callback = useRef<AblyMessageCallback>();
@@ -47,7 +45,6 @@ export function GroupEventManager() {
   );
 
   const groups = trpc.group.all.useQuery(undefined, {
-    enabled: status === "authenticated",
     staleTime: Infinity,
   });
 

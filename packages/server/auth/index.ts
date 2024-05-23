@@ -4,9 +4,6 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { DefaultJWT } from "next-auth/jwt";
 import { authAdapter } from "./nextauth-adapter";
-import db from "db";
-import { users } from "db/schema";
-import { eq } from "drizzle-orm";
 
 declare module "next-auth" {
   interface Session extends Omit<DefaultSession, "user"> {
@@ -43,15 +40,6 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     session: async ({ session, token }) => {
-      const user = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, token.uid))
-        .limit(1);
-
-      // todo: Find a better way to check for deleted users
-      if (user.length === 0) throw new Error("Invalid User");
-
       if (session.user != null) {
         session.user.id = token.uid;
       }

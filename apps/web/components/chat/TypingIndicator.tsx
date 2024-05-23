@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "ui/components/avatar";
 import { type TypingUser, useMessageStore } from "@/utils/stores/chat";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 function useTypingStatus(channelId: string): TypingUser[] {
   const [typing, setTyping] = useState<TypingUser[]>([]);

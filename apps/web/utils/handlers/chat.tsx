@@ -1,5 +1,5 @@
 import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 import { useCallback, useEffect, useRef } from "react";
 import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
@@ -8,7 +8,7 @@ import { AblyMessageCallback, useAbly } from "ably/react";
 import { schema } from "server/ably/schema";
 
 export function MessageEventManager() {
-  const { status, data: session } = useSession();
+  const { data: session } = useSession();
   const utils = trpc.useUtils();
   const params = useParams() as { group?: string; channel?: string };
   const ably = useAbly();
@@ -117,12 +117,10 @@ export function MessageEventManager() {
   );
 
   const groups = trpc.group.all.useQuery(undefined, {
-    enabled: status === "authenticated",
     staleTime: Infinity,
   });
 
   const dm = trpc.dm.channels.useQuery(undefined, {
-    enabled: status === "authenticated",
     staleTime: Infinity,
   });
 

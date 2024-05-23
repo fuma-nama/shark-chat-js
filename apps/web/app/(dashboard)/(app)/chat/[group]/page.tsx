@@ -4,7 +4,7 @@ import { MessageList } from "@/components/chat/MessageList";
 import { Sendbar } from "@/components/chat/Sendbar";
 import { ChatViewport } from "@/components/chat/ChatView";
 import { useGroupContext } from "@/utils/contexts/group-context";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 export default function Page() {
   const { data: session } = useSession();

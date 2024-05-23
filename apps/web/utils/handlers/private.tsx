@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 import { trpc } from "@/utils/trpc";
 import { useParams, useRouter } from "next/navigation";
 import { AblyMessageCallback, useAbly } from "ably/react";

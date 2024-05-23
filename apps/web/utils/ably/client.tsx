@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 import { getBaseUrl } from "../get-base-url";
 import { Realtime } from "ably";
 import { AblyProvider } from "ably/react";

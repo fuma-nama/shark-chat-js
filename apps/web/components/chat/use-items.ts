@@ -1,6 +1,6 @@
 import { MessageType } from "@/utils/types";
 import { MessagePlaceholder, useMessageStore } from "@/utils/stores/chat";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 import { useMemo } from "react";
 
 export type ListItem =

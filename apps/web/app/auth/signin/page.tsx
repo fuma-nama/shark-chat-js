@@ -2,7 +2,7 @@ import { getProviders } from "next-auth/react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "server/auth";
 import { redirect } from "next/navigation";
-import { LoginButton } from "./login_bn";
+import { LoginButton } from "./page.client";
 
 export default async function SignInPage({
   searchParams,

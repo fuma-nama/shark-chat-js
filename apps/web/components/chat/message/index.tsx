@@ -1,6 +1,6 @@
 import { MessageType } from "@/utils/types";
 import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 import * as Item from "./atom";
 import * as ContextMenu from "ui/components/context-menu";
@@ -83,12 +83,11 @@ interface Item {
 }
 
 function Menu({ message }: { message: MessageType }) {
-  const { status, data } = useSession();
+  const { data: session } = useSession();
   const deleteMutation = trpc.chat.delete.useMutation();
   const ctx = useViewContext();
 
-  const isAuthor =
-    status === "authenticated" && message.author?.id === data.user.id;
+  const isAuthor = session && message.author?.id === session.user.id;
 
   const onClose = (e: Event) => {
     if (

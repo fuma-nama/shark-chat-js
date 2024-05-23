@@ -1,5 +1,4 @@
 "use client";
-import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { useMemo, useState } from "react";
@@ -10,19 +9,20 @@ import { AblyClientProvider } from "@/utils/ably/client";
 import { PrivateEventManager } from "@/utils/handlers/private";
 import { GroupEventManager } from "@/utils/handlers/group";
 import { MessageEventManager } from "@/utils/handlers/chat";
+import { SessionProvider } from "@/utils/auth";
 
 export function Provider({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
-      <ClientProvider>
+    <ClientProvider>
+      <SessionProvider>
         <AblyClientProvider>
           <PrivateEventManager />
           <GroupEventManager />
           <MessageEventManager />
           {children}
         </AblyClientProvider>
-      </ClientProvider>
-    </SessionProvider>
+      </SessionProvider>
+    </ClientProvider>
   );
 }
 

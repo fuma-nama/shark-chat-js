@@ -5,7 +5,7 @@ import { useCopyText } from "ui/hooks/use-copy-text";
 import type { GroupInvite } from "db/schema";
 import { CheckIcon, CopyIcon, LinkIcon, TrashIcon } from "lucide-react";
 import { Serialize } from "shared/types";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 import { Switch } from "ui/components/switch";
 import { useGroupContext } from "@/utils/contexts/group-context";
 

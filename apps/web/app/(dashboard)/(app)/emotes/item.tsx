@@ -10,7 +10,7 @@ import { input } from "ui/components/input";
 import { useCopyText } from "ui/hooks/use-copy-text";
 import { Serialize } from "@trpc/server/shared";
 import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 export function Item({ emote }: { emote: Serialize<Emote> }) {
   return (

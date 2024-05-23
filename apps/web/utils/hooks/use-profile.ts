@@ -1,5 +1,4 @@
 import { User } from "db/schema";
-import { useSession } from "next-auth/react";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "shared/types";
 
@@ -19,9 +18,7 @@ export type Result =
  * If no requirements on realtime mutates, please use `useSession` instead
  */
 export function useProfile(): Result {
-  const { status } = useSession();
   const query = trpc.account.get.useQuery(undefined, {
-    enabled: status === "authenticated",
     staleTime: Infinity,
   });
 
@@ -32,7 +29,7 @@ export function useProfile(): Result {
     };
   }
 
-  if (status === "unauthenticated" || query.isError) {
+  if (query.isError) {
     return {
       status: "unauthenticated",
       profile: null,

@@ -2,7 +2,7 @@ import { MessageCircleIcon } from "lucide-react";
 import { SimpleDialog } from "ui/components/dialog";
 import { useMounted } from "ui/hooks/use-mounted";
 import { Button } from "ui/components/button";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 export default function BoardingModal({
   open,

@@ -2,7 +2,7 @@ import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
 import { trpc } from "@/utils/trpc";
 import { Serialize } from "shared/types";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 import { UserProfileModal } from "@/components/modal/UserProfileModal";
 import { DialogTrigger } from "ui/components/dialog";
 import {
@@ -27,11 +27,7 @@ export default function Members({ group }: { group: string }) {
 }
 
 export function MembersList({ group }: { group: string }) {
-  const { status } = useSession();
-  const query = trpc.group.member.get.useQuery(
-    { groupId: group },
-    { enabled: status === "authenticated" },
-  );
+  const query = trpc.group.member.get.useQuery({ groupId: group });
 
   return (
     <div className="flex flex-col gap-1">

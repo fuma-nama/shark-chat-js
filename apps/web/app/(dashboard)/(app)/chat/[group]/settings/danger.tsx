@@ -5,7 +5,7 @@ import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useGroupContext } from "@/utils/contexts/group-context";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 export function Danger({ group }: { group: string }) {
   const { data: session } = useSession();

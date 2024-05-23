@@ -1,6 +1,5 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
-import { useSession } from "next-auth/react";
 import { ReactNode } from "react";
 import { Button } from "ui/components/button";
 import { useChatView } from "./ChatView";
@@ -18,14 +17,12 @@ export function MessageList({
   channelId: string;
   welcome: ReactNode;
 }) {
-  const { status } = useSession();
   const lastRead = useLastRead(channelId);
   const pointer = useMessageStore((s) => s.pointer.get(channelId));
 
   const query = trpc.chat.messages.useQuery(
     { channelId, count, before: pointer },
     {
-      enabled: status === "authenticated",
       staleTime: Infinity,
       onSuccess(data) {
         useMessageStore.setState((prev) => ({
@@ -114,13 +111,11 @@ function UnreadSeparator() {
 }
 
 function useLastRead(channelId: string) {
-  const { status } = useSession();
   const utils = trpc.useUtils();
 
   const checkoutQuery = trpc.chat.checkout.useQuery(
     { channelId: channelId },
     {
-      enabled: status === "authenticated",
       refetchOnWindowFocus: false,
       onSuccess: () => setChannelUnread(utils, channelId, () => 0),
     },

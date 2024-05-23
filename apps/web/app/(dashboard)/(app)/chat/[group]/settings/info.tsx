@@ -19,7 +19,7 @@ import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { EditIcon, InfoIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/components/tooltip";
 import { useGroupContext } from "@/utils/contexts/group-context";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 export default function Info() {
   const [edit, setEdit] = useState(false);
