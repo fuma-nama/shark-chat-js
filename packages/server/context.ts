@@ -1,14 +1,10 @@
 import { getServerSession } from "next-auth/next";
-import { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { authOptions } from "./auth";
+import type { NextRequest } from "next/server";
 
-/**
- * Creates context for an incoming request
- * @link https://trpc.io/docs/context
- */
-export async function createContext(opts: CreateNextContextOptions) {
+export async function createContext(req: NextRequest) {
   return {
-    req: opts.req,
-    session: await getServerSession(opts.req, opts.res, authOptions),
+    req,
+    session: await getServerSession(authOptions),
   };
 }

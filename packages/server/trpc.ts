@@ -5,10 +5,6 @@ import {
   TRPCError,
 } from "@trpc/server";
 import { createContext } from "./context";
-import {
-  createTRPCUpstashLimiter,
-  getFingerprintFromIP,
-} from "./redis/ratelimit";
 import { AppRouter } from "./routers/_app";
 
 const t = initTRPC
@@ -19,6 +15,7 @@ export type Context = Awaited<ReturnType<typeof createContext>>;
 export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;
 
+/*
 const rateLimiter = createTRPCUpstashLimiter({
   fingerprint: (ctx) => getFingerprintFromIP(ctx.req),
   windowMs: 10 * 1000,
@@ -29,6 +26,7 @@ const rateLimiter = createTRPCUpstashLimiter({
   max: 50,
   root: t,
 });
+ */
 
 export const router = t.router;
 export const procedure = t.procedure;
