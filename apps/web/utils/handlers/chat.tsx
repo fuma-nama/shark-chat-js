@@ -1,18 +1,17 @@
 import { trpc } from "@/utils/trpc";
 import { useSession } from "@/utils/auth";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useParams } from "next/navigation";
-import { AblyMessageCallback, useAbly } from "ably/react";
 import { schema } from "server/ably/schema";
+import { useAbly, useCallbackRef } from "@/utils/ably/client";
 
 export function MessageEventManager() {
   const { data: session } = useSession();
   const utils = trpc.useUtils();
   const params = useParams() as { group?: string; channel?: string };
   const ably = useAbly();
-  const callback = useRef<AblyMessageCallback>();
 
   const activeChannelId = params.group
     ? utils.group.all
@@ -20,101 +19,96 @@ export function MessageEventManager() {
         ?.find((group) => group.id === params.group)?.channel_id
     : params.channel;
 
-  callback.current = useCallback<AblyMessageCallback>(
-    ({ name, data }) => {
-      if (!session) return;
+  const callback = useCallbackRef(({ name, data }) => {
+    if (!session) return;
 
-      if (name === "typing") {
-        const message = schema.chat[name].parse(data);
+    if (name === "typing") {
+      const message = schema.chat[name].parse(data);
 
+      useMessageStore.getState().setUserTyping(message.channelId, message.user);
+      return;
+    }
+
+    if (name === "message_sent") {
+      const message = schema.chat[name].parse(data);
+      const self = message.author?.id === session.user.id;
+      const active = activeChannelId === message.channel_id;
+
+      if (active || self) {
+        utils.chat.checkout.setData(
+          { channelId: message.channel_id },
+          { last_read: message.timestamp },
+        );
+      } else {
+        setChannelUnread(utils, message.channel_id, (prev) => prev + 1);
+      }
+
+      if (active && !self) {
+        void utils.client.chat.read.mutate({
+          channelId: message.channel_id,
+        });
+      }
+
+      if (message.nonce != null && removeNonce(message.nonce)) {
         useMessageStore
           .getState()
-          .setUserTyping(message.channelId, message.user);
-        return;
+          .removeSending(message.channel_id, message.nonce);
       }
 
-      if (name === "message_sent") {
-        const message = schema.chat[name].parse(data);
-        const self = message.author?.id === session.user.id;
-        const active = activeChannelId === message.channel_id;
+      useMessageStore.setState((prev) => ({
+        messages: {
+          ...prev.messages,
+          [message.channel_id]: [
+            ...(prev.messages[message.channel_id] ?? []),
+            message,
+          ],
+        },
+      }));
+      return;
+    }
 
-        if (active || self) {
-          utils.chat.checkout.setData(
-            { channelId: message.channel_id },
-            { last_read: message.timestamp },
-          );
-        } else {
-          setChannelUnread(utils, message.channel_id, (prev) => prev + 1);
-        }
+    if (name === "message_updated") {
+      const message = schema.chat[name].parse(data);
 
-        if (active && !self) {
-          void utils.client.chat.read.mutate({
-            channelId: message.channel_id,
-          });
-        }
+      useMessageStore.setState((prev) => {
+        const updated = prev.messages[message.channel_id]?.map((item) => {
+          if (item.id === message.id) {
+            return {
+              ...item,
+              ...message,
+            };
+          }
 
-        if (message.nonce != null && removeNonce(message.nonce)) {
-          useMessageStore
-            .getState()
-            .removeSending(message.channel_id, message.nonce);
-        }
+          return item;
+        });
 
-        useMessageStore.setState((prev) => ({
+        return {
           messages: {
             ...prev.messages,
-            [message.channel_id]: [
-              ...(prev.messages[message.channel_id] ?? []),
-              message,
-            ],
+            [message.channel_id]: updated,
           },
-        }));
-        return;
-      }
+        };
+      });
+      return;
+    }
 
-      if (name === "message_updated") {
-        const message = schema.chat[name].parse(data);
+    if (name === "message_deleted") {
+      const message = schema.chat[name].parse(data);
 
-        useMessageStore.setState((prev) => {
-          const updated = prev.messages[message.channel_id]?.map((item) => {
-            if (item.id === message.id) {
-              return {
-                ...item,
-                ...message,
-              };
-            }
+      return useMessageStore.setState((prev) => {
+        const filtered = prev.messages[message.channel_id]?.filter(
+          (item) => item.id !== message.id,
+        );
 
-            return item;
-          });
-
-          return {
-            messages: {
-              ...prev.messages,
-              [message.channel_id]: updated,
-            },
-          };
-        });
-        return;
-      }
-
-      if (name === "message_deleted") {
-        const message = schema.chat[name].parse(data);
-
-        return useMessageStore.setState((prev) => {
-          const filtered = prev.messages[message.channel_id]?.filter(
-            (item) => item.id !== message.id,
-          );
-
-          return {
-            messages: {
-              ...prev.messages,
-              [message.channel_id]: filtered,
-            },
-          };
-        });
-      }
-    },
-    [activeChannelId, session, utils],
-  );
+        return {
+          messages: {
+            ...prev.messages,
+            [message.channel_id]: filtered,
+          },
+        };
+      });
+    }
+  });
 
   const groups = trpc.group.all.useQuery(undefined, {
     staleTime: Infinity,
@@ -124,36 +118,30 @@ export function MessageEventManager() {
     staleTime: Infinity,
   });
 
+  const channelIds: string[] = useMemo(
+    () => [
+      ...(dm.data?.map((channel) => channel.id) ?? []),
+      ...(groups.data?.map((group) => group.channel_id) ?? []),
+    ],
+    [dm.data, groups.data],
+  );
+
   useEffect(() => {
-    if (!groups.data || !dm.data) return;
+    if (!ably) return;
 
-    const channels = [
-      ...groups.data.map((group) =>
-        ably.channels.get(schema.chat.name(group.channel_id)),
-      ),
-      ...dm.data.map((channel) =>
-        ably.channels.get(schema.chat.name(channel.id)),
-      ),
-    ];
-
-    const listener: AblyMessageCallback = (res) => callback.current?.(res);
-    const typeListener: AblyMessageCallback = (res) =>
-      callback.current?.({
-        name: "typing",
-        data: res.data,
-      });
+    const channels = channelIds.map((id) =>
+      ably.channels.get(schema.chat.name(id)),
+    );
 
     for (const c of channels) {
-      void c.subscribe(listener);
-      void ably.channels.get(`${c.name}:typing`).subscribe(typeListener);
+      void c.subscribe(callback);
     }
     return () => {
       for (const c of channels) {
-        void c.unsubscribe(listener);
-        void ably.channels.get(`${c.name}:typing`).unsubscribe(typeListener);
+        void c.unsubscribe(callback);
       }
     };
-  }, [ably, dm.data, groups.data]);
+  }, [ably, callback, channelIds]);
 
   return <></>;
 }
