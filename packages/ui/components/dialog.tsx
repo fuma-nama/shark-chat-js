@@ -1,5 +1,5 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
+import { X } from "lucide-react";
 import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { button } from "./button";
@@ -44,7 +44,7 @@ export function SimpleDialog({
             className: "absolute top-3.5 right-3.5",
           })}
         >
-          <XIcon className="h-4 w-4" />
+          <X className="size-4" />
         </DialogClose>
       </DialogContent>
     </Dialog>

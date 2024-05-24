@@ -12,9 +12,11 @@ const count = 30;
 
 export function MessageList({
   channelId,
+  ready = true,
   welcome,
 }: {
   channelId: string;
+  ready?: boolean;
   welcome: ReactNode;
 }) {
   const lastRead = useLastRead(channelId);
@@ -52,7 +54,7 @@ export function MessageList({
 
   return (
     <div className="flex flex-col gap-3 mb-8 flex-1 py-2">
-      {showSkeleton ? (
+      {showSkeleton || !ready ? (
         <div ref={sentryRef} className="flex flex-col gap-3">
           {new Array(30).fill(0).map((_, i) => (
             <Skeleton key={i} />

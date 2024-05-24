@@ -1,8 +1,8 @@
 import { create } from "zustand";
 
-type ModalType = {
-  type: "user-profile";
+type UserModal = {
   user_id: string;
+  open: boolean;
 };
 type ToastError = { title: string; description: string };
 type ToastMessage = {
@@ -18,8 +18,8 @@ type PageStore = {
   messages: ToastMessage[];
   addError: (error: ToastError) => void;
   removeMessage: (id: number) => void;
-  modal?: ModalType;
-  setModal: (type: ModalType | undefined) => void;
+  modal?: UserModal;
+  setModal: (type: UserModal | undefined) => void;
 };
 
 export const usePageStore = create<PageStore>((set) => ({

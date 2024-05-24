@@ -38,9 +38,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
     const date = new Date(timestamp);
 
     const onOpenProfile = () => {
-      usePageStore
-        .getState()
-        .setModal({ type: "user-profile", user_id: author.id });
+      usePageStore.getState().setModal({ user_id: author.id, open: true });
     };
 
     if (!chainStart) {

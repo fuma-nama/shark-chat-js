@@ -21,9 +21,9 @@ export const createTRPCUpstashLimiter = defineTRPCLimiter({
 });
 
 export function getFingerprintFromIP(req: Context["req"]) {
-  const forwarded = req.headers["x-forwarded-for"];
+  const forwarded = req.headers.get("x-forwarded-for");
   const ip = forwarded
     ? (typeof forwarded === "string" ? forwarded : forwarded[0])?.split(/, /)[0]
-    : req.socket.remoteAddress;
+    : req.ip;
   return ip || "127.0.0.1";
 }

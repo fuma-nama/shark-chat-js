@@ -37,8 +37,8 @@ export function ChatViewport({
       {modal && (
         <UserProfileModal
           userId={modal.user_id}
-          open={modal.type === "user-profile"}
-          onOpenChange={() => setModal(undefined)}
+          open={modal.open}
+          onOpenChange={() => setModal({ user_id: modal.user_id, open: false })}
         />
       )}
       <div id="scroll-inner" className="flex flex-col flex-1">

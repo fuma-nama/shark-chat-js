@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { publish } from "../ably";
+import ably, { publish } from "../ably";
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc";
 import { contentSchema } from "shared/schema/chat";
@@ -18,6 +18,7 @@ import {
   getEmbeds,
   messageSchema,
 } from "../utils/messages";
+import { schema } from "../ably/schema";
 
 const userProfileKeys = ["id", "name", "image"] as const;
 
@@ -250,5 +251,23 @@ export const chatRouter = router({
       return {
         text: await generateText(input.text),
       };
+    }),
+  status: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const info = await ably.channels
+        .get(schema.private.name(input.userId))
+        .presence.get({
+          limit: 1,
+          clientId: input.userId,
+        });
+
+      if (info.items[0]?.action === "present") return "Online";
+
+      return "Offline";
     }),
 });

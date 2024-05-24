@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["db", "server", "shared", "ui"],
+  experimental: {
+    serverComponentsExternalPackages: ["@inworld/nodejs-sdk"],
+  },
   images: {
     remotePatterns: [
       {
