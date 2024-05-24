@@ -39,7 +39,9 @@ const defaultUser: UserInfo = {
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
   ({ user, timestamp, className, chainStart, chainEnd, ...props }, ref) => {
     const author = user ?? defaultUser;
-    const status = useMessageStore((s) => s.status[author.id]);
+    const status = useMessageStore((s) => s.status[author.id]) ?? {
+      type: "offline",
+    };
     const date = new Date(timestamp);
 
     const onOpenProfile = () => {
@@ -76,15 +78,13 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
             fallback={author.name}
             onClick={onOpenProfile}
           />
-          {status ? (
-            <div
-              aria-label={status.type}
-              className={cn(
-                "absolute right-0 bottom-1 size-3 rounded-full border-2",
-                status.type === "online" ? "bg-green-400" : "bg-red-400",
-              )}
-            />
-          ) : null}
+          <div
+            aria-label={status.type}
+            className={cn(
+              "absolute right-0 bottom-1 size-3 rounded-full border-2",
+              status.type === "online" ? "bg-green-400" : "bg-red-400",
+            )}
+          />
         </div>
         <div className="flex-1 flex flex-col w-0">
           <div className="flex flex-row items-center gap-2 mb-1">
