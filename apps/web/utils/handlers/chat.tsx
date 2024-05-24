@@ -135,6 +135,19 @@ export function MessageEventManager() {
 
     for (const c of channels) {
       void c.subscribe(callback);
+      void c.presence.enter();
+      void c.presence.subscribe((e) => {
+        useMessageStore.setState((prev) => ({
+          status: {
+            ...prev.status,
+            [e.clientId]: {
+              type: ["present", "enter"].includes(e.action)
+                ? "online"
+                : "offline",
+            },
+          },
+        }));
+      });
     }
     return () => {
       for (const c of channels) {

@@ -10,7 +10,6 @@ import { Avatar } from "ui/components/avatar";
 import { Button, button } from "ui/components/button";
 import { Spinner } from "ui/components/spinner";
 import { useRouter } from "next/navigation";
-import { Circle } from "lucide-react";
 import { cn } from "ui/utils/cn";
 
 export function UserProfileModal(props: {
@@ -81,27 +80,27 @@ function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
     <div className="flex flex-col">
       <div className="h-24 bg-gradient-to-b from-brand to-brand-300 rounded-t-lg -mb-12" />
       <div className="px-6 pb-4">
-        <Avatar
-          fallback={user.name}
-          src={user.image}
-          size="large"
-          className="-ml-2 border-4 border-background"
-        />
+        <div className="-ml-2 relative w-fit h-fit">
+          <Avatar
+            fallback={user.name}
+            src={user.image}
+            size="large"
+            className="border-4 border-background"
+          />
+          {status.isSuccess ? (
+            <div
+              aria-label={status.data}
+              className={cn(
+                "absolute border-4 border-background bottom-2 right-0 size-6 rounded-full",
+                status.data === "online" ? "bg-green-400" : "bg-red-400",
+              )}
+            />
+          ) : null}
+        </div>
+
         <p className="font-semibold mt-2 text-lg">{user.name}</p>
         <p className="text-xs text-muted-foreground mt-1">@{user.id}</p>
 
-        {status.data ? (
-          <div className="flex flex-row gap-1 items-center font-medium text-sm mt-4">
-            <Circle
-              fill="currentColor"
-              className={cn(
-                "size-4",
-                status.data === "Online" ? "text-green-200" : "text-red-200",
-              )}
-            />
-            {status.data}
-          </div>
-        ) : null}
         <div className="flex flex-row gap-3 mt-8">
           <Button
             color="primary"

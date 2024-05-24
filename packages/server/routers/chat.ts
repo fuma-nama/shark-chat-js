@@ -258,16 +258,17 @@ export const chatRouter = router({
         userId: z.string(),
       }),
     )
-    .query(async ({ input }) => {
+    .query<"online" | "offline">(async ({ input }) => {
       const info = await ably.channels
         .get(schema.private.name(input.userId))
         .presence.get({
           limit: 1,
           clientId: input.userId,
         });
+      const item = info.items[0];
 
-      if (info.items[0]?.action === "present") return "Online";
+      if (item && ["present", "enter"].includes(item.action)) return "online";
 
-      return "Offline";
+      return "offline";
     }),
 });

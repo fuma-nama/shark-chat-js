@@ -29,6 +29,12 @@ export type ChatStore = {
   messages: {
     [id: string]: MessageType[];
   };
+  status: Record<
+    string,
+    {
+      type: "online" | "offline";
+    }
+  >;
   typing: Map<string, TypingUser[]>;
   reply: Map<string, MessageType>;
   pointer: Map<string, number>;
@@ -52,6 +58,7 @@ export const useMessageStore = create<ChatStore>((set) => ({
   pointer: new Map(),
   reply: new Map(),
   typing: new Map(),
+  status: {},
   updatePointer(channelId) {
     set((prev) => {
       const next = new Map(prev.pointer);

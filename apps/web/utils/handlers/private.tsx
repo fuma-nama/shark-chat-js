@@ -72,7 +72,6 @@ export function PrivateEventManager() {
     void channel.presence.enter();
     void channel.subscribe(callback);
     return () => {
-      void channel.presence.leave();
       void channel.unsubscribe(callback);
     };
   }, [ably, callback, session]);

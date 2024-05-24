@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactNode, useMemo } from "react";
+import { forwardRef, ReactNode, useMemo } from "react";
 import { Avatar } from "ui/components/avatar";
 import * as ContextMenu from "ui/components/context-menu";
 import { getTimeString } from "ui/utils/time";
@@ -9,6 +9,9 @@ import { MoreHorizontalIcon } from "lucide-react";
 import { button } from "ui/components/button";
 import { tv } from "tailwind-variants";
 import { render } from "@/components/chat/message/markdown";
+import { useMessageStore } from "@/utils/stores/chat";
+import { cn } from "ui/utils/cn";
+import type { UserInfo } from "shared/schema/chat";
 
 interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
   user: MessageType["author"];
@@ -27,14 +30,16 @@ const contentVariants = tv({
   },
 });
 
+const defaultUser: UserInfo = {
+  id: "",
+  image: null,
+  name: "Deleted User",
+};
+
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
   ({ user, timestamp, className, chainStart, chainEnd, ...props }, ref) => {
-    const author = user ?? {
-      id: "",
-      image: null,
-      name: "Deleted User",
-    };
-
+    const author = user ?? defaultUser;
+    const status = useMessageStore((s) => s.status[author.id]);
     const date = new Date(timestamp);
 
     const onOpenProfile = () => {
@@ -65,12 +70,22 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
         })}
         {...props}
       >
-        <Avatar
-          src={author.image}
-          fallback={author.name}
-          className="cursor-pointer"
-          onClick={onOpenProfile}
-        />
+        <div className="relative cursor-pointer">
+          <Avatar
+            src={author.image}
+            fallback={author.name}
+            onClick={onOpenProfile}
+          />
+          {status ? (
+            <div
+              aria-label={status.type}
+              className={cn(
+                "absolute right-0 bottom-1 size-3 rounded-full border-2",
+                status.type === "online" ? "bg-green-400" : "bg-red-400",
+              )}
+            />
+          ) : null}
+        </div>
         <div className="flex-1 flex flex-col w-0">
           <div className="flex flex-row items-center gap-2 mb-1">
             <p
