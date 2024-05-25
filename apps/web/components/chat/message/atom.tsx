@@ -25,7 +25,7 @@ const contentVariants = tv({
   variants: {
     chain: {
       head: "flex flex-row items-start gap-2 pt-2",
-      body: "flex flex-col gap-2 py-0.5 -mt-3",
+      body: "flex flex-col gap-2 py-0.5",
     },
   },
 });
@@ -54,7 +54,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
           ref={ref}
           className={contentVariants({
             chain: "body",
-            className: [chainEnd && "pb-2", className],
+            className: [chainEnd && "pb-4", className],
           })}
           {...props}
         >
@@ -68,7 +68,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
         ref={ref}
         className={contentVariants({
           chain: "head",
-          className: [chainEnd && "pb-2", className],
+          className: [chainEnd && "pb-4", className],
         })}
         {...props}
       >

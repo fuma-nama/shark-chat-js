@@ -3,7 +3,9 @@ import { trpc } from "@/utils/trpc";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { schema } from "server/ably/schema";
-import { useAbly, useCallbackRef } from "@/utils/ably/client";
+import { useAbly } from "@/utils/ably/client";
+import type { AblyMessageCallback } from "ably/react";
+import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
 
 export function PrivateEventManager() {
   const router = useRouter();
@@ -12,7 +14,7 @@ export function PrivateEventManager() {
   const utils = trpc.useUtils();
   const ably = useAbly();
 
-  const callback = useCallbackRef(({ name, data }) => {
+  const callback = useCallbackRef<AblyMessageCallback>(({ name, data }) => {
     if (name === "group_created") {
       const message = schema.private[name].parse(data);
 

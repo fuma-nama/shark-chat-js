@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const info = useGroup(params.group);
 
   return (
-    <div className="relative flex flex-col min-h-dvh">
+    <div className="flex flex-col min-h-dvh">
       <Nav />
       {info ? (
         <GroupContext.Provider value={info}>{children}</GroupContext.Provider>

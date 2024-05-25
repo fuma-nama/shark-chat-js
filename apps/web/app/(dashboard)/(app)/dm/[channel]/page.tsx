@@ -10,14 +10,20 @@ export default function Page({ params }: { params: { channel: string } }) {
   const query = trpc.dm.info.useQuery({ channelId: params.channel });
 
   return (
-    <ChatViewport deleteMessage={false}>
-      <MessageList
-        channelId={params.channel}
-        ready={query.isSuccess}
-        welcome={query.isSuccess ? <Welcome info={query.data?.user} /> : null}
-      />
+    <>
+      <div className="relative flex-1 mb-4">
+        <ChatViewport deleteMessage={false}>
+          <MessageList
+            channelId={params.channel}
+            ready={query.isSuccess}
+            welcome={
+              query.isSuccess ? <Welcome info={query.data?.user} /> : null
+            }
+          />
+        </ChatViewport>
+      </div>
       <Sendbar channelId={params.channel} />
-    </ChatViewport>
+    </>
   );
 }
 

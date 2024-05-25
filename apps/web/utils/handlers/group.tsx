@@ -2,7 +2,9 @@ import { trpc } from "@/utils/trpc";
 import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { schema } from "server/ably/schema";
-import { useAbly, useCallbackRef } from "@/utils/ably/client";
+import { useAbly } from "@/utils/ably/client";
+import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
+import type { AblyMessageCallback } from "ably/react";
 
 export function GroupEventManager() {
   const router = useRouter();
@@ -10,7 +12,7 @@ export function GroupEventManager() {
   const utils = trpc.useUtils();
   const ably = useAbly();
 
-  const callback = useCallbackRef(({ name, data }) => {
+  const callback = useCallbackRef<AblyMessageCallback>(({ name, data }) => {
     if (name === "group_deleted") {
       const message = schema.group[name].parse(data);
       const active = params.group === message.id.toString();

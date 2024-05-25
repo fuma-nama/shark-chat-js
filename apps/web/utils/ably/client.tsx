@@ -1,18 +1,11 @@
 import { useSession } from "@/utils/auth";
-import { BaseRealtime } from "ably/modular";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import type { AblyMessageCallback } from "ably/react";
+import { Realtime } from "ably";
+import { createContext, useContext, useEffect, useState } from "react";
+import { getBaseUrl } from "@/utils/get-base-url";
 
-const Context = createContext<BaseRealtime | undefined>(undefined);
+const Context = createContext<Realtime | undefined>(undefined);
 
-export function useAbly(): BaseRealtime | undefined {
+export function useAbly(): Realtime | undefined {
   return useContext(Context);
 }
 
@@ -21,12 +14,23 @@ export function AblyClientProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [ably, setAbly] = useState<BaseRealtime>();
+  const [ably, setAbly] = useState<Realtime>();
   const { status } = useSession();
   useEffect(() => {
-    import("./lazy").then((res) => {
-      setAbly(res.default);
+    const instance = new Realtime({
+      authUrl: `${getBaseUrl()}/api/ably/auth`,
+      authMethod: "POST",
+      autoConnect: false,
     });
+
+    instance.connection.on("connected", () =>
+      console.log("Ably Client connected"),
+    );
+    instance.connection.on("closed", () =>
+      console.log("Ably Client disconnected"),
+    );
+
+    setAbly(instance);
   }, []);
 
   useEffect(() => {
@@ -43,11 +47,4 @@ export function AblyClientProvider({
   }, [ably, status]);
 
   return <Context.Provider value={ably}>{children}</Context.Provider>;
-}
-
-export function useCallbackRef(fn: AblyMessageCallback): AblyMessageCallback {
-  const ref = useRef(fn);
-  ref.current = fn;
-
-  return useCallback((params) => ref.current(params), []);
 }

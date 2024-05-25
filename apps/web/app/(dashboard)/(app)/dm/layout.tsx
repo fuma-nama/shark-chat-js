@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex flex-col min-h-dvh">
+    <div className="flex flex-col min-h-dvh">
       <Navbar
         breadcrumb={[
           {

@@ -1,7 +1,8 @@
 import { UserInfo } from "shared/schema/chat";
-import { useMemo, useRef } from "react";
+import { useContext, useMemo, useRef } from "react";
 import { CornerUpRight } from "lucide-react";
 import { render } from "@/components/chat/message/markdown";
+import { ScrollContext } from "@/components/chat/MessageList";
 
 export function Reference({
   id,
@@ -17,11 +18,13 @@ export function Reference({
     () => render(content ?? "Message Deleted"),
     [content],
   );
+  const { scrollToMessage } = useContext(ScrollContext)!;
 
   const onClick = () => {
-    const element = document.getElementById(`message_${id}`);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    scrollToMessage(id);
+    window.setTimeout(() => {
+      const element = document.getElementById(`message_${id}`);
+      if (!element) return;
 
       element.style.setProperty("background-color", "hsl(var(--accent))");
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
@@ -29,7 +32,7 @@ export function Reference({
       timeoutRef.current = window.setTimeout(() => {
         element.style.removeProperty("background-color");
       }, 500);
-    }
+    }, 100);
   };
 
   return (

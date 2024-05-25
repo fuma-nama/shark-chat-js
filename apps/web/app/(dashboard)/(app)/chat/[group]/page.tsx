@@ -11,10 +11,16 @@ export default function Page() {
   const { channel_id: channelId, member, owner_id } = useGroupContext();
 
   return (
-    <ChatViewport deleteMessage={member.admin || owner_id === session?.user.id}>
-      <MessageList channelId={channelId} welcome={<Welcome />} />
+    <>
+      <div className="relative flex-1 mb-4">
+        <ChatViewport
+          deleteMessage={member.admin || owner_id === session?.user.id}
+        >
+          <MessageList channelId={channelId} welcome={<Welcome />} />
+        </ChatViewport>
+      </div>
       <Sendbar channelId={channelId} />
-    </ChatViewport>
+    </>
   );
 }
 

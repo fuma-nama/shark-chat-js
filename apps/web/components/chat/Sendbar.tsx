@@ -85,7 +85,7 @@ export function Sendbar({ channelId }: { channelId: string }) {
   });
 
   return (
-    <div className="sticky z-20 bottom-0 bg-background w-full sm:px-4 sm:pb-4">
+    <div className="bg-background sm:px-4 sm:pb-4">
       <RollbackButton />
       <FormProvider {...form}>
         <div className="flex flex-col gap-3 pt-2 pb-7 px-3.5 bg-muted/50 sm:rounded-3xl sm:bg-secondary sm:p-2">

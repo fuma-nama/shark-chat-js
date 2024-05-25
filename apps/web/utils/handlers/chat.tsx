@@ -5,7 +5,9 @@ import { removeNonce, setChannelUnread } from "./shared";
 import { useMessageStore } from "@/utils/stores/chat";
 import { useParams } from "next/navigation";
 import { schema } from "server/ably/schema";
-import { useAbly, useCallbackRef } from "@/utils/ably/client";
+import { useAbly } from "@/utils/ably/client";
+import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
+import type { AblyMessageCallback } from "ably/react";
 
 export function MessageEventManager() {
   const { data: session } = useSession();
@@ -19,7 +21,7 @@ export function MessageEventManager() {
         ?.find((group) => group.id === params.group)?.channel_id
     : params.channel;
 
-  const callback = useCallbackRef(({ name, data }) => {
+  const callback = useCallbackRef<AblyMessageCallback>(({ name, data }) => {
     if (!session) return;
 
     if (name === "typing") {
@@ -37,7 +39,7 @@ export function MessageEventManager() {
       if (active || self) {
         utils.chat.checkout.setData(
           { channelId: message.channel_id },
-          { last_read: message.timestamp },
+          { last_read: null },
         );
       } else {
         setChannelUnread(utils, message.channel_id, (prev) => prev + 1);

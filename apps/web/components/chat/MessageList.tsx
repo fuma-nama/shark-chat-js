@@ -1,14 +1,29 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
-import { ReactNode } from "react";
+import {
+  createContext,
+  ReactNode,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { Button } from "ui/components/button";
-import { useChatView } from "./ChatView";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
 import { setChannelUnread } from "@/utils/handlers/shared";
-import { useItems } from "@/components/chat/use-items";
+import { ListItem, useItems } from "@/components/chat/use-items";
+import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
+import { useBottomScroll } from "@/components/chat/scroll";
 
 const count = 30;
+
+type ScrollContextType = {
+  scrollToMessage: (id: number) => void;
+};
+
+export const ScrollContext = createContext<ScrollContextType | undefined>(
+  undefined,
+);
 
 export function MessageList({
   channelId,
@@ -39,24 +54,21 @@ export function MessageList({
   );
 
   const showSkeleton = !query.data || query.data.length === count;
+  const onLoad = useCallbackRef(() => {
+    if (!query.isSuccess || query.isLoading || !showSkeleton) return;
 
-  const { sentryRef } = useChatView({
-    hasNextPage: showSkeleton,
-    onLoadMore() {
-      if (!query.isSuccess || query.isLoading) return;
-
-      useMessageStore.getState().updatePointer(channelId);
-    },
-    loading: query.isLoading,
+    useMessageStore.getState().updatePointer(channelId);
   });
 
-  const items = useItems(channelId, lastRead?.getTime() ?? null);
-
   return (
-    <div className="flex flex-col gap-3 mb-8 flex-1 py-2">
+    <VirtualScroll
+      channelId={channelId}
+      lastRead={lastRead?.getTime() ?? null}
+      onLoad={onLoad}
+    >
       {showSkeleton || !ready ? (
-        <div ref={sentryRef} className="flex flex-col gap-3">
-          {new Array(30).fill(0).map((_, i) => (
+        <div className="flex flex-col gap-3">
+          {new Array(20).fill(0).map((_, i) => (
             <Skeleton key={i} />
           ))}
         </div>
@@ -70,17 +82,105 @@ export function MessageList({
       ) : (
         welcome
       )}
-      {items.map((item) => {
-        switch (item.type) {
-          case "message":
-            return <ChatMessageItem key={item.id} {...item} />;
-          case "pending":
-            return <LocalMessageItem key={item.id} {...item} />;
-          case "unread":
-            return <UnreadSeparator key={item.id} />;
-        }
-      })}
-    </div>
+    </VirtualScroll>
+  );
+}
+
+function VirtualScroll({
+  lastRead,
+  channelId,
+  onLoad,
+  children: header,
+}: {
+  channelId: string;
+  lastRead: number | null;
+  onLoad: () => void;
+  children: ReactNode;
+}) {
+  const items = useItems(channelId, lastRead);
+  const headerShownRef = useRef(false);
+  const scroll = useBottomScroll();
+
+  useLayoutEffect(() => {
+    const info = scroll.info.get("heading");
+    if (info && info.isIntersecting) {
+      if (!headerShownRef.current) onLoad();
+      headerShownRef.current = true;
+    } else {
+      headerShownRef.current = false;
+    }
+  }, [scroll.info]);
+
+  const scrollToMessage = useCallbackRef((id: number) => {
+    const idx = items.findLastIndex(
+      (item) => item.type === "message" && item.id === id,
+    );
+    if (idx === -1) return;
+    const element = document.getElementById(`scroll_${id}`);
+    element?.scrollIntoView();
+  });
+
+  function render(item: ListItem) {
+    const info = scroll.info.get(item.id.toString());
+    if (info && !info.isIntersecting)
+      return (
+        <div
+          id={`scroll_${item.id}`}
+          key={item.id}
+          data-key={item.id}
+          ref={scroll.measure}
+          style={{
+            height: info.height,
+          }}
+        />
+      );
+
+    let node;
+    switch (item.type) {
+      case "message":
+        node = <ChatMessageItem {...item} />;
+        break;
+      case "pending":
+        node = <LocalMessageItem {...item} />;
+        break;
+      case "unread":
+        node = <UnreadSeparator />;
+        break;
+    }
+
+    return (
+      <div
+        key={item.id}
+        id={`scroll_${item.id}`}
+        data-key={item.id}
+        ref={scroll.measure}
+      >
+        {node}
+      </div>
+    );
+  }
+
+  const info = scroll.info.get("heading");
+
+  return (
+    <ScrollContext.Provider
+      value={useMemo(() => ({ scrollToMessage }), [scrollToMessage])}
+    >
+      {info && !info.isIntersecting ? (
+        <div
+          data-key="heading"
+          ref={scroll.measure}
+          style={{
+            height: info.height,
+          }}
+        />
+      ) : (
+        <div data-key="heading" ref={scroll.measure}>
+          {header}
+        </div>
+      )}
+      {items.map(render)}
+    </ScrollContext.Provider>
   );
 }
 
