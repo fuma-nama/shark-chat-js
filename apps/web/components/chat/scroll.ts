@@ -85,6 +85,7 @@ export function useBottomScroll(): UseBottomScroll {
       },
       {
         root: viewport,
+        rootMargin: "100px 0px",
       },
     );
     viewport.addEventListener("scroll", handleRootScroll);

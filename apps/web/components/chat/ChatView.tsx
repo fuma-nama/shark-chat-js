@@ -30,7 +30,7 @@ export function ChatViewport({
           onOpenChange={() => setModal({ user_id: modal.user_id, open: false })}
         />
       )}
-      <div id="scroll-inner" className="flex flex-col flex-1">
+      <div id="scroll-inner" className="flex flex-col flex-1 pb-4">
         <ChatContext.Provider value={props}>{children}</ChatContext.Provider>
       </div>
     </div>

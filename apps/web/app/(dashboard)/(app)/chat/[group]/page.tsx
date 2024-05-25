@@ -12,7 +12,7 @@ export default function Page() {
 
   return (
     <>
-      <div className="relative flex-1 mb-4">
+      <div className="relative flex-1">
         <ChatViewport
           deleteMessage={member.admin || owner_id === session?.user.id}
         >

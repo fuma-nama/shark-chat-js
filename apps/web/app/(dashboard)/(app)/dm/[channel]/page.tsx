@@ -11,7 +11,7 @@ export default function Page({ params }: { params: { channel: string } }) {
 
   return (
     <>
-      <div className="relative flex-1 mb-4">
+      <div className="relative flex-1">
         <ChatViewport deleteMessage={false}>
           <MessageList
             channelId={params.channel}
