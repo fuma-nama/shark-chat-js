@@ -65,29 +65,21 @@ export function useBottomScroll(): UseBottomScroll {
       virtualScrollTopRef.current = realToVirtual(viewport, viewport.scrollTop);
     };
 
-    const observer = new ResizeObserver(() => {
-      setRealScrollTop();
-    });
-
     // reset before adding listener
     resetScroll();
 
-    intersectionObserverRef.current = new IntersectionObserver(
+    const intersectionObserver = new IntersectionObserver(
       (e) => {
         setInfo((prev) => {
           e.forEach((item) => {
             const key = item.target.getAttribute("data-key");
-            if (key) {
-              prev.set(key, {
-                element: item.target as HTMLElement,
-                isIntersecting: item.isIntersecting,
-                height: item.boundingClientRect.height,
-              });
-            } else
-              console.warn(
-                "Element doesn't have a data-key attribute",
-                item.target,
-              );
+            if (!key) return;
+
+            prev.set(key, {
+              element: item.target as HTMLElement,
+              isIntersecting: item.isIntersecting,
+              height: item.boundingClientRect.height,
+            });
           });
 
           return new Map(prev);
@@ -98,16 +90,27 @@ export function useBottomScroll(): UseBottomScroll {
         rootMargin: "100px 0px",
       },
     );
-    viewport.addEventListener("scroll", handleRootScroll);
+
+    const observer = new ResizeObserver(() => {
+      setRealScrollTop();
+    });
+    intersectionObserverRef.current = intersectionObserver;
     check.forEach((element) => {
       if (element) observer.observe(element);
     });
     pendingRef.current.forEach((element) => {
-      intersectionObserverRef.current!.observe(element);
+      intersectionObserver.observe(element);
     });
+
+    // Enable scroll after certain time to prevent shifting
+    // because browsers may call `onScroll` before `ResizeObserver`
+    setTimeout(() => {
+      resetScroll();
+      viewport.addEventListener("scroll", handleRootScroll);
+    }, 1000);
     return () => {
       observer.disconnect();
-      intersectionObserverRef.current?.disconnect();
+      intersectionObserver.disconnect();
       viewport.removeEventListener("scroll", handleRootScroll);
     };
   }, [resetScroll, setRealScrollTop]);
