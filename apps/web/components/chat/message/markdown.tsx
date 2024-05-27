@@ -7,9 +7,9 @@ import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { emotes } from "shared/media/format";
 import "highlight.js/styles/atom-one-dark.min.css";
 import "katex/dist/katex.min.css";
-import { CopyIcon } from "lucide-react";
+import { Check, CopyIcon } from "lucide-react";
 import { button } from "ui/components/button";
-import { showToast } from "@/utils/stores/page";
+import { useCopyText } from "ui/hooks/use-copy-text";
 
 const emoteRegex = /\\?:(\w+?):/g;
 
@@ -46,6 +46,7 @@ function emote(key: number, id: string, inline: boolean) {
 
 function CodeBlock({ code, lang }: { code: string; lang?: string }) {
   const ref = useRef<HTMLElement | null>();
+  const { isShow, copy } = useCopyText();
 
   return (
     <pre className={`relative language-${lang} text-dark-50 bg-dark-900`}>
@@ -55,7 +56,10 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
           if (!element || !lang) return;
 
           import("highlight.js/lib/common").then(async (res) => {
-            element.innerHTML = res.default.highlight(lang, code, true).value;
+            element.innerHTML = res.default.highlight(code, {
+              language: lang,
+              ignoreIllegals: true,
+            }).value;
           });
         }}
       >
@@ -64,13 +68,7 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
       <button
         onClick={() => {
           const element = ref.current;
-          if (element)
-            navigator.clipboard.writeText(element.innerText).then(() => {
-              showToast({
-                description: "Copied",
-                variant: "normal",
-              });
-            });
+          if (element) void copy(element.innerText);
         }}
         className={button({
           color: "secondary",
@@ -78,7 +76,11 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
           className: "absolute top-2 right-2",
         })}
       >
-        <CopyIcon className="size-4" />
+        {isShow ? (
+          <Check className="size-4" />
+        ) : (
+          <CopyIcon className="size-4" />
+        )}
       </button>
     </pre>
   );
@@ -90,8 +92,9 @@ const renderer: Partial<ReactRenderer> = {
 
     if (lang === "math") {
       return (
-        <div
+        <pre
           key={mdRenderer.elementId}
+          className="not-prose overflow-auto"
           ref={(element) => {
             if (!element) return;
             // @ts-ignore
@@ -101,7 +104,7 @@ const renderer: Partial<ReactRenderer> = {
           }}
         >
           <div className="p-2 text-sm bg-card rounded-lg">Loading Katex...</div>
-        </div>
+        </pre>
       );
     }
 
