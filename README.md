@@ -10,7 +10,7 @@ This repository is a monorepo ([Turborepo](https://turbo.build)).
 
 - Create, Update, Delete Chat Group
 - Send, Update, Delete Message
-- Markdown (gfm, tables supported), LaTeX in Messages
+- Markdown (gfm, tables supported), Code highlighting, LaTeX in Messages
 - Reference Messages
 - Message Embeds (Display open-graph data of links in message)
 - Send Images/Files via Message, images zoom-in

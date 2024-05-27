@@ -1,6 +1,6 @@
 import { AlertDialog } from "ui/components/alert-dialog";
 import { Button } from "ui/components/button";
-import { showErrorToast } from "@/utils/stores/page";
+import { showToast } from "@/utils/stores/page";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -26,7 +26,7 @@ export function LeaveGroup({ group }: { group: string }) {
       return router.push("/");
     },
     onError: (error) => {
-      showErrorToast({
+      showToast({
         title: "Failed to leave group",
         description: error.message,
       });

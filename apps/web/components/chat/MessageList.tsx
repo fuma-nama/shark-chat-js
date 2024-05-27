@@ -113,7 +113,7 @@ function VirtualScroll({
 
   const scrollToMessage = useCallbackRef((id: number) => {
     const idx = items.findLastIndex(
-      (item) => item.type === "message" && item.id === id,
+      (item) => item.type === "message" && item.message.id === id,
     );
     if (idx === -1) return;
     const element = document.getElementById(`scroll_${id}`);
@@ -160,25 +160,13 @@ function VirtualScroll({
     );
   }
 
-  const info = scroll.info.get("heading");
-
   return (
     <ScrollContext.Provider
       value={useMemo(() => ({ scrollToMessage }), [scrollToMessage])}
     >
-      {info && !info.isIntersecting ? (
-        <div
-          data-key="heading"
-          ref={scroll.measure}
-          style={{
-            height: info.height,
-          }}
-        />
-      ) : (
-        <div data-key="heading" ref={scroll.measure}>
-          {header}
-        </div>
-      )}
+      <div data-key="heading" ref={scroll.measure}>
+        {header}
+      </div>
       {items.map(render)}
     </ScrollContext.Provider>
   );

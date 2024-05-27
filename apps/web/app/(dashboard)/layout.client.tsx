@@ -4,7 +4,7 @@ import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { useMemo, useState } from "react";
 import { trpc } from "@/utils/trpc";
 import { getBaseUrl } from "@/utils/get-base-url";
-import { showErrorToast } from "@/utils/stores/page";
+import { showToast } from "@/utils/stores/page";
 import { AblyClientProvider } from "@/utils/ably/client";
 import { PrivateEventManager } from "@/utils/handlers/private";
 import { GroupEventManager } from "@/utils/handlers/group";
@@ -39,7 +39,7 @@ function ClientProvider({ children }: { children: React.ReactNode }) {
             retry: false,
             onError(error) {
               if (error instanceof TRPCClientError) {
-                showErrorToast({
+                showToast({
                   title: "Unknown Error",
                   description: error.message,
                 });

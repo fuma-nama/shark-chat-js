@@ -4,10 +4,9 @@ type UserModal = {
   user_id: string;
   open: boolean;
 };
-type ToastError = { title: string; description: string };
 type ToastMessage = {
   id: number;
-  title: string;
+  title?: string;
   description: string;
   variant?: "red" | "normal";
 };
@@ -16,7 +15,7 @@ type PageStore = {
   isSidebarOpen: boolean;
   setSidebarOpen: (v: boolean) => void;
   messages: ToastMessage[];
-  addError: (error: ToastError) => void;
+  addMessage: (message: Omit<ToastMessage, "id">) => void;
   removeMessage: (id: number) => void;
   modal?: UserModal;
   setModal: (type: UserModal | undefined) => void;
@@ -26,11 +25,11 @@ export const usePageStore = create<PageStore>((set) => ({
   isSidebarOpen: false,
   setSidebarOpen: (v: boolean) => set({ isSidebarOpen: v }),
   messages: [],
-  addError(error) {
+  addMessage(info) {
     const message: ToastMessage = {
-      ...error,
       id: Date.now(),
       variant: "red",
+      ...info,
     };
 
     set((prev) => ({
@@ -45,6 +44,6 @@ export const usePageStore = create<PageStore>((set) => ({
   setModal: (type) => set({ modal: type }),
 }));
 
-export function showErrorToast(error: ToastError) {
-  return usePageStore.getState().addError(error);
+export function showToast(error: Omit<ToastMessage, "id">) {
+  return usePageStore.getState().addMessage(error);
 }

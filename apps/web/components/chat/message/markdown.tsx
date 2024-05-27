@@ -1,11 +1,15 @@
 import { ReactParser, ReactRenderer } from "marked-react";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, useRef } from "react";
 import { Marked } from "marked";
 import Image from "next/image";
 import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { emotes } from "shared/media/format";
+import "highlight.js/styles/atom-one-dark.min.css";
 import "katex/dist/katex.min.css";
+import { CopyIcon } from "lucide-react";
+import { button } from "ui/components/button";
+import { showToast } from "@/utils/stores/page";
 
 const emoteRegex = /\\?:(\w+?):/g;
 
@@ -40,16 +44,59 @@ function emote(key: number, id: string, inline: boolean) {
   );
 }
 
+function CodeBlock({ code, lang }: { code: string; lang?: string }) {
+  const ref = useRef<HTMLElement | null>();
+
+  return (
+    <pre className={`relative language-${lang} text-dark-50 bg-dark-900`}>
+      <code
+        ref={(element) => {
+          ref.current = element;
+          if (!element || !lang) return;
+
+          import("highlight.js/lib/common").then(async (res) => {
+            element.innerHTML = res.default.highlight(lang, code, true).value;
+          });
+        }}
+      >
+        {code}
+      </code>
+      <button
+        onClick={() => {
+          const element = ref.current;
+          if (element)
+            navigator.clipboard.writeText(element.innerText).then(() => {
+              showToast({
+                description: "Copied",
+                variant: "normal",
+              });
+            });
+        }}
+        className={button({
+          color: "secondary",
+          size: "icon",
+          className: "absolute top-2 right-2",
+        })}
+      >
+        <CopyIcon className="size-4" />
+      </button>
+    </pre>
+  );
+}
+
 const renderer: Partial<ReactRenderer> = {
   code(code, lang) {
+    if (typeof code !== "string") return <></>;
+
     if (lang === "math") {
       return (
         <div
+          key={mdRenderer.elementId}
           ref={(element) => {
+            if (!element) return;
             // @ts-ignore
             import("katex/dist/katex.min.js").then((res: import("katex")) => {
-              if (element && typeof code === "string")
-                res.render(code, element);
+              res.render(code, element);
             });
           }}
         >
@@ -58,11 +105,7 @@ const renderer: Partial<ReactRenderer> = {
       );
     }
 
-    return (
-      <pre className={`language-${lang}`}>
-        <code>{code}</code>
-      </pre>
-    );
+    return <CodeBlock key={mdRenderer.elementId} lang={lang} code={code} />;
   },
   text(text) {
     if (typeof text !== "string") return text;

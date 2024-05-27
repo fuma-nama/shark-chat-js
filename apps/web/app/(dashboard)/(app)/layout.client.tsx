@@ -27,7 +27,10 @@ function ToastManager() {
     <ToastProvider>
       <ToastViewport className="gap-4">
         {messages.map((message) => (
-          <Toast key={message.id} variant="destructive">
+          <Toast
+            key={message.id}
+            variant={message.variant === "normal" ? "default" : "destructive"}
+          >
             <div className="grid gap-1">
               <ToastTitle>{message.title}</ToastTitle>
               <ToastDescription>{message.description}</ToastDescription>
