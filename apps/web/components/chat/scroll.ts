@@ -62,7 +62,14 @@ export function useBottomScroll(): UseBottomScroll {
     if (!viewport) return;
 
     const handleRootScroll = () => {
-      virtualScrollTopRef.current = realToVirtual(viewport, viewport.scrollTop);
+      // Enable scroll after certain time to prevent shifting
+      // because browsers may call `onScroll` before `ResizeObserver`
+      setTimeout(() => {
+        virtualScrollTopRef.current = realToVirtual(
+          viewport,
+          viewport.scrollTop,
+        );
+      }, 50);
     };
 
     // reset before adding listener
@@ -102,12 +109,8 @@ export function useBottomScroll(): UseBottomScroll {
       intersectionObserver.observe(element);
     });
 
-    // Enable scroll after certain time to prevent shifting
-    // because browsers may call `onScroll` before `ResizeObserver`
-    setTimeout(() => {
-      resetScroll();
-      viewport.addEventListener("scroll", handleRootScroll);
-    }, 1000);
+    viewport.addEventListener("scroll", handleRootScroll);
+
     return () => {
       observer.disconnect();
       intersectionObserver.disconnect();
