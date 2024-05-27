@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["db", "server", "shared", "ui"],
   experimental: {
-    serverComponentsExternalPackages: ["@inworld/nodejs-sdk"],
+    serverComponentsExternalPackages: ["@inworld/nodejs-sdk", "keyv"],
   },
   images: {
     remotePatterns: [

@@ -109,7 +109,7 @@ function VirtualScroll({
     } else {
       headerShownRef.current = false;
     }
-  }, [scroll.info]);
+  });
 
   const scrollToMessage = useCallbackRef((id: number) => {
     const idx = items.findLastIndex(

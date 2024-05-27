@@ -10,7 +10,10 @@ export interface UseBottomScroll {
   measure: RefCallback<HTMLElement>;
 }
 
-type MeasureMap = Map<string, { isIntersecting: boolean; height: number }>;
+type MeasureMap = Map<
+  string,
+  { element: HTMLElement; isIntersecting: boolean; height: number }
+>;
 
 function virtualToReal(element: Element, virtual: number): number {
   return element.scrollHeight - virtual - element.clientHeight;
@@ -40,10 +43,16 @@ export function useBottomScroll(): UseBottomScroll {
 
   const measure: RefCallback<HTMLElement> = useCallbackRef((element) => {
     if (!element) return;
+    const observer = intersectionObserverRef.current;
 
-    if (intersectionObserverRef.current)
-      intersectionObserverRef.current.observe(element);
-    else pendingRef.current.push(element);
+    if (observer) {
+      const key = element.getAttribute("data-key");
+      if (key && info.has(key)) return;
+
+      observer.observe(element);
+    } else {
+      pendingRef.current.push(element);
+    }
   });
 
   useLayoutEffect(() => {
@@ -70,6 +79,7 @@ export function useBottomScroll(): UseBottomScroll {
             const key = item.target.getAttribute("data-key");
             if (key) {
               prev.set(key, {
+                element: item.target as HTMLElement,
                 isIntersecting: item.isIntersecting,
                 height: item.boundingClientRect.height,
               });

@@ -5,6 +5,7 @@ import { Marked } from "marked";
 import Image from "next/image";
 import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { emotes } from "shared/media/format";
+import "katex/dist/katex.min.css";
 
 const emoteRegex = /\\?:(\w+?):/g;
 
@@ -40,6 +41,29 @@ function emote(key: number, id: string, inline: boolean) {
 }
 
 const renderer: Partial<ReactRenderer> = {
+  code(code, lang) {
+    if (lang === "math") {
+      return (
+        <div
+          ref={(element) => {
+            // @ts-ignore
+            import("katex/dist/katex.min.js").then((res: import("katex")) => {
+              if (element && typeof code === "string")
+                res.render(code, element);
+            });
+          }}
+        >
+          <div className="p-2 text-sm bg-card rounded-lg">Loading Katex...</div>
+        </div>
+      );
+    }
+
+    return (
+      <pre className={`language-${lang}`}>
+        <code>{code}</code>
+      </pre>
+    );
+  },
   text(text) {
     if (typeof text !== "string") return text;
 
