@@ -26,7 +26,7 @@ export function Reference({
       const element = document.getElementById(`message_${id}`);
       if (!element) return;
 
-      element.style.setProperty("background-color", "hsl(var(--accent))");
+      element.style.setProperty("background-color", "hsl(var(--primary)/.2)");
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
 
       timeoutRef.current = window.setTimeout(() => {
@@ -37,14 +37,14 @@ export function Reference({
 
   return (
     <div
-      className="relative flex flex-col gap-1 mb-2 overflow-hidden max-w-full pl-7 p-2 bg-secondary rounded-lg cursor-pointer"
+      className="relative mb-2 overflow-hidden pl-7 p-2 bg-accent/50 rounded-lg cursor-pointer"
       onClick={onClick}
     >
       <CornerUpRight className="absolute top-2 left-2 size-4 text-muted-foreground" />
-      <p className="font-medium text-xs truncate">
+      <p className="font-medium text-xs truncate mb-1">
         {user?.name ?? "Unknown User"}
       </p>
-      <div className="prose prose-message opacity-50 origin-top-left w-[110%] scale-90 max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)]">
+      <div className="prose prose-message opacity-50 origin-top-left w-[110%] scale-90 max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)] pointer-events-none">
         {children}
       </div>
     </div>
