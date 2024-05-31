@@ -5,7 +5,7 @@ import { Marked } from "marked";
 import Image from "next/image";
 import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { emotes } from "shared/media/format";
-import "highlight.js/styles/atom-one-dark.min.css";
+import "highlight.js/styles/github-dark.min.css";
 import "katex/dist/katex.min.css";
 import { Check, CopyIcon } from "lucide-react";
 import { button } from "ui/components/button";
@@ -18,18 +18,7 @@ function emote(key: number, id: string, inline: boolean) {
   if (id.startsWith("\\")) return id.slice(1);
 
   const discordPrefix = "discord_";
-  if (id.startsWith(discordPrefix)) {
-    return (
-      <img
-        key={key}
-        alt={id}
-        width={50}
-        height={50}
-        src={`https://cdn.discordapp.com/emojis/${id.slice(discordPrefix.length)}.webp?size=240&quality=lossless`}
-        className={inline ? "inline my-0 mx-1 size-6" : "m-0"}
-      />
-    );
-  }
+  const isDiscord = id.startsWith(discordPrefix);
 
   return (
     <Image
@@ -37,9 +26,13 @@ function emote(key: number, id: string, inline: boolean) {
       alt={id}
       width={50}
       height={50}
-      src={emotes.url([id], "default")}
+      src={
+        isDiscord
+          ? `https://cdn.discordapp.com/emojis/${id.slice(discordPrefix.length)}.webp?size=240&quality=lossless`
+          : emotes.url([id], "default")
+      }
       className={inline ? "inline my-0 mx-1 size-6" : "m-0"}
-      loader={cloudinaryLoader}
+      loader={isDiscord ? undefined : cloudinaryLoader}
     />
   );
 }
@@ -49,8 +42,9 @@ function CodeBlock({ code, lang }: { code: string; lang?: string }) {
   const { isShow, copy } = useCopyText();
 
   return (
-    <pre className={`relative language-${lang} text-dark-50 bg-dark-900`}>
+    <pre className={`relative not-prose text-[13px] language-${lang}`}>
       <code
+        className="hljs rounded-lg"
         ref={(element) => {
           ref.current = element;
           if (!element || !lang) return;
