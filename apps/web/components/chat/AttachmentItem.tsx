@@ -66,6 +66,7 @@ function AttachmentImage({ attachment }: { attachment: AttachmentType }) {
             className="cursor-pointer"
             loader={cloudinaryLoader}
             onLoad={() => setIsLoaded(true)}
+            unoptimized
           />
         </DialogTrigger>
       </ImageSkeleton>

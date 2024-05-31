@@ -3,26 +3,10 @@ import { ImageSkeleton } from "ui/components/image-skeleton";
 import type { Embed } from "db/schema";
 
 export function Embed({ embed }: { embed: Embed }) {
-  const [isLoaded, setIsLoaded] = useState(true);
   const image = embed.image;
 
-  if (!embed.title && !embed.description && image != null) {
-    return (
-      <ImageSkeleton
-        loaded={isLoaded}
-        width={image.width}
-        height={image.height}
-        maxWidth={400}
-        maxHeight={200}
-      >
-        <img
-          alt="image"
-          src={image.url}
-          onLoad={() => setIsLoaded(true)}
-          className="size-full"
-        />
-      </ImageSkeleton>
-    );
+  if (!embed.title && !embed.description && image) {
+    return <EmbedImage {...image} />;
   }
 
   return (
@@ -40,22 +24,28 @@ export function Embed({ embed }: { embed: Embed }) {
       {embed.description && (
         <p className="text-muted-foreground text-xs">{embed.description}</p>
       )}
-      {image != null && (
-        <ImageSkeleton
-          loaded={isLoaded}
-          width={image.width}
-          height={image.height}
-          maxWidth={400}
-          maxHeight={200}
-        >
-          <img
-            alt="image"
-            src={image.url}
-            onLoad={() => setIsLoaded(true)}
-            className="size-full"
-          />
-        </ImageSkeleton>
-      )}
+      {image ? <EmbedImage {...image} /> : null}
     </div>
+  );
+}
+
+function EmbedImage(image: Exclude<Embed["image"], undefined>) {
+  const [isLoaded, setIsLoaded] = useState(true);
+
+  return (
+    <ImageSkeleton
+      loaded={isLoaded}
+      width={image.width}
+      height={image.height}
+      maxWidth={400}
+      maxHeight={200}
+    >
+      <img
+        alt="image"
+        src={image.url}
+        onLoad={() => setIsLoaded(true)}
+        className="size-full"
+      />
+    </ImageSkeleton>
   );
 }
