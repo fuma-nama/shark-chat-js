@@ -143,7 +143,7 @@ export function MessageEventManager() {
           status: {
             ...prev.status,
             [e.clientId]: {
-              type: ["present", "enter"].includes(e.action)
+              type: ["present", "enter", "update"].includes(e.action)
                 ? "online"
                 : "offline",
             },

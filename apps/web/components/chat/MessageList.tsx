@@ -1,12 +1,6 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
-import {
-  createContext,
-  ReactNode,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { createContext, ReactNode, useEffect, useMemo, useRef } from "react";
 import { Button } from "ui/components/button";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
@@ -101,7 +95,7 @@ function VirtualScroll({
   const headerShownRef = useRef(false);
   const scroll = useBottomScroll();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const info = scroll.info.get("heading");
     if (info && info.isIntersecting) {
       if (!headerShownRef.current) onLoad();

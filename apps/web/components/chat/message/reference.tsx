@@ -1,5 +1,5 @@
 import { UserInfo } from "shared/schema/chat";
-import { useContext, useMemo, useRef } from "react";
+import { useCallback, useContext, useMemo, useRef } from "react";
 import { CornerUpRight } from "lucide-react";
 import { render } from "@/components/chat/message/markdown";
 import { ScrollContext } from "@/components/chat/MessageList";
@@ -20,7 +20,7 @@ export function Reference({
   );
   const { scrollToMessage } = useContext(ScrollContext)!;
 
-  const onClick = () => {
+  const onClick = useCallback(() => {
     scrollToMessage(id);
     window.setTimeout(() => {
       const element = document.getElementById(`message_${id}`);
@@ -33,7 +33,7 @@ export function Reference({
         element.style.removeProperty("background-color");
       }, 500);
     }, 100);
-  };
+  }, [id, scrollToMessage]);
 
   return (
     <div
@@ -44,7 +44,7 @@ export function Reference({
       <p className="font-medium text-xs truncate">
         {user?.name ?? "Unknown User"}
       </p>
-      <div className="text-muted-foreground scale-90 origin-top-left max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)]">
+      <div className="prose prose-message opacity-50 scale-90 origin-top-left max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)]">
         {children}
       </div>
     </div>
