@@ -44,7 +44,7 @@ export function Reference({
       <p className="font-medium text-xs truncate">
         {user?.name ?? "Unknown User"}
       </p>
-      <div className="prose prose-message opacity-50 scale-90 origin-top-left max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)]">
+      <div className="prose prose-message opacity-50 origin-top-left w-[110%] scale-90 max-h-[90px] [mask-image:linear-gradient(to_bottom,white_50px,transparent)]">
         {children}
       </div>
     </div>

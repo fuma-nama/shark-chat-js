@@ -11,6 +11,10 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         protocol: "https",
       },
+      {
+        hostname: "cdn.discordapp.com",
+        protocol: "https",
+      },
     ],
     deviceSizes: [350, 500, 640, 828, 1080, 1200, 1920, 2048, 3840],
   },
