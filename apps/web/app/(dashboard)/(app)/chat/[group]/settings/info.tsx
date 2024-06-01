@@ -1,3 +1,4 @@
+"use client";
 import { ImagePicker, usePreview } from "@/components/input/ImagePicker";
 import { input } from "ui/components/input";
 import { Avatar } from "ui/components/avatar";
@@ -13,21 +14,20 @@ import { z } from "zod";
 import { updateGroupSchema } from "shared/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 import { SimpleDialog } from "ui/components/dialog";
-import { Cropper, ReactCropperElement } from "react-cropper";
-import { EditIcon, InfoIcon } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "ui/components/tooltip";
+import { Cropper, type ReactCropperElement } from "react-cropper";
+import { EditIcon } from "lucide-react";
 import { useGroupContext } from "@/utils/contexts/group-context";
 import { useSession } from "@/utils/auth";
 import { BannerImage } from "@/components/BannerImage";
 
-export default function Info() {
+export function Info() {
   const [edit, setEdit] = useState(false);
   const group = useGroupContext();
   const { data } = useSession();
   const canEdit = group.member.admin || group.owner_id === data?.user.id;
 
   return (
-    <div className="flex flex-col bg-card rounded-xl p-4 pt-0 overflow-hidden">
+    <div className="flex flex-col bg-card px-4 pb-8 overflow-hidden max-sm:-mx-4 sm:rounded-xl">
       {canEdit ? (
         <BannerEdit group={group} />
       ) : (
@@ -195,17 +195,12 @@ function EditGroupPanel({
       <fieldset>
         <label htmlFor="unique_name" className="font-medium text-xs">
           Unique Name
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <InfoIcon className="ml-1 text-muted-foreground inline size-3" />
-            </TooltipTrigger>
-            <TooltipContent>
-              People can find a group by its unique name
-            </TooltipContent>
-          </Tooltip>
         </label>
-
+        <p className="text-xs text-muted-foreground">
+          People can find a group by its unique name
+        </p>
         <UniqueNameInput
+          root={{ className: "mt-2" }}
           input={{
             id: "unique_name",
             placeholder: control._defaultValues.unique_name,

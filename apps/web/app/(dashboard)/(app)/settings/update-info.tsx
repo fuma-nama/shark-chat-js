@@ -37,13 +37,14 @@ export function UpdateProfile({
   });
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={onSave}>
+    <form className="flex flex-col" onSubmit={onSave}>
       <Controller
         name="banner"
         control={form.control}
         render={({ field }) => (
           <ImagePicker
             aspectRatio={4}
+            previewClassName="-mx-4"
             {...field}
             value={
               field.value ?? userBanners.url([profile.id], profile.banner_hash)
@@ -56,14 +57,14 @@ export function UpdateProfile({
         control={form.control}
         render={({ field }) => (
           <ImagePicker
-            previewClassName="ml-4 max-w-[100px] p-1 bg-popover rounded-xl -mt-[50px]"
+            previewClassName="size-[100px] border-4 border-popover rounded-xl overflow-hidden -mt-[50px]"
             {...field}
             value={field.value ?? profile.image}
           />
         )}
       />
 
-      <fieldset>
+      <fieldset className="mt-4">
         <label htmlFor="username" className="text-xs font-medium">
           Username
         </label>
@@ -75,7 +76,7 @@ export function UpdateProfile({
           {...form.register("name")}
         />
       </fieldset>
-      <div className="flex flex-row gap-3 mt-3">
+      <div className="flex flex-row gap-3 mt-8">
         <Button color="primary" onClick={onSave} isLoading={mutation.isLoading}>
           Save Changes
         </Button>

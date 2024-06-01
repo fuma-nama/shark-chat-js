@@ -78,14 +78,14 @@ export function ImagePicker({
           <img
             alt="selected file"
             src={value}
-            className="size-full rounded-xl cursor-pointer"
+            className="size-full cursor-pointer"
           />
         </label>
       ) : (
         <label
           aria-label="Pick Image"
           htmlFor={id}
-          className="flex flex-col gap-3 items-center justify-center p-2 size-full bg-muted border text-center text-muted-foreground/70 rounded-xl cursor-pointer"
+          className="flex flex-col gap-3 items-center justify-center p-2 size-full bg-muted border text-center text-muted-foreground/70 cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

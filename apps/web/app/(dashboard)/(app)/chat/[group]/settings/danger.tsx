@@ -1,3 +1,4 @@
+"use client";
 import { AlertDialog } from "ui/components/alert-dialog";
 import { Button } from "ui/components/button";
 import { showToast } from "@/utils/stores/page";

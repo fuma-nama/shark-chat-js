@@ -1,5 +1,4 @@
-"use client";
-import Info from "./info";
+import { Info } from "./info";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "ui/components/tabs";
 import { Danger } from "./danger";
 import Members from "./members";
@@ -9,7 +8,7 @@ export default function Page({ params }: { params: { group: string } }) {
   const groupId = params.group;
 
   return (
-    <div className="flex flex-col gap-10 w-full max-w-3xl p-4 pt-0">
+    <div className="flex flex-col gap-6 w-full max-w-3xl p-4 pt-0">
       <Info />
       <Tabs defaultValue="invite">
         <TabsList>
