@@ -16,6 +16,10 @@ export const userAvatar = media<[userId: string]>({
   publicId: ([userId]) => `avatars/${userId}`,
 });
 
+export const userBanners = media<[userId: string]>({
+  publicId: ([userId]) => `u_banners/${userId}`,
+});
+
 export const attachment = media<
   [userId: string, attachmentId: string, filename: string]
 >({

@@ -1,12 +1,17 @@
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { Fragment, ReactNode } from "react";
+import { tv } from "tailwind-variants";
 
 export type BreadcrumbItemType = {
   id: string;
-  text: string | ReactNode;
+  text: ReactNode;
   href?: string;
 };
+
+const itemVariants = tv({
+  base: "inline-flex items-center gap-2 font-medium text-sm",
+});
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
   return (
@@ -15,11 +20,11 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
         <Fragment key={item.id}>
           {i !== 0 && <Separator />}
           {item.href ? (
-            <Link href={item.href} className="font-medium text-sm">
+            <Link href={item.href} className={itemVariants()}>
               {item.text}
             </Link>
           ) : (
-            <div className="font-medium text-sm">{item.text}</div>
+            <div className={itemVariants()}>{item.text}</div>
           )}
         </Fragment>
       ))}

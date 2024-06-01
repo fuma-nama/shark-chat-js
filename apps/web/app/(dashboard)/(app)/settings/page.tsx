@@ -1,19 +1,17 @@
 "use client";
 import { Avatar } from "ui/components/avatar";
 import { Button } from "ui/components/button";
-import { ImagePicker } from "@/components/input/ImagePicker";
 import { useProfile } from "@/utils/hooks/use-profile";
 import { trpc } from "@/utils/trpc";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
-import { User } from "db/schema";
-import { Serialize } from "shared/types";
-import { useUpdateProfileMutation } from "@/utils/hooks/mutations/update-profile";
+import React, { useState } from "react";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
-import { fieldset, input } from "ui/components/input";
+import { fieldset } from "ui/components/input";
 import { SimpleDialog } from "ui/components/dialog";
 import { AlertDialog } from "ui/components/alert-dialog";
-import { Navbar } from "@/components/layout/Navbar";
+import { BannerImage } from "@/components/BannerImage";
+import { userBanners } from "shared/media/format";
+import { UpdateProfile } from "@/app/(dashboard)/(app)/settings/update-info";
 
 export default function Settings() {
   const { status, profile } = useProfile();
@@ -22,15 +20,21 @@ export default function Settings() {
   if (status !== "authenticated") return <></>;
 
   return (
-    <>
-      <Navbar breadcrumb={[{ id: "settings", text: "Settings" }]} />
-      <div className="flex flex-col gap-6 p-4">
-        <Avatar size="large" src={profile.image} fallback={profile.name} />
-        <div>
-          <h2 className="font-semibold text-lg mb-1">{profile.name}</h2>
-          <p className="text-muted-foreground text-sm">{profile.email}</p>
-        </div>
-        <div className="flex flex-row gap-3">
+    <main className="flex flex-col max-w-screen-sm gap-6 sm:px-4">
+      <div className="flex flex-col p-4 pt-0 bg-card overflow-hidden sm:rounded-xl">
+        <BannerImage
+          url={userBanners.url([profile.id], profile.banner_hash)}
+          className="aspect-[4]"
+        />
+        <Avatar
+          size="large"
+          src={profile.image}
+          fallback={profile.name}
+          className="-mt-12 border-4 border-card"
+        />
+        <h2 className="text-lg font-semibold mt-2">{profile.name}</h2>
+        <p className="text-muted-foreground text-sm mt-1">{profile.email}</p>
+        <div className="flex flex-row mt-6 gap-3">
           <SimpleDialog
             open={edit}
             onOpenChange={setEdit}
@@ -42,7 +46,8 @@ export default function Settings() {
 
           <Button onClick={() => signOut()}>Logout</Button>
         </div>
-
+      </div>
+      <div className="flex flex-col p-4 gap-6">
         <fieldset className="flex flex-col gap-4 items-start">
           <div>
             <label htmlFor="theme" className={fieldset().label()}>
@@ -56,7 +61,7 @@ export default function Settings() {
         </fieldset>
         <DangerZone />
       </div>
-    </>
+    </main>
   );
 }
 
@@ -91,59 +96,5 @@ function DangerZone() {
         </Button>
       </AlertDialog>
     </fieldset>
-  );
-}
-
-function UpdateProfile({
-  profile,
-  onCancel,
-}: {
-  profile: Serialize<User>;
-  onCancel: () => void;
-}) {
-  const [name, setName] = useState<string>(profile.name);
-  const [avatar, setAvatar] = useState<string>();
-  const utils = trpc.useUtils();
-  const mutation = useUpdateProfileMutation();
-
-  const onSave = () => {
-    return mutation.mutate(
-      { name, avatar },
-      {
-        onSuccess(data) {
-          utils.account.get.setData(undefined, () => data);
-          onCancel();
-        },
-      },
-    );
-  };
-
-  return (
-    <div className="flex flex-col gap-3 pt-4">
-      <ImagePicker
-        previewClassName="mx-auto max-w-[150px]"
-        value={avatar ?? profile.image}
-        onChange={setAvatar}
-      />
-
-      <fieldset>
-        <label htmlFor="username" className="text-xs font-medium">
-          Username
-        </label>
-        <input
-          id="username"
-          placeholder={profile.name}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={input()}
-        />
-      </fieldset>
-      <div className="flex flex-row gap-3 mt-3">
-        <Button color="primary" onClick={onSave} isLoading={mutation.isLoading}>
-          Save Changes
-        </Button>
-        <Button onClick={onCancel}>Cancel</Button>
-      </div>
-    </div>
   );
 }

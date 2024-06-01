@@ -16,7 +16,7 @@ export function Item({ emote }: { emote: Serialize<Emote> }) {
   return (
     <Popover
       trigger={
-        <button className="flex flex-row gap-2 text-left bg-card rounded-lg p-2 transition-colors hover:bg-accent">
+        <button className="flex flex-row gap-2 text-left bg-card rounded-lg p-2 transition-colors hover:bg-accent data-[state=open]:bg-accent">
           <Image
             src={emotes.url([emote.id], "default")}
             alt={emote.name}

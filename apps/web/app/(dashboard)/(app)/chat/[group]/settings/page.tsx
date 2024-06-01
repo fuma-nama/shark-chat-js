@@ -9,7 +9,7 @@ export default function Page({ params }: { params: { group: string } }) {
   const groupId = params.group;
 
   return (
-    <div className="flex flex-col gap-10 mx-auto w-full max-w-3xl p-4">
+    <div className="flex flex-col gap-10 w-full max-w-3xl p-4 pt-0">
       <Info />
       <Tabs defaultValue="invite">
         <TabsList>

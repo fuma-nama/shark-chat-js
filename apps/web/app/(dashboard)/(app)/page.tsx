@@ -9,7 +9,6 @@ import { BoxIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
-import { Navbar } from "@/components/layout/Navbar";
 import { tv } from "tailwind-variants";
 import { getTimeString } from "ui/utils/time";
 import { GroupWithNotifications } from "server/routers/group/group";
@@ -74,7 +73,6 @@ export default function Page() {
 
   return (
     <>
-      <Navbar breadcrumb={[{ id: "home", text: "Recent Chat" }]} />
       <Modals modal={modal} setModal={setModal} />
       <RecentChat setModal={setModal} />
     </>
