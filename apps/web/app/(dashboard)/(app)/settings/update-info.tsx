@@ -44,7 +44,7 @@ export function UpdateProfile({
         render={({ field: { value, onChange, ...field } }) => (
           <ImagePicker
             input={{ id: "banner", ...field }}
-            aspectRatio={4}
+            aspectRatio={3}
             previewClassName="-mx-4"
             value={value ?? userBanners.url([profile.id], profile.banner_hash)}
             onChange={onChange}
@@ -77,10 +77,12 @@ export function UpdateProfile({
         />
       </fieldset>
       <div className="flex flex-row gap-3 mt-8">
-        <Button color="primary" onClick={onSave} isLoading={mutation.isLoading}>
+        <Button type="submit" color="primary" isLoading={mutation.isLoading}>
           Save Changes
         </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+        <Button type="button" onClick={onCancel}>
+          Cancel
+        </Button>
       </div>
     </form>
   );

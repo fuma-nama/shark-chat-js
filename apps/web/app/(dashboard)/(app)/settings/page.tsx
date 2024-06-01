@@ -22,10 +22,7 @@ export default function Settings() {
   return (
     <main className="flex flex-col max-w-screen-sm gap-6 sm:px-4">
       <div className="flex flex-col px-4 pb-8 bg-card overflow-hidden sm:rounded-xl">
-        <BannerImage
-          url={userBanners.url([profile.id], profile.banner_hash)}
-          className="aspect-[4]"
-        />
+        <BannerImage url={userBanners.url([profile.id], profile.banner_hash)} />
         <Avatar
           size="large"
           src={profile.image}

@@ -2,7 +2,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogProps,
+  type DialogProps,
 } from "ui/components/dialog";
 import { ReactNode } from "react";
 import { trpc } from "@/utils/trpc";
@@ -81,7 +81,7 @@ function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
   return (
     <div className="flex flex-col px-6 pb-6">
       <BannerImage
-        className="rounded-t-lg aspect-[4] -mx-6"
+        className="rounded-t-lg -mx-6"
         url={userBanners.url([user.id], user.banner_hash)}
       />
       <div className="-ml-2 relative size-fit">
