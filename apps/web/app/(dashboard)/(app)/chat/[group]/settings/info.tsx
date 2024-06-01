@@ -14,12 +14,11 @@ import { updateGroupSchema } from "shared/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 import { SimpleDialog } from "ui/components/dialog";
 import { Cropper, ReactCropperElement } from "react-cropper";
-import Image from "next/image";
-import { cloudinaryLoader } from "@/utils/cloudinary-loader";
 import { EditIcon, InfoIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui/components/tooltip";
 import { useGroupContext } from "@/utils/contexts/group-context";
 import { useSession } from "@/utils/auth";
+import { BannerImage } from "@/components/BannerImage";
 
 export default function Info() {
   const [edit, setEdit] = useState(false);
@@ -28,39 +27,39 @@ export default function Info() {
   const canEdit = group.member.admin || group.owner_id === data?.user.id;
 
   return (
-    <div className="flex flex-col">
-      {canEdit ? <BannerEdit group={group} /> : <BannerView group={group} />}
-      <div className="flex flex-col gap-3 -mt-[4rem]">
-        <div className="w-full flex flex-row justify-between items-end">
-          <Avatar
-            size="xlarge"
-            className="border-4 border-background"
-            src={groupIcon.url([group.id], group.icon_hash)}
-            fallback={group.name}
-          />
-          {canEdit && (
-            <div className="flex flex-row gap-3">
-              <SimpleDialog
-                open={edit}
-                onOpenChange={setEdit}
-                title="Edit Group"
-                trigger={<button className={button()}>Edit Info</button>}
-              >
-                <EditGroupPanel group={group} onCancel={() => setEdit(false)} />
-              </SimpleDialog>
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h2 className="text-2xl font-bold">{group.name}</h2>
-          {group.unique_name != null && (
-            <p className="text-sm text-muted-foreground">
-              @{group.unique_name}
-            </p>
-          )}
-        </div>
+    <div className="flex flex-col bg-card rounded-xl p-4 pt-0 overflow-hidden">
+      {canEdit ? (
+        <BannerEdit group={group} />
+      ) : (
+        <BannerImage url={groupBanners.url([group.id], group.banner_hash)} />
+      )}
+      <div className="w-full flex flex-row justify-between items-end">
+        <Avatar
+          size="xlarge"
+          className="border-4 border-background -mt-16"
+          src={groupIcon.url([group.id], group.icon_hash)}
+          fallback={group.name}
+        />
+        {canEdit && (
+          <div className="flex flex-row gap-3">
+            <SimpleDialog
+              open={edit}
+              onOpenChange={setEdit}
+              title="Edit Group"
+              trigger={<button className={button()}>Edit Info</button>}
+            >
+              <EditGroupPanel group={group} onCancel={() => setEdit(false)} />
+            </SimpleDialog>
+          </div>
+        )}
       </div>
+
+      <h2 className="text-xl font-bold mt-3">{group.name}</h2>
+      {group.unique_name != null && (
+        <p className="text-sm text-muted-foreground mt-1">
+          @{group.unique_name}
+        </p>
+      )}
     </div>
   );
 }
@@ -140,30 +139,9 @@ export function BannerEdit({ group }: { group: Group }) {
         >
           <EditIcon className="size-4" />
         </label>
-        <BannerView group={group} />
+        <BannerImage url={groupBanners.url([group.id], group.banner_hash)} />
       </div>
     </>
-  );
-}
-
-function BannerView({ group }: { group: Group }) {
-  if (group.banner_hash) {
-    return (
-      <div className="relative aspect-[3] bg-card overflow-hidden -mx-4 lg:rounded-lg">
-        <Image
-          priority
-          alt="Banner"
-          fill
-          sizes="(max-width: 800px) 90vw, 800px"
-          src={groupBanners.url([group.id], group.banner_hash)}
-          loader={cloudinaryLoader}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="h-auto aspect-[3] bg-gradient-to-b from-brand to-brand-300 -mx-4 lg:rounded-lg" />
   );
 }
 

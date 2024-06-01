@@ -3,6 +3,7 @@ import {
   groupBanners,
   groupIcon,
   userAvatar,
+  userBanners,
 } from "shared/media/format";
 import { getTimestamp } from "shared/media/timestamp";
 import cloudinary from "../cloudinary";
@@ -70,6 +71,11 @@ export const uploadRouter = router({
         public_id: attachment.id(ctx.session.user.id, id, input.filename),
       });
     }),
+  signUserBanner: protectedProcedure.query(async ({ ctx }) => {
+    return sign({
+      public_id: userBanners.id(ctx.session.user.id),
+    });
+  }),
 });
 
 export function sign(options: SignOptions): SignResponse {

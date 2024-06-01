@@ -165,6 +165,7 @@ export const users = pgTable(
     email: varchar(`email`, { length: 191 }),
     emailVerified: timestamp(`emailVerified`),
     image: varchar(`image`, { length: 191 }),
+    banner_hash: integer("banner_hash"),
     is_ai: boolean(`is_ai`).notNull().default(false),
   },
   (table) => ({

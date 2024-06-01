@@ -6,6 +6,7 @@ import { users } from "db/schema";
 import { eq } from "drizzle-orm";
 import { pick } from "shared/common";
 import { authAdapter } from "../auth/nextauth-adapter";
+import { updateProfileSchema } from "shared/schema/user";
 
 export const accountRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -29,7 +30,7 @@ export const accountRouter = router({
     .query(async ({ input }) => {
       const res = await db
         .select({
-          ...pick(users, "name", "image", "id"),
+          ...pick(users, "name", "image", "id", "banner_hash"),
         })
         .from(users)
         .where(eq(users.id, input.userId))
@@ -44,28 +45,26 @@ export const accountRouter = router({
       return res;
     }),
   updateProfile: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().optional(),
-        avatar_url: z.string().optional(),
-      }),
-    )
+    .input(updateProfileSchema)
     .mutation(async ({ input, ctx }) => {
       const userId = ctx.session.user.id;
 
-      await db
+      const updated = await db
         .update(users)
         .set({
-          name: input.name ?? undefined,
-          image: input.avatar_url ?? undefined,
+          name: input.name,
+          image: input.avatar_url,
+          banner_hash: input.banner_hash,
         })
-        .where(eq(users.id, userId));
-
-      return await db
-        .select()
-        .from(users)
         .where(eq(users.id, userId))
-        .then((res) => res?.[0]);
+        .returning();
+
+      if (updated.length === 0)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+        });
+
+      return updated[0];
     }),
   delete: protectedProcedure.mutation(async ({ ctx }) => {
     await authAdapter.deleteUser!(ctx.session.user.id);

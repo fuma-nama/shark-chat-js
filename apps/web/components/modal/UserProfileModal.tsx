@@ -11,6 +11,8 @@ import { Button, button } from "ui/components/button";
 import { Spinner } from "ui/components/spinner";
 import { useRouter } from "next/navigation";
 import { cn } from "ui/utils/cn";
+import { BannerImage } from "@/components/BannerImage";
+import { userBanners } from "shared/media/format";
 
 export function UserProfileModal(props: {
   userId: string;
@@ -77,43 +79,44 @@ function Content({ userId, onClose }: { userId: string; onClose: () => void }) {
   const user = query.data;
 
   return (
-    <div className="flex flex-col">
-      <div className="h-24 bg-gradient-to-b from-brand to-brand-300 rounded-t-lg -mb-12" />
-      <div className="px-6 pb-4">
-        <div className="-ml-2 relative w-fit h-fit">
-          <Avatar
-            fallback={user.name}
-            src={user.image}
-            size="large"
-            className="border-4 border-background"
+    <div className="flex flex-col px-6 pb-6">
+      <BannerImage
+        className="rounded-t-lg aspect-[4] -mx-6"
+        url={userBanners.url([user.id], user.banner_hash)}
+      />
+      <div className="-ml-2 relative size-fit">
+        <Avatar
+          fallback={user.name}
+          src={user.image}
+          size="large"
+          className="border-4 border-background -mt-12"
+        />
+        {status.isSuccess ? (
+          <div
+            aria-label={status.data}
+            className={cn(
+              "absolute border-4 border-background bottom-2 right-0 size-6 rounded-full",
+              status.data === "online" ? "bg-green-400" : "bg-red-400",
+            )}
           />
-          {status.isSuccess ? (
-            <div
-              aria-label={status.data}
-              className={cn(
-                "absolute border-4 border-background bottom-2 right-0 size-6 rounded-full",
-                status.data === "online" ? "bg-green-400" : "bg-red-400",
-              )}
-            />
-          ) : null}
-        </div>
+        ) : null}
+      </div>
 
-        <p className="font-semibold mt-2 text-lg">{user.name}</p>
-        <p className="text-xs text-muted-foreground mt-1">@{user.id}</p>
+      <p className="font-semibold mt-2">{user.name}</p>
+      <p className="text-xs text-muted-foreground mt-1">@{user.id}</p>
 
-        <div className="flex flex-row gap-3 mt-8">
-          <Button
-            color="primary"
-            className="flex-1"
-            isLoading={dmMutation.isLoading}
-            onClick={onSendMessage}
-          >
-            Send Message
-          </Button>
-          <DialogClose className={button({ color: "secondary" })}>
-            Close
-          </DialogClose>
-        </div>
+      <div className="flex flex-row gap-3 mt-8">
+        <Button
+          color="primary"
+          className="flex-1"
+          isLoading={dmMutation.isLoading}
+          onClick={onSendMessage}
+        >
+          Send Message
+        </Button>
+        <DialogClose className={button({ color: "secondary" })}>
+          Close
+        </DialogClose>
       </div>
     </div>
   );
