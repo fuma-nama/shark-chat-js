@@ -60,6 +60,7 @@ export const uploadRouter = router({
 
       return sign({
         public_id: groupBanners.id(groupId),
+        transformation: "w_1200",
       });
     }),
   signAttachment: protectedProcedure
@@ -74,6 +75,7 @@ export const uploadRouter = router({
   signUserBanner: protectedProcedure.query(async ({ ctx }) => {
     return sign({
       public_id: userBanners.id(ctx.session.user.id),
+      transformation: "w_1200",
     });
   }),
 });
