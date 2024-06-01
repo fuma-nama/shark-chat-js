@@ -6,6 +6,7 @@ import { useAbly } from "@/utils/ably/client";
 import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
 import type { AblyMessageCallback } from "ably/react";
 
+let previousGroupIds: string[] = [];
 export function GroupEventManager() {
   const router = useRouter();
   const params = useParams() as { group?: string };
@@ -54,18 +55,17 @@ export function GroupEventManager() {
   useEffect(() => {
     if (!ably) return;
 
-    const channels = groupIds.map((id) =>
-      ably.channels.get(schema.group.name(id)),
-    );
-
-    for (const c of channels) {
-      void c.subscribe(callback);
+    for (const prev of previousGroupIds) {
+      if (groupIds.includes(prev)) continue;
+      void ably.channels.get(schema.group.name(prev)).unsubscribe();
     }
-    return () => {
-      for (const c of channels) {
-        void c.unsubscribe(callback);
-      }
-    };
+
+    for (const id of groupIds) {
+      if (previousGroupIds.includes(id)) continue;
+      void ably.channels.get(schema.group.name(id)).subscribe(callback);
+    }
+
+    previousGroupIds = groupIds;
   }, [ably, callback, groupIds]);
 
   return <></>;

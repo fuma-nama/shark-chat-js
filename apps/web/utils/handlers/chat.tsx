@@ -9,7 +9,8 @@ import { useAbly } from "@/utils/ably/client";
 import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
 import type { AblyMessageCallback } from "ably/react";
 
-const knownChannels = new Set<string>();
+let previousChannelIds: string[] = [];
+
 export function MessageEventManager() {
   const { data: session } = useSession();
   const utils = trpc.useUtils();
@@ -132,18 +133,18 @@ export function MessageEventManager() {
   useEffect(() => {
     if (!ably) return;
 
-    const channels = channelIds.map((id) =>
-      ably.channels.get(schema.chat.name(id)),
-    );
+    for (const prev of previousChannelIds) {
+      if (channelIds.includes(prev)) continue;
+      void ably.channels.get(schema.chat.name(prev)).unsubscribe();
+    }
 
-    for (const c of channels) {
-      void c.subscribe(callback);
-
-      if (knownChannels.has(c.name)) continue;
-      knownChannels.add(c.name);
-      void c.presence.enter();
-      void c.presence.subscribe(async (e) => {
-        const presence = await c.presence.get({ clientId: e.clientId });
+    for (const id of channelIds) {
+      if (previousChannelIds.includes(id)) continue;
+      const channel = ably.channels.get(schema.chat.name(id));
+      void channel.presence.enter();
+      void channel.subscribe(callback);
+      void channel.presence.subscribe(async (e) => {
+        const presence = await channel.presence.get({ clientId: e.clientId });
 
         useMessageStore.setState((prev) => ({
           status: {
@@ -155,11 +156,8 @@ export function MessageEventManager() {
         }));
       });
     }
-    return () => {
-      for (const c of channels) {
-        void c.unsubscribe(callback);
-      }
-    };
+
+    previousChannelIds = channelIds;
   }, [ably, callback, channelIds]);
 
   return <></>;
