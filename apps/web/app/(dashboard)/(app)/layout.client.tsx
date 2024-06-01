@@ -8,7 +8,7 @@ import {
   ToastTitle,
   ToastViewport,
 } from "ui/components/toast";
-import React from "react";
+import React, { useEffect } from "react";
 import { TooltipProvider } from "ui/components/tooltip";
 import { Navbar } from "@/components/layout/Navbar";
 import { useParams, usePathname } from "next/navigation";
@@ -20,8 +20,18 @@ import { groupIcon } from "shared/media/format";
 import { trpc } from "@/utils/trpc";
 import Link from "next/link";
 import { button } from "ui/components/button";
+import { signOut } from "next-auth/react";
+import { useSession } from "@/utils/auth";
 
 export function Provider({ children }: { children: React.ReactNode }) {
+  const data = useSession();
+
+  useEffect(() => {
+    if (data.status === "unauthenticated") {
+      void signOut({ redirect: true });
+    }
+  }, [data]);
+
   return (
     <TooltipProvider delayDuration={100}>
       <ToastManager />

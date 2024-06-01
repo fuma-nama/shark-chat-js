@@ -1,12 +1,11 @@
 import { useSession } from "@/utils/auth";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getBaseUrl } from "@/utils/get-base-url";
 import type { Realtime } from "ably";
-
-const Context = createContext<Realtime | undefined>(undefined);
+import { useMessageStore } from "@/utils/stores/chat";
 
 export function useAbly(): Realtime | undefined {
-  return useContext(Context);
+  return useMessageStore((s) => s.ably);
 }
 
 export function AblyClientProvider({
@@ -14,9 +13,11 @@ export function AblyClientProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [ably, setAbly] = useState<Realtime>();
+  const ably = useMessageStore((s) => s.ably);
   const { status } = useSession();
   useEffect(() => {
+    if (ably) return;
+
     import("ably").then((res) => {
       const instance = new res.Realtime({
         authUrl: `${getBaseUrl()}/api/ably/auth`,
@@ -30,9 +31,11 @@ export function AblyClientProvider({
         console.log("Ably Client disconnected"),
       );
 
-      setAbly(instance);
+      useMessageStore.setState({
+        ably: instance,
+      });
     });
-  }, []);
+  }, [ably]);
 
   useEffect(() => {
     if (!ably) return;
@@ -47,5 +50,5 @@ export function AblyClientProvider({
     }
   }, [ably, status]);
 
-  return <Context.Provider value={ably}>{children}</Context.Provider>;
+  return <>{children}</>;
 }

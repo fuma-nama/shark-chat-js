@@ -3,6 +3,7 @@ import { addNonce, removeNonce } from "../handlers/shared";
 import { SendData } from "@/components/chat/Sendbar";
 import { MessageType } from "../types";
 import type { UserProfile } from "server/routers/chat";
+import type { Realtime } from "ably";
 
 /**
  * Message that being sent locally but not received from the server yet
@@ -20,6 +21,7 @@ export interface TypingUser {
 }
 
 export type ChatStore = {
+  ably?: Realtime;
   sending: {
     [id: string]: MessagePlaceholder[];
   };

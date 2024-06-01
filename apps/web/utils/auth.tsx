@@ -1,7 +1,6 @@
 import { createContext, useContext, useMemo } from "react";
 import { User } from "next-auth";
 import { trpc } from "@/utils/trpc";
-import { signOut } from "next-auth/react";
 
 export const SessionContext = createContext<Result>({
   status: "unauthenticated",
@@ -27,11 +26,6 @@ export function useSession(): Result {
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const query = trpc.account.get.useQuery(undefined, {
     staleTime: Infinity,
-    onError() {
-      return signOut({
-        redirect: true,
-      });
-    },
   });
 
   const result = useMemo<Result>(() => {
