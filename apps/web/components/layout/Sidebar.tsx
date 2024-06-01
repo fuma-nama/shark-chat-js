@@ -10,46 +10,48 @@ import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useEffect } from "react";
 import { Spinner } from "ui/components/spinner";
 import { useMessageStore } from "@/utils/stores/chat";
+import { button } from "ui/components/button";
 
 export default function Sidebar() {
+  const pathname = usePathname();
   const [isOpen, setOpen] = usePageStore((v) => [
     v.isSidebarOpen,
     v.setSidebarOpen,
   ]);
-  const onClose = () => setOpen(false);
+  const onClose = useCallback(() => setOpen(false), [setOpen]);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname, setOpen]);
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed w-full h-full bg-black/30 md:hidden animate-fade-in z-50"
+          className="fixed size-full bg-black/30 z-50 md:hidden"
           onClick={onClose}
         />
       )}
       <aside
         className={clsx(
           "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-card border-r overflow-x-hidden overflow-y-auto md:h-dvh",
-          "max-md:fixed max-md:bottom-0 max-md:left-0 max-md:top-0 max-md:w-full max-md:max-w-[20rem] max-md:z-50",
-          "max-md:transition-transform max-md:duration-300",
+          "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:w-full max-md:max-w-[16rem] max-md:z-50 max-md:pt-12 max-md:transition-transform max-md:duration-300",
           !isOpen && "max-md:-translate-x-full",
         )}
       >
         <button
-          className="bg-background absolute p-1 top-4 right-4 md:hidden"
+          className={button({
+            className: "absolute top-2 left-2 md:hidden",
+            color: "ghost",
+            size: "icon",
+          })}
           onClick={onClose}
         >
-          <XIcon className="size-4" />
+          <XIcon className="size-5 text-muted-foreground" />
         </button>
-        <Link
-          href="/info"
-          prefetch={false}
-          className="font-semibold text-sm mb-2"
-        >
-          Shark Chat
-        </Link>
         <LinkItem
           name="Home"
           route="/"
@@ -150,7 +152,12 @@ function LinkItem({
           : "hover:bg-accent/50 transition-colors",
       )}
     >
-      <div className={cn("p-2 rounded-full bg-brand/30", active && "bg-brand")}>
+      <div
+        className={cn(
+          "p-2 rounded-full bg-primary text-primary-foreground",
+          !active && "opacity-50",
+        )}
+      >
         {icon}
       </div>
       <p className="text-sm font-medium">{name}</p>
