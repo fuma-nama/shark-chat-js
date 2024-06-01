@@ -4,6 +4,7 @@ import { Button } from "ui/components/button";
 import { Cropper, ReactCropperElement } from "react-cropper";
 import { SimpleDialog } from "ui/components/dialog";
 import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
+import { cn } from "ui/utils/cn";
 
 export function ImagePicker({
   value,
@@ -34,7 +35,7 @@ export function ImagePicker({
   });
 
   return (
-    <div className={previewClassName} style={{ aspectRatio }}>
+    <div className={cn(previewClassName, "bg-brand")} style={{ aspectRatio }}>
       <SimpleDialog
         title="Cut Image"
         description="Scale it to the correct size."

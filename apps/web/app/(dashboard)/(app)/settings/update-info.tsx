@@ -3,7 +3,7 @@ import { User } from "db/schema";
 import { Controller, useForm } from "react-hook-form";
 import { trpc } from "@/utils/trpc";
 import {
-  UpdateProfileOptions,
+  type UpdateProfileOptions,
   useUpdateProfileMutation,
 } from "@/utils/hooks/mutations/update-profile";
 import { ImagePicker } from "@/components/input/ImagePicker";
@@ -57,7 +57,7 @@ export function UpdateProfile({
         render={({ field: { value, onChange, ...field } }) => (
           <ImagePicker
             input={{ id: "avatar", ...field }}
-            previewClassName="size-[100px] border-4 border-popover rounded-xl overflow-hidden -mt-[50px]"
+            previewClassName="size-[100px] border-4 border-popover rounded-full overflow-hidden -mt-[50px]"
             value={value ?? profile.image}
             onChange={onChange}
           />
