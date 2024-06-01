@@ -1,5 +1,5 @@
 "use client";
-import { ImagePicker, usePreview } from "@/components/input/ImagePicker";
+import { ImagePicker } from "@/components/input/ImagePicker";
 import { input } from "ui/components/input";
 import { Avatar } from "ui/components/avatar";
 import { Button, button } from "ui/components/button";
@@ -7,15 +7,13 @@ import { groupBanners, groupIcon } from "shared/media/format";
 import { useUpdateGroupInfoMutation } from "@/utils/hooks/mutations/update-group-info";
 import { Group } from "db/schema";
 import { Serialize } from "shared/types";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { updateGroupSchema } from "shared/schema/group";
 import { UniqueNameInput } from "@/components/input/UniqueNameInput";
 import { SimpleDialog } from "ui/components/dialog";
-import { Cropper, type ReactCropperElement } from "react-cropper";
-import { EditIcon } from "lucide-react";
 import { useGroupContext } from "@/utils/contexts/group-context";
 import { useSession } from "@/utils/auth";
 import { BannerImage } from "@/components/BannerImage";
@@ -28,11 +26,7 @@ export function Info() {
 
   return (
     <div className="flex flex-col bg-card px-4 pb-8 overflow-hidden max-sm:-mx-4 sm:rounded-xl">
-      {canEdit ? (
-        <BannerEdit group={group} />
-      ) : (
-        <BannerImage url={groupBanners.url([group.id], group.banner_hash)} />
-      )}
+      <BannerImage url={groupBanners.url([group.id], group.banner_hash)} />
       <div className="w-full flex flex-row justify-between items-end">
         <Avatar
           size="xlarge"
@@ -65,85 +59,11 @@ export function Info() {
 }
 
 const schema = updateGroupSchema
-  .omit({ groupId: true, icon_hash: true })
+  .omit({ groupId: true, icon_hash: true, banner_hash: true })
   .extend({
+    banner: z.string().optional(),
     icon: z.string().optional(),
   });
-
-export function BannerEdit({ group }: { group: Group }) {
-  const [file, setFile] = useState<Blob>();
-  const cropperRef = useRef<ReactCropperElement>(null);
-  const preview = usePreview(file);
-
-  const mutation = useUpdateGroupInfoMutation({
-    onSuccess() {
-      setFile(undefined);
-    },
-  });
-
-  const onCrop = () => {
-    const cropped = cropperRef.current?.cropper.getCroppedCanvas().toDataURL();
-
-    if (cropped) {
-      mutation.mutate({
-        groupId: group.id,
-        banner: cropped,
-      });
-    }
-  };
-
-  return (
-    <>
-      <SimpleDialog
-        open={Boolean(file)}
-        onOpenChange={(open) => setFile((prev) => (open ? prev : undefined))}
-        title="Change Banner"
-        description="Best at 1200x400."
-      >
-        {preview && (
-          <Cropper src={preview} aspectRatio={3} guides ref={cropperRef} />
-        )}
-        <div className="flex flex-row gap-3 mt-4">
-          <Button
-            color="primary"
-            type="button"
-            isLoading={mutation.isLoading}
-            onClick={onCrop}
-          >
-            Crop
-          </Button>
-          <Button type="button" onClick={() => setFile(undefined)}>
-            Cancel
-          </Button>
-        </div>
-      </SimpleDialog>
-
-      <input
-        id="banner_image"
-        type="file"
-        onChange={(e) => {
-          if (e.target.files && e.target.files.length > 0)
-            setFile(e.target.files[0]);
-        }}
-        hidden
-      />
-      <div className="relative">
-        <label
-          htmlFor="banner_image"
-          aria-label="Change Banner"
-          className={button({
-            size: "icon",
-            className:
-              "absolute z-[2] top-2 right-0 cursor-pointer rounded-full",
-          })}
-        >
-          <EditIcon className="size-4" />
-        </label>
-        <BannerImage url={groupBanners.url([group.id], group.banner_hash)} />
-      </div>
-    </>
-  );
-}
 
 function EditGroupPanel({
   group,
@@ -153,12 +73,11 @@ function EditGroupPanel({
   onCancel: () => void;
 }) {
   const mutation = useUpdateGroupInfoMutation();
-  const { register, handleSubmit, control } = useForm({
+  const { register, handleSubmit, control } = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
       unique_name: group.unique_name,
       name: group.name,
-      icon: undefined,
     },
   });
 
@@ -172,7 +91,21 @@ function EditGroupPanel({
   });
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={onSave}>
+    <form className="flex flex-col" onSubmit={onSave}>
+      <Controller
+        name="banner"
+        control={control}
+        render={({ field: { value, onChange, ...field } }) => (
+          <ImagePicker
+            input={{ id: "banner", ...field }}
+            value={value ?? groupBanners.url([group.id], group.banner_hash)}
+            onChange={onChange}
+            aspectRatio={3}
+            previewClassName="-mx-4"
+          />
+        )}
+      />
+
       <Controller
         name="icon"
         control={control}
@@ -181,18 +114,18 @@ function EditGroupPanel({
             input={{ id: "icon", ...field }}
             value={value ?? groupIcon.url([group.id], group.icon_hash)}
             onChange={onChange}
-            previewClassName="size-[150px] max-w-full mx-auto"
+            previewClassName="size-[120px] rounded-full mt-[-60px] border-4 border-popover"
           />
         )}
       />
 
-      <fieldset>
+      <fieldset className="mt-4">
         <label htmlFor="name" className="font-medium text-xs">
           Name
         </label>
         <input id="name" className={input()} {...register("name")} />
       </fieldset>
-      <fieldset>
+      <fieldset className="mt-4">
         <label htmlFor="unique_name" className="font-medium text-xs">
           Unique Name
         </label>
@@ -212,11 +145,11 @@ function EditGroupPanel({
         </p>
       </fieldset>
 
-      <div className="flex flex-row gap-3 pt-2">
+      <div className="flex flex-row gap-3 mt-6">
         <Button type="submit" color="primary" isLoading={mutation.isLoading}>
           Save Changes
         </Button>
-        <Button disabled={mutation.isLoading} onClick={onCancel}>
+        <Button type="button" disabled={mutation.isLoading} onClick={onCancel}>
           Cancel
         </Button>
       </div>

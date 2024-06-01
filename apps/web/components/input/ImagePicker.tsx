@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { ComponentProps, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "ui/components/button";
 import { Cropper, ReactCropperElement } from "react-cropper";
 import { SimpleDialog } from "ui/components/dialog";
@@ -17,7 +17,7 @@ export function ImagePicker({
   onChange: (v: string) => void;
   previewClassName?: string;
   aspectRatio?: number;
-  input?: ComponentProps<"input">;
+  input?: React.ComponentProps<"input">;
 }) {
   const [selected, setSelected] = useState<File | null>();
   const [edit, setEdit] = useState(false);
@@ -28,14 +28,17 @@ export function ImagePicker({
   const onCrop = useCallbackRef(() => {
     const cropped = cropperRef.current?.cropper.getCroppedCanvas().toDataURL();
 
-    if (cropped != null) {
+    if (cropped) {
       onChange(cropped);
       setEdit(false);
     }
   });
 
   return (
-    <div className={cn(previewClassName, "bg-brand")} style={{ aspectRatio }}>
+    <div
+      className={cn(previewClassName, "bg-brand overflow-hidden")}
+      style={{ aspectRatio }}
+    >
       <SimpleDialog
         title="Cut Image"
         description="Scale it to the correct size."
@@ -63,14 +66,14 @@ export function ImagePicker({
         type="file"
         className="hidden"
         accept="image/*"
-        onChange={(e) => {
+        onChange={useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
           const item = e.target.files?.item(0);
 
-          if (item != null) {
+          if (item) {
             setSelected(item);
             setEdit(true);
           }
-        }}
+        }, [])}
         multiple={false}
         {...input}
       />
@@ -86,7 +89,7 @@ export function ImagePicker({
         <label
           aria-label="Pick Image"
           htmlFor={id}
-          className="flex flex-col gap-3 items-center justify-center p-2 size-full bg-muted border text-center text-muted-foreground/70 cursor-pointer"
+          className="flex flex-col gap-3 items-center justify-center p-2 size-full bg-muted text-center text-muted-foreground/70 cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
