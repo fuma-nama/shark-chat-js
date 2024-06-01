@@ -8,7 +8,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { textArea } from "ui/components/textarea";
-import React, { HTMLAttributes, useEffect, useRef, useState } from "react";
+import React, { HTMLAttributes, useEffect, useState } from "react";
 import { button, IconButton } from "ui/components/button";
 import { contentSchema } from "shared/schema/chat";
 import {
@@ -33,6 +33,7 @@ import { useSendMessageMutation } from "@/utils/hooks/mutations/send-message";
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
+import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
 
 const GenerateTextModal = dynamic(() => import("../modal/GenerateTextModal"));
 
@@ -64,10 +65,6 @@ export function Sendbar({ channelId }: { channelId: string }) {
 
   const mutation = useSendMessageMutation();
 
-  const onEscape = () => {
-    useMessageStore.getState().updateReply(channelId, null);
-  };
-
   const onSubmit = form.handleSubmit(async (data) => {
     const store = useMessageStore.getState();
     const reply = store.reply.get(channelId);
@@ -79,13 +76,33 @@ export function Sendbar({ channelId }: { channelId: string }) {
       nonce: store.addSending(channelId, data, reply).nonce,
     });
 
-    onEscape();
-
+    store.updateReply(channelId, null);
     form.reset({ content: "", attachment: null });
   });
 
+  const onPaste: React.ClipboardEventHandler = useCallbackRef((e) => {
+    if (e.clipboardData.files.length > 0) {
+      e.preventDefault();
+      form.setValue("attachment", e.clipboardData.files[0], {
+        shouldDirty: true,
+      });
+    }
+  });
+
+  const onKeyDown: React.KeyboardEventHandler = useCallbackRef((e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      void onSubmit();
+      e.preventDefault();
+    }
+
+    if (e.key === "Escape") {
+      useMessageStore.getState().updateReply(channelId, null);
+      e.preventDefault();
+    }
+  });
+
   return (
-    <div className="bg-background sm:px-4 sm:pb-4">
+    <div className="relative bg-background sm:px-4 sm:pb-4">
       <RollbackButton />
       <FormProvider {...form}>
         <div className="flex flex-col gap-3 pt-2 pb-7 px-3.5 bg-muted/50 sm:rounded-3xl sm:bg-secondary sm:p-2">
@@ -96,43 +113,11 @@ export function Sendbar({ channelId }: { channelId: string }) {
             <Options />
             <TextArea
               control={form.control}
-              onSignal={() => {
+              onSignal={useCallbackRef(() => {
                 void utils.client.chat.type.mutate({ channelId });
-                /* Experimental typing signal
-                const profile = utils.account.get.getData();
-                if (!profile) return;
-
-                void ably.channels.get(`chat:${channelId}:typing`).publish({
-                  data: {
-                    channelId,
-                    user: {
-                      id: profile.id,
-                      name: profile.name,
-                      image: profile.image,
-                    },
-                  },
-                });
-                 */
-              }}
-              onPaste={(e) => {
-                if (e.clipboardData.files.length > 0) {
-                  e.preventDefault();
-                  form.setValue("attachment", e.clipboardData.files[0], {
-                    shouldDirty: true,
-                  });
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  void onSubmit();
-                  e.preventDefault();
-                }
-
-                if (e.key === "Escape") {
-                  onEscape();
-                  e.preventDefault();
-                }
-              }}
+              })}
+              onPaste={onPaste}
+              onKeyDown={onKeyDown}
             />
             <IconButton
               disabled={!form.formState.isValid}
@@ -251,7 +236,7 @@ function RollbackButton() {
         size: "icon",
         className: [
           "absolute top-0 right-4 -mt-12 rounded-full z-[-1] transition-all",
-          !canRollback && "opacity-0 translate-y-20",
+          canRollback ? "z-[2]" : "opacity-0 translate-y-20",
         ],
       })}
       onClick={onClick}
@@ -310,9 +295,6 @@ function TextArea({
   onSignal: () => void;
 } & HTMLAttributes<HTMLTextAreaElement>) {
   const { field } = useController({ control, name: "content" });
-  const onSignalRef = useRef(onSignal);
-
-  onSignalRef.current = onSignal;
 
   useEffect(() => {
     const textArea = document.getElementById("text");
@@ -320,14 +302,14 @@ function TextArea({
 
     const timer = window.setInterval(() => {
       if (document.activeElement === textArea && document.hasFocus()) {
-        onSignalRef.current?.();
+        onSignal();
       }
     }, 2000);
 
     return () => {
       window.clearInterval(timer);
     };
-  }, []);
+  }, [onSignal]);
 
   return (
     <div className="grid flex-1 *:col-[1/2] *:row-[1/2]">

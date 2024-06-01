@@ -1,6 +1,12 @@
 import { useMessageStore } from "@/utils/stores/chat";
 import { trpc } from "@/utils/trpc";
-import { createContext, ReactNode, useMemo, useRef } from "react";
+import {
+  createContext,
+  ReactNode,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { Button } from "ui/components/button";
 import { ChatMessageItem } from "./message";
 import { LocalMessageItem } from "./message/sending";
@@ -95,13 +101,15 @@ function VirtualScroll({
   const headerShownRef = useRef(false);
   const scroll = useBottomScroll();
 
-  const info = scroll.info.get("heading");
-  if (info && info.isIntersecting) {
-    if (!headerShownRef.current) onLoad();
-    headerShownRef.current = true;
-  } else {
-    headerShownRef.current = false;
-  }
+  useLayoutEffect(() => {
+    const info = scroll.info.get("heading");
+    if (info && info.isIntersecting) {
+      if (!headerShownRef.current) onLoad();
+      headerShownRef.current = true;
+    } else {
+      headerShownRef.current = false;
+    }
+  });
 
   const scrollToMessage = useCallbackRef((id: number) => {
     const idx = items.findLastIndex(
