@@ -38,7 +38,7 @@ export default function Sidebar() {
       <aside
         className={clsx(
           "sticky top-0 flex flex-col p-4 pb-0 gap-1 bg-card border-r overflow-x-hidden overflow-y-auto md:h-dvh",
-          "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:w-full max-md:max-w-[16rem] max-md:z-50 max-md:pt-12 max-md:transition-transform max-md:duration-300",
+          "max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:w-full max-md:max-w-[16rem] max-md:z-50 max-md:pt-10 max-md:transition-transform max-md:duration-300",
           !isOpen && "max-md:-translate-x-full",
         )}
       >

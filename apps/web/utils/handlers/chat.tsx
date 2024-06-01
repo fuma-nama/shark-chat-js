@@ -9,6 +9,7 @@ import { useAbly } from "@/utils/ably/client";
 import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
 import type { AblyMessageCallback } from "ably/react";
 
+const knownChannels = new Set<string>();
 export function MessageEventManager() {
   const { data: session } = useSession();
   const utils = trpc.useUtils();
@@ -137,15 +138,18 @@ export function MessageEventManager() {
 
     for (const c of channels) {
       void c.subscribe(callback);
+
+      if (knownChannels.has(c.name)) continue;
+      knownChannels.add(c.name);
       void c.presence.enter();
-      void c.presence.subscribe((e) => {
+      void c.presence.subscribe(async (e) => {
+        const presence = await c.presence.get({ clientId: e.clientId });
+
         useMessageStore.setState((prev) => ({
           status: {
             ...prev.status,
             [e.clientId]: {
-              type: ["present", "enter", "update"].includes(e.action)
-                ? "online"
-                : "offline",
+              type: presence.length > 0 ? "online" : "offline",
             },
           },
         }));
