@@ -2,53 +2,61 @@
 import React, { ComponentProps, useEffect, useRef, useState } from "react";
 import { Button } from "ui/components/button";
 import { Cropper, ReactCropperElement } from "react-cropper";
-import clsx from "clsx";
+import { SimpleDialog } from "ui/components/dialog";
+import { useCallbackRef } from "@/utils/hooks/use-callback-ref";
 
 export function ImagePicker({
   value,
   onChange,
   previewClassName,
+  aspectRatio = 1,
   input,
 }: {
   value: string | null;
   onChange: (v: string) => void;
   previewClassName?: string;
+  aspectRatio?: number;
   input?: ComponentProps<"input">;
 }) {
   const [selected, setSelected] = useState<File | null>();
+  const [edit, setEdit] = useState(false);
   const preview = usePreview(selected);
   const cropperRef = useRef<ReactCropperElement>(null);
   const id = input?.id ?? "image-upload";
 
-  if (preview != null) {
-    const onCrop = () => {
-      const cropped = cropperRef.current?.cropper
-        .getCroppedCanvas()
-        .toDataURL();
+  const onCrop = useCallbackRef(() => {
+    const cropped = cropperRef.current?.cropper.getCroppedCanvas().toDataURL();
 
-      if (cropped != null) {
-        onChange(cropped);
-        setSelected(null);
-      }
-    };
-
-    return (
-      <div className="flex flex-col gap-3">
-        <Cropper src={preview} aspectRatio={1} guides ref={cropperRef} />
-        <div className="flex flex-row gap-3">
-          <Button color="primary" type="button" onClick={onCrop}>
-            Crop
-          </Button>
-          <Button type="button" onClick={() => setSelected(null)}>
-            Cancel
-          </Button>
-        </div>
-      </div>
-    );
-  }
+    if (cropped != null) {
+      onChange(cropped);
+      setEdit(false);
+    }
+  });
 
   return (
-    <div className={previewClassName}>
+    <div className={previewClassName} style={{ aspectRatio }}>
+      <SimpleDialog
+        title="Cut Image"
+        description="Scale it to the correct size."
+        open={edit}
+        onOpenChange={setEdit}
+        contentProps={{
+          className: "flex flex-col size-full max-w-none",
+        }}
+      >
+        {preview ? (
+          <Cropper
+            ref={cropperRef}
+            src={preview}
+            aspectRatio={aspectRatio}
+            className="flex-1 h-0"
+            guides
+          />
+        ) : null}
+        <Button color="primary" type="button" onClick={onCrop} className="mt-4">
+          Crop
+        </Button>
+      </SimpleDialog>
       <input
         id={id}
         type="file"
@@ -57,34 +65,34 @@ export function ImagePicker({
         onChange={(e) => {
           const item = e.target.files?.item(0);
 
-          if (item != null) setSelected(item);
+          if (item != null) {
+            setSelected(item);
+            setEdit(true);
+          }
         }}
         multiple={false}
         {...input}
       />
-      {value != null ? (
+      {value ? (
         <label htmlFor={id}>
           <img
             alt="selected file"
             src={value}
-            className="w-full h-full rounded-xl cursor-pointer"
+            className="size-full rounded-xl cursor-pointer"
           />
         </label>
       ) : (
         <label
           aria-label="Pick Image"
           htmlFor={id}
-          className={clsx(
-            "flex flex-col gap-3 items-center justify-center p-2 w-full h-full rounded-xl cursor-pointer",
-            "bg-muted border text-center text-muted-foreground/70",
-          )}
+          className="flex flex-col gap-3 items-center justify-center p-2 size-full bg-muted border text-center text-muted-foreground/70 rounded-xl cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
             viewBox="0 0 24 24"
-            className="fill-accent-700 w-10 h-10"
+            className="fill-accent-700 size-10"
           >
             <path d="M4 5h13v7h2V5c0-1.103-.897-2-2-2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h8v-2H4V5z"></path>
             <path d="m8 11-3 4h11l-4-6-3 4z"></path>
