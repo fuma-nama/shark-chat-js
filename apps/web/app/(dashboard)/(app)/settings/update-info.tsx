@@ -41,25 +41,25 @@ export function UpdateProfile({
       <Controller
         name="banner"
         control={form.control}
-        render={({ field }) => (
+        render={({ field: { value, onChange, ...field } }) => (
           <ImagePicker
+            input={{ id: "banner", ...field }}
             aspectRatio={4}
             previewClassName="-mx-4"
-            {...field}
-            value={
-              field.value ?? userBanners.url([profile.id], profile.banner_hash)
-            }
+            value={value ?? userBanners.url([profile.id], profile.banner_hash)}
+            onChange={onChange}
           />
         )}
       />
       <Controller
         name="avatar"
         control={form.control}
-        render={({ field }) => (
+        render={({ field: { value, onChange, ...field } }) => (
           <ImagePicker
+            input={{ id: "avatar", ...field }}
             previewClassName="size-[100px] border-4 border-popover rounded-xl overflow-hidden -mt-[50px]"
-            {...field}
-            value={field.value ?? profile.image}
+            value={value ?? profile.image}
+            onChange={onChange}
           />
         )}
       />
