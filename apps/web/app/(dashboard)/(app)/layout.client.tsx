@@ -77,7 +77,7 @@ export function Nav() {
         id: "settings",
         text: (
           <>
-            <Settings className="size-4" />
+            <Settings className="size-4 max-md:hidden" />
             Settings
           </>
         ),
@@ -91,7 +91,7 @@ export function Nav() {
         id: "emotes",
         text: (
           <>
-            <Smile className="size-4" />
+            <Smile className="size-4 max-md:hidden" />
             Emotes
           </>
         ),
@@ -105,7 +105,7 @@ export function Nav() {
         id: "Home",
         text: (
           <>
-            <Home className="size-4" />
+            <Home className="size-4 max-md:hidden" />
             Recent Chat
           </>
         ),
@@ -137,7 +137,6 @@ function GroupBreadcrumbItem({ group }: { group: string }) {
       <Avatar
         size="small"
         src={groupIcon.url([info.id], info.icon_hash)}
-        alt="icon"
         fallback={info.name}
       />
       <span>{info.name}</span>

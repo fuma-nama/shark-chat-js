@@ -21,7 +21,7 @@ export default function Settings() {
 
   return (
     <main className="flex flex-col max-w-screen-sm gap-6 sm:px-4">
-      <div className="flex flex-col p-4 pt-0 bg-card overflow-hidden sm:rounded-xl">
+      <div className="flex flex-col px-4 pb-8 bg-card overflow-hidden sm:rounded-xl">
         <BannerImage
           url={userBanners.url([profile.id], profile.banner_hash)}
           className="aspect-[4]"
@@ -47,7 +47,7 @@ export default function Settings() {
           <Button onClick={() => signOut()}>Logout</Button>
         </div>
       </div>
-      <div className="flex flex-col p-4 gap-6">
+      <div className="flex flex-col px-4 gap-6">
         <fieldset className="flex flex-col gap-4 items-start">
           <div>
             <label htmlFor="theme" className={fieldset().label()}>
