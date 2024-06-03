@@ -28,7 +28,7 @@ function emote(key: number, id: string, inline: boolean) {
       height={50}
       src={
         isDiscord
-          ? `https://cdn.discordapp.com/emojis/${id.slice(discordPrefix.length)}.webp?size=240&quality=lossless`
+          ? `https://cdn.discordapp.com/emojis/${id.slice(discordPrefix.length)}?size=240&quality=lossless`
           : emotes.url([id], "default")
       }
       unoptimized={isDiscord}
