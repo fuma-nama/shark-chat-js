@@ -31,6 +31,7 @@ function emote(key: number, id: string, inline: boolean) {
           ? `https://cdn.discordapp.com/emojis/${id.slice(discordPrefix.length)}.webp?size=240&quality=lossless`
           : emotes.url([id], "default")
       }
+      unoptimized={isDiscord}
       className={inline ? "inline my-0 mx-1 size-6" : "m-0"}
       loader={isDiscord ? undefined : cloudinaryLoader}
     />
