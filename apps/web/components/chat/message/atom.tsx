@@ -21,7 +21,7 @@ interface ContentProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const contentVariants = tv({
-  base: "relative group px-6 text-[15px] data-[state=open]:bg-card hover:bg-card",
+  base: "relative group px-2 mx-2 rounded-xl text-[15px] data-[state=open]:bg-accent/50 hover:bg-accent/50 md:mx-4",
   variants: {
     chain: {
       head: "flex flex-row items-start gap-2 pt-2",
@@ -115,7 +115,7 @@ export function Menu() {
       className={button({
         size: "icon",
         className:
-          "absolute -top-2 right-4 opacity-0 group-hover:opacity-100 radix-state-open:opacity-100",
+          "absolute -top-2 right-2 opacity-0 group-hover:opacity-100 radix-state-open:opacity-100",
       })}
     >
       <MoreHorizontalIcon className="size-4" />

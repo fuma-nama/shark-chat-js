@@ -136,7 +136,7 @@ function PrivateInviteItem({ invite }: { invite: Serialize<GroupInvite> }) {
     <div className="flex flex-row gap-3 mt-3">
       <input
         readOnly
-        className={input({ className: "px-4" })}
+        className={input({ className: "px-4 font-mono" })}
         value={invite.code}
       />
       <Button
