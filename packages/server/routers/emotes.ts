@@ -4,7 +4,7 @@ import { Emotes, users } from "db/schema";
 import { TRPCError } from "@trpc/server";
 import { sign } from "./upload";
 import { emotes } from "shared/media/format";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, like } from "drizzle-orm";
 import { pick } from "next/dist/lib/pick";
 
 export const emotesRouter = router({
@@ -78,5 +78,21 @@ export const emotesRouter = router({
           message: "Duplicated Id",
         });
       }
+    }),
+  search: protectedProcedure
+    .input(
+      z.strictObject({
+        text: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      return await db
+        .select({
+          id: Emotes.id,
+          name: Emotes.name,
+          hash: Emotes.hash,
+        })
+        .from(Emotes)
+        .where(like(Emotes.id, `${input.text}%`));
     }),
 });

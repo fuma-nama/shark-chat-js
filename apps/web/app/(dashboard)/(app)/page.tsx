@@ -49,6 +49,7 @@ export default function Page() {
 }
 
 function RecentChat() {
+  const setModal = usePageStore((s) => s.setModal);
   const dmQuery = trpc.dm.channels.useQuery(undefined, {
     enabled: false,
   });
@@ -63,6 +64,17 @@ function RecentChat() {
 
   return (
     <main className="flex flex-col gap-6 p-4">
+      <div className="flex flex-row gap-2 md:hidden">
+        <Button
+          color="primary"
+          onClick={() => setModal({ type: "create-group" })}
+        >
+          Create Group
+        </Button>
+        <Button onClick={() => setModal({ type: "join-group" })}>
+          Join Group
+        </Button>
+      </div>
       {dmQuery.isLoading || groups.isLoading ? (
         <div className="mx-auto mt-12">
           <Spinner size="large" />
