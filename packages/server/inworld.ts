@@ -1,6 +1,6 @@
 import {
   InworldClient,
-  ServiceError,
+  type InworldError,
   Session,
   status,
 } from "@inworld/nodejs-sdk";
@@ -76,7 +76,7 @@ export async function onReceiveMessage(message: Message) {
 }
 
 function handleError(message: Message) {
-  return (err: ServiceError) => {
+  return async (err: InworldError) => {
     switch (err.code) {
       case status.ABORTED:
       case status.CANCELLED:
