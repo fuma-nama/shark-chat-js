@@ -2,7 +2,7 @@
   "name": "shared",
   "private": true,
   "dependencies": {
-    "ably": "^2.0.4",
+    "ably": "^2.3.1",
     "db": "workspace:*",
     "zod": "^3.23.8"
   },

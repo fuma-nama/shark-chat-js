@@ -1,13 +1,48 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "globalEnv": [
+    "GITHUB_ID",
+    "GITHUB_SECRET",
+
+    "NEXTAUTH_SECRET",
+    "NEXTAUTH_URL",
+
+    "DATABASE_URL",
+
+    "ABLY_API_KEY",
+
+    "NEXT_PUBLIC_CLOUDINARY_API_KEY",
+    "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_SECRET",
+
+    "INWORLD_KEY",
+    "INWORLD_SECRET",
+    "INWORLD_SCENE",
+
+    "REDIS_URL",
+    "REDIS_TOKEN",
+
+    "DISCORD_CLIENT_ID",
+    "DISCORD_CLIENT_SECRET",
+
+    "EDENAI_TOKEN"
+  ],
+  "globalPassThroughEnv": [
+    "PUSH_DATABASE_URL"
+  ],
+  "tasks": {
     "dev": {
       "persistent": true,
       "cache": false
     },
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "lint": {
       "cache": false
