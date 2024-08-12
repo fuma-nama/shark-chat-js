@@ -1,9 +1,24 @@
 import { create } from "zustand";
 
+type Modal = UserModal | CreateGroupModal | JoinGroupModal | BoardingModal;
+
 type UserModal = {
+  type: "user";
   user_id: string;
-  open: boolean;
 };
+
+type CreateGroupModal = {
+  type: "create-group";
+};
+
+type JoinGroupModal = {
+  type: "join-group";
+};
+
+type BoardingModal = {
+  type: "on-boarding";
+};
+
 type ToastMessage = {
   id: number;
   title?: string;
@@ -17,8 +32,8 @@ type PageStore = {
   messages: ToastMessage[];
   addMessage: (message: Omit<ToastMessage, "id">) => void;
   removeMessage: (id: number) => void;
-  modal?: UserModal;
-  setModal: (type: UserModal | undefined) => void;
+  modal?: Modal;
+  setModal: (type: Modal | undefined) => void;
 };
 
 export const usePageStore = create<PageStore>((set) => ({

@@ -23,13 +23,11 @@ export function ChatViewport({
       id="scroll"
       className="absolute inset-0 flex flex-col overflow-y-scroll overflow-x-hidden [overflow-anchor:none] overscroll-none"
     >
-      {modal && (
-        <UserProfileModal
-          userId={modal.user_id}
-          open={modal.open}
-          onOpenChange={() => setModal({ user_id: modal.user_id, open: false })}
-        />
-      )}
+      <UserProfileModal
+        open={modal?.type === "user"}
+        userId={modal?.type === "user" ? modal.user_id : ""}
+        onOpenChange={() => setModal(undefined)}
+      />
       <div id="scroll-inner" className="flex flex-col flex-1 pb-4">
         <ChatContext.Provider value={props}>{children}</ChatContext.Provider>
       </div>

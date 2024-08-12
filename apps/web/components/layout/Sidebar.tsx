@@ -1,7 +1,13 @@
 "use client";
 import { usePageStore } from "@/utils/stores/page";
 import { useProfile } from "@/utils/hooks/use-profile";
-import { ChevronRightIcon, HomeIcon, SmileIcon, XIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  HomeIcon,
+  Plus,
+  SmileIcon,
+  XIcon,
+} from "lucide-react";
 import clsx from "clsx";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -14,6 +20,12 @@ import { ReactNode, useCallback, useEffect } from "react";
 import { Spinner } from "ui/components/spinner";
 import { useMessageStore } from "@/utils/stores/chat";
 import { button } from "ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "ui/components/dropdown";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -73,6 +85,7 @@ function Nav() {
   const params = useParams() as { group?: string; channel?: string };
   const query = trpc.group.all.useQuery(undefined, { enabled: false });
   const dm = trpc.dm.channels.useQuery(undefined, { enabled: false });
+  const [setModal] = usePageStore((s) => [s.setModal]);
 
   if (!query.data || !dm.data)
     return (
@@ -82,14 +95,10 @@ function Nav() {
     );
 
   return (
-    <div className="mt-4">
-      <p className="text-sm mb-2 font-medium">Groups</p>
-      {query.data.length === 0 ? (
-        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground -mx-2">
-          no messages
-        </div>
-      ) : (
-        query.data.map((group) => (
+    <>
+      <p className="text-sm font-medium mt-2">Groups</p>
+      <div className="flex flex-col">
+        {query.data.map((group) => (
           <ChatItem
             key={group.id}
             href={`/chat/${group.id}`}
@@ -101,18 +110,34 @@ function Nav() {
           >
             {group.name}
           </ChatItem>
-        ))
-      )}
+        ))}
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label="New Chat Group"
+          className={button({ className: "-mx-2" })}
+        >
+          <Plus className="size-4 text-muted-foreground" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => setModal({ type: "create-group" })}>
+            Create
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setModal({ type: "join-group" })}>
+            Join with Invite
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-      <p className="text-sm mt-4 mb-2 font-medium">Users</p>
+      <p className="text-sm mt-2 mb-2 font-medium">Users</p>
       {dm.data.length === 0 ? (
-        <div className="p-2 text-center bg-accent rounded-xl text-sm text-muted-foreground -mx-2">
+        <div className="p-3 text-center bg-accent rounded-xl text-sm text-muted-foreground -mx-2">
           no direct messages
         </div>
       ) : (
-        dm.data.map((item) => (
-          <DirectMessageContextMenu key={item.id} channelId={item.id}>
-            <div className="select-none">
+        <div className="flex flex-col">
+          {dm.data.map((item) => (
+            <DirectMessageContextMenu key={item.id} channelId={item.id}>
               <ChatItem
                 href={`/dm/${item.id}`}
                 channelId={item.id}
@@ -123,11 +148,11 @@ function Nav() {
               >
                 {item.user.name}
               </ChatItem>
-            </div>
-          </DirectMessageContextMenu>
-        ))
+            </DirectMessageContextMenu>
+          ))}
+        </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -189,7 +214,7 @@ function ChatItem({
       href={href}
       scroll={false}
       className={cn(
-        "flex flex-row items-center gap-2 px-3 -mx-3 py-2 rounded-xl text-sm transition-colors",
+        "flex flex-row items-center gap-2 px-3 -mx-2 py-2 rounded-xl text-sm transition-colors select-none",
         active
           ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-accent/50",
@@ -216,7 +241,7 @@ function BottomCard() {
   if (status !== "authenticated") return <></>;
 
   return (
-    <div className="sticky bottom-0 bg-card mt-auto -mx-2 pb-4">
+    <div className="sticky bottom-0 bg-card mt-auto -mx-2 pb-2">
       <Link
         href="/settings"
         className="p-2 rounded-xl flex flex-row items-center group cursor-pointer transition-colors hover:bg-accent"

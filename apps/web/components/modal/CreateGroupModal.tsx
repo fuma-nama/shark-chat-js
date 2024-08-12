@@ -1,4 +1,4 @@
-import React from "react";
+"use client";
 import { SimpleDialog } from "ui/components/dialog";
 import { createGroupSchema } from "shared/schema/group";
 import { updateGroupInfo } from "@/utils/hooks/mutations/update-group-info";
@@ -10,22 +10,25 @@ import { Button } from "ui/components/button";
 import { input } from "ui/components/input";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
+import { usePageStore } from "@/utils/stores/page";
 
-export default function CreateGroupModal({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}) {
+export default function CreateGroupModal() {
+  const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
+
   return (
     <SimpleDialog
       title="Create Group"
       description="Give your chat group a beautiful name and icon"
-      open={open}
-      onOpenChange={setOpen}
+      open={modal?.type === "create-group"}
+      onOpenChange={(v) => {
+        if (v)
+          setModal({
+            type: "create-group",
+          });
+        else setModal(undefined);
+      }}
     >
-      <Content onClose={() => setOpen(false)} />
+      <Content onClose={() => setModal(undefined)} />
     </SimpleDialog>
   );
 }

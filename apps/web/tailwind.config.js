@@ -6,7 +6,7 @@ module.exports = {
     "pages/**/*.tsx",
     "app/**/*.tsx",
     "components/**/*.tsx",
-    "../../packages/ui/**/*.tsx",
+    "../../packages/ui/components/**/*.tsx",
   ],
   darkMode: "class",
   theme: {

@@ -53,7 +53,10 @@ export function Content(props: ContextMenu.ContextMenuContentProps) {
 }
 
 export type MenuItemProps = MenuItemVariants &
-  Pick<ContextMenu.MenuItemProps, "onClick" | "onSelect" | "disabled"> & {
+  Pick<
+    ContextMenu.ContextMenuItemProps,
+    "onClick" | "onSelect" | "disabled"
+  > & {
     children: ReactNode;
     shortcut?: string;
     icon?: ReactNode;

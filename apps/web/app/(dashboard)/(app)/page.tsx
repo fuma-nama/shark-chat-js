@@ -6,80 +6,49 @@ import { groupIcon } from "shared/media/format";
 import Link from "next/link";
 import { Spinner } from "ui/components/spinner";
 import { BoxIcon } from "lucide-react";
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { DirectMessageContextMenu } from "@/components/menu/DirectMessageMenu";
 import { tv } from "tailwind-variants";
 import { getTimeString } from "ui/utils/time";
-import { GroupWithNotifications } from "server/routers/group/group";
-import { DMChannel } from "server/routers/dm";
+import type { GroupWithNotifications } from "server/routers/group/group";
+import type { DMChannel } from "server/routers/dm";
 import { useRouter } from "next/navigation";
+import { usePageStore } from "@/utils/stores/page";
+import BoardingModal from "@/components/modal/BoardingModal";
 
 const card = tv({
   base: [
-    "relative rounded-xl bg-card p-4 flex flex-row gap-3 transition duration-100 hover:bg-accent",
+    "relative rounded-xl bg-card border p-4 flex flex-row gap-3 transition-colors duration-100 hover:bg-accent",
     "shadow-lg shadow-brand-500/10 dark:shadow-none",
   ],
 });
 
-const BoardingModal = dynamic(() => import("@/components/modal/BoardingModal"));
-const CreateGroupModal = dynamic(
-  () => import("@/components/modal/CreateGroupModal"),
-);
-const JoinGroupModal = dynamic(
-  () => import("@/components/modal/JoinGroupModal"),
-);
-
-type Modal = "create-group" | "join-group" | "boarding";
-
-function Modals({
-  modal,
-  setModal,
-}: {
-  modal?: Modal;
-  setModal: (v?: Modal) => void;
-}) {
-  return (
-    <>
-      <CreateGroupModal
-        open={modal === "create-group"}
-        setOpen={(open) => setModal(open ? "create-group" : undefined)}
-      />
-      <JoinGroupModal
-        open={modal === "join-group"}
-        setOpen={(open) => setModal(open ? "join-group" : undefined)}
-      />
-      <BoardingModal
-        open={modal === "boarding"}
-        setOpen={(open) => setModal(open ? "boarding" : undefined)}
-        onCreateGroup={() => setModal("create-group")}
-      />
-    </>
-  );
-}
-
-export default function Page() {
+function Modals() {
   const router = useRouter();
-  const [modal, setModal] = useState<Modal>();
+  const [setModal] = usePageStore((s) => [s.setModal]);
 
   useEffect(() => {
     const params = new URLSearchParams(document.location.search);
 
     if (params.get("modal") === "new") {
       router.replace("/");
-      setModal("boarding");
+      setModal({ type: "on-boarding" });
     }
   }, [router, setModal]);
 
+  return <BoardingModal />;
+}
+
+export default function Page() {
   return (
     <>
-      <Modals modal={modal} setModal={setModal} />
-      <RecentChat setModal={setModal} />
+      <Modals />
+      <RecentChat />
     </>
   );
 }
 
-function RecentChat({ setModal }: { setModal: (v: Modal) => void }) {
+function RecentChat() {
   const dmQuery = trpc.dm.channels.useQuery(undefined, {
     enabled: false,
   });
@@ -87,20 +56,13 @@ function RecentChat({ setModal }: { setModal: (v: Modal) => void }) {
     enabled: false,
   });
 
-  const onRetry = () => {
+  const onRetry = useCallback(() => {
     void dmQuery.refetch();
     void groups.refetch();
-  };
+  }, [dmQuery, groups]);
 
   return (
-    <main className="p-4">
-      <div className="flex flex-row gap-3">
-        <Button color="primary" onClick={() => setModal("create-group")}>
-          Create Group
-        </Button>
-        <Button onClick={() => setModal("join-group")}>Join Group</Button>
-      </div>
-
+    <main className="flex flex-col gap-6 p-4">
       {dmQuery.isLoading || groups.isLoading ? (
         <div className="mx-auto mt-12">
           <Spinner size="large" />
@@ -116,16 +78,18 @@ function RecentChat({ setModal }: { setModal: (v: Modal) => void }) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-4 mt-6">
-            {dmQuery.data.map((chat) => (
-              <ChatItem key={chat.id} chat={chat} />
-            ))}
-          </div>
-          <h1 className="text-lg font-semibold mt-6">Chat Groups</h1>
+          {dmQuery.data && dmQuery.data.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {dmQuery.data.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+              ))}
+            </div>
+          ) : null}
+          <h1 className="text-lg font-semibold">Chat Groups</h1>
           {groups.data.length === 0 ? (
             <Placeholder />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6 ">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {groups.data.map((group) => (
                 <GroupItem key={group.id} group={group} />
               ))}

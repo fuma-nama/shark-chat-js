@@ -16,11 +16,14 @@ export default function Page() {
   );
 
   return (
-    <div className="flex flex-col p-4">
+    <div className="flex flex-col p-4 gap-4">
+      <p className="text-sm text-muted-foreground">
+        Upload custom emotes and use them in chat.
+      </p>
       <div className="flex flex-row">
         <CreateEmoteModal />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mt-4">
         {query.isLoading && <Spinner className="col-span-full" size="large" />}
         {query.data?.pages.flatMap((block) =>
           block.map((emote) => <Item key={emote.id} emote={emote} />),
@@ -29,7 +32,7 @@ export default function Page() {
       {query.hasNextPage ? (
         <Button
           isLoading={query.isFetchingNextPage}
-          className="mt-4 mx-auto"
+          className="mx-auto"
           onClick={() => query.fetchNextPage()}
         >
           Load More

@@ -1,3 +1,4 @@
+"use client";
 import { trpc } from "@/utils/trpc";
 import { useForm } from "react-hook-form";
 import { Button } from "ui/components/button";
@@ -8,26 +9,26 @@ import { UniqueNameInput } from "../input/UniqueNameInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { uniqueNameSchema } from "shared/schema/group";
 import { z } from "zod";
+import { usePageStore } from "@/utils/stores/page";
 
-export default function JoinGroupModal({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: (v: boolean) => void;
-}) {
+export default function JoinGroupModal() {
+  const [modal, setModal] = usePageStore((s) => [s.modal, s.setModal]);
+
   return (
     <SimpleDialog
       title="Join Group"
       description="Chat with other peoples in the group"
-      open={open}
+      open={modal?.type === "join-group"}
       contentProps={{
         onOpenAutoFocus: (e) => {
           document.getElementById("code")?.focus();
           e.preventDefault();
         },
       }}
-      onOpenChange={setOpen}
+      onOpenChange={(v) => {
+        if (v) setModal({ type: "join-group" });
+        else setModal(undefined);
+      }}
     >
       <Tabs defaultValue="code">
         <TabsList className="grid w-full grid-cols-2 mt-4">
@@ -39,10 +40,10 @@ export default function JoinGroupModal({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="code">
-          <JoinGroupByCode onClose={() => setOpen(false)} />
+          <JoinGroupByCode onClose={() => setModal(undefined)} />
         </TabsContent>
         <TabsContent value="unique_name">
-          <JoinGroupByName onClose={() => setOpen(false)} />
+          <JoinGroupByName onClose={() => setModal(undefined)} />
         </TabsContent>
       </Tabs>
     </SimpleDialog>
