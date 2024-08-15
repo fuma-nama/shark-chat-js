@@ -8,7 +8,7 @@ import { cn } from "../utils/cn";
 import { tv } from "tailwind-variants";
 
 const variants = tv({
-  base: "relative flex cursor-default select-none items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+  base: "relative flex select-none items-center gap-2 rounded-md px-3 py-1.5 text-sm outline-none focus:bg-primary focus:text-primary-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
   variants: {
     color: {
       danger:

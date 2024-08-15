@@ -24,11 +24,11 @@ const avatar = tv({
         fallback: "text-md",
       },
       large: {
-        root: "w-24 h-24",
+        root: "size-24",
         fallback: "text-lg",
       },
       xlarge: {
-        root: "w-32 h-32",
+        root: "size-32",
         fallback: "text-xl",
       },
     },
@@ -79,7 +79,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>((props, ref) => {
         <AvatarBase.Image
           alt={fallback ?? alt ?? "avatar"}
           src={src}
-          className="h-full w-full object-cover bg-brand"
+          className="size-full object-cover bg-brand"
         />
       )}
       <AvatarBase.Fallback className={styles.fallback()} delayMs={0}>

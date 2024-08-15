@@ -63,7 +63,7 @@ function Content({ onClose }: { onClose: () => void }) {
               input={{ id: "icon", ...field }}
               value={value ?? null}
               onChange={onChange}
-              previewClassName="mx-auto w-[120px] aspect-square flex flex-col gap-3 items-center"
+              previewClassName="mx-auto w-[120px] aspect-square flex flex-col gap-3 items-center rounded-full"
             />
           )}
         />

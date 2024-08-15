@@ -16,7 +16,13 @@ import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
-import { forwardRef, type ReactNode, useCallback, useEffect } from "react";
+import {
+  type AnchorHTMLAttributes,
+  forwardRef,
+  type ReactNode,
+  useCallback,
+  useEffect,
+} from "react";
 import { Spinner } from "ui/components/spinner";
 import { useMessageStore } from "@/utils/stores/chat";
 import { button } from "ui/components/button";
@@ -119,7 +125,7 @@ function Nav() {
         >
           <Plus className="size-4 text-muted-foreground" />
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
           <DropdownMenuItem onClick={() => setModal({ type: "create-group" })}>
             Create
           </DropdownMenuItem>
@@ -190,38 +196,42 @@ function LinkItem({
   );
 }
 
-interface ChatItemProps {
+interface ChatItemProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   active: boolean;
+
+  href: string;
   channelId: string;
   description?: string;
-  href: string;
   image: string | null;
   children: string;
   notifications: number;
 }
 
 const ChatItem = forwardRef<HTMLAnchorElement, ChatItemProps>(
-  (
-    { active, href, image, description, children, notifications, channelId },
-    ref,
-  ) => {
+  ({ active, notifications, channelId, image, description, ...props }, ref) => {
     const lastMessage = useMessageStore((s) => s.messages[channelId]?.at(-1));
 
     return (
       <Link
         ref={ref}
-        href={href}
         scroll={false}
+        {...props}
         className={cn(
           "flex flex-row items-center gap-2 px-3 -mx-2 py-2 rounded-xl text-sm transition-colors select-none",
           active
             ? "bg-accent text-accent-foreground"
             : "text-muted-foreground hover:bg-accent/50",
+          props.className,
         )}
       >
-        <Avatar src={image} fallback={children} size="small" rounded="full" />
+        <Avatar
+          src={image}
+          fallback={props.children}
+          size="small"
+          rounded="full"
+        />
         <div className="w-0 flex-1">
-          <p className="font-medium truncate">{children}</p>
+          <p className="font-medium truncate">{props.children}</p>
           <p className="text-muted-foreground text-xs truncate">
             {lastMessage?.content ?? description}
           </p>
@@ -240,7 +250,7 @@ ChatItem.displayName = "ChatItem";
 
 function BottomCard() {
   const { status, profile } = useProfile();
-  if (status !== "authenticated") return <></>;
+  if (status !== "authenticated") return null;
 
   return (
     <div className="sticky bottom-0 bg-card mt-auto -mx-2 pb-2">

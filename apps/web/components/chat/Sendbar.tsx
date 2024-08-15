@@ -105,7 +105,7 @@ export function Sendbar({ channelId }: { channelId: string }) {
     <div className="relative bg-background sm:px-4 sm:pb-4">
       <RollbackButton />
       <FormProvider {...form}>
-        <div className="flex flex-col gap-3 pt-2 pb-7 px-3.5 bg-muted/50 sm:rounded-3xl sm:bg-secondary sm:p-2">
+        <div className="flex flex-col gap-3 pt-2 pb-7 px-3.5 border bg-muted/50 sm:rounded-3xl sm:bg-card sm:p-2">
           <TypingIndicator channelId={channelId} />
           <Reference channelId={channelId} />
           <AttachmentPicker control={form.control} />

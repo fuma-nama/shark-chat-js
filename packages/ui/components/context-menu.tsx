@@ -5,7 +5,7 @@ import { tv, VariantProps } from "tailwind-variants";
 export const contextMenu = tv({
   slots: {
     content:
-      "bg-popover shadow-xl text-popover-foreground text-sm shadow-brand-500/10 rounded-2xl p-2 z-[100] dark:shadow-black/20",
+      "bg-popover shadow-lg border text-popover-foreground text-sm rounded-lg p-1 z-10",
   },
 });
 
@@ -13,15 +13,15 @@ export type MenuItemVariants = VariantProps<typeof menuItem>;
 export const menuItem = tv({
   slots: {
     root: [
-      "flex flex-row items-center gap-12 pl-6 pr-2 py-1 rounded-md cursor-pointer radix-disabled:cursor-not-allowed radix-disabled:opacity-50",
+      "flex flex-row items-center gap-12 px-3 py-1 rounded-md cursor-pointer radix-disabled:cursor-not-allowed radix-disabled:opacity-50",
     ],
-    label: "flex flex-row gap-2 items-center -ml-5",
+    label: "flex flex-row gap-2 items-center",
     right: "ml-auto text-muted-foreground group-radix-highlighted:text-white",
   },
   variants: {
     color: {
       secondary: {
-        root: "radix-highlighted:text-accent-foreground radix-highlighted:bg-accent radix-highlighted:outline-none",
+        root: "radix-highlighted:text-primary-foreground radix-highlighted:bg-primary radix-highlighted:outline-none",
       },
       danger: {
         root: [

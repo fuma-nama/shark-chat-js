@@ -11,9 +11,9 @@
     --destructive-foreground: 210 20% 98%;
 
     --secondary-foreground: 230 53% 23%;
-    --secondary: 213 27% 98%;
+    --secondary: 256 70% 95%;
 
-    --accent: 214 32% 91%;
+    --accent: 256 30% 94%;
 
     --primary-foreground: 210 20% 98%;
     --primary: 250 86% 46%;
@@ -28,7 +28,7 @@
     --background: 210 40% 96%;
 
     --brand: 250 86% 46%;
-    --border: 213 27% 84%;
+    --border: 213 27% 86%;
   }
 
   .dark {
@@ -49,8 +49,8 @@
     --card: 227 50% 9%;
     --card-foreground: 210 20% 98%;
 
-    --popover: 227 50% 9%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 227 40% 13%;
+    --popover-foreground: 210 30% 79%;
 
     --foreground: 210 20% 98%;
     --background: 228 50% 6%;

@@ -89,7 +89,7 @@ export function ImagePicker({
         <label
           aria-label="Pick Image"
           htmlFor={id}
-          className="flex flex-col gap-3 items-center justify-center p-2 size-full bg-muted text-center text-muted-foreground/70 cursor-pointer"
+          className="flex items-center justify-center p-2 size-full bg-background cursor-pointer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +102,6 @@ export function ImagePicker({
             <path d="m8 11-3 4h11l-4-6-3 4z"></path>
             <path d="M19 14h-2v3h-3v2h3v3h2v-3h3v-2h-3z"></path>
           </svg>
-          <p className="text-xs">Select Image</p>
         </label>
       )}
     </div>
