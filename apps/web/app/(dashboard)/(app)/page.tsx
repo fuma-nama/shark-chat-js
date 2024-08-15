@@ -23,32 +23,8 @@ const card = tv({
   ],
 });
 
-function Modals() {
-  const router = useRouter();
-  const [setModal] = usePageStore((s) => [s.setModal]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(document.location.search);
-
-    if (params.get("modal") === "new") {
-      router.replace("/");
-      setModal({ type: "on-boarding" });
-    }
-  }, [router, setModal]);
-
-  return <BoardingModal />;
-}
-
 export default function Page() {
-  return (
-    <>
-      <Modals />
-      <RecentChat />
-    </>
-  );
-}
-
-function RecentChat() {
+  const router = useRouter();
   const setModal = usePageStore((s) => s.setModal);
   const dmQuery = trpc.dm.channels.useQuery(undefined, {
     enabled: false,
@@ -62,8 +38,42 @@ function RecentChat() {
     void groups.refetch();
   }, [dmQuery, groups]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(document.location.search);
+
+    if (params.get("modal") === "new") {
+      router.replace("/");
+      setModal({ type: "on-boarding" });
+    }
+  }, [router, setModal]);
+
   return (
     <main className="flex flex-col gap-6 p-4">
+      <div className="text-sm bg-card text-card-foreground border rounded-lg p-4">
+        <p className="font-medium mb-1">
+          Made with love by{" "}
+          <a
+            href="https://fuma-nama.vercel.app"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            Fuma
+          </a>
+        </p>
+        <p className="text-muted-foreground text-xs">
+          Consider to support this project by{" "}
+          <a
+            href="https://github.com/fuma-nama/shark-chat-js"
+            rel="noreferrer noopener"
+            target="_blank"
+            className="underline font-medium text-foreground"
+          >
+            giving a star on GitHub
+          </a>
+          !
+        </p>
+      </div>
+      <BoardingModal />
       <div className="flex flex-row gap-2 md:hidden">
         <Button
           color="primary"

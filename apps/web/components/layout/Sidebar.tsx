@@ -16,7 +16,7 @@ import { trpc } from "@/utils/trpc";
 import { cn } from "ui/utils/cn";
 import { groupIcon } from "shared/media/format";
 import { DirectMessageContextMenu } from "../menu/DirectMessageMenu";
-import { ReactNode, useCallback, useEffect } from "react";
+import { forwardRef, type ReactNode, useCallback, useEffect } from "react";
 import { Spinner } from "ui/components/spinner";
 import { useMessageStore } from "@/utils/stores/chat";
 import { button } from "ui/components/button";
@@ -190,15 +190,7 @@ function LinkItem({
   );
 }
 
-function ChatItem({
-  active,
-  href,
-  image,
-  description,
-  children,
-  notifications,
-  channelId,
-}: {
+interface ChatItemProps {
   active: boolean;
   channelId: string;
   description?: string;
@@ -206,35 +198,45 @@ function ChatItem({
   image: string | null;
   children: string;
   notifications: number;
-}) {
-  const lastMessage = useMessageStore((s) => s.messages[channelId]?.at(-1));
-
-  return (
-    <Link
-      href={href}
-      scroll={false}
-      className={cn(
-        "flex flex-row items-center gap-2 px-3 -mx-2 py-2 rounded-xl text-sm transition-colors select-none",
-        active
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/50",
-      )}
-    >
-      <Avatar src={image} fallback={children} size="small" rounded="full" />
-      <div className="w-0 flex-1">
-        <p className="font-medium truncate">{children}</p>
-        <p className="text-muted-foreground text-xs truncate">
-          {lastMessage?.content ?? description}
-        </p>
-      </div>
-      {notifications > 0 && (
-        <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
-          {notifications}
-        </div>
-      )}
-    </Link>
-  );
 }
+
+const ChatItem = forwardRef<HTMLAnchorElement, ChatItemProps>(
+  (
+    { active, href, image, description, children, notifications, channelId },
+    ref,
+  ) => {
+    const lastMessage = useMessageStore((s) => s.messages[channelId]?.at(-1));
+
+    return (
+      <Link
+        ref={ref}
+        href={href}
+        scroll={false}
+        className={cn(
+          "flex flex-row items-center gap-2 px-3 -mx-2 py-2 rounded-xl text-sm transition-colors select-none",
+          active
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:bg-accent/50",
+        )}
+      >
+        <Avatar src={image} fallback={children} size="small" rounded="full" />
+        <div className="w-0 flex-1">
+          <p className="font-medium truncate">{children}</p>
+          <p className="text-muted-foreground text-xs truncate">
+            {lastMessage?.content ?? description}
+          </p>
+        </div>
+        {notifications > 0 && (
+          <div className="text-primary-foreground bg-primary text-xs rounded-full px-1.5 py-0.5 ml-auto">
+            {notifications}
+          </div>
+        )}
+      </Link>
+    );
+  },
+);
+
+ChatItem.displayName = "ChatItem";
 
 function BottomCard() {
   const { status, profile } = useProfile();
