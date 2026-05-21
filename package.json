@@ -11,14 +11,14 @@
     "db:generate": "dotenv -- drizzle-kit generate --config ./packages/db/drizzle.config.ts",
     "prettier": "prettier . -w -l"
   },
-  "packageManager": "pnpm@8.2.0",
+  "packageManager": "pnpm@11.1.3",
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.14",
     "autoprefixer": "^10.4.20",
     "dotenv-cli": "^7.4.2",
     "drizzle-kit": "^0.24.0",
-    "eslint": "8.57.0",
-    "eslint-config-next": "14.2.5",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
     "pg": "^8.12.0",
     "postcss": "^8.4.41",
     "prettier": "^3.3.3",
