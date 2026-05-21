@@ -1,4 +1,4 @@
-import { Adapter, AdapterUser, VerificationToken } from "next-auth/adapters";
+import { Adapter, AdapterAccount, AdapterUser, VerificationToken } from "next-auth/adapters";
 import db from "db/client";
 import { accounts, members, sessions, users } from "db/schema";
 import { and, eq } from "drizzle-orm";
@@ -26,7 +26,7 @@ export const authAdapter: Adapter = {
       .where(eq(users.email, email))
       .then((res) => oneOrNull(res) as AdapterUser | null);
   },
-  async createUser(user) {
+  async createUser(user: Omit<AdapterUser, "id">) {
     const id = createId();
 
     await db.insert(users).values({
@@ -82,7 +82,7 @@ export const authAdapter: Adapter = {
 
     await db.delete(sessions).where(eq(sessions.userId, id));
   },
-  async linkAccount(data) {
+  async linkAccount(data: AdapterAccount) {
     const id = createId();
 
     await db.insert(accounts).values({
